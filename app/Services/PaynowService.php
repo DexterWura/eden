@@ -28,12 +28,28 @@ class PaynowService
         $builder->add($this->paymentDescription($payment), (float) $payment->amount);
         $response = $paynow->send($builder);
 
+        $redirectLink = $response->success() ? $response->redirectLink() : null;
+        $safeRedirect = $redirectLink ? $this->getSafeRedirectUrl($redirectLink) : null;
+
         return [
             'success' => $response->success(),
-            'redirect_link' => $response->success() ? $response->redirectLink() : null,
+            'redirect_link' => $safeRedirect,
             'poll_url' => $response->success() ? $response->pollUrl() : null,
             'error' => $response->success() ? null : 'Payment initiation failed',
         ];
+    }
+
+    /** Return URL only if host is in allowlist; otherwise null to prevent open redirect. */
+    public function getSafeRedirectUrl(string $url): ?string
+    {
+        $hosts = config('services.paynow.allowed_redirect_hosts', ['paynow.co.zw', 'www.paynow.co.zw']);
+        $parsed = parse_url($url);
+        $host = isset($parsed['host']) ? strtolower($parsed['host']) : '';
+        if ($host === '' || ! in_array($host, $hosts, true)) {
+            return null;
+        }
+
+        return $url;
     }
 
     public function pollTransaction(string $pollUrl): ?StatusResponse

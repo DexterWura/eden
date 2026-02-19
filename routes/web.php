@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\Route;
 
 if (! config('eden.installed') && ! env('EDEN_INSTALLED')) {
     Route::get('/install', [InstallController::class, 'index'])->name('install');
-    Route::post('/install', [InstallController::class, 'store'])->name('install.store');
+    Route::post('/install', [InstallController::class, 'store'])->name('install.store')->middleware('throttle:3,1');
     Route::get('/', fn () => redirect()->route('install'));
     Route::get('/{any}', fn () => redirect()->route('install'))->where('any', '.*');
     return;
@@ -61,7 +61,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
     Route::get('/pro', [\App\Http\Controllers\ProController::class, 'index'])->name('pro.index');
-    Route::post('/pro/checkout', [\App\Http\Controllers\ProController::class, 'checkout'])->name('pro.checkout');
+    Route::post('/pro/checkout', [\App\Http\Controllers\ProController::class, 'checkout'])->name('pro.checkout')->middleware('throttle:5,1');
     Route::get('/payment/return/{payment}', [\App\Http\Controllers\ProController::class, 'return'])->name('payment.return');
     Route::get('/my/blog', [\App\Http\Controllers\MyBlogController::class, 'index'])->name('my.blog.index')->middleware('can:blog');
     Route::get('/my/blog/create', [\App\Http\Controllers\MyBlogController::class, 'create'])->name('my.blog.create')->middleware('can:blog');

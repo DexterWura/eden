@@ -38,6 +38,7 @@ class SettingController extends Controller
             'timezone' => 'required|string|max:50',
             'adsense_client_id' => 'nullable|string|max:255',
             'theme' => 'required|string|in:' . implode(',', $themes),
+            'site_logo' => 'nullable|image|max:2048',
         ]);
 
         $setting = app(SettingService::class);

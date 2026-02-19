@@ -3,6 +3,22 @@
 use App\Models\Ad;
 use App\Services\SettingService;
 
+if (! function_exists('ad_sanitize_html')) {
+    /** Strip scripts and dangerous attributes from ad HTML to prevent stored XSS. */
+    function ad_sanitize_html(?string $html): string
+    {
+        if ($html === null || $html === '') {
+            return '';
+        }
+        $allowed = '<a><strong><em><b><i><span><p><br><ul><ol><li>';
+        $out = strip_tags($html, $allowed);
+        $out = (string) preg_replace('/\s*on\w+\s*=\s*["\']?[^"\'>]*["\']?/iu', '', $out);
+        $out = (string) preg_replace('/href\s*=\s*["\']\s*javascript:[^"\']*["\']/iu', 'href="#"', $out);
+
+        return $out;
+    }
+}
+
 if (! function_exists('ad_slot')) {
     function ad_slot(string $slot): string
     {
@@ -25,7 +41,7 @@ if (! function_exists('ad_slot')) {
 
             if ($ad->type === Ad::TYPE_ZIMADSENSE || $ad->type === Ad::TYPE_CUSTOM) {
                 $style = ($ad->width && $ad->height) ? " width:{$ad->width}px;height:{$ad->height}px;" : '';
-                return '<div class="eden-ad-slot" style="' . $style . '">' . $ad->content . '</div>';
+                return '<div class="eden-ad-slot" style="' . $style . '">' . ad_sanitize_html($ad->content) . '</div>';
             }
         }
 

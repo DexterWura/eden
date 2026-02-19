@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 
 class MigrationController extends Controller
 {
@@ -36,7 +37,12 @@ class MigrationController extends Controller
             $output = Artisan::output();
             return redirect()->route('admin.migrations.index')->with('success', 'Migrations run successfully.');
         } catch (\Throwable $e) {
-            return redirect()->route('admin.migrations.index')->with('error', 'Migration failed: ' . $e->getMessage());
+            Log::error('Migration failed', ['exception' => $e]);
+            $message = app()->environment('local')
+                ? 'Migration failed: ' . $e->getMessage()
+                : 'Migration failed. Check logs.';
+
+            return redirect()->route('admin.migrations.index')->with('error', $message);
         }
     }
 }

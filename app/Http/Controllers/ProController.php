@@ -83,7 +83,12 @@ class ProController extends Controller
                 'gateway_response' => json_encode(['poll_url' => $result['poll_url']]),
             ]);
 
-            return redirect()->away($result['redirect_link']);
+            if (! empty($result['redirect_link'])) {
+                return redirect()->away($result['redirect_link']);
+            }
+            $payment->update(['status' => FeaturePayment::STATUS_FAILED]);
+
+            return redirect()->route('pro.index')->with('error', 'Payment redirect was not from a trusted source. Please try again.');
         }
 
         if ($gateway === 'paypal') {
