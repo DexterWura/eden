@@ -20,7 +20,8 @@ Laravel-based directory for tech startups, SaaS, and online businesses. Theme: "
 | **Submit startup** | `/startups/create` — anyone can submit; goes to pending until admin approves. Rate limited (5/hour). |
 | **Category pages** | `/category/{slug}` — startups in that category. |
 | **Newsletter** | Footer form to subscribe; signed unsubscribe link in each email. Rate limited (5/min). |
-| **Sitemap** | `/sitemap.xml` — home, startups list, all startup and category URLs. |
+| **Blog** | `/blog` — public list of published posts; `/blog/{slug}` — post detail with meta description and JSON-LD (Article). |
+| **Sitemap** | `/sitemap.xml` — home, startups list, blog list, all startup, category, and blog post URLs. |
 | **Robots** | `/robots.txt` — allow /; disallow /admin, /install, /login, /register; sitemap URL. |
 | **Themes** | Admin selects theme in Settings; default **Basic**. CSS per theme in `public/css/themes/{name}.css`. |
 
@@ -34,7 +35,9 @@ Laravel-based directory for tech startups, SaaS, and online businesses. Theme: "
 | **Forgot password** | `/forgot-password` — send reset link by email. Rate limited (3/min). |
 | **Reset password** | `/reset-password/{token}` — set new password. Requires mail configured. |
 | **My startups** | `/my/startups` — list and edit startups you own (claimed or created). Owners only; no access to `/admin`. |
-| **Admin area** | `/admin` — only users with admin role. Dashboard, startups, submissions, categories, ads, settings, migrations, health, pruning. |
+| **My blog** | `/my/blog` — list, create, edit, delete your posts (if you have blogging access). Blogging can be a paid pro feature. |
+| **Pro & payments** | `/pro` — view pro features and prices; checkout via PayPal or PayNow (Zimbabwe). Admin marks each feature as pro or free and sets prices. |
+| **Admin area** | `/admin` — only users with admin role. Dashboard, startups, submissions, categories, ads, blog list, gateways, mail, social, settings, migrations, health, pruning. |
 
 ### Startup lifecycle & ownership
 
@@ -56,6 +59,9 @@ Laravel-based directory for tech startups, SaaS, and online businesses. Theme: "
 | **Submissions** | Pending submissions; approve or reject. |
 | **Categories** | CRUD categories (name, slug, icon path). |
 | **Ads** | CRUD ad units. Slots: above fold, in-feed, sidebar, in-content. Types: AdSense, ZimAdsense, custom. Global AdSense client in Settings; fallback when unit inactive. |
+| **Gateways & Pro** | PayPal client ID/secret; PayNow (Zimbabwe) integration ID/key. Per-feature: mark as pro or free; set price (e.g. for blogging). |
+| **Mail** | Choose driver: SMTP or PHP mail. Set host, port, from address, encryption; used for password reset, reminder emails, newsletter. |
+| **Social** | LinkedIn, Facebook, Instagram app ID and secret (for future OAuth/enrichment). Founders and startups set their own social profile URLs on startup edit. |
 | **Settings** | Site name, App URL, timezone, logo upload, AdSense client ID, **Site theme**. |
 | **Migrations** | List pending/modified migrations; run migrations from UI (no SSH). |
 | **Pruning** | Filter by URL pattern or empty description; bulk delete startups. |
@@ -74,7 +80,7 @@ Laravel-based directory for tech startups, SaaS, and online businesses. Theme: "
 
 | Feature | Description |
 |--------|-------------|
-| **Rate limits** | Login/register 5/min; startup submit 5/hour; newsletter 5/min; forgot password 3/min. |
+| **Rate limits** | Login/register 5/min; startup submit 5/hour; newsletter 5/min; forgot password 3/min; pro checkout 5/min; install POST 3/min. |
 | **CSRF** | All forms; session regeneration on login/logout. |
 | **Access** | Admin middleware on `/admin`; owner edits only own startups via `/my/startups`. |
 
@@ -225,7 +231,7 @@ flowchart LR
 ## Planned (not implemented)
 
 - Tailwind CSS / Alpine.js; Spatie Media Library / WebP; Redis.
-- Comments/reviews; DNS or file verification; auto-approval; paid featured listings; premium analytics; sponsored labels; verified investors; multiple admins per startup; OAuth; blog; public API; social sharing; advanced animations.
+- Comments/reviews; DNS or file verification; auto-approval; paid featured listings; premium analytics; sponsored labels; verified investors; multiple admins per startup; OAuth login (e.g. Login with Google); public API; social sharing buttons; advanced animations.
 
 ---
 
@@ -299,5 +305,5 @@ If mail is not configured, password reset links will not be sent and reminder/ne
 
 ## Development reference
 
-- **Database:** Users, Startups, Categories, Claims, Votes, Ads, Settings, NewsletterSubscriber, GrowthLog (and migrations). Status lifecycle: seedling → sapling → flourishing; wilted when URL is down.
-- **Key routes:** `/`, `/startups`, `/startups/create`, `/startups/{slug}`, `/category/{slug}`, `/claim/{slug}`, `/login`, `/register`, `/forgot-password`, `/reset-password/{token}`, `/my/startups` (owner), `/admin` (admin only), `/sitemap.xml`, `/robots.txt`, `/install` (until installed).
+- **Database:** Users, Startups, Categories, Claims, Votes, Ads, Settings, NewsletterSubscriber, GrowthLog, BlogPost, FeaturePayment (and migrations). Status lifecycle: seedling → sapling → flourishing; wilted when URL is down.
+- **Key routes:** `/`, `/startups`, `/startups/create`, `/startups/{slug}`, `/category/{slug}`, `/blog`, `/blog/{slug}`, `/claim/{slug}`, `/pro`, `/pro/checkout`, `/payment/return/{payment}`, `/login`, `/register`, `/forgot-password`, `/reset-password/{token}`, `/my/startups`, `/my/blog` (owner), `/admin` (admin only), `/admin/gateways`, `/admin/mail`, `/admin/social`, `/sitemap.xml`, `/robots.txt`, `/install` (until installed).
