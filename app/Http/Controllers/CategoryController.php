@@ -8,9 +8,8 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    public function show(string $slug, Request $request)
+    public function show(Category $category, Request $request)
     {
-        $category = Category::where('slug', $slug)->firstOrFail();
         $startups = Startup::approved()
             ->where('category_id', $category->id)
             ->with('category')

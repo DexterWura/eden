@@ -30,17 +30,21 @@ class StartupController extends Controller
             });
         }
 
-        $startups = $query->orderByDesc('approved_at')->paginate(12);
+        $startups = $query->orderByDesc('approved_at')->withCount('votes')->paginate(12);
         $categories = Category::orderBy('name')->get();
 
         return view('startups.index', compact('startups', 'categories'));
     }
 
-    public function show(string $slug)
+    public function show(Startup $startup)
     {
-        $startup = Startup::approved()->where('slug', $slug)->with('category', 'user')->firstOrFail();
+        if (! $startup->approved_at) {
+            abort(404);
+        }
+        $startup->load(['category', 'user']);
         $startup->increment('view_count');
         $startup->loadCount('votes');
+
         return view('startups.show', compact('startup'));
     }
 

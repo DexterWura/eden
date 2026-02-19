@@ -10,9 +10,6 @@ class PruningController extends Controller
 {
     public function index(Request $request)
     {
-        if (! auth()->user()->isAdmin()) {
-            abort(403);
-        }
         $query = Startup::query();
         if ($request->filled('url_pattern')) {
             $query->where('url', 'like', $request->url_pattern);
@@ -28,9 +25,6 @@ class PruningController extends Controller
 
     public function destroy(Request $request)
     {
-        if (! auth()->user()->isAdmin()) {
-            abort(403);
-        }
         $request->validate([
             'ids' => 'required|array|min:1',
             'ids.*' => 'exists:startups,id',

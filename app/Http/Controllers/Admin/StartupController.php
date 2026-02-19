@@ -13,9 +13,6 @@ class StartupController extends Controller
     public function index(Request $request)
     {
         $query = Startup::with('category', 'user');
-        if (! auth()->user()->isAdmin()) {
-            $query->where('user_id', auth()->id());
-        }
         if ($request->filled('q')) {
             $q = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $request->q);
             $query->where(function ($qry) use ($q) {
@@ -30,9 +27,6 @@ class StartupController extends Controller
 
     public function create()
     {
-        if (! auth()->user()->isAdmin()) {
-            abort(403);
-        }
         $categories = Category::orderBy('name')->get();
         $platforms = config('social_platforms.platforms', []);
         return view('admin.startups.create', compact('categories', 'platforms'));
@@ -40,9 +34,6 @@ class StartupController extends Controller
 
     public function store(Request $request)
     {
-        if (! auth()->user()->isAdmin()) {
-            abort(403);
-        }
         $rules = [
             'name' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255',
@@ -87,9 +78,6 @@ class StartupController extends Controller
 
     public function edit(Startup $startup)
     {
-        if (! auth()->user()->isAdmin() && $startup->user_id !== auth()->id()) {
-            abort(403);
-        }
         $categories = Category::orderBy('name')->get();
         $platforms = config('social_platforms.platforms', []);
         return view('admin.startups.edit', compact('startup', 'categories', 'platforms'));
@@ -97,9 +85,6 @@ class StartupController extends Controller
 
     public function update(Request $request, Startup $startup)
     {
-        if (! auth()->user()->isAdmin() && $startup->user_id !== auth()->id()) {
-            abort(403);
-        }
         $rules = [
             'name' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:startups,slug,' . $startup->id,
@@ -131,27 +116,18 @@ class StartupController extends Controller
 
     public function destroy(Startup $startup)
     {
-        if (! auth()->user()->isAdmin() && $startup->user_id !== auth()->id()) {
-            abort(403);
-        }
         $startup->delete();
         return redirect()->route('admin.startups.index')->with('success', 'Startup deleted.');
     }
 
     public function approve(Startup $startup)
     {
-        if (! auth()->user()->isAdmin()) {
-            abort(403);
-        }
         $startup->update(['approved_at' => now(), 'last_updated_at' => now()]);
         return back()->with('success', 'Startup approved.');
     }
 
     public function reject(Startup $startup)
     {
-        if (! auth()->user()->isAdmin()) {
-            abort(403);
-        }
         $startup->update(['approved_at' => null]);
         return back()->with('success', 'Startup rejected.');
     }

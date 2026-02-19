@@ -39,7 +39,7 @@
                     @if($s->user_id)<span class="badge badge-verified">Verified</span>@endif
                     @if($s->mrr)<span class="card-mrr">MRR: ${{ number_format($s->mrr) }}</span>@endif
                 </div>
-                <p class="card-votes"><strong>{{ $s->votes_count ?? $s->votes()->count() }}</strong> upvotes</p>
+                <p class="card-votes"><strong>{{ $s->votes_count }}</strong> upvotes</p>
             </a>
         @endforeach
     </div>

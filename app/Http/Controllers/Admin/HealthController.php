@@ -10,9 +10,6 @@ class HealthController extends Controller
 {
     public function index()
     {
-        if (! auth()->user()->isAdmin()) {
-            abort(403);
-        }
         $lastHealthCheck = Cache::get('eden_last_health_check');
         $lastCleanup = Cache::get('eden_last_cleanup');
         $lastReminder = Cache::get('eden_last_reminder');
@@ -22,9 +19,6 @@ class HealthController extends Controller
 
     public function run(string $command)
     {
-        if (! auth()->user()->isAdmin()) {
-            abort(403);
-        }
         $allowed = ['health-check', 'cleanup', 'remind-updates', 'newsletter'];
         if (! in_array($command, $allowed, true)) {
             return back()->with('error', 'Invalid command.');

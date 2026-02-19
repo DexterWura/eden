@@ -11,26 +11,17 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        if (! auth()->user()->isAdmin()) {
-            abort(403);
-        }
         $categories = Category::withCount('startups')->orderBy('name')->paginate(20);
         return view('admin.categories.index', compact('categories'));
     }
 
     public function create()
     {
-        if (! auth()->user()->isAdmin()) {
-            abort(403);
-        }
         return view('admin.categories.create');
     }
 
     public function store(Request $request)
     {
-        if (! auth()->user()->isAdmin()) {
-            abort(403);
-        }
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255',
@@ -46,17 +37,11 @@ class CategoryController extends Controller
 
     public function edit(Category $category)
     {
-        if (! auth()->user()->isAdmin()) {
-            abort(403);
-        }
         return view('admin.categories.edit', compact('category'));
     }
 
     public function update(Request $request, Category $category)
     {
-        if (! auth()->user()->isAdmin()) {
-            abort(403);
-        }
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:categories,slug,' . $category->id,
@@ -68,9 +53,6 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
-        if (! auth()->user()->isAdmin()) {
-            abort(403);
-        }
         $category->delete();
         return redirect()->route('admin.categories.index')->with('success', 'Category deleted.');
     }

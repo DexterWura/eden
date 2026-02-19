@@ -11,9 +11,6 @@ class SettingController extends Controller
 {
     public function index()
     {
-        if (! auth()->user()->isAdmin()) {
-            abort(403);
-        }
         $setting = app(SettingService::class);
         return view('admin.settings.index', [
             'site_name' => $setting->get('site_name', config('app.name')),
@@ -28,9 +25,6 @@ class SettingController extends Controller
 
     public function update(Request $request)
     {
-        if (! auth()->user()->isAdmin()) {
-            abort(403);
-        }
         $themes = array_keys(config('themes.themes', ['basic' => 'Basic']));
         $validated = $request->validate([
             'site_name' => 'required|string|max:255',

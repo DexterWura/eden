@@ -11,9 +11,6 @@ class AdController extends Controller
 {
     public function index()
     {
-        if (! auth()->user()->isAdmin()) {
-            abort(403);
-        }
         $ads = Ad::orderBy('slot')->orderBy('id')->get()->groupBy('slot');
         $setting = app(SettingService::class);
         $adsenseClientId = $setting->get('adsense_client_id');
@@ -22,17 +19,11 @@ class AdController extends Controller
 
     public function create()
     {
-        if (! auth()->user()->isAdmin()) {
-            abort(403);
-        }
         return view('admin.ads.create');
     }
 
     public function store(Request $request)
     {
-        if (! auth()->user()->isAdmin()) {
-            abort(403);
-        }
         $validated = $request->validate([
             'slot' => 'required|in:above_fold,in_feed,sidebar,in_content',
             'type' => 'required|in:adsense,zimadsense,custom',
@@ -52,17 +43,11 @@ class AdController extends Controller
 
     public function edit(Ad $ad)
     {
-        if (! auth()->user()->isAdmin()) {
-            abort(403);
-        }
         return view('admin.ads.edit', compact('ad'));
     }
 
     public function update(Request $request, Ad $ad)
     {
-        if (! auth()->user()->isAdmin()) {
-            abort(403);
-        }
         $validated = $request->validate([
             'slot' => 'required|in:above_fold,in_feed,sidebar,in_content',
             'type' => 'required|in:adsense,zimadsense,custom',
@@ -82,9 +67,6 @@ class AdController extends Controller
 
     public function destroy(Ad $ad)
     {
-        if (! auth()->user()->isAdmin()) {
-            abort(403);
-        }
         $ad->delete();
         return redirect()->route('admin.ads.index')->with('success', 'Ad deleted.');
     }

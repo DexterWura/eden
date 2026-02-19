@@ -10,9 +10,6 @@ class MigrationController extends Controller
 {
     public function index()
     {
-        if (! auth()->user()->isAdmin()) {
-            abort(403);
-        }
         Artisan::call('migrate:status');
         $output = Artisan::output();
         $pending = [];
@@ -29,9 +26,6 @@ class MigrationController extends Controller
 
     public function run()
     {
-        if (! auth()->user()->isAdmin()) {
-            abort(403);
-        }
         try {
             Artisan::call('migrate', ['--force' => true]);
             $output = Artisan::output();

@@ -78,7 +78,7 @@
             @if($startup->is_for_sale)
                 <p><a href="https://flipit.co.zw" target="_blank" rel="noopener" class="btn btn-gold">For sale (Flipit.co.zw)</a></p>
             @endif
-            <p class="startup-votes-row"><strong>{{ $startup->votes_count ?? $startup->votes()->count() }}</strong> upvotes</p>
+            <p class="startup-votes-row"><strong>{{ $startup->votes_count }}</strong> upvotes</p>
             @auth
                 @if($startup->user_id !== auth()->id())
                     <form action="{{ route('vote.store', $startup) }}" method="POST" class="form-inline">

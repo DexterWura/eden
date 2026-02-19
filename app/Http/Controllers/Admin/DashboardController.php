@@ -9,9 +9,6 @@ class DashboardController extends Controller
 {
     public function __invoke()
     {
-        if (! auth()->user()->isAdmin()) {
-            return redirect()->route('admin.startups.index');
-        }
         $totalStartups = Startup::count();
         $pendingSubmissions = Startup::whereNull('approved_at')->whereNotNull('submitted_at')->count();
         $claimed = Startup::whereNotNull('user_id')->count();
