@@ -47,6 +47,29 @@
                 <div class="startup-description-block">{!! nl2br(e($rest)) !!}</div>
             @endif
             @if($startup->founder)<p><strong>Founder:</strong> {{ $startup->founder }}</p>@endif
+            @php
+                $platforms = config('social_platforms.platforms', []);
+                $founderSocials = array_filter($startup->founder_socials ?? []);
+                $startupSocials = array_filter($startup->startup_socials ?? []);
+            @endphp
+            @if(!empty($founderSocials))
+                <p><strong>Connect with founder:</strong>
+                    @foreach($founderSocials as $key => $url)
+                        @if(!empty($url) && isset($platforms[$key]))
+                            <a href="{{ $url }}" target="_blank" rel="noopener noreferrer">{{ $platforms[$key]['name'] }}</a>@if(!$loop->last)<span class="social-sep"> · </span>@endif
+                        @endif
+                    @endforeach
+                </p>
+            @endif
+            @if(!empty($startupSocials))
+                <p><strong>Follow:</strong>
+                    @foreach($startupSocials as $key => $url)
+                        @if(!empty($url) && isset($platforms[$key]))
+                            <a href="{{ $url }}" target="_blank" rel="noopener noreferrer">{{ $platforms[$key]['name'] }}</a>@if(!$loop->last)<span class="social-sep"> · </span>@endif
+                        @endif
+                    @endforeach
+                </p>
+            @endif
             @if($startup->tags)
                 <p><strong>Tags:</strong> {{ $startup->tags }}</p>
             @endif
@@ -66,7 +89,7 @@
                 @if(!$startup->user_id || $startup->user_id !== auth()->id())
                     <a href="{{ route('claim.create', $startup->slug) }}" class="btn btn-gold">Claim this startup</a>
                 @elseif($startup->user_id === auth()->id())
-                    <a href="{{ route('admin.startups.edit', $startup) }}" class="btn">Edit</a>
+                    <a href="{{ route('my.startups.edit', $startup->slug) }}" class="btn">Edit</a>
                 @endif
             @else
                 <p><a href="{{ route('login') }}">Login</a> to upvote or claim.</p>

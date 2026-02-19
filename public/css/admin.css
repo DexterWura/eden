@@ -470,6 +470,18 @@ form textarea {
     margin-top: 32px;
 }
 
+.page-sub {
+    color: var(--ga-text-secondary);
+    margin-bottom: 24px;
+}
+
+.form-hint {
+    display: block;
+    color: var(--ga-text-secondary);
+    font-size: 12px;
+    margin-top: 4px;
+}
+
 .text-danger {
     color: var(--ga-danger);
 }

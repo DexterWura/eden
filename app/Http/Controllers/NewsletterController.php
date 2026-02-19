@@ -20,4 +20,13 @@ class NewsletterController extends Controller
 
         return back()->with('success', 'Subscribed to newsletter.');
     }
+
+    public function unsubscribe(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+
+        NewsletterSubscriber::where('email', $request->email)->delete();
+
+        return view('newsletter.unsubscribed');
+    }
 }

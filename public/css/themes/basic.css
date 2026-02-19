@@ -369,6 +369,10 @@ footer {
     margin-top: 2rem;
 }
 
+.section-title-sm {
+    margin-top: 1.5rem;
+}
+
 .category-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -387,6 +391,26 @@ footer {
 
 .back-link {
     margin-top: 1rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+th, td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+th {
+    background: #f5f0e1;
+    font-weight: 600;
 }
 
 .auth-box {
@@ -435,4 +459,60 @@ footer {
 .pagination .page-link {
     background: #e0e0e0;
     color: #333;
+}
+
+/* Blog */
+.blog-list {
+    list-style: none;
+    padding: 0;
+}
+.blog-list li {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+.blog-list a {
+    font-weight: 600;
+}
+.blog-meta {
+    display: block;
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+}
+.blog-excerpt {
+    margin: 0.5rem 0 0;
+    color: #555;
+    font-size: 0.95rem;
+}
+.blog-article .blog-body {
+    margin-top: 1rem;
+    line-height: 1.6;
+}
+.blog-article .blog-meta {
+    margin-bottom: 0.5rem;
+}
+.form-max-600 {
+    max-width: 36rem;
+}
+.form-max-600 .form-group {
+    margin-bottom: 1rem;
+}
+.form-max-600 label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+}
+.form-max-600 input[type="text"],
+.form-max-600 input[type="number"],
+.form-max-600 input[type="password"],
+.form-max-600 select,
+.form-max-600 textarea {
+    width: 100%;
+    max-width: 100%;
+    padding: 0.5rem;
+}
+.form-max-600 .error {
+    color: #c00;
+    font-size: 0.9rem;
 }

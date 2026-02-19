@@ -57,7 +57,23 @@
                     <span class="admin-nav-icon">▢</span>
                     <span>Ads</span>
                 </a>
+                <a href="{{ route('admin.blog.index') }}" class="admin-nav-item {{ request()->routeIs('admin.blog.*') ? 'active' : '' }}">
+                    <span class="admin-nav-icon">✎</span>
+                    <span>Blog</span>
+                </a>
                 <div class="admin-nav-section">Configure</div>
+                <a href="{{ route('admin.gateways.index') }}" class="admin-nav-item {{ request()->routeIs('admin.gateways.*') ? 'active' : '' }}">
+                    <span class="admin-nav-icon">$</span>
+                    <span>Gateways & Pro</span>
+                </a>
+                <a href="{{ route('admin.mail.index') }}" class="admin-nav-item {{ request()->routeIs('admin.mail.*') ? 'active' : '' }}">
+                    <span class="admin-nav-icon">✉</span>
+                    <span>Mail</span>
+                </a>
+                <a href="{{ route('admin.social.index') }}" class="admin-nav-item {{ request()->routeIs('admin.social.*') ? 'active' : '' }}">
+                    <span class="admin-nav-icon">⎈</span>
+                    <span>Social / OAuth</span>
+                </a>
                 <a href="{{ route('admin.settings.index') }}" class="admin-nav-item {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
                     <span class="admin-nav-icon">⚙</span>
                     <span>Settings</span>

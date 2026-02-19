@@ -20,6 +20,7 @@
             </div>
             <button type="submit" class="btn">Login</button>
         </form>
+        <p class="back-link"><a href="{{ route('password.request') }}">Forgot password?</a></p>
         <p class="back-link"><a href="{{ route('register') }}">Register</a></p>
     </div>
 @endsection

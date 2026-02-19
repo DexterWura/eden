@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Startup extends Model
 {
     protected $fillable = [
-        'user_id', 'category_id', 'name', 'slug', 'description', 'url', 'founder', 'tags',
+        'user_id', 'category_id', 'name', 'slug', 'description', 'url', 'founder', 'founder_socials', 'startup_socials', 'tags',
         'mrr', 'arr', 'is_for_sale', 'status', 'is_featured',
         'submitted_at', 'approved_at', 'last_updated_at',
         'url_failure_count', 'last_url_failure_at', 'view_count',
@@ -18,6 +18,8 @@ class Startup extends Model
     protected function casts(): array
     {
         return [
+            'founder_socials' => 'array',
+            'startup_socials' => 'array',
             'submitted_at' => 'datetime',
             'approved_at' => 'datetime',
             'last_updated_at' => 'datetime',

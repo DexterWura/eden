@@ -27,9 +27,17 @@
                 <a href="{{ route('home') }}">Home</a>
                 <a href="{{ route('startups.index') }}">Startups</a>
                 <a href="{{ route('startups.create') }}">Submit startup</a>
+                <a href="{{ route('blog.index') }}">Blog</a>
                 @auth
                     @if(auth()->user()->isAdmin())
                         <a href="{{ route('admin.dashboard') }}">Admin</a>
+                    @else
+                        <a href="{{ route('my.startups.index') }}">My startups</a>
+                    @endif
+                    @if(auth()->user()->hasBloggingAccess())
+                        <a href="{{ route('my.blog.index') }}">My blog</a>
+                    @else
+                        <a href="{{ route('pro.index') }}">Upgrade</a>
                     @endif
                     <form action="{{ route('logout') }}" method="POST" class="form-inline">
                         @csrf

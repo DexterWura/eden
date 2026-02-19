@@ -4,70 +4,228 @@ Laravel-based directory for tech startups, SaaS, and online businesses. Theme: "
 
 **Stack:** Laravel (PHP 8.2+), MySQL, Blade, vanilla CSS/JS.
 
+**Contents:** [Feature list](#feature-list) · [Process flows](#process-flows) · [Installation](#installation) · [Config & themes](#config--themes) · [Development reference](#development-reference)
+
 ---
 
-## Features
+## Feature list
 
-### Implemented
+### Public site
 
-- **Startup directory**
-  - Public listing at `/startups` with search, category/status/for-sale filters.
-  - Startup pages: `/startups/{slug}` with description, category, badges (New, Featured, Verified, status), founder, tags, MRR/ARR, for-sale link.
-  - Admin can add/edit/delete startups; approve/reject submissions.
-  - Status: seedling, sapling, flourishing, wilted (dormant when URL fails health check).
-- **Submission workflow**
-  - Visitors submit at "Submit startup"; admin approves/rejects from Submissions.
-- **Claim & verification**
-  - Claim via meta tag: `<meta name="eden-verification" content="…">` on the startup’s site; verify from the claim flow.
-  - Only approved startups can be claimed.
-- **Voting**
-  - Logged-in users can upvote startups (count shown on listing and detail).
-- **Categories**
-  - Admin manages categories; startups filtered by category; category pages at `/category/{slug}`.
-- **Admin dashboard (Google Analytics–style)**
-  - Fixed top bar (brand, View site, user, Sign out) and sidebar (Reports snapshot, Startups, Submissions, Categories, Ads, Settings, Migrations, System Health, Pruning).
-  - Reports snapshot: total startups, pending submissions, claimed/unclaimed, recent submissions, most viewed, top MRR.
-- **Themes (public site)**
-  - Admin can choose site theme in **Settings → Site theme**. Default theme: **Basic**. Each theme has its own CSS in `public/css/themes/{name}.css`. Add themes in `config/themes.php` and a matching CSS file.
-- **Ad manager**
-  - Slots: above fold, in-feed, sidebar, in-content. Types: AdSense, ZimAdsense, custom HTML. Global AdSense client ID in Settings. Fallback to AdSense when a unit is inactive/expired.
-- **Settings**
-  - Site name, App URL, timezone, logo (upload), AdSense client ID, **Site theme**.
-- **UI migrations**
-  - Admin → Migrations: list pending/modified migrations, run migrations from the dashboard (no SSH).
-- **Pruning**
-  - Find startups by URL pattern or empty description; bulk delete.
-- **System health**
-  - Last run times for health check, cleanup, reminder, newsletter. Buttons to run health check, cleanup, reminder, newsletter manually. Cron instructions shown.
-- **Automation (scheduled commands)**
-  - Health check (startup URL ping → wilted if offline).
-  - Cleanup (unverified seedlings older than 30 days).
-  - Reminder (email owners to update).
-  - Weekly newsletter (top startups to subscribers); footer signup form; throttle on subscribe.
-- **SEO**
-  - Canonical URLs, meta description on startup pages, JSON-LD on startup pages. Description &lt;300 words prompt for owners.
-- **Newsletter**
-  - Footer form to subscribe; stored subscribers; weekly newsletter command.
-- **Styling**
-  - Public site: theme-based CSS (default Basic). Admin: separate CSS; GA-inspired layout and components. No inline styles; all in `public/css/` (app theme files and `admin.css`).
+| Feature | Description |
+|--------|-------------|
+| **Homepage** | Featured startups, categories, newsletter signup. |
+| **Startup listing** | `/startups` — search (name/description/tags), filter by category, status (New/Growing/Flourishing/Dormant), for-sale. Paginated. |
+| **Startup detail** | `/startups/{slug}` — name, description, category, badges (New, Featured, Verified, status), founder, tags, MRR/ARR, for-sale link, upvote count. View count incremented. |
+| **Submit startup** | `/startups/create` — anyone can submit; goes to pending until admin approves. Rate limited (5/hour). |
+| **Category pages** | `/category/{slug}` — startups in that category. |
+| **Newsletter** | Footer form to subscribe; signed unsubscribe link in each email. Rate limited (5/min). |
+| **Sitemap** | `/sitemap.xml` — home, startups list, all startup and category URLs. |
+| **Robots** | `/robots.txt` — allow /; disallow /admin, /install, /login, /register; sitemap URL. |
+| **Themes** | Admin selects theme in Settings; default **Basic**. CSS per theme in `public/css/themes/{name}.css`. |
 
-### Not done / Planned
+### Auth & users
 
-- **Tailwind CSS / Alpine.js** – Spec mentioned Tailwind and Alpine; current UI uses plain CSS and minimal JS.
-- **Spatie Media Library / WebP** – Not integrated; no automatic image conversion.
-- **Redis** – Caching is file-based (and DB settings); Redis not required.
-- **Comments / reviews** – Not implemented.
-- **DNS TXT or file upload verification** – Only meta-tag verification is implemented.
-- **Auto-approval** of submissions based on website check – Not implemented.
-- **Featured listings (paid)** – No paid placement or payment flow.
-- **Premium analytics** – No visitor/interaction analytics beyond view count and basic dashboard stats.
-- **Sponsored / advertisement options** – Ads are slot-based; no “sponsored” labels or affiliate API.
-- **Verified investors section** – Not implemented.
-- **Multiple admins per startup / OAuth (e.g. Google Search Console)** – Single owner per startup; no OAuth claim.
-- **Blog/spotlight section** – Not implemented.
-- **API access** – No public API.
-- **Social sharing buttons** – Not implemented.
-- **Seasonal / garden animations** – Only basic hover and card styling; no seasonal or advanced animations.
+| Feature | Description |
+|--------|-------------|
+| **Register** | `/register` — name, email, password. Role: owner. Rate limited (5/min). |
+| **Login** | `/login` — email, password, remember me. Admin → `/admin`; owner → `/my/startups`. Rate limited (5/min). |
+| **Logout** | Session invalidated; CSRF regenerated. |
+| **Forgot password** | `/forgot-password` — send reset link by email. Rate limited (3/min). |
+| **Reset password** | `/reset-password/{token}` — set new password. Requires mail configured. |
+| **My startups** | `/my/startups` — list and edit startups you own (claimed or created). Owners only; no access to `/admin`. |
+| **Admin area** | `/admin` — only users with admin role. Dashboard, startups, submissions, categories, ads, settings, migrations, health, pruning. |
+
+### Startup lifecycle & ownership
+
+| Feature | Description |
+|--------|-------------|
+| **Status** | seedling (new) → sapling (growing) → flourishing; or **wilted** (dormant) when site URL fails health check for 7 days. |
+| **Claim** | Logged-in user starts claim at `/startups/{slug}/claim`; gets unique meta tag to add to their site. Only **approved** startups can be claimed. |
+| **Verify** | User adds `<meta name="eden-verification" content="TOKEN">` to site; clicks Verify; ownership assigned. |
+| **Vote** | Logged-in users can upvote a startup once; count shown; affects growth logic. |
+| **Edit (owner)** | Owner edits at `/my/startups/{slug}/edit` (name, slug, description, URL, category, founder, tags, MRR, ARR, for-sale). Status/featured only by admin. |
+| **Edit (admin)** | Admin edits any startup at `/admin/startups`; can set status, featured, approve/reject, delete. |
+
+### Admin dashboard
+
+| Feature | Description |
+|--------|-------------|
+| **Reports snapshot** | Totals (startups, pending, claimed, unclaimed), recent submissions, most viewed, top MRR. |
+| **Startups** | List all; search; add startup (admin only); edit, approve, reject, delete. |
+| **Submissions** | Pending submissions; approve or reject. |
+| **Categories** | CRUD categories (name, slug, icon path). |
+| **Ads** | CRUD ad units. Slots: above fold, in-feed, sidebar, in-content. Types: AdSense, ZimAdsense, custom. Global AdSense client in Settings; fallback when unit inactive. |
+| **Settings** | Site name, App URL, timezone, logo upload, AdSense client ID, **Site theme**. |
+| **Migrations** | List pending/modified migrations; run migrations from UI (no SSH). |
+| **Pruning** | Filter by URL pattern or empty description; bulk delete startups. |
+| **System health** | Last run times for health-check, cleanup, reminder, newsletter; run each manually; cron instructions. |
+
+### Automation (scheduled commands)
+
+| Feature | Description |
+|--------|-------------|
+| **Health check** | Daily. Ping each startup URL; on failure increment counter; after 7 consecutive failures set status to wilted. |
+| **Cleanup** | Daily. Delete unapproved, submitted, unclaimed startups older than 30 days. |
+| **Reminder** | Weekly. Email owners whose startup was last updated &gt;90 days ago (or never); link to edit. |
+| **Newsletter** | Weekly (Monday 08:00). Top 5 flourishing startups by MRR; plain-text email to subscribers; unsubscribe link in body. |
+
+### Security & limits
+
+| Feature | Description |
+|--------|-------------|
+| **Rate limits** | Login/register 5/min; startup submit 5/hour; newsletter 5/min; forgot password 3/min. |
+| **CSRF** | All forms; session regeneration on login/logout. |
+| **Access** | Admin middleware on `/admin`; owner edits only own startups via `/my/startups`. |
+
+### SEO & styling
+
+| Feature | Description |
+|--------|-------------|
+| **SEO** | Canonical URL and meta description on startup pages; JSON-LD (Organization); prompt if description &lt;300 words. |
+| **Styling** | Public: theme CSS. Admin: GA-style layout and `admin.css`. No inline styles. |
+
+---
+
+## Process flows
+
+### App overview
+
+```mermaid
+flowchart TB
+    subgraph Public[Public]
+        Home[Home]
+        List[Startups list]
+        Detail[Startup detail]
+        Submit[Submit startup]
+        Category[Category pages]
+        Newsletter[Newsletter signup]
+    end
+    subgraph Auth[Auth]
+        Login[Login / Register]
+        Forgot[Forgot / Reset password]
+        My[My startups]
+    end
+    subgraph Admin[Admin only]
+        Dashboard[Dashboard]
+        StartupsCRUD[Startups CRUD]
+        Submissions[Submissions]
+        Categories[Categories]
+        Ads[Ads]
+        Settings[Settings]
+        Migrations[Migrations]
+        Pruning[Pruning]
+        Health[Health]
+    end
+    subgraph Jobs[Scheduled jobs]
+        HealthCheck[Health check]
+        Cleanup[Cleanup]
+        Reminder[Reminder]
+        NewsletterCmd[Newsletter]
+    end
+    Public --> Auth
+    Auth -->|admin| Admin
+    Auth -->|owner| My
+    Jobs -->|wilted| Detail
+    Jobs -->|email| Newsletter
+```
+
+### Submission and approval
+
+```mermaid
+sequenceDiagram
+    participant Visitor
+    participant Site
+    participant Admin
+    Visitor->>Site: Submit startup (name, description, URL, etc.)
+    Site->>Site: Create startup (pending, seedling)
+    Site-->>Visitor: "Subscribed" / success
+    Admin->>Site: Open Submissions
+    Site-->>Admin: List pending
+    alt Approve
+        Admin->>Site: Approve
+        Site->>Site: Set approved_at
+        Startup appears on public listing
+    else Reject
+        Admin->>Site: Reject
+        Site->>Site: Clear approved_at
+        Startup stays unlisted
+    end
+```
+
+### Claim and verify ownership
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Eden
+    participant ExternalSite
+    User->>Eden: Start claim (startup must be approved)
+    Eden->>Eden: Create claim with token
+    Eden-->>User: Show meta tag to add
+    User->>ExternalSite: Add meta tag to startup website
+    User->>Eden: Click Verify
+    Eden->>Eden: Fetch startup URL, look for meta tag
+    alt Tag found
+        Eden->>Eden: Set startup.user_id = user
+        Eden-->>User: Ownership confirmed
+    else Tag not found
+        Eden-->>User: Verification failed
+    end
+```
+
+### Startup status lifecycle
+
+```mermaid
+stateDiagram-v2
+    [*] --> seedling: New submission
+    seedling --> sapling: Claimed + 10 upvotes
+    sapling --> flourishing: MRR set or regular updates
+    seedling --> wilted: URL fails 7 days (health check)
+    sapling --> wilted: URL fails 7 days
+    flourishing --> wilted: URL fails 7 days
+    wilted: Dormant (greyed out)
+```
+
+### Scheduled commands
+
+```mermaid
+flowchart LR
+    subgraph Daily[Daily]
+        H[eden:health-check]
+        C[eden:cleanup]
+    end
+    subgraph Weekly[Weekly]
+        R[eden:remind-updates]
+        N[eden:newsletter]
+    end
+    H -->|"URL down 7x"| Wilted[wilted status]
+    C -->|"&gt;30 days unclaimed"| Delete[delete startup]
+    R -->|"last_updated &gt;90d"| EmailR[email owner]
+    N -->|"top 5 flourishing"| EmailN[email subscribers]
+```
+
+### User roles and access
+
+```mermaid
+flowchart LR
+    Guest[Guest]
+    Owner[Owner]
+    Admin[Admin]
+    Guest -->|Register / Login| Owner
+    Guest -->|Login as admin| Admin
+    Owner -->|/my/startups| EditOwn[Edit own startups]
+    Owner -->|Vote, Claim| Public[Public actions]
+    Admin -->|/admin/*| FullAdmin[Dashboard, CRUD, Settings, etc.]
+    Admin -->|/my/startups| EditOwn
+```
+
+---
+
+## Planned (not implemented)
+
+- Tailwind CSS / Alpine.js; Spatie Media Library / WebP; Redis.
+- Comments/reviews; DNS or file verification; auto-approval; paid featured listings; premium analytics; sponsored labels; verified investors; multiple admins per startup; OAuth; blog; public API; social sharing; advanced animations.
 
 ---
 
@@ -114,6 +272,16 @@ Laravel-based directory for tech startups, SaaS, and online businesses. Theme: "
 - **Cron (optional):** For health check, cleanup, reminder emails, and newsletter, add a cron job:  
   `* * * * * php /path/to/your/project/artisan schedule:run`
 
+### Mail configuration (password reset, reminder, newsletter)
+
+Password reset, "remind owners to update" emails, and the weekly newsletter use Laravel’s mail system. Set in `.env`:
+
+- **MAIL_MAILER** – e.g. `smtp`, `sendmail`, or `log` (for local testing).
+- **MAIL_HOST**, **MAIL_PORT**, **MAIL_USERNAME**, **MAIL_PASSWORD**, **MAIL_ENCRYPTION** – for SMTP.
+- **MAIL_FROM_ADDRESS** and **MAIL_FROM_NAME** – sender for all outgoing mail.
+
+If mail is not configured, password reset links will not be sent and reminder/newsletter commands may fail (failures are logged). See [Laravel Mail](https://laravel.com/docs/mail) for details.
+
 ### Troubleshooting
 
 - **500 error:** Check that `storage/` and `bootstrap/cache/` are writable and that `APP_KEY` is set in `.env`.
@@ -132,4 +300,4 @@ Laravel-based directory for tech startups, SaaS, and online businesses. Theme: "
 ## Development reference
 
 - **Database:** Users, Startups, Categories, Claims, Votes, Ads, Settings, NewsletterSubscriber, GrowthLog (and migrations). Status lifecycle: seedling → sapling → flourishing; wilted when URL is down.
-- **Key routes:** `/`, `/startups`, `/startups/create`, `/startups/{slug}`, `/category/{slug}`, `/claim/{slug}`, `/login`, `/register`, `/admin` (and admin sub-routes), `/install` (until installed).
+- **Key routes:** `/`, `/startups`, `/startups/create`, `/startups/{slug}`, `/category/{slug}`, `/claim/{slug}`, `/login`, `/register`, `/forgot-password`, `/reset-password/{token}`, `/my/startups` (owner), `/admin` (admin only), `/sitemap.xml`, `/robots.txt`, `/install` (until installed).

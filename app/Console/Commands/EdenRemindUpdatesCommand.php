@@ -23,12 +23,19 @@ class EdenRemindUpdatesCommand extends Command
 
         foreach ($startups as $startup) {
             if ($startup->user && $startup->user->email) {
+                $editUrl = $startup->user->isAdmin()
+                    ? route('admin.startups.edit', $startup)
+                    : route('my.startups.edit', $startup->slug);
                 try {
-                    Mail::raw("Hi {$startup->user->name},\n\nPlease update your startup \"{$startup->name}\" on " . config('app.name') . ".\n\nVisit: " . route('admin.startups.edit', $startup) . "\n\nThanks.", function ($m) use ($startup) {
+                    Mail::raw("Hi {$startup->user->name},\n\nPlease update your startup \"{$startup->name}\" on " . config('app.name') . ".\n\nVisit: " . $editUrl . "\n\nThanks.", function ($m) use ($startup) {
                         $m->to($startup->user->email)->subject('Update your startup');
                     });
                 } catch (\Throwable $e) {
-                    // skip
+                    \Illuminate\Support\Facades\Log::warning('Eden reminder email failed.', [
+                        'startup_id' => $startup->id,
+                        'email' => $startup->user->email,
+                        'error' => $e->getMessage(),
+                    ]);
                 }
             }
         }

@@ -26,7 +26,7 @@ class LoginController extends Controller
             if (Auth::user()->isAdmin()) {
                 return redirect()->intended(route('admin.dashboard'));
             }
-            return redirect()->intended(route('admin.startups.index'));
+            return redirect()->intended(route('my.startups.index'));
         }
 
         return back()->withErrors(['email' => 'The provided credentials do not match our records.'])->onlyInput('email');

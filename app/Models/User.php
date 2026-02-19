@@ -46,4 +46,34 @@ class User extends Authenticatable
     {
         return $this->hasMany(Vote::class);
     }
+
+    public function featurePayments()
+    {
+        return $this->hasMany(FeaturePayment::class);
+    }
+
+    public function blogPosts()
+    {
+        return $this->hasMany(BlogPost::class);
+    }
+
+    public function hasProFeature(string $featureKey): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+        $pro = app(\App\Services\ProFeatureService::class);
+        if (! $pro->isProFeature($featureKey)) {
+            return true;
+        }
+        return $this->featurePayments()
+            ->where('feature_key', $featureKey)
+            ->where('status', FeaturePayment::STATUS_PAID)
+            ->exists();
+    }
+
+    public function hasBloggingAccess(): bool
+    {
+        return $this->hasProFeature('blogging');
+    }
 }

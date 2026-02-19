@@ -7,6 +7,7 @@ use App\Models\Startup;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
 
 class EdenNewsletterCommand extends Command
 {
@@ -33,15 +34,20 @@ class EdenNewsletterCommand extends Command
         foreach ($startups as $i => $s) {
             $lines[] = ($i + 1) . '. ' . $s->name . ' - ' . url('/startups/' . $s->slug);
         }
-        $body = implode("\n", $lines) . "\n\n— " . $siteName;
+        $baseBody = implode("\n", $lines);
 
         foreach ($subscribers as $sub) {
+            $unsubscribeUrl = URL::signedRoute('newsletter.unsubscribe', ['email' => $sub->email]);
+            $body = $baseBody . "\n\n— " . $siteName . "\n\nTo unsubscribe: " . $unsubscribeUrl;
             try {
                 Mail::raw($body, function ($m) use ($sub, $siteName) {
                     $m->to($sub->email)->subject('Top 5 flourishing startups - ' . $siteName);
                 });
             } catch (\Throwable $e) {
-                // skip
+                \Illuminate\Support\Facades\Log::warning('Eden newsletter send failed.', [
+                    'email' => $sub->email,
+                    'error' => $e->getMessage(),
+                ]);
             }
         }
 

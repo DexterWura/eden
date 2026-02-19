@@ -34,7 +34,8 @@ class StartupController extends Controller
             abort(403);
         }
         $categories = Category::orderBy('name')->get();
-        return view('admin.startups.create', compact('categories'));
+        $platforms = config('social_platforms.platforms', []);
+        return view('admin.startups.create', compact('categories', 'platforms'));
     }
 
     public function store(Request $request)
@@ -42,7 +43,7 @@ class StartupController extends Controller
         if (! auth()->user()->isAdmin()) {
             abort(403);
         }
-        $validated = $request->validate([
+        $rules = [
             'name' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255',
             'description' => 'nullable|string',
@@ -55,7 +56,12 @@ class StartupController extends Controller
             'is_for_sale' => 'boolean',
             'status' => 'in:seedling,sapling,flourishing,wilted',
             'is_featured' => 'boolean',
-        ]);
+        ];
+        foreach (array_keys(config('social_platforms.platforms', [])) as $key) {
+            $rules["founder_socials.{$key}"] = 'nullable|url|max:500';
+            $rules["startup_socials.{$key}"] = 'nullable|url|max:500';
+        }
+        $validated = $request->validate($rules);
         $slug = $validated['slug'] ?: Str::slug($validated['name']);
         if ($slug === '') {
             $slug = 'startup-' . substr(md5(uniqid((string) mt_rand(), true)), 0, 8);
@@ -73,6 +79,8 @@ class StartupController extends Controller
         $validated['submitted_at'] = now();
         $validated['last_updated_at'] = now();
         $validated['status'] = $request->input('status', Startup::STATUS_SEEDLING);
+        $validated['founder_socials'] = $request->input('founder_socials', []);
+        $validated['startup_socials'] = $request->input('startup_socials', []);
         Startup::create($validated);
         return redirect()->route('admin.startups.index')->with('success', 'Startup created and approved.');
     }
@@ -83,7 +91,8 @@ class StartupController extends Controller
             abort(403);
         }
         $categories = Category::orderBy('name')->get();
-        return view('admin.startups.edit', compact('startup', 'categories'));
+        $platforms = config('social_platforms.platforms', []);
+        return view('admin.startups.edit', compact('startup', 'categories', 'platforms'));
     }
 
     public function update(Request $request, Startup $startup)
@@ -91,7 +100,7 @@ class StartupController extends Controller
         if (! auth()->user()->isAdmin() && $startup->user_id !== auth()->id()) {
             abort(403);
         }
-        $validated = $request->validate([
+        $rules = [
             'name' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:startups,slug,' . $startup->id,
             'description' => 'nullable|string',
@@ -104,11 +113,18 @@ class StartupController extends Controller
             'is_for_sale' => 'boolean',
             'status' => 'in:seedling,sapling,flourishing,wilted',
             'is_featured' => 'boolean',
-        ]);
+        ];
+        foreach (array_keys(config('social_platforms.platforms', [])) as $key) {
+            $rules["founder_socials.{$key}"] = 'nullable|url|max:500';
+            $rules["startup_socials.{$key}"] = 'nullable|url|max:500';
+        }
+        $validated = $request->validate($rules);
         $validated['is_for_sale'] = $request->boolean('is_for_sale');
         $validated['is_featured'] = $request->boolean('is_featured');
         $validated['last_updated_at'] = now();
         $validated['tags'] = $validated['tags'] ?? null;
+        $validated['founder_socials'] = $request->input('founder_socials', []);
+        $validated['startup_socials'] = $request->input('startup_socials', []);
         $startup->update($validated);
         return redirect()->route('admin.startups.index')->with('success', 'Startup updated.');
     }
