@@ -230,8 +230,10 @@ flowchart LR
 
 ## Planned (not implemented)
 
-- Tailwind CSS / Alpine.js; Spatie Media Library / WebP; Redis.
-- Comments/reviews; DNS or file verification; auto-approval; paid featured listings; premium analytics; sponsored labels; verified investors; multiple admins per startup; OAuth login (e.g. Login with Google); public API; social sharing buttons; advanced animations.
+- Tailwind CSS; Spatie Media Library / WebP.
+- Comments/reviews; DNS or file verification; auto-approval; paid featured listings; premium analytics; verified investors; multiple admins per startup; advanced animations.
+
+**Already implemented:** Alpine.js (CDN), Redis (optional cache/sessions), sponsored labels, OAuth (Login with Google), public API (read-only startups), social sharing buttons (X, LinkedIn, WhatsApp).
 
 ---
 
@@ -271,6 +273,28 @@ flowchart LR
 2. Ensure `storage/` and `bootstrap/cache/` are writable (e.g. chmod 775 via file manager).
 3. Open `https://your-domain.com/install` and complete the installer (database, site name, admin). It writes `.env` and runs migrations. No SSH required.
 
+### Deploy via cPanel Git
+
+Eden includes a [.cpanel.yml](.cpanel.yml) for [cPanel Git™ deployment](https://docs.cpanel.net/knowledge-base/web-services/guide-to-git-deployment/). Push or pull deployment will copy the app into a directory you choose; cPanel runs the tasks in `.cpanel.yml` on deploy.
+
+**Requirements (cPanel):**
+
+- A valid `.cpanel.yml` in the repo root (checked in).
+- One or more local or remote branches.
+- A clean working tree.
+
+**One-time setup on cPanel:**
+
+1. In **cPanel → Files → Git™ Version Control**, create or clone the repository.
+2. Edit the repo’s `.cpanel.yml` and set `DEPLOYPATH` to your app directory (e.g. `/home/your_cpanel_user/eden/`). Do **not** use a wildcard to deploy all files.
+3. Set the domain’s **document root** to `$DEPLOYPATH/public` (Laravel’s public folder).
+4. First deploy only: on the server run `composer install --no-dev`, create `.env` from `.env.example`, run `php artisan key:generate`, run migrations, and ensure `storage/` and `bootstrap/cache/` are writable (e.g. chmod 775). Or use the web installer at `https://your-domain.com/install` after the first deploy.
+
+**Deployment modes:**
+
+- **Automatic (push):** Push directly to the cPanel-managed repo; the post-receive hook runs `.cpanel.yml` and deploys to `DEPLOYPATH`.
+- **Manual (pull):** Push to GitHub/GitLab etc., then in cPanel use **Update from Remote** and **Deploy HEAD Commit** to deploy.
+
 ### After install
 
 - **Admin:** Log in at `/login` with the admin account, then go to `/admin` (or use “Admin” in the main nav when logged in as admin).
@@ -287,6 +311,14 @@ Password reset, "remind owners to update" emails, and the weekly newsletter use 
 - **MAIL_FROM_ADDRESS** and **MAIL_FROM_NAME** – sender for all outgoing mail.
 
 If mail is not configured, password reset links will not be sent and reminder/newsletter commands may fail (failures are logged). See [Laravel Mail](https://laravel.com/docs/mail) for details.
+
+### Optional: Redis (cache / sessions)
+
+By default Eden uses `file` for cache and sessions. For better performance on busy sites you can use Redis:
+
+1. Install Redis on the server.
+2. In `.env` set: `CACHE_STORE=redis`, `SESSION_DRIVER=redis` (optional), and Redis connection vars: `REDIS_HOST=127.0.0.1`, `REDIS_PASSWORD=null`, `REDIS_PORT=6379`.
+3. Laravel’s `config/cache.php` and `config/database.php` already define the `redis` driver; no code changes needed.
 
 ### Troubleshooting
 

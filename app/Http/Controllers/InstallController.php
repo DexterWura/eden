@@ -120,6 +120,15 @@ class InstallController extends Controller
         ]);
     }
 
+    /** Format a value for .env so special characters (e.g. # in password) do not break parsing. */
+    protected function envValue(string $key, string $val): string
+    {
+        if (in_array($key, ['DB_PASSWORD', 'APP_KEY'], true)) {
+            return '"' . str_replace(['\\', '"'], ['\\\\', '\\"'], $val) . '"';
+        }
+        return '"' . addslashes($val) . '"';
+    }
+
     protected function writeEnv(string $path, array $v): void
     {
         $lines = [];
@@ -141,7 +150,7 @@ class InstallController extends Controller
         foreach ($lines as $line) {
             foreach ($replace as $key => $val) {
                 if (str_starts_with(trim($line), $key . '=')) {
-                    $out[] = $key . '=' . (in_array($key, ['DB_PASSWORD','APP_KEY'], true) ? $val : '"' . addslashes($val) . '"');
+                    $out[] = $key . '=' . $this->envValue($key, $val);
                     $done[$key] = true;
                     continue 2;
                 }
@@ -150,7 +159,7 @@ class InstallController extends Controller
         }
         foreach ($replace as $key => $val) {
             if (empty($done[$key])) {
-                $out[] = $key . '=' . (in_array($key, ['DB_PASSWORD','APP_KEY'], true) ? $val : '"' . addslashes($val) . '"');
+                $out[] = $key . '=' . $this->envValue($key, $val);
             }
         }
         if (! str_contains(implode("\n", $out), 'EDEN_INSTALLED')) {

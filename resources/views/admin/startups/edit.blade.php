@@ -39,6 +39,7 @@
         <div class="form-group"><label>Status</label><select name="status">@foreach(['seedling'=>'New','sapling'=>'Growing','flourishing'=>'Flourishing','wilted'=>'Dormant'] as $v=>$l)<option value="{{ $v }}" {{ old('status', $startup->status) == $v ? 'selected' : '' }}>{{ $l }}</option>@endforeach</select></div>
         <div class="form-group"><label><input type="checkbox" name="is_for_sale" value="1" {{ old('is_for_sale', $startup->is_for_sale) ? 'checked' : '' }}> For sale</label></div>
         <div class="form-group"><label><input type="checkbox" name="is_featured" value="1" {{ old('is_featured', $startup->is_featured) ? 'checked' : '' }}> Featured</label></div>
+        <div class="form-group"><label><input type="checkbox" name="is_sponsored" value="1" {{ old('is_sponsored', $startup->is_sponsored ?? false) ? 'checked' : '' }}> Sponsored</label></div>
         <button type="submit" class="btn">Save</button>
     </form>
     <p class="back-link"><a href="{{ route('admin.startups.index') }}" class="btn">Back</a></p>

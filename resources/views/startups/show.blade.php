@@ -23,6 +23,7 @@
             <div class="startup-badges">
                 @if($startup->category)<span class="badge badge-new">{{ $startup->category->name }}</span>@endif
                 @if($startup->is_featured)<span class="badge badge-featured">Featured</span>@endif
+                @if($startup->is_sponsored ?? false)<span class="badge badge-sponsored">Sponsored</span>@endif
                 @if($startup->user_id)<span class="badge badge-verified">Verified</span>@endif
                 <span class="badge badge-trending">{{ ucfirst($startup->status) }}</span>
             </div>
@@ -79,6 +80,7 @@
                 <p><a href="https://flipit.co.zw" target="_blank" rel="noopener" class="btn btn-gold">For sale (Flipit.co.zw)</a></p>
             @endif
             <p class="startup-votes-row"><strong>{{ $startup->votes_count }}</strong> upvotes</p>
+            @include('partials.share-buttons', ['url' => route('startups.show', $startup->slug), 'title' => $startup->name])
             @auth
                 @if($startup->user_id !== auth()->id())
                     <form action="{{ route('vote.store', $startup) }}" method="POST" class="form-inline">

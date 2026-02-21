@@ -10,7 +10,7 @@ class Startup extends Model
 {
     protected $fillable = [
         'user_id', 'category_id', 'name', 'slug', 'description', 'url', 'founder', 'founder_socials', 'startup_socials', 'tags',
-        'mrr', 'arr', 'is_for_sale', 'status', 'is_featured',
+        'mrr', 'arr', 'is_for_sale', 'status', 'is_featured', 'is_sponsored',
         'submitted_at', 'approved_at', 'last_updated_at',
         'url_failure_count', 'last_url_failure_at', 'view_count',
     ];
@@ -26,6 +26,7 @@ class Startup extends Model
             'last_url_failure_at' => 'datetime',
             'is_for_sale' => 'boolean',
             'is_featured' => 'boolean',
+            'is_sponsored' => 'boolean',
             'mrr' => 'decimal:2',
             'arr' => 'decimal:2',
             'url_failure_count' => 'integer',

@@ -1,0 +1,22 @@
+# cPanel Git deployment – Laravel Eden
+# See: https://docs.cpanel.net/knowledge-base/web-services/guide-to-git-deployment/
+#
+# Before first deploy:
+# 1. Replace /home/example with your cPanel home path (e.g. /home/yourusername).
+# 2. Set the domain document root to $DEPLOYPATH/public (Laravel public folder).
+# 3. On the server: run "composer install --no-dev", create .env from .env.example,
+#    run "php artisan key:generate", run migrations, chmod 775 storage bootstrap/cache.
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/example/eden/
+    - /bin/cp -R app $DEPLOYPATH
+    - /bin/cp -R bootstrap $DEPLOYPATH
+    - /bin/cp -R config $DEPLOYPATH
+    - /bin/cp -R database $DEPLOYPATH
+    - /bin/cp -R public $DEPLOYPATH
+    - /bin/cp -R resources $DEPLOYPATH
+    - /bin/cp -R routes $DEPLOYPATH
+    - /bin/cp -R storage $DEPLOYPATH
+    - /bin/cp artisan $DEPLOYPATH
+    - /bin/cp composer.json $DEPLOYPATH

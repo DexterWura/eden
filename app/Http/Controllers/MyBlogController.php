@@ -42,6 +42,9 @@ class MyBlogController extends Controller
         $validated['user_id'] = $request->user()->id;
         $validated['slug'] = $validated['slug'] ?? Str::slug($validated['title']);
         $validated['published_at'] = $validated['status'] === 'published' ? now() : null;
+        if (! empty($validated['startup_id']) && ! Startup::where('id', $validated['startup_id'])->where('user_id', $request->user()->id)->exists()) {
+            $validated['startup_id'] = null;
+        }
 
         $post = BlogPost::create($validated);
 
@@ -72,6 +75,9 @@ class MyBlogController extends Controller
         $validated['published_at'] = $validated['status'] === 'published'
             ? ($post->published_at ?? now())
             : null;
+        if (! empty($validated['startup_id']) && ! Startup::where('id', $validated['startup_id'])->where('user_id', $request->user()->id)->exists()) {
+            $validated['startup_id'] = null;
+        }
 
         $post->update($validated);
 

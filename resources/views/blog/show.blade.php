@@ -34,6 +34,7 @@
         <div class="blog-body">
             {!! nl2br(e($post->body)) !!}
         </div>
+        @include('partials.share-buttons', ['url' => route('blog.show', $post->slug), 'title' => $post->title])
     </article>
     <p><a href="{{ route('blog.index') }}">← Back to blog</a></p>
 @endsection

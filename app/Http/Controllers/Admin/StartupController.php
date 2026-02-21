@@ -47,6 +47,7 @@ class StartupController extends Controller
             'is_for_sale' => 'boolean',
             'status' => 'in:seedling,sapling,flourishing,wilted',
             'is_featured' => 'boolean',
+            'is_sponsored' => 'boolean',
         ];
         foreach (array_keys(config('social_platforms.platforms', [])) as $key) {
             $rules["founder_socials.{$key}"] = 'nullable|url|max:500';
@@ -66,6 +67,7 @@ class StartupController extends Controller
         $validated['user_id'] = auth()->id();
         $validated['is_for_sale'] = $request->boolean('is_for_sale');
         $validated['is_featured'] = $request->boolean('is_featured');
+        $validated['is_sponsored'] = $request->boolean('is_sponsored');
         $validated['approved_at'] = now();
         $validated['submitted_at'] = now();
         $validated['last_updated_at'] = now();
@@ -98,6 +100,7 @@ class StartupController extends Controller
             'is_for_sale' => 'boolean',
             'status' => 'in:seedling,sapling,flourishing,wilted',
             'is_featured' => 'boolean',
+            'is_sponsored' => 'boolean',
         ];
         foreach (array_keys(config('social_platforms.platforms', [])) as $key) {
             $rules["founder_socials.{$key}"] = 'nullable|url|max:500';
@@ -106,6 +109,7 @@ class StartupController extends Controller
         $validated = $request->validate($rules);
         $validated['is_for_sale'] = $request->boolean('is_for_sale');
         $validated['is_featured'] = $request->boolean('is_featured');
+        $validated['is_sponsored'] = $request->boolean('is_sponsored');
         $validated['last_updated_at'] = now();
         $validated['tags'] = $validated['tags'] ?? null;
         $validated['founder_socials'] = $request->input('founder_socials', []);

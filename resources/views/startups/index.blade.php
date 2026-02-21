@@ -36,6 +36,7 @@
                 <div class="card-meta">
                     @if($s->category)<span class="badge badge-new">{{ $s->category->name }}</span>@endif
                     @if($s->is_featured)<span class="badge badge-featured">Featured</span>@endif
+                    @if($s->is_sponsored ?? false)<span class="badge badge-sponsored">Sponsored</span>@endif
                     @if($s->user_id)<span class="badge badge-verified">Verified</span>@endif
                     @if($s->mrr)<span class="card-mrr">MRR: ${{ number_format($s->mrr) }}</span>@endif
                 </div>
