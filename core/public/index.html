@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Eden – Setup</title>
+  <style>body{font-family:system-ui,sans-serif;max-width:560px;margin:2rem auto;padding:0 1rem;}h1{color:#6CAA64;}a{color:#6CAA64;}code{background:#eee;padding:.2em .4em;}</style>
+</head>
+<body>
+  <h1>Eden – Setup</h1>
+  <p>If you see this page, the server is serving from <strong>core/public</strong> but <code>index.php</code> is not running.</p>
+  <ul>
+    <li>Ensure <strong>PHP</strong> runs for <code>.php</code> files (e.g. PHP 8.2+ in cPanel).</li>
+    <li>Run in the <strong>core</strong> folder (parent of this folder): <code>composer install --no-dev</code>.</li>
+    <li>Open <a href="/install">/install</a> to run the web installer.</li>
+  </ul>
+  <p>Test: <a href="/ok.php">/ok.php</a> (should show “OK” if PHP works).</p>
+</body>
+</html>
