@@ -98,11 +98,11 @@ if (! file_exists($main = __DIR__.'/../vendor/autoload.php')) {
         }
     }
 
-    http_response_code(503);
     header('Content-Type: text/html; charset=utf-8');
+    header('HTTP/1.1 200 OK');
     $installUrl = '/install';
     $refresh = (file_exists($phar) || $composerPath) ? '<p><a href="' . htmlspecialchars($installUrl) . '">Reload</a> to try again.</p>' : '';
-    echo '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Setup required – Eden</title><style>body{font-family:system-ui,sans-serif;max-width:560px;margin:3rem auto;padding:0 1rem;background:#f5f0e1;}h1{color:#6CAA64;}a{color:#6CAA64;}code{background:#eee;padding:.2em .4em;border-radius:4px;}p{line-height:1.5;}ul{margin:.5rem 0;}</style></head><body><h1>Setup required</h1><p>Eden needs its dependencies. If <code>composer.phar</code> is missing, this page tries to download it; then it runs <code>composer install</code> (same logic as the Flippa clone).</p><p>Run in the project root: <code>php composer.phar install --no-dev</code> (or <code>composer install</code>). Then <a href="' . htmlspecialchars($installUrl) . '">open the installer</a>.</p>' . $refresh . '</body></html>';
+    echo '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Setup required – Eden</title><style>body{font-family:system-ui,sans-serif;max-width:560px;margin:3rem auto;padding:0 1rem;background:#f5f0e1;}h1{color:#6CAA64;}a{color:#6CAA64;}code{background:#eee;padding:.2em .4em;border-radius:4px;}p{line-height:1.5;}ul{margin:.5rem 0;}</style></head><body><h1>Setup required</h1><p>Eden needs its dependencies. If <code>composer.phar</code> is missing, this page tries to download it; then it runs <code>composer install</code> (same logic as the Flippa clone).</p><p>Run in the <strong>core</strong> directory: <code>cd core && php ../composer.phar install --no-dev</code> (or <code>cd core && composer install</code>). Then <a href="' . htmlspecialchars($installUrl) . '">open the installer</a>.</p>' . $refresh . '</body></html>';
     exit;
 }
 
