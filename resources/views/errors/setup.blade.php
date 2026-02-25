@@ -12,6 +12,6 @@
     <pre>cp .env.example .env
 php artisan key:generate</pre>
     <p>If you have SSH access, run the commands above in the project root. Then open <strong>/install</strong> in your browser to complete the web installer.</p>
-    <p>If you cannot run commands, ask your host to run <code>composer install</code> and the two commands above, then visit <a href="/install">/install</a>.</p>
+    <p>If you cannot run commands, ensure <code>composer.phar</code> is in the project root and reload the site to auto-install, or ask your host to run <code>php composer.phar install --no-dev</code>, then visit <a href="/install">/install</a>.</p>
 </body>
 </html>
