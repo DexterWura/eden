@@ -490,7 +490,7 @@ function getImage($image, $size = null)
     if (file_exists($image) && is_file($image)) {
         return asset($image) . $clean;
     }
-    if ($size) {
+    if ($size && \Illuminate\Support\Facades\Route::has('placeholder.image')) {
         return route('placeholder.image', $size);
     }
     return asset('assets/images/default.png');
