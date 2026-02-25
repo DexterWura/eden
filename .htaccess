@@ -2,14 +2,14 @@
     RewriteEngine On
     RewriteBase /
 
-    # If already under /public/, stop
-    RewriteCond %{REQUEST_URI} ^/public/ [NC]
+    # If already under /core/public/, stop
+    RewriteCond %{REQUEST_URI} ^/core/public/ [NC]
     RewriteRule ^ - [L]
 
-    # Serve existing files in public/ (CSS, JS, images) so URLs stay clean
-    RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f
-    RewriteRule ^(.*)$ public/$1 [L]
+    # Serve existing files in core/public/ (CSS, JS, images) – clean URLs
+    RewriteCond %{DOCUMENT_ROOT}/core/public%{REQUEST_URI} -f
+    RewriteRule ^(.*)$ core/public/$1 [L]
 
-    # Everything else: Laravel front controller (browser URL stays e.g. /install, no /public)
-    RewriteRule ^(.*)$ public/index.php [L]
+    # Everything else: root index.php (boots Laravel from core/)
+    RewriteRule ^(.*)$ index.php [L]
 </IfModule>

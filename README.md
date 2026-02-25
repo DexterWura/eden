@@ -23,7 +23,7 @@ Laravel-based directory for tech startups, SaaS, and online businesses. Theme: "
 | **Blog** | `/blog` — public list of published posts; `/blog/{slug}` — post detail with meta description and JSON-LD (Article). |
 | **Sitemap** | `/sitemap.xml` — home, startups list, blog list, all startup, category, and blog post URLs. |
 | **Robots** | `/robots.txt` — allow /; disallow /admin, /install, /login, /register; sitemap URL. |
-| **Themes** | Admin selects theme in Settings; default **Basic**. CSS per theme in `public/css/themes/{name}.css`. |
+| **Themes** | Admin selects theme in Settings; default **Basic**. CSS per theme in `core/public/css/themes/{name}.css`. |
 
 ### Auth & users
 
@@ -244,41 +244,46 @@ flowchart LR
 - PHP 8.2+
 - Composer
 - MySQL 5.7+ or MariaDB
-- Web server (Apache or Nginx) with document root set to `public/`
+- Web server (Apache or Nginx). Document root = **project root** (Flippa-style; root `index.php` and `.htaccess` serve the app from `core/`) or `core/public/` (traditional Laravel).
+
+**Folder structure (Flippa-style):**
+
+- **Project root:** `index.php` (entry), `.htaccess`, `.env.example`, `composer.phar` (optional)
+- **core/:** Laravel app (`app/`, `bootstrap/`, `config/`, `database/`, `public/`, `resources/`, `routes/`, `storage/`, `vendor/`, `artisan`, `composer.json`, `.env` after install)
 
 ### Local (XAMPP / Laragon)
 
 1. Clone or upload the project.
-2. Copy `.env.example` to `.env` (or use the web installer to create it).
-3. Run: `composer install --no-dev` (or `composer install` for development).
-4. Run: `php artisan key:generate` (if not using the web installer).
-5. Create a MySQL database and set `DB_*` in `.env`.
+2. In the **core** directory: copy `core/.env.example` to `core/.env` (or use the web installer).
+3. Run: `cd core && composer install --no-dev` (or `composer install` for development).
+4. Run: `cd core && php artisan key:generate` (if not using the web installer).
+5. Create a MySQL database and set `DB_*` in `core/.env`.
 6. Either:
-   - **Web installer:** Open `http://your-local-url/install` in the browser and complete the form (database, site name, admin account, optional logo URL). The installer runs migrations and disables itself.
-   - **CLI:** Run `php artisan migrate --force`, then create an admin user manually or via a seeder.
-7. Ensure `storage/` and `bootstrap/cache/` are writable.
-8. Point the document root to the `public/` directory.
+   - **Web installer:** Open `http://your-local-url/install` and complete the form (database, site name, admin account, optional logo URL). The installer runs migrations and disables itself.
+   - **CLI:** Run `cd core && php artisan migrate --force`, then create an admin user manually or via a seeder.
+7. Ensure `core/storage/` and `core/bootstrap/cache/` are writable.
+8. Point the document root to the **project root** (so `index.php` runs) or to `core/public/`.
 
 ### Live server / VPS
 
 1. Upload the project (e.g. via Git or FTP).
-2. Set the web server document root to `public/`.
-3. If you have SSH: run `composer install --no-dev` and `php artisan key:generate`. Otherwise use the **web installer** at `https://your-domain.com/install` and fill in database, site name, logo, and admin account. The installer runs migrations and sets `EDEN_INSTALLED=true`.
-4. Make `storage/` and `bootstrap/cache/` writable:  
-   `chmod -R 775 storage bootstrap/cache`
+2. Set the document root to the **project root** (root `index.php` + `.htaccess` serve from `core/`) or to `core/public/`.
+3. If you have SSH: run `cd core && composer install --no-dev` and `cd core && php artisan key:generate`. Otherwise use the **web installer** at `https://your-domain.com/install` (root `index.php` can run `composer install` in `core/` if `composer.phar` is in the project root).
+4. Make `core/storage/` and `core/bootstrap/cache/` writable:  
+   `chmod -R 775 core/storage core/bootstrap/cache`
 
 ### Shared hosting (FTP only)
 
-1. Upload all files. Set the domain’s document root to the `public` folder (e.g. “Document root” pointing to `eden/public` or equivalent).
-2. Ensure `storage/` and `bootstrap/cache/` are writable (e.g. chmod 775 via file manager).
-3. Open `https://your-domain.com/install` and complete the installer (database, site name, admin). It writes `.env` and runs migrations. No SSH required.
+1. Upload all files. Set the document root to the **project root** or to `core/public`.
+2. Ensure `core/storage/` and `core/bootstrap/cache/` are writable (e.g. chmod 775 via file manager).
+3. Open `https://your-domain.com/install` and complete the installer. It writes `core/.env` and runs migrations. No SSH required (or put `composer.phar` in the project root and reload to auto-install deps).
 
 ### After install
 
 - **Admin:** Log in at `/login` with the admin account, then go to `/admin` (or use “Admin” in the main nav when logged in as admin).
 - **Migrations:** In Admin → Migrations you can see pending migrations and run them with one click.
 - **Cron (optional):** For health check, cleanup, reminder emails, and newsletter, add a cron job:  
-  `* * * * * php /path/to/your/project/artisan schedule:run`
+  `* * * * * php /path/to/your/project/core/artisan schedule:run`
 
 ### Mail configuration (password reset, reminder, newsletter)
 
@@ -300,17 +305,17 @@ By default Eden uses `file` for cache and sessions. For better performance on bu
 
 ### Troubleshooting
 
-- **"Index of /" or directory listing instead of the app:** The document root is the project root. Use the root `.htaccess` (Apache): it rewrites requests to `public/` so the app runs at clean URLs (e.g. `eden.co.zw/install` with no `/public`). Or set the document root to the `public` directory.
-- **URLs show /public/ (e.g. eden.co.zw/public/install):** Enable the root `.htaccess` (Apache: `AllowOverride All` for the app directory) so requests are rewritten and the browser URL stays clean. Or set the document root to `public/`.
-- **500 error:** Check that `storage/` and `bootstrap/cache/` are writable and that `APP_KEY` is set in `.env`.
+- **"Index of /" or directory listing:** Set the document root to the **project root** (so root `index.php` and `.htaccess` run; they serve from `core/`). Or set it to `core/public/`.
+- **URLs show /core/public/:** Use the root `.htaccess` (Apache: `AllowOverride All`) so assets are served from `core/public/` with clean URLs (e.g. `/css/...`).
+- **500 error:** Check that `core/storage/` and `core/bootstrap/cache/` are writable and that `APP_KEY` is set in `core/.env`.
 - **Install page not loading:** Ensure `EDEN_INSTALLED` is not set to `true` in `.env` before you’ve finished installing.
-- **Database connection error:** Verify `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, and `DB_PASSWORD` in `.env`.
+- **Database connection error:** Verify `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, and `DB_PASSWORD` in `core/.env`.
 
 ---
 
 ## Config & themes
 
-- **Themes:** Configured in `config/themes.php`. Default theme is `basic`; CSS lives in `public/css/themes/basic.css`. To add a theme, add an entry in `config/themes.php` and create `public/css/themes/{key}.css`.
+- **Themes:** Configured in `config/themes.php`. Default theme is `basic`; CSS lives in `core/public/css/themes/basic.css`. To add a theme, add an entry in `config/themes.php` and create `core/public/css/themes/{key}.css`.
 - **Site settings:** Admin → Settings (site name, URL, timezone, logo, AdSense client ID, theme). No need to edit `.env` for these.
 
 ---
