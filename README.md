@@ -1,6 +1,6 @@
 # Eden — Startup Directory
 
-Eden is a curated startup directory: first-visit install, public site, and founder/admin dashboards (Laravel-based).
+Eden is a curated startup directory: first-visit install, public site, and founder/admin dashboards (Laravel-based). All project documentation is in this file.
 
 ---
 
@@ -24,7 +24,7 @@ Eden is a curated startup directory: first-visit install, public site, and found
 If you deploy without `core/vendor` (e.g. it is in `.gitignore`):
 
 - Run `composer install --no-dev` inside `core/` on the server, **or**
-- Copy the full `core/vendor` directory from a machine that has it (e.g. after running `composer install` locally or from the Flippa clone).
+- Copy the full `core/vendor` directory from a machine that has it (e.g. after running `composer install` locally).
 
 The install wizard step 1 requires `core/vendor/autoload.php` to be present before you can continue.
 
@@ -36,7 +36,7 @@ The install wizard step 1 requires `core/vendor/autoload.php` to be present befo
 - **Data:** All startup/category data is static (views). No DB-backed startups, categories, or “launching today”; no search.
 - **Forms:** Contact, Submit startup, and newsletter do not submit to backend or send email.
 - **Founder dashboard:** No real “my startup”, upvotes, or reports; no backend.
-- **Admin dashboard:** No real startup list, moderation queue, or settings; no admin auth.
+- **Admin dashboard:** No real startup list or moderation actions yet; admin auth is in place.
 - **Single startup page:** Only one placeholder (Nexus Pay); no dynamic slug or DB-driven startup pages.
 - **Categories:** Category cards use `href="#"`; no category detail or filtered listing.
 - **Upvotes:** Upvote buttons are client-only (no persistence).

@@ -27,7 +27,7 @@
     }
 @endphp
 
-<section class="flippa-hero" style="position: relative;">
+<section class="marketplace-hero" style="position: relative;">
     <div class="hero-background">
         <div class="wave-pattern"></div>
     </div>
@@ -497,7 +497,7 @@
         if (!trigger) return;
         trigger.addEventListener('click', function(e) {
             e.preventDefault();
-            const hero = document.querySelector('.flippa-hero');
+            const hero = document.querySelector('.marketplace-hero');
             const next = hero && hero.nextElementSibling;
             if (next) {
                 next.scrollIntoView({ behavior: 'smooth', block: 'start' });

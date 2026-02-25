@@ -8,17 +8,17 @@
 <div class="wrap">
   <h2 class="section-title">All categories</h2>
   <div class="category-list">
-    <a href="#" class="category-card"><strong>Fintech</strong><span>48 startups</span></a>
-    <a href="#" class="category-card"><strong>Health</strong><span>32 startups</span></a>
-    <a href="#" class="category-card"><strong>AI & ML</strong><span>28 startups</span></a>
-    <a href="#" class="category-card"><strong>SaaS</strong><span>41 startups</span></a>
-    <a href="#" class="category-card"><strong>Marketplace</strong><span>22 startups</span></a>
-    <a href="#" class="category-card"><strong>EdTech</strong><span>19 startups</span></a>
-    <a href="#" class="category-card"><strong>Climate</strong><span>14 startups</span></a>
-    <a href="#" class="category-card"><strong>AgTech</strong><span>18 startups</span></a>
-    <a href="#" class="category-card"><strong>Logistics</strong><span>12 startups</span></a>
-    <a href="#" class="category-card"><strong>Media</strong><span>8 startups</span></a>
-    <a href="#" class="category-card"><strong>Other</strong><span>6 startups</span></a>
+    <?php
+    $categories = $categories ?? collect();
+    foreach ($categories as $cat):
+      $count = (int) $cat->count;
+      $label = $count === 1 ? '1 startup' : $count . ' startups';
+    ?>
+    <a href="<?= e(url('/?category=' . urlencode($cat->category))) ?>" class="category-card"><strong><?= e($cat->category) ?></strong><span><?= e($label) ?></span></a>
+    <?php endforeach; ?>
+    <?php if ($categories->isEmpty()): ?>
+    <p class="text-muted">No categories yet. <a href="<?= e(url('/submit')) ?>">Submit your startup</a> to create the first.</p>
+    <?php endif; ?>
   </div>
 
   <div class="cta-strip">

@@ -482,6 +482,51 @@ nav a:hover { color: var(--accent); }
   max-width: 480px;
   margin: 0 auto;
 }
+.back-link {
+  display: block;
+  text-align: left;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  margin-bottom: 24px;
+  transition: color 0.2s;
+}
+.back-link:hover { color: var(--link-hover); }
+.startup-hero {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+  text-align: left;
+}
+.startup-hero-logo {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius);
+  background: var(--accent-dim);
+  border: 1px solid var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.startup-hero .tagline { color: var(--text-muted); font-size: 1.1rem; margin: 8px 0; }
+.startup-meta { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 0.9rem; color: var(--text-muted); }
+.startup-meta span:not(:last-child)::after { content: ' · '; color: var(--text-muted); }
+.startup-section {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--border);
+}
+.startup-section:last-of-type { border-bottom: none; }
+.startup-section h2 { font-size: 1.1rem; margin-bottom: 12px; }
+.startup-section p { color: var(--text-muted); margin: 0 0 12px; }
+.startup-section .card-links { display: flex; flex-wrap: wrap; gap: 16px; }
+.startup-section .card-links a { color: var(--link); text-decoration: none; }
+.startup-section .card-links a:hover { text-decoration: underline; }
 
 /* Content block */
 .content-block {
@@ -561,14 +606,14 @@ nav a:hover { color: var(--accent); }
 .launch-strip h2 { font-size: 1.2rem; margin-bottom: 4px; }
 .launch-strip p { color: var(--text-muted); font-size: 0.95rem; margin: 0; }
 
-/* Modals (login / signup popup) */
+/* Modals (login / signup popup) – hidden until opened */
 .modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(4px);
   z-index: 1000;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   padding: 20px;
@@ -577,6 +622,7 @@ nav a:hover { color: var(--accent); }
   transition: opacity 0.2s, visibility 0.2s;
 }
 .modal-overlay.is-open {
+  display: flex;
   opacity: 1;
   visibility: visible;
 }

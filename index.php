@@ -23,7 +23,7 @@ if (file_exists($maintenance)) {
 $autoloader = $root . DIRECTORY_SEPARATOR . 'core' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
 if (!file_exists($autoloader)) {
     header('Content-Type: text/html; charset=utf-8');
-    echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Setup</title></head><body><h1>Setup required</h1><p>Run: <code>cd core && composer install --no-dev</code></p><p>Or copy the <code>vendor</code> folder from the Flippa clone into <code>eden/core/</code>.</p></body></html>';
+    echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Setup</title></head><body><h1>Setup required</h1><p>Run: <code>cd core && composer install --no-dev</code></p><p>Or copy the <code>core/vendor</code> folder from another machine that has run composer.</p></body></html>';
     exit;
 }
 

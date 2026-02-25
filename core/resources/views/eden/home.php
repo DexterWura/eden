@@ -24,252 +24,42 @@
     <h2 class="section-title">Product of the day</h2>
     <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">Top 5 by upvotes today.</p>
     <div class="startup-list">
-      <div class="startup-card featured">
-        <span class="card-rank">1</span>
-        <div class="card-top">
-          <div class="card-logo">Nx</div>
-          <div class="card-badges"><span class="badge">Featured</span><span class="badge sponsored">Sponsored</span></div>
-          <div class="upvote-ui">
-            <button type="button" class="upvote-btn voted" aria-label="Upvote"><i class="fa-solid fa-arrow-up"></i></button>
-            <span class="upvote-count">127</span>
-          </div>
-        </div>
-        <a href="<?= e(url('/startup')) ?>" class="card-link">
-          <h3 class="card-title">Nexus Pay</h3>
-          <p class="card-desc">Instant cross-border payments and treasury for African businesses.</p>
-          <div class="card-meta"><span>Fintech</span><span>Harare</span><span>2024</span></div>
-          <p class="card-founder">Founded by <strong>Sarah Chen</strong></p>
-          <div class="card-links">
-            <a href="#"><i class="fa-solid fa-globe" aria-hidden="true"></i> Website</a>
-            <a href="#" aria-label="X"><i class="fa-brands fa-x-twitter" aria-hidden="true"></i></a>
-            <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i></a>
-          </div>
-        </a>
-      </div>
-      <div class="startup-card">
-        <span class="card-rank">2</span>
-        <div class="card-top">
-          <div class="card-logo">Vx</div>
-          <div class="card-badges"><span class="badge">New</span></div>
-          <div class="upvote-ui">
-            <button type="button" class="upvote-btn" aria-label="Upvote"><i class="fa-solid fa-arrow-up"></i></button>
-            <span class="upvote-count">98</span>
-          </div>
-        </div>
-        <a href="<?= e(url('/startup')) ?>" class="card-link">
-          <h3 class="card-title">VitaFlow</h3>
-          <p class="card-desc">Telehealth and prescription delivery across Zimbabwe.</p>
-          <div class="card-meta"><span>Health</span><span>Bulawayo</span><span>2024</span></div>
-          <p class="card-founder">Founded by <strong>James Moyo</strong></p>
-          <div class="card-links">
-            <a href="#"><i class="fa-solid fa-globe"></i> Website</a>
-            <a href="#"><i class="fa-brands fa-x-twitter"></i></a>
-          </div>
-        </a>
-      </div>
-      <div class="startup-card">
-        <span class="card-rank">3</span>
-        <div class="card-top">
-          <div class="card-logo">Qp</div>
-          <div class="card-badges"><span class="badge launch">Launch</span></div>
-          <div class="upvote-ui">
-            <button type="button" class="upvote-btn voted" aria-label="Upvote"><i class="fa-solid fa-arrow-up"></i></button>
-            <span class="upvote-count">76</span>
-          </div>
-        </div>
-        <a href="<?= e(url('/startup')) ?>" class="card-link">
-          <h3 class="card-title">QuickPay</h3>
-          <p class="card-desc">One-tap payments for merchants. No hardware, no monthly fees.</p>
-          <div class="card-meta"><span>Fintech</span><span>Harare</span><span>Today</span></div>
-          <p class="card-founder">Founded by <strong>Tendai Banda</strong></p>
-          <div class="card-links">
-            <a href="#"><i class="fa-solid fa-globe"></i> Website</a>
-            <a href="#"><i class="fa-brands fa-x-twitter"></i></a>
-            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-          </div>
-        </a>
-      </div>
-      <div class="startup-card">
-        <span class="card-rank">4</span>
-        <div class="card-top">
-          <div class="card-logo">Lm</div>
-          <div class="card-badges"><span class="badge">Featured</span></div>
-          <div class="upvote-ui">
-            <button type="button" class="upvote-btn" aria-label="Upvote"><i class="fa-solid fa-arrow-up"></i></button>
-            <span class="upvote-count">64</span>
-          </div>
-        </div>
-        <a href="<?= e(url('/startup')) ?>" class="card-link">
-          <h3 class="card-title">LearnMate</h3>
-          <p class="card-desc">Adaptive learning platform for secondary school exam prep.</p>
-          <div class="card-meta"><span>EdTech</span><span>Harare</span><span>2023</span></div>
-          <p class="card-founder">Founded by <strong>Rudo Ncube</strong></p>
-          <div class="card-links">
-            <a href="#"><i class="fa-solid fa-globe"></i> Website</a>
-            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-          </div>
-        </a>
-      </div>
-      <div class="startup-card">
-        <span class="card-rank">5</span>
-        <div class="card-top">
-          <div class="card-logo">Ax</div>
-          <div class="card-badges"></div>
-          <div class="upvote-ui">
-            <button type="button" class="upvote-btn" aria-label="Upvote"><i class="fa-solid fa-arrow-up"></i></button>
-            <span class="upvote-count">52</span>
-          </div>
-        </div>
-        <a href="<?= e(url('/startup')) ?>" class="card-link">
-          <h3 class="card-title">AgriSmart</h3>
-          <p class="card-desc">AI-powered crop insights and market prices for smallholder farmers.</p>
-          <div class="card-meta"><span>AgTech</span><span>Mutare</span><span>2023</span></div>
-          <p class="card-founder">Founded by <strong>Peter Dube</strong></p>
-          <div class="card-links">
-            <a href="#"><i class="fa-solid fa-globe"></i> Website</a>
-            <a href="#"><i class="fa-brands fa-x-twitter"></i></a>
-          </div>
-        </a>
-      </div>
+      <?php
+      $productOfDay = $productOfDay ?? collect();
+      foreach ($productOfDay as $index => $startup):
+        $rank = $index + 1;
+        $showRank = true;
+        include __DIR__ . '/_startup-card.php';
+      endforeach;
+      ?>
+      <?php if ($productOfDay->isEmpty()): ?>
+      <p class="text-muted">No startups yet. <a href="<?= e(url('/submit')) ?>">Submit your startup</a>.</p>
+      <?php endif; ?>
     </div>
   </section>
 
   <div class="filters" id="categories">
     <span>Category:</span>
-    <button type="button" class="pill active">All</button>
-    <button type="button" class="pill">Fintech</button>
-    <button type="button" class="pill">Health</button>
-    <button type="button" class="pill">AI & ML</button>
-    <button type="button" class="pill">SaaS</button>
-    <button type="button" class="pill">Marketplace</button>
-    <button type="button" class="pill">EdTech</button>
-    <button type="button" class="pill">Climate</button>
+    <?php $categoryFilter = $categoryFilter ?? null; ?>
+    <a href="<?= e(url('/')) ?>" class="pill<?= $categoryFilter === null || $categoryFilter === '' ? ' active' : '' ?>">All</a>
+    <?php foreach ($categories ?? [] as $cat): ?>
+    <a href="<?= e(url('/?category=' . urlencode($cat->category))) ?>" class="pill<?= $categoryFilter === $cat->category ? ' active' : '' ?>"><?= e($cat->category) ?></a>
+    <?php endforeach; ?>
   </div>
 
   <h2 class="section-title">Startups <a href="<?= e(url('/launching-today')) ?>" class="section-link">Launching today →</a></h2>
   <div class="startup-list" id="startups">
-    <div class="startup-card featured">
-      <div class="card-top">
-        <div class="card-logo">Nx</div>
-        <div class="card-badges"><span class="badge">Featured</span><span class="badge sponsored">Sponsored</span></div>
-        <div class="upvote-ui">
-          <button type="button" class="upvote-btn voted" aria-label="Upvote"><i class="fa-solid fa-arrow-up"></i></button>
-          <span class="upvote-count">127</span>
-        </div>
-      </div>
-      <a href="<?= e(url('/startup')) ?>" class="card-link">
-        <h3 class="card-title">Nexus Pay</h3>
-        <p class="card-desc">Instant cross-border payments and treasury for African businesses.</p>
-        <div class="card-meta"><span>Fintech</span><span>Harare</span><span>2024</span></div>
-        <p class="card-founder">Founded by <strong>Sarah Chen</strong></p>
-        <div class="card-links">
-          <a href="#"><i class="fa-solid fa-globe"></i> Website</a>
-          <a href="#"><i class="fa-brands fa-x-twitter"></i></a>
-          <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-        </div>
-      </a>
-    </div>
-    <div class="startup-card">
-      <div class="card-top">
-        <div class="card-logo">Vx</div>
-        <div class="card-badges"><span class="badge">New</span></div>
-        <div class="upvote-ui">
-          <button type="button" class="upvote-btn" aria-label="Upvote"><i class="fa-solid fa-arrow-up"></i></button>
-          <span class="upvote-count">98</span>
-        </div>
-      </div>
-      <a href="<?= e(url('/startup')) ?>" class="card-link">
-        <h3 class="card-title">VitaFlow</h3>
-        <p class="card-desc">Telehealth and prescription delivery across Zimbabwe.</p>
-        <div class="card-meta"><span>Health</span><span>Bulawayo</span><span>2024</span></div>
-        <p class="card-founder">Founded by <strong>James Moyo</strong></p>
-        <div class="card-links">
-          <a href="#"><i class="fa-solid fa-globe"></i> Website</a>
-          <a href="#"><i class="fa-brands fa-x-twitter"></i></a>
-        </div>
-      </a>
-    </div>
-    <div class="startup-card">
-      <div class="card-top">
-        <div class="card-logo">Ax</div>
-        <div class="card-badges"></div>
-        <div class="upvote-ui">
-          <button type="button" class="upvote-btn" aria-label="Upvote"><i class="fa-solid fa-arrow-up"></i></button>
-          <span class="upvote-count">52</span>
-        </div>
-      </div>
-      <a href="<?= e(url('/startup')) ?>" class="card-link">
-        <h3 class="card-title">AgriSmart</h3>
-        <p class="card-desc">AI-powered crop insights and market prices for smallholder farmers.</p>
-        <div class="card-meta"><span>AgTech</span><span>Mutare</span><span>2023</span></div>
-        <p class="card-founder">Founded by <strong>Peter Dube</strong></p>
-        <div class="card-links">
-          <a href="#"><i class="fa-solid fa-globe"></i> Website</a>
-          <a href="#"><i class="fa-brands fa-x-twitter"></i></a>
-        </div>
-      </a>
-    </div>
-    <div class="startup-card">
-      <div class="card-top">
-        <div class="card-logo">Lm</div>
-        <div class="card-badges"><span class="badge">Featured</span></div>
-        <div class="upvote-ui">
-          <button type="button" class="upvote-btn" aria-label="Upvote"><i class="fa-solid fa-arrow-up"></i></button>
-          <span class="upvote-count">64</span>
-        </div>
-      </div>
-      <a href="<?= e(url('/startup')) ?>" class="card-link">
-        <h3 class="card-title">LearnMate</h3>
-        <p class="card-desc">Adaptive learning platform for secondary school exam prep.</p>
-        <div class="card-meta"><span>EdTech</span><span>Harare</span><span>2023</span></div>
-        <p class="card-founder">Founded by <strong>Rudo Ncube</strong></p>
-        <div class="card-links">
-          <a href="#"><i class="fa-solid fa-globe"></i> Website</a>
-          <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-        </div>
-      </a>
-    </div>
-    <div class="startup-card">
-      <div class="card-top">
-        <div class="card-logo">Cr</div>
-        <div class="card-badges"></div>
-        <div class="upvote-ui">
-          <button type="button" class="upvote-btn" aria-label="Upvote"><i class="fa-solid fa-arrow-up"></i></button>
-          <span class="upvote-count">41</span>
-        </div>
-      </div>
-      <a href="<?= e(url('/startup')) ?>" class="card-link">
-        <h3 class="card-title">CarbonTrace</h3>
-        <p class="card-desc">Carbon footprint tracking and offsets for enterprises.</p>
-        <div class="card-meta"><span>Climate</span><span>Remote</span><span>2024</span></div>
-        <p class="card-founder">Founded by <strong>Lisa Okonkwo</strong></p>
-        <div class="card-links">
-          <a href="#"><i class="fa-solid fa-globe"></i> Website</a>
-          <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-        </div>
-      </a>
-    </div>
-    <div class="startup-card">
-      <div class="card-top">
-        <div class="card-logo">Mk</div>
-        <div class="card-badges"><span class="badge">New</span></div>
-        <div class="upvote-ui">
-          <button type="button" class="upvote-btn" aria-label="Upvote"><i class="fa-solid fa-arrow-up"></i></button>
-          <span class="upvote-count">38</span>
-        </div>
-      </div>
-      <a href="<?= e(url('/startup')) ?>" class="card-link">
-        <h3 class="card-title">MarketHub</h3>
-        <p class="card-desc">B2B marketplace connecting manufacturers and retailers.</p>
-        <div class="card-meta"><span>Marketplace</span><span>Harare</span><span>2024</span></div>
-        <p class="card-founder">Founded by <strong>David Sibanda</strong></p>
-        <div class="card-links">
-          <a href="#"><i class="fa-solid fa-globe"></i> Website</a>
-          <a href="#"><i class="fa-brands fa-x-twitter"></i></a>
-          <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-        </div>
-      </a>
-    </div>
+    <?php
+    $allStartups = $allStartups ?? collect();
+    foreach ($allStartups as $startup):
+      $rank = null;
+      $showRank = false;
+      include __DIR__ . '/_startup-card.php';
+    endforeach;
+    ?>
+    <?php if ($allStartups->isEmpty()): ?>
+    <p class="text-muted">No startups yet. <a href="<?= e(url('/submit')) ?>">Submit your startup</a>.</p>
+    <?php endif; ?>
   </div>
 
   <div class="cta-strip" id="submit">

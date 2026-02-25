@@ -46,8 +46,8 @@
     <a href="<?= e(url('/contact')) ?>">Contact</a>
     <a href="#" class="btn btn-ghost" data-modal="login">Log in</a>
     <a href="<?= e(url('/submit')) ?>" class="btn btn-primary">Add startup</a>
-    <a href="<?= e(url('/founder-dashboard')) ?>" style="font-size: 0.9rem; margin-top: 8px;">Founder dashboard</a>
-    <a href="<?= e(url('/admin-dashboard')) ?>" style="font-size: 0.9rem;">Admin</a>
+    <a href="<?= e(url('/startup')) ?>" style="font-size: 0.9rem; margin-top: 8px;">Startup dashboard</a>
+    <a href="<?= e(url('/backoffice')) ?>" style="font-size: 0.9rem;">Admin</a>
   </aside>
 
   <div class="modal-overlay" id="modalLogin" aria-hidden="true">
@@ -73,8 +73,8 @@
       </div>
       <div class="modal-footer">
         Don't have an account? <a href="#" data-switch="signup">Sign up</a>
-        <a href="<?= e(url('/founder-dashboard')) ?>">Founder dashboard</a>
-        <a href="<?= e(url('/admin-dashboard')) ?>">Admin</a>
+        <a href="<?= e(url('/startup')) ?>">Startup dashboard</a>
+        <a href="<?= e(url('/backoffice')) ?>">Admin</a>
       </div>
     </div>
   </div>
@@ -112,7 +112,7 @@
 
   <footer class="site-footer">
     <div class="wrap">
-      <p><a href="<?= e(url('/')) ?>">Eden</a> — Startup directory. <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="<?= e(url('/contact')) ?>">Contact</a> · <a href="<?= e(url('/founder-dashboard')) ?>">Founder dashboard</a> · <a href="<?= e(url('/admin-dashboard')) ?>">Admin</a></p>
+      <p><a href="<?= e(url('/')) ?>">Eden</a> — Startup directory. <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="<?= e(url('/contact')) ?>">Contact</a> · <a href="<?= e(url('/startup')) ?>">Dashboard</a> · <a href="<?= e(url('/backoffice')) ?>">Admin</a></p>
     </div>
   </footer>
 

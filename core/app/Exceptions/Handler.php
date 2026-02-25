@@ -122,56 +122,15 @@ class Handler extends ExceptionHandler
     }
 
     /**
-     * Handle custom exceptions and provide user-friendly responses
+     * Handle custom exceptions. When APP_DEBUG is true, show the real error (return null).
+     * When APP_DEBUG is false, show custom error pages to the user.
      */
     protected function handleCustomExceptions(Throwable $e, Request $request)
     {
-        // Handle marketplace-specific errors
-        if ($e instanceof \Illuminate\Database\QueryException) {
-            if (str_contains($e->getMessage(), 'foreign key constraint')) {
-                return response()->view('errors.500', [
-                    'message' => 'A data integrity error occurred. Please contact support.',
-                    'error_code' => 'DATA_INTEGRITY_ERROR'
-                ], 500);
-            }
-        }
+        $debug = config('app.debug', false);
 
-        // Handle auction-specific errors
-        if (str_contains($e->getMessage(), 'auction') || str_contains($e->getMessage(), 'bid')) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'An error occurred with the auction process. Please try again.',
-                    'error_type' => 'AUCTION_ERROR'
-                ], 500);
-            }
-        }
-
-        // Handle escrow-specific errors
-        if (str_contains($e->getMessage(), 'escrow')) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'An error occurred with the escrow process. Please contact support.',
-                    'error_type' => 'ESCROW_ERROR'
-                ], 500);
-            }
-        }
-
-        // Handle rate limiting errors
-        if ($e instanceof \Illuminate\Http\Exceptions\ThrottleRequestsException) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Too many requests. Please wait and try again.',
-                    'error_type' => 'RATE_LIMITED'
-                ], 429);
-            }
-        }
-
-        // Handle validation errors with better formatting
-        if ($e instanceof \Illuminate\Validation\ValidationException) {
-            if ($request->expectsJson()) {
+        if ($request->expectsJson()) {
+            if ($e instanceof \Illuminate\Validation\ValidationException) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Validation failed',
@@ -179,29 +138,68 @@ class Handler extends ExceptionHandler
                     'error_type' => 'VALIDATION_ERROR'
                 ], 422);
             }
+            if ($e instanceof \Illuminate\Http\Exceptions\ThrottleRequestsException) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Too many requests. Please wait and try again.',
+                    'error_type' => 'RATE_LIMITED'
+                ], 429);
+            }
+            if (!$debug && $e instanceof HttpException) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'An error occurred.',
+                    'error_type' => 'HTTP_ERROR'
+                ], $e->getStatusCode());
+            }
+            return null;
         }
 
-        // Handle 404 errors with custom marketplace message
+        if ($debug) {
+            return null;
+        }
+
+        if ($e instanceof \Illuminate\Validation\ValidationException || $e instanceof \Illuminate\Auth\AuthenticationException) {
+            return null;
+        }
+
         if ($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
-            if ($request->is('marketplace/*') || $request->is('user/*')) {
-                return response()->view('errors.marketplace-404', [], 404);
+            return response()->view('errors.404', ['title' => 'Page not found'], 404);
+        }
+
+        if ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpException) {
+            $statusCode = $e->getStatusCode();
+            if ($statusCode === 403) {
+                return response()->view('errors.403', ['title' => 'Access denied'], 403);
+            }
+            if ($statusCode === 419) {
+                return response()->view('errors.419', ['title' => 'Page expired'], 419);
+            }
+            if ($statusCode === 429) {
+                return response()->view('errors.429', ['title' => 'Too many requests'], 429);
+            }
+            if ($statusCode === 503) {
+                return response()->view('errors.503', ['title' => 'Unavailable'], 503);
+            }
+            if ($statusCode >= 500) {
+                return response()->view('errors.500', [
+                    'title' => 'Server error',
+                    'message' => 'An unexpected error occurred. We\'ve been notified and are working on it.',
+                ], $statusCode);
             }
         }
 
-        // Don't expose sensitive error details in production
-        if (app()->environment('production')) {
-            if ($e instanceof HttpException) {
-                $statusCode = $e->getStatusCode();
-                if ($statusCode >= 500) {
-                    return response()->view('errors.500', [
-                        'message' => 'An unexpected error occurred. Our team has been notified.',
-                        'error_code' => 'INTERNAL_ERROR'
-                    ], $statusCode);
-                }
-            }
+        if ($e instanceof \Illuminate\Database\QueryException) {
+            return response()->view('errors.500', [
+                'title' => 'Server error',
+                'message' => 'A temporary error occurred. Please try again or contact support.',
+            ], 500);
         }
 
-        return null; // Let Laravel handle it normally
+        return response()->view('errors.500', [
+            'title' => 'Server error',
+            'message' => 'An unexpected error occurred. We\'ve been notified.',
+        ], 500);
     }
 
     /**
@@ -213,25 +211,14 @@ class Handler extends ExceptionHandler
             return response()->json(['message' => $exception->getMessage()], 401);
         }
 
-        $intendedUrl = null;
-        $routeName = $request->route()?->getName();
-        $isPost = $request->isMethod('POST');
-
-        if ($routeName === 'marketplace.nda.sign') {
-            $listingId = $request->route('listingId');
-            if ($listingId) {
-                $intendedUrl = route('marketplace.nda.show', $listingId);
-            }
-        }
-
-        if ($intendedUrl) {
-            session()->put('url.intended', $intendedUrl);
-        } elseif ($isPost) {
-            session()->put('url.intended', route('user.home'));
-        }
-
         $redirectTo = method_exists($exception, 'redirectTo') ? $exception->redirectTo($request) : null;
-        return redirect()->guest($redirectTo ?? route('user.login'));
+        if ($redirectTo) {
+            return redirect()->guest($redirectTo);
+        }
+        if ($request->is('admin*') || $request->is('backoffice*')) {
+            return redirect()->guest(url('/admin'));
+        }
+        return redirect()->guest(url('/'));
     }
 
     /**

@@ -115,10 +115,25 @@ if ($done) {
             $steps[] = [true, 'Install flag set'];
 
             $success = true;
+            \Illuminate\Support\Facades\Log::info('Critical process succeeded: install_step4', [
+                'process' => 'install_step4',
+                'success' => true,
+                'url' => $_SERVER['REQUEST_URI'] ?? null,
+                'ip' => $_SERVER['REMOTE_ADDR'] ?? null,
+            ]);
         } catch (Throwable $e) {
             $errors[] = $e->getMessage();
             $steps[] = [false, $e->getMessage()];
             $success = false;
+            \Illuminate\Support\Facades\Log::error('Critical process failed: install_step4', [
+                'process' => 'install_step4',
+                'success' => false,
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'url' => $_SERVER['REQUEST_URI'] ?? null,
+                'ip' => $_SERVER['REMOTE_ADDR'] ?? null,
+            ]);
         }
     } else {
         $success = false;

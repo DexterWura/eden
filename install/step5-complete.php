@@ -1,14 +1,21 @@
 <?php
 $installed = false;
-try {
-    if (!defined('LARAVEL_START')) define('LARAVEL_START', microtime(true));
-    require __DIR__ . '/../core/vendor/autoload.php';
-    $app = require __DIR__ . '/../core/bootstrap/app.php';
-    if (is_object($app) && method_exists($app, 'make')) {
-        $installed = $app->make('cache')->get('EdenInstalled');
+if (file_exists(__DIR__ . '/../.env')) {
+    try {
+        if (!defined('LARAVEL_START')) define('LARAVEL_START', microtime(true));
+        require __DIR__ . '/../core/vendor/autoload.php';
+        $app = require __DIR__ . '/../core/bootstrap/app.php';
+        $app->instance(\Illuminate\Http\Request::class, $req = \Illuminate\Http\Request::capture());
+        $app->instance('request', $req);
+        $app->make(\Illuminate\Contracts\Http\Kernel::class)->bootstrap();
+        $installed = (bool) $app->make('cache')->get('EdenInstalled');
+    } catch (Throwable $e) {
+        $installed = false;
     }
-    if (!$installed && file_exists(__DIR__ . '/../.env')) $installed = true;
-} catch (Exception $e) { }
+    if (!$installed) {
+        $installed = true;
+    }
+}
 session_destroy();
 ?>
 <h2>Step 5: Complete</h2>
@@ -16,7 +23,7 @@ session_destroy();
     <div class="alert alert-success">
         <strong>Eden is installed.</strong> You can log in with the admin account you created.
     </div>
-    <p><a href="/" class="btn btn-primary">Go to site</a> <a href="/admin-dashboard.html" class="btn btn-ghost">Admin dashboard</a></p>
+    <p><a href="/" class="btn btn-primary">Go to site</a> <a href="/backoffice" class="btn btn-ghost">Admin dashboard</a></p>
     <p style="margin-top:20px; color:#8b90a0; font-size:0.9rem;">Consider deleting or protecting the <code>/install</code> folder in production.</p>
 <?php else: ?>
     <div class="alert alert-danger">Installation could not be verified.</div>

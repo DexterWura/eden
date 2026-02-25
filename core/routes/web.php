@@ -1,55 +1,26 @@
 <?php
 
 use App\Http\Controllers\Admin\Auth\LoginController;
+use App\Http\Controllers\Eden\DashboardController;
+use App\Http\Controllers\Eden\HomeController;
+use App\Http\Controllers\Eden\PageController;
+use App\Http\Controllers\Eden\StartupController;
 use Illuminate\Support\Facades\Route;
-
-$page = function (string $view, ?string $title = null, ?string $scripts = null) {
-    return response()->view('eden.layout', [
-        'title' => $title,
-        'content' => view('eden.' . $view)->render(),
-        'scripts' => $scripts ? view('eden.' . $scripts)->render() : '',
-    ]);
-};
 
 Route::get('/admin', [LoginController::class, 'showLoginForm'])->name('admin.login')->middleware('admin.guest');
 Route::post('/admin', [LoginController::class, 'login'])->middleware('admin.guest');
 Route::get('/admin/logout', [LoginController::class, 'logout'])->name('admin.logout')->middleware('admin');
+Route::get('/admin/password/reset', fn () => redirect()->route('admin.login'))->name('admin.password.reset');
 
-Route::get('/', function () use ($page) {
-    return $page('home', null, 'scripts-home');
-});
-Route::get('/about', fn () => $page('about', 'About'));
-Route::get('/contact', fn () => $page('contact', 'Contact'));
-Route::get('/submit', fn () => $page('submit', 'Submit your startup'));
-Route::get('/categories', fn () => $page('categories', 'Categories'));
-Route::get('/launching-today', function () use ($page) {
-    return $page('launching-today', 'Launching today', 'scripts-launching-today');
-});
-Route::get('/startup', function () use ($page) {
-    return $page('startup', 'Nexus Pay', 'scripts-startup');
-});
+Route::redirect('/admin-dashboard', '/backoffice', 301);
+Route::redirect('/founder-dashboard', '/startup', 301);
 
-Route::get('/founder-dashboard', function () {
-    return response()->view('eden.layout-dashboard', [
-        'title' => 'Founder dashboard',
-        'sidebar' => 'founder',
-        'dashboardLogo' => 'Eden',
-        'dashboardTopbar' => '<button type="button" class="dash-account" title="Switch account">Nexus Pay · Founder</button>',
-        'searchPlaceholder' => "Try searching 'upvotes this week'",
-        'avatarTitle' => 'Account',
-        'avatarLetter' => 'S',
-        'content' => view('eden.founder-dashboard')->render(),
-    ]);
-});
-Route::get('/admin-dashboard', function () {
-    return response()->view('eden.layout-dashboard', [
-        'title' => 'Admin dashboard',
-        'sidebar' => 'admin',
-        'dashboardLogo' => 'Eden Admin',
-        'dashboardTopbar' => '<button type="button" class="dash-account" title="Property">All startups</button>',
-        'searchPlaceholder' => "Try searching 'startups by category'",
-        'avatarTitle' => 'Admin',
-        'avatarLetter' => 'A',
-        'content' => view('eden.admin-dashboard')->render(),
-    ]);
-})->middleware('admin')->name('admin.dashboard');
+Route::get('/', [HomeController::class, 'index']);
+Route::get('/about', [PageController::class, 'about']);
+Route::get('/contact', [PageController::class, 'contact']);
+Route::get('/submit', [PageController::class, 'submit']);
+Route::get('/categories', [PageController::class, 'categories']);
+Route::get('/launching-today', [StartupController::class, 'launchingToday']);
+Route::get('/startup/{slug}', [StartupController::class, 'show']);
+Route::get('/startup', [DashboardController::class, 'founderDashboard']);
+Route::get('/backoffice', [DashboardController::class, 'adminDashboard'])->middleware('admin')->name('admin.dashboard');

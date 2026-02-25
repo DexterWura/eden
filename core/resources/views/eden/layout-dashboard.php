@@ -17,13 +17,13 @@
     <button type="button" class="dash-sidebar-toggle" id="dashSidebarToggle" aria-label="Open menu"><i class="fa-solid fa-bars"></i></button>
     <aside class="dash-sidebar" id="dashSidebar">
       <?php if (($sidebar ?? '') === 'admin'): ?>
-        <a href="<?= e(url('/admin-dashboard')) ?>" class="active" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i></a>
+        <a href="<?= e(url('/backoffice')) ?>" class="active" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i></a>
         <a href="#" aria-label="Startups" title="Startups"><i class="fa-solid fa-rocket"></i></a>
         <a href="#" aria-label="Users" title="Users"><i class="fa-solid fa-user"></i></a>
         <a href="#" aria-label="Reports" title="Reports"><i class="fa-solid fa-chart-line"></i></a>
         <a href="#" aria-label="Settings" title="Settings"><i class="fa-solid fa-gear"></i></a>
       <?php else: ?>
-        <a href="<?= e(url('/founder-dashboard')) ?>" class="active" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i></a>
+        <a href="<?= e(url('/startup')) ?>" class="active" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i></a>
         <a href="#" aria-label="My startup" title="My startup"><i class="fa-solid fa-building-user"></i></a>
         <a href="#" aria-label="Upvotes" title="Upvotes"><i class="fa-solid fa-arrow-up"></i></a>
         <a href="#" aria-label="Settings" title="Settings"><i class="fa-solid fa-gear"></i></a>
@@ -35,7 +35,7 @@
     <div class="dash-body">
       <header class="dash-topbar">
         <div class="dash-topbar-left">
-          <a href="<?= e($sidebar === 'admin' ? url('/admin-dashboard') : url('/founder-dashboard')) ?>" class="dash-logo">
+          <a href="<?= e($sidebar === 'admin' ? url('/backoffice') : url('/startup')) ?>" class="dash-logo">
             <span class="dash-logo-dots"><span></span><span></span><span></span><span></span></span>
             <?= e($dashboardLogo ?? 'Eden') ?>
           </a>

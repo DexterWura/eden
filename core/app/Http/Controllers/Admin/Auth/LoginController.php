@@ -91,41 +91,35 @@ class LoginController extends Controller
             }
 
             if ($this->attemptLogin($request)) {
-                // Log successful login
-                \Log::info('Admin login successful', [
-                    'username' => $request->username,
-                    'ip_address' => $request->ip(),
-                    'user_agent' => $request->userAgent()
-                ]);
+                if (function_exists('log_critical')) {
+                    log_critical('admin_login', true, ['username' => $request->username]);
+                } else {
+                    \Log::info('Critical process succeeded: admin_login', ['username' => $request->username, 'ip' => $request->ip()]);
+                }
                 return $this->sendLoginResponse($request);
             }
 
-            // If the login attempt was unsuccessful we will increment the number of attempts
-            // to login and redirect the user back to the login form. Of course, when this
-            // user surpasses their maximum number of attempts they will get locked out.
             $this->incrementLoginAttempts($request);
-
-            // Log failed login attempt
-            \Log::warning('Admin login failed', [
-                'username' => $request->username,
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
-            ]);
-
+            if (function_exists('log_critical')) {
+                log_critical('admin_login', false, ['username' => $request->username]);
+            } else {
+                \Log::error('Critical process failed: admin_login', ['username' => $request->username, 'ip' => $request->ip()]);
+            }
             return $this->sendFailedLoginResponse($request);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Validation errors - return with proper error messages
             return back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
-            // Log the error for debugging
-            \Log::error('Admin login error: ' . $e->getMessage(), [
-                'username' => $request->username ?? 'unknown',
-                'ip_address' => $request->ip(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            // Return user-friendly error message
+            if (function_exists('log_critical')) {
+                log_critical('admin_login', false, ['username' => $request->username ?? 'unknown', 'error' => $e->getMessage()]);
+            } else {
+                \Log::error('Admin login error: ' . $e->getMessage(), [
+                    'username' => $request->username ?? 'unknown',
+                    'ip_address' => $request->ip(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+            }
             $notify[] = ['error', 'An error occurred during login. Please try again.'];
             return back()->withNotify($notify)->withInput();
         }

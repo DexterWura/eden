@@ -1144,3 +1144,29 @@ function admin_audit_log(
         return null;
     }
 }
+
+/**
+ * Log a critical process outcome (success or failure) using Laravel's logger.
+ * Use for installer, auth, payments, and other critical flows.
+ *
+ * @param string $process Process name (e.g. 'install_step4', 'admin_login', 'user_register')
+ * @param bool $success True if the process succeeded, false if it failed
+ * @param array $context Extra context (e.g. ['user_id' => 1, 'step' => 'migrations'])
+ */
+function log_critical(string $process, bool $success, array $context = []): void
+{
+    try {
+        $context['process'] = $process;
+        $context['success'] = $success;
+        $context['url'] = request()?->fullUrl();
+        $context['method'] = request()?->method();
+        $context['ip'] = request()?->ip();
+        if ($success) {
+            Log::info("Critical process succeeded: {$process}", $context);
+        } else {
+            Log::error("Critical process failed: {$process}", $context);
+        }
+    } catch (\Throwable $e) {
+        Log::warning('log_critical failed: ' . $e->getMessage());
+    }
+}
