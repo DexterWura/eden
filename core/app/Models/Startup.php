@@ -36,8 +36,9 @@ class Startup extends Model
         return strtoupper(mb_substr($this->name, 0, 2));
     }
 
-    public function getShortDescriptionAttribute(int $maxLength = 120): string
+    public function getShortDescriptionAttribute(?int $maxLength = null): string
     {
+        $maxLength = $maxLength ?? 120;
         if ($this->tagline) {
             return $this->tagline;
         }
