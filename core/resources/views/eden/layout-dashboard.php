@@ -47,6 +47,9 @@
         </div>
         <div class="dash-topbar-right">
           <a href="#" aria-label="Help">?</a>
+          <?php if (($sidebar ?? '') === 'admin' && function_exists('route') && auth()->guard('admin')->check()): ?>
+            <a href="<?= e(route('admin.logout')) ?>" class="dash-logout" aria-label="Log out" title="Log out"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
+          <?php endif; ?>
           <div class="dash-avatar" title="<?= e($avatarTitle ?? 'Account') ?>"><?= e($avatarLetter ?? '?') ?></div>
         </div>
       </header>

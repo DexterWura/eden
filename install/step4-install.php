@@ -63,6 +63,30 @@ if ($done) {
                 \Illuminate\Support\Facades\DB::table('users')->where('id', $userId)->update(['is_admin' => true]);
             } catch (Exception $e) { }
 
+            if (\Illuminate\Support\Facades\Schema::hasTable('admins')) {
+                $username = 'admin';
+                $n = 0;
+                while (\Illuminate\Support\Facades\DB::table('admins')->where('username', $username)->exists()) {
+                    $username = 'admin' . (++$n);
+                }
+                $adminRow = [
+                    'name' => $admin['name'],
+                    'email' => $admin['email'],
+                    'username' => $username,
+                    'password' => $hashed,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+                if (\Illuminate\Support\Facades\Schema::hasColumn('admins', 'is_super_admin')) {
+                    $adminRow['is_super_admin'] = true;
+                }
+                if (\Illuminate\Support\Facades\Schema::hasColumn('admins', 'status')) {
+                    $adminRow['status'] = 1;
+                }
+                \Illuminate\Support\Facades\DB::table('admins')->insert($adminRow);
+                $steps[] = [true, 'Admin login created (username: ' . $username . ')'];
+            }
+
             $cache = $laravel->make('cache');
             $cache->put('EdenInstalled', true, now()->addYears(10));
             $steps[] = [true, 'Install flag set'];

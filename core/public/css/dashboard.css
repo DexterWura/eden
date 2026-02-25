@@ -29,10 +29,15 @@ body.dashboard {
 /* Layout */
 .dash-layout {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   min-height: 100vh;
 }
-.dash-body { display: flex; flex: 1; min-width: 0; }
+.dash-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
 .dash-main {
   flex: 1;
   min-width: 0;
@@ -150,6 +155,7 @@ body.dashboard {
 }
 .dash-topbar-right a:hover,
 .dash-topbar-right button:hover { background: var(--d-sidebar-bg); color: var(--d-text); }
+.dash-logout { color: var(--d-text-secondary); text-decoration: none; }
 .dash-avatar {
   width: 36px;
   height: 36px;
@@ -301,7 +307,15 @@ body.dashboard {
   font-size: 0.9rem;
 }
 
-/* Mobile: sidebar to drawer */
+/* Backdrop and toggle (mobile) */
+.dash-sidebar-backdrop {
+  display: none;
+  pointer-events: none;
+}
+.dash-sidebar-backdrop.is-open {
+  display: block;
+  pointer-events: auto;
+}
 .dash-sidebar-toggle {
   display: none;
   width: 48px;
@@ -336,13 +350,11 @@ body.dashboard {
   .dash-sidebar.is-open { transform: translateX(0); }
   .dash-sidebar-toggle { display: flex; }
   .dash-sidebar-backdrop {
-    display: none;
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.3);
     z-index: 199;
   }
-  .dash-sidebar-backdrop.is-open { display: block; }
   .dash-topbar { padding: 0 16px; }
   .dash-account { display: none; }
   .dash-content { padding: 16px; }

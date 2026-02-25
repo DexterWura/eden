@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
 
 $page = function (string $view, ?string $title = null, ?string $scripts = null) {
@@ -9,6 +10,10 @@ $page = function (string $view, ?string $title = null, ?string $scripts = null) 
         'scripts' => $scripts ? view('eden.' . $scripts)->render() : '',
     ]);
 };
+
+Route::get('/admin', [LoginController::class, 'showLoginForm'])->name('admin.login')->middleware('admin.guest');
+Route::post('/admin', [LoginController::class, 'login'])->middleware('admin.guest');
+Route::get('/admin/logout', [LoginController::class, 'logout'])->name('admin.logout')->middleware('admin');
 
 Route::get('/', function () use ($page) {
     return $page('home', null, 'scripts-home');
@@ -47,4 +52,4 @@ Route::get('/admin-dashboard', function () {
         'avatarLetter' => 'A',
         'content' => view('eden.admin-dashboard')->render(),
     ]);
-});
+})->middleware('admin')->name('admin.dashboard');

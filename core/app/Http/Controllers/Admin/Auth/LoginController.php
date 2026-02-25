@@ -65,8 +65,7 @@ class LoginController extends Controller
 
             $request->session()->regenerateToken();
 
-            // Verify captcha if enabled
-            if(!verifyCaptcha()){
+            if (function_exists('verifyCaptcha') && !verifyCaptcha()) {
                 $notify[] = ['error','Invalid captcha provided'];
                 return back()->withNotify($notify);
             }
@@ -137,6 +136,6 @@ class LoginController extends Controller
     {
         $this->guard('admin')->logout();
         $request->session()->invalidate();
-        return $this->loggedOut($request) ?: redirect()->route('admin.dashboard');
+        return $this->loggedOut($request) ?: redirect()->route('admin.login');
     }
 }
