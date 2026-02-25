@@ -41,6 +41,8 @@ if ($done) {
             if (!defined('LARAVEL_START')) define('LARAVEL_START', microtime(true));
             require __DIR__ . '/../core/vendor/autoload.php';
             $laravel = require __DIR__ . '/../core/bootstrap/app.php';
+            $laravel->instance(\Illuminate\Http\Request::class, $request = \Illuminate\Http\Request::capture());
+            $laravel->instance('request', $request);
             $laravel->make(\Illuminate\Contracts\Http\Kernel::class)->bootstrap();
             $steps[] = [true, 'Laravel loaded'];
 
