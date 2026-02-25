@@ -15,8 +15,10 @@ $root = __DIR__;
 $core = $root . DIRECTORY_SEPARATOR . 'core';
 $autoloader = $core . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
 
-// If vendor is missing, try to run composer in core/ (Flippa-style)
+// If vendor is missing, try to run composer in core/ (Flippa-style). Send 200 first so server never uses 503 ErrorDocument.
 if (! file_exists($autoloader)) {
+    header('HTTP/1.1 200 OK');
+    header('Content-Type: text/html; charset=utf-8');
     @set_time_limit(300);
     $phar = $root . DIRECTORY_SEPARATOR . 'composer.phar';
 
@@ -59,15 +61,14 @@ if (! file_exists($autoloader)) {
         }
     }
 
-    header('Content-Type: text/html; charset=utf-8');
-    header('HTTP/1.1 200 OK');
     echo '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Setup required – Eden</title><style>body{font-family:system-ui,sans-serif;max-width:560px;margin:3rem auto;padding:0 1rem;background:#f5f0e1;}h1{color:#6CAA64;}a{color:#6CAA64;}code{background:#eee;padding:.2em .4em;border-radius:4px;}p{line-height:1.5;}</style></head><body><h1>Setup required</h1><p>Run in the <code>core</code> directory: <code>composer install --no-dev</code> (or put <code>composer.phar</code> in the project root and reload). Then <a href="/install">open the installer</a>.</p></body></html>';
     exit;
 }
 
-// Maintenance mode
+// Maintenance mode (skip when app not configured so we never 503 on first deploy)
 $maintenance = $core . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'framework' . DIRECTORY_SEPARATOR . 'maintenance.php';
-if (file_exists($maintenance)) {
+$envFile = $core . DIRECTORY_SEPARATOR . '.env';
+if (file_exists($maintenance) && file_exists($envFile)) {
     require $maintenance;
 }
 
