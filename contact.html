@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact — Eden</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a href="index.html" class="logo">Eden</a>
+      <nav>
+        <a href="launching-today.html">Launching today</a>
+        <a href="categories.html">Categories</a>
+        <a href="index.html#startups">Startups</a>
+        <a href="submit.html">Submit</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="#" class="btn btn-ghost">Log in</a>
+        <a href="submit.html" class="btn btn-primary">Add startup</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-head">
+      <div class="wrap">
+        <h1>Contact</h1>
+        <p>Questions, partnerships, or feedback. We’ll get back to you.</p>
+      </div>
+    </section>
+
+    <div class="wrap content-block">
+      <form class="form-max" action="#" method="get">
+        <div class="form-group">
+          <label class="form-label" for="name">Name</label>
+          <input type="text" id="name" class="form-input" placeholder="Your name" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="email">Email</label>
+          <input type="email" id="email" class="form-input" placeholder="you@example.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="subject">Subject</label>
+          <select id="subject" class="form-select">
+            <option value="">Choose…</option>
+            <option value="listing">Listing / startup</option>
+            <option value="partnership">Partnership</option>
+            <option value="press">Press</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="message">Message</label>
+          <textarea id="message" class="form-textarea" placeholder="Your message" required></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Send message</button>
+          <a href="index.html" class="btn btn-ghost">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p><a href="index.html">Eden</a> — Startup directory. <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="contact.html">Contact</a></p>
+    </div>
+  </footer>
+</body>
+</html>
