@@ -9,7 +9,7 @@ class StartupService
 {
     public function getProductOfDay(?string $category = null, int $limit = 5): Collection
     {
-        $query = Startup::query()->orderByDesc('upvotes');
+        $query = Startup::active()->orderByDesc('upvotes');
         if ($category !== null && $category !== '') {
             $query->byCategory($category);
         }
@@ -18,7 +18,7 @@ class StartupService
 
     public function getAllStartups(?string $category = null): Collection
     {
-        $query = Startup::query()->orderByDesc('upvotes');
+        $query = Startup::active()->orderByDesc('upvotes');
         if ($category !== null && $category !== '') {
             $query->byCategory($category);
         }
@@ -27,7 +27,7 @@ class StartupService
 
     public function getCategoriesWithCounts(): Collection
     {
-        return Startup::query()
+        return Startup::active()
             ->selectRaw('category, count(*) as count')
             ->whereNotNull('category')
             ->where('category', '!=', '')
@@ -38,11 +38,11 @@ class StartupService
 
     public function getLaunchingToday(): Collection
     {
-        return Startup::launchingToday()->orderByDesc('upvotes')->get();
+        return Startup::active()->launchingToday()->orderByDesc('upvotes')->get();
     }
 
     public function getBySlug(string $slug): Startup
     {
-        return Startup::where('slug', $slug)->firstOrFail();
+        return Startup::active()->where('slug', $slug)->firstOrFail();
     }
 }

@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Eden;
 
+use App\Models\Startup;
+use App\Models\Subscriber;
+use App\Models\User;
 use Illuminate\Http\Response;
 
 class DashboardController extends EdenController
@@ -22,6 +25,11 @@ class DashboardController extends EdenController
 
     public function adminDashboard(): Response
     {
+        $totalStartups = Startup::count();
+        $activeStartups = Startup::active()->count();
+        $launchingToday = Startup::active()->launchingToday()->count();
+        $recentStartups = Startup::query()->orderByDesc('created_at')->limit(5)->get();
+
         return response()->view('eden.layout-dashboard', [
             'title' => 'Admin dashboard',
             'sidebar' => 'admin',
@@ -30,7 +38,14 @@ class DashboardController extends EdenController
             'searchPlaceholder' => "Try searching 'startups by category'",
             'avatarTitle' => 'Admin',
             'avatarLetter' => 'A',
-            'content' => view('eden.admin-dashboard')->render(),
+            'content' => view('eden.admin-dashboard', [
+                'totalStartups' => $totalStartups,
+                'activeStartups' => $activeStartups,
+                'launchingToday' => $launchingToday,
+                'totalUsers' => User::count(),
+                'totalSubscribers' => Subscriber::count(),
+                'recentStartups' => $recentStartups,
+            ])->render(),
         ]);
     }
 }

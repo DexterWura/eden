@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <?php if (function_exists('csrf_token')): ?><meta name="csrf-token" content="<?= e(csrf_token()) ?>"><?php endif; ?>
   <title><?= e($title ?? 'Dashboard') ?> — Eden</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,12 +17,13 @@
     <div class="dash-sidebar-backdrop" id="dashSidebarBackdrop"></div>
     <aside class="dash-sidebar" id="dashSidebar">
       <?php if (($sidebar ?? '') === 'admin'): ?>
-        <a href="<?= e(url('/backoffice')) ?>" class="<?= ($activeNav ?? '') === 'migrations' ? '' : 'active' ?>" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i></a>
+        <a href="<?= e(url('/backoffice')) ?>" class="<?= in_array($activeNav ?? '', ['migrations', 'startups', 'users', 'subscribers', 'reports', 'settings'], true) ? '' : 'active' ?>" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i></a>
         <a href="<?= e(url('/backoffice/migrations')) ?>" class="<?= ($activeNav ?? '') === 'migrations' ? 'active' : '' ?>" aria-label="Migrations" title="Migrations"><i class="fa-solid fa-database"></i></a>
-        <a href="#" aria-label="Startups" title="Startups"><i class="fa-solid fa-rocket"></i></a>
-        <a href="#" aria-label="Users" title="Users"><i class="fa-solid fa-user"></i></a>
-        <a href="#" aria-label="Reports" title="Reports"><i class="fa-solid fa-chart-line"></i></a>
-        <a href="#" aria-label="Settings" title="Settings"><i class="fa-solid fa-gear"></i></a>
+        <a href="<?= e(url('/backoffice/startups')) ?>" class="<?= ($activeNav ?? '') === 'startups' ? 'active' : '' ?>" aria-label="Startups" title="Startups"><i class="fa-solid fa-rocket"></i></a>
+        <a href="<?= e(url('/backoffice/users')) ?>" class="<?= ($activeNav ?? '') === 'users' ? 'active' : '' ?>" aria-label="Users" title="Users"><i class="fa-solid fa-user"></i></a>
+        <a href="<?= e(url('/backoffice/subscribers')) ?>" class="<?= ($activeNav ?? '') === 'subscribers' ? 'active' : '' ?>" aria-label="Subscribers" title="Subscribers"><i class="fa-solid fa-envelope"></i></a>
+        <a href="<?= e(url('/backoffice/reports')) ?>" class="<?= ($activeNav ?? '') === 'reports' ? 'active' : '' ?>" aria-label="Reports" title="Reports"><i class="fa-solid fa-chart-line"></i></a>
+        <a href="<?= e(url('/backoffice/settings')) ?>" class="<?= ($activeNav ?? '') === 'settings' ? 'active' : '' ?>" aria-label="Settings" title="Settings"><i class="fa-solid fa-gear"></i></a>
       <?php else: ?>
         <a href="<?= e(url('/founder')) ?>" class="active" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i></a>
         <a href="#" aria-label="My startup" title="My startup"><i class="fa-solid fa-building-user"></i></a>

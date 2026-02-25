@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Startup extends Model
 {
+    public const STATUS_ACTIVE = 'active';
+    public const STATUS_DISABLED = 'disabled';
+    public const STATUS_BANNED = 'banned';
+
     protected $fillable = [
         'name',
         'slug',
@@ -15,11 +19,15 @@ class Startup extends Model
         'website',
         'location',
         'founder_name',
+        'founder_email',
+        'founder_twitter_url',
+        'founder_linkedin_url',
         'launch_date',
         'is_featured',
         'upvotes',
         'twitter_url',
         'linkedin_url',
+        'status',
     ];
 
     protected $casts = [
@@ -62,5 +70,35 @@ class Startup extends Model
     public function scopeByCategory($query, string $category)
     {
         return $query->where('category', $category);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', self::STATUS_ACTIVE);
+    }
+
+    public function scopeDisabled($query)
+    {
+        return $query->where('status', self::STATUS_DISABLED);
+    }
+
+    public function scopeBanned($query)
+    {
+        return $query->where('status', self::STATUS_BANNED);
+    }
+
+    public function isActive(): bool
+    {
+        return $this->status === self::STATUS_ACTIVE;
+    }
+
+    public function isDisabled(): bool
+    {
+        return $this->status === self::STATUS_DISABLED;
+    }
+
+    public function isBanned(): bool
+    {
+        return $this->status === self::STATUS_BANNED;
     }
 }

@@ -2,6 +2,11 @@
 
 use App\Http\Controllers\Admin\Auth\LoginController as AdminLoginController;
 use App\Http\Controllers\Admin\MigrationController;
+use App\Http\Controllers\Admin\ReportsController;
+use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\StartupController as AdminStartupController;
+use App\Http\Controllers\Admin\SubscriberController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Eden\AuthController;
 use App\Http\Controllers\Eden\DashboardController;
 use App\Http\Controllers\Eden\HomeController;
@@ -39,6 +44,21 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware('admin')->prefix('backoffice')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'adminDashboard'])->name('dashboard');
     Route::get('migrations', [MigrationController::class, 'index'])->name('migration.index');
+    Route::get('startups', [AdminStartupController::class, 'index'])->name('startups.index');
+    Route::get('startups/create', [AdminStartupController::class, 'create'])->name('startups.create');
+    Route::post('startups', [AdminStartupController::class, 'store'])->name('startups.store');
+    Route::get('startups/{startup}/edit', [AdminStartupController::class, 'edit'])->name('startups.edit');
+    Route::put('startups/{startup}', [AdminStartupController::class, 'update'])->name('startups.update');
+    Route::post('startups/{startup}/disable', [AdminStartupController::class, 'disable'])->name('startups.disable');
+    Route::post('startups/{startup}/activate', [AdminStartupController::class, 'activate'])->name('startups.activate');
+    Route::post('startups/{startup}/ban', [AdminStartupController::class, 'ban'])->name('startups.ban');
+    Route::post('startups/{startup}/unban', [AdminStartupController::class, 'unban'])->name('startups.unban');
+    Route::post('startups/{startup}/featured', [AdminStartupController::class, 'toggleFeatured'])->name('startups.toggle-featured');
+    Route::get('users', [UserController::class, 'index'])->name('users.index');
+    Route::get('subscribers', [SubscriberController::class, 'index'])->name('subscribers.index');
+    Route::delete('subscribers/{subscriber}', [SubscriberController::class, 'destroy'])->name('subscribers.destroy');
+    Route::get('reports', [ReportsController::class, 'index'])->name('reports.index');
+    Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::post('migrations/run', [MigrationController::class, 'run'])->name('migration.run');
     Route::post('migrations/refresh', [MigrationController::class, 'refresh'])->name('migration.refresh');
     Route::post('migrations/rollback', [MigrationController::class, 'rollback'])->name('migration.rollback');
@@ -46,6 +66,6 @@ Route::middleware('admin')->prefix('backoffice')->name('admin.')->group(function
     Route::get('migrations/download-sql', [MigrationController::class, 'downloadSql'])->name('migration.download.sql');
     Route::post('cache/clear', function () {
         Artisan::call('cache:clear');
-        return redirect()->back()->with('success', __('Application cache cleared.'));
+        return redirect()->back()->with('notify', [['success', 'Application cache cleared.']]);
     })->name('cache.clear');
 });

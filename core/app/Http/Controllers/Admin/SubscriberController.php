@@ -5,98 +5,49 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Subscriber;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 
 class SubscriberController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $pageTitle = 'Subscribers';
-        $subscribers = Subscriber::orderBy('id','desc')->paginate(getPaginate());
-        return view('admin.subscriber.index', compact('pageTitle', 'subscribers'));
-    }
-
-    public function sendEmailForm()
-    {
-        $pageTitle = 'Email to Subscribers';
-        if (session()->has('SEND_NOTIFICATION_TO_SUBSCRIBER') && !request()->email_sent) {
-            session()->forget('SEND_NOTIFICATION_TO_SUBSCRIBER');
+        $query = Subscriber::query()->orderByDesc('created_at');
+        $search = $request->get('q', '');
+        if ($search !== '') {
+            $query->where('email', 'like', '%' . $search . '%');
         }
-        return view('admin.subscriber.send_email', compact('pageTitle'));
+        $subscribers = $query->paginate(30)->withQueryString();
+
+        $content = view('eden.subscribers.index', [
+            'subscribers' => $subscribers,
+            'search' => $search,
+            'total' => Subscriber::count(),
+        ])->render();
+
+        return response()->view('eden.layout-dashboard', $this->dashboardVars('Subscribers', 'subscribers', $content));
     }
 
-    public function remove($id)
+    public function destroy(Subscriber $subscriber): RedirectResponse
     {
-        $subscriber = Subscriber::findOrFail($id);
         $subscriber->delete();
-
-        $notify[] = ['success', 'Subscriber deleted successfully'];
-        return back()->withNotify($notify);
+        return redirect()->route('admin.subscribers.index')
+            ->with('notify', [['success', 'Subscriber removed.']]);
     }
 
-    public function sendEmail(Request $request)
+    private function dashboardVars(string $title, string $activeNav, string $content): array
     {
-        $request->validate([
-            'message'      => 'required',
-            'subject'      => 'required_if:via,email,push',
-            'start'        => 'required|integer|gte:1',
-            'batch'        => 'required|integer|gte:1',
-            'cooling_time' => 'required|integer|gte:1',
-        ]);
-
-        $query = Subscriber::query();
-
-        if (session()->has("SEND_NOTIFICATION_TO_SUBSCRIBER")) {
-            $totalSubscriberCount = session('SEND_NOTIFICATION_TO_SUBSCRIBER')['total_subscriber'];
-        } else {
-            $totalSubscriberCount = (clone $query)->count() - ($request->start - 1);
-        }
-
-        if (!$totalSubscriberCount) {
-            $notify[] = ['info', "No subscriber found."];
-            return back()->withNotify($notify);
-        }
-
-        $subscribers = (clone $query)->skip($request->start - 1)->limit($request->batch)->get();
-
-        foreach ($subscribers as $subscriber) {
-            $receiverName = explode('@', $subscriber->email)[0];
-            $user = [
-                'username' => $subscriber->email,
-                'email'    => $subscriber->email,
-                'fullname' => $receiverName,
-            ];
-            notify($user, 'DEFAULT', [
-                'subject' => $request->subject,
-                'message' => $request->body,
-            ], ['email'], createLog: false);
-        }
-
-        return $this->sessionForNotification($totalSubscriberCount, $request);
-    }
-
-    private function sessionForNotification($totalSubscriberCount, $request)
-    {
-        if (session()->has('SEND_NOTIFICATION_TO_SUBSCRIBER')) {
-            $sessionData                = session("SEND_NOTIFICATION_TO_SUBSCRIBER");
-            $sessionData['total_sent'] += $sessionData['batch'];
-        } else {
-            $sessionData                     = $request->except('_token');
-            $sessionData['total_sent']       = $request->batch;
-            $sessionData['total_subscriber'] = $totalSubscriberCount;
-        }
-
-        $sessionData['start'] = $sessionData['total_sent'] + 1;
-
-        if ($sessionData['total_sent'] >= $totalSubscriberCount) {
-            session()->forget("SEND_NOTIFICATION_TO_SUBSCRIBER");
-            $message = " Email notifications were sent successfully";
-            $url     = route("admin.subscriber.send.email");
-        } else {
-            session()->put('SEND_NOTIFICATION_TO_SUBSCRIBER', $sessionData);
-            $message = $sessionData['total_sent'] . " Email notifications were sent successfully";
-            $url     = route("admin.subscriber.send.email") . "?email_sent=yes";
-        }
-        $notify[] = ['success', $message];
-        return redirect($url)->withNotify($notify);
+        return [
+            'title' => $title,
+            'sidebar' => 'admin',
+            'activeNav' => $activeNav,
+            'dashboardLogo' => 'Eden Admin',
+            'dashboardTopbar' => '',
+            'searchPlaceholder' => "Search…",
+            'avatarTitle' => 'Admin',
+            'avatarLetter' => 'A',
+            'content' => $content,
+            'scriptDeps' => '<script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>',
+            'notifyPartial' => view('partials.notify')->render(),
+        ];
     }
 }
