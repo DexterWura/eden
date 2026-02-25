@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Eden — Startup Directory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0b0f;
+      --surface: #12141c;
+      --surface-hover: #1a1d28;
+      --border: #2a2e3d;
+      --text: #e8eaef;
+      --text-muted: #8b90a0;
+      --accent: #00d4aa;
+      --accent-dim: rgba(0, 212, 170, 0.15);
+      --glow: rgba(0, 212, 170, 0.4);
+      --danger: #ff4767;
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Outfit', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,212,170,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,170,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .bg-glow {
+      position: fixed;
+      width: 80vmax;
+      height: 80vmax;
+      top: -30vmax;
+      right: -20vmax;
+      background: radial-gradient(circle, rgba(0,212,170,0.08) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrap { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+    /* Header */
+    header {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+    }
+    .header-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+    .logo {
+      font-weight: 700;
+      font-size: 1.5rem;
+      letter-spacing: -0.02em;
+      color: var(--accent);
+    }
+    nav { display: flex; gap: 24px; align-items: center; }
+    nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+    nav a:hover { color: var(--accent); }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s, box-shadow 0.2s;
+      font-family: inherit;
+    }
+    .btn-primary { background: var(--accent); color: var(--bg); }
+    .btn-primary:hover { box-shadow: 0 0 24px var(--accent-dim); }
+    .btn-ghost { background: transparent; color: var(--text-muted); }
+    .btn-ghost:hover { background: var(--surface-hover); color: var(--text); }
+
+    /* Hero */
+    .hero {
+      padding: 60px 0 48px;
+      text-align: center;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #fff 0%, var(--text-muted) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      max-width: 520px;
+      margin: 0 auto 32px;
+    }
+
+    /* Search */
+    .search-wrap {
+      max-width: 560px;
+      margin: 0 auto 40px;
+      position: relative;
+    }
+    .search-wrap svg {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+      stroke: var(--text-muted);
+    }
+    .search-input {
+      width: 100%;
+      padding: 16px 20px 16px 52px;
+      font-size: 1rem;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-input::placeholder { color: var(--text-muted); }
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+
+    /* Stats bar */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 20px;
+      text-align: center;
+    }
+    .stat-num { font-size: 1.75rem; font-weight: 700; color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+    .stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+
+    /* Filters / Categories */
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 28px;
+      align-items: center;
+    }
+    .filters span { font-size: 0.9rem; color: var(--text-muted); margin-right: 8px; }
+    .pill {
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .pill:hover, .pill.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+
+    /* Startup list */
+    .section-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    .startup-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+      padding-bottom: 60px;
+    }
+    .startup-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .startup-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent), 0 12px 32px rgba(0,0,0,0.3);
+      transform: translateY(-2px);
+    }
+    .startup-card.featured { border-color: var(--accent); background: linear-gradient(135deg, var(--surface) 0%, var(--accent-dim) 100%); }
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .card-logo {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-sm);
+      background: var(--surface-hover);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+    .card-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 8px;
+      border-radius: 4px;
+      background: var(--accent-dim);
+      color: var(--accent);
+    }
+    .badge.sponsored { background: rgba(255,71,103,0.15); color: var(--danger); }
+    .card-title { font-size: 1.1rem; font-weight: 600; }
+    .card-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; }
+    .card-meta { display: flex; flex-wrap: wrap; gap: 12px; font-size: 0.85rem; color: var(--text-muted); }
+    .card-meta span { display: flex; align-items: center; gap: 4px; }
+
+    /* CTA strip */
+    .cta-strip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .cta-strip h3 { font-size: 1.25rem; margin-bottom: 8px; }
+    .cta-strip p { color: var(--text-muted); margin-bottom: 20px; font-size: 0.95rem; }
+    .cta-strip .btn { margin: 0 6px; }
+
+    /* Newsletter */
+    .newsletter {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      max-width: 480px;
+      margin: 0 auto 60px;
+      align-items: center;
+      justify-content: center;
+    }
+    .newsletter input {
+      flex: 1;
+      min-width: 200px;
+      padding: 12px 16px;
+      font-size: 1rem;
+      font-family: inherit;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      outline: none;
+    }
+    .newsletter input::placeholder { color: var(--text-muted); }
+    .newsletter input:focus { border-color: var(--accent); }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 0;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 640px) {
+      nav { display: none; }
+      .hero { padding: 40px 0 32px; }
+      .startup-list { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+
+  <header>
+    <div class="wrap header-inner">
+      <a href="#" class="logo">Eden</a>
+      <nav>
+        <a href="#startups">Startups</a>
+        <a href="#categories">Categories</a>
+        <a href="#submit">Submit</a>
+        <a href="#" class="btn btn-ghost">Log in</a>
+        <a href="#" class="btn btn-primary">Add startup</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <h1>Discover the next wave of startups</h1>
+        <p>Explore, search, and connect with innovative companies. One directory. Zero noise.</p>
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="search" class="search-input" placeholder="Search startups, tags, or categories…" aria-label="Search">
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap">
+      <div class="stats">
+        <div class="stat"><div class="stat-num">248</div><div class="stat-label">Startups</div></div>
+        <div class="stat"><div class="stat-num">42</div><div class="stat-label">Categories</div></div>
+        <div class="stat"><div class="stat-num">12</div><div class="stat-label">Featured</div></div>
+        <div class="stat"><div class="stat-num">New</div><div class="stat-label">This week</div></div>
+      </div>
+
+      <div class="filters" id="categories">
+        <span>Category:</span>
+        <button type="button" class="pill active">All</button>
+        <button type="button" class="pill">Fintech</button>
+        <button type="button" class="pill">Health</button>
+        <button type="button" class="pill">AI & ML</button>
+        <button type="button" class="pill">SaaS</button>
+        <button type="button" class="pill">Marketplace</button>
+        <button type="button" class="pill">EdTech</button>
+        <button type="button" class="pill">Climate</button>
+      </div>
+
+      <h2 class="section-title">Startups</h2>
+      <div class="startup-list" id="startups">
+        <article class="startup-card featured">
+          <div class="card-top">
+            <div class="card-logo">Nx</div>
+            <div class="card-badges"><span class="badge">Featured</span><span class="badge sponsored">Sponsored</span></div>
+          </div>
+          <h3 class="card-title">Nexus Pay</h3>
+          <p class="card-desc">Instant cross-border payments and treasury for African businesses.</p>
+          <div class="card-meta"><span>Fintech</span><span>Harare</span><span>2024</span></div>
+        </article>
+        <article class="startup-card">
+          <div class="card-top">
+            <div class="card-logo">Vx</div>
+            <div class="card-badges"><span class="badge">New</span></div>
+          </div>
+          <h3 class="card-title">VitaFlow</h3>
+          <p class="card-desc">Telehealth and prescription delivery across Zimbabwe.</p>
+          <div class="card-meta"><span>Health</span><span>Bulawayo</span><span>2024</span></div>
+        </article>
+        <article class="startup-card">
+          <div class="card-top">
+            <div class="card-logo">Ax</div>
+            <div class="card-badges"></div>
+          </div>
+          <h3 class="card-title">AgriSmart</h3>
+          <p class="card-desc">AI-powered crop insights and market prices for smallholder farmers.</p>
+          <div class="card-meta"><span>AgTech</span><span>Mutare</span><span>2023</span></div>
+        </article>
+        <article class="startup-card">
+          <div class="card-top">
+            <div class="card-logo">Lm</div>
+            <div class="card-badges"><span class="badge">Featured</span></div>
+          </div>
+          <h3 class="card-title">LearnMate</h3>
+          <p class="card-desc">Adaptive learning platform for secondary school exam prep.</p>
+          <div class="card-meta"><span>EdTech</span><span>Harare</span><span>2023</span></div>
+        </article>
+        <article class="startup-card">
+          <div class="card-top">
+            <div class="card-logo">Cr</div>
+            <div class="card-badges"></div>
+          </div>
+          <h3 class="card-title">CarbonTrace</h3>
+          <p class="card-desc">Carbon footprint tracking and offsets for enterprises.</p>
+          <div class="card-meta"><span>Climate</span><span>Remote</span><span>2024</span></div>
+        </article>
+        <article class="startup-card">
+          <div class="card-top">
+            <div class="card-logo">Mk</div>
+            <div class="card-badges"><span class="badge">New</span></div>
+          </div>
+          <h3 class="card-title">MarketHub</h3>
+          <p class="card-desc">B2B marketplace connecting manufacturers and retailers.</p>
+          <div class="card-meta"><span>Marketplace</span><span>Harare</span><span>2024</span></div>
+        </article>
+      </div>
+
+      <div class="cta-strip" id="submit">
+        <h3>Launching something?</h3>
+        <p>Get your startup in front of investors and customers. Submit in under 2 minutes.</p>
+        <a href="#" class="btn btn-primary">Submit your startup</a>
+        <a href="#" class="btn btn-ghost">View guidelines</a>
+      </div>
+
+      <div class="newsletter">
+        <input type="email" placeholder="Your email" aria-label="Email">
+        <button type="button" class="btn btn-primary">Subscribe</button>
+        <p style="width:100%;font-size:0.85rem;color:var(--text-muted);margin:0;">Weekly digest of new startups. No spam.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p><a href="#">Eden</a> — Startup directory. <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Contact</a></p>
+    </div>
+  </footer>
+
+  <script>
+    document.querySelectorAll('.pill').forEach(function(pill) {
+      pill.addEventListener('click', function() {
+        document.querySelectorAll('.pill').forEach(function(p) { p.classList.remove('active'); });
+        this.classList.add('active');
+      });
+    });
+    document.querySelector('.search-input').addEventListener('input', function() {
+      console.log('Search:', this.value);
+    });
+  </script>
+</body>
+</html>
