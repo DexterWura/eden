@@ -305,6 +305,7 @@ By default Eden uses `file` for cache and sessions. For better performance on bu
 
 ### Troubleshooting
 
+- **503 Service Unavailable:** Usually the domain’s **document root** is wrong. It must be either (1) the **project root** (the folder that contains `index.php`, `.htaccess`, and the `core/` directory), or (2) the **`core/public`** folder. Test: open `https://your-domain.com/ok.php`. If you still get 503, the web server is not using that folder as the document root—change it in your host’s panel (e.g. cPanel → Domains → Document Root). Then run `cd core && composer install --no-dev` and open `/install`.
 - **"Index of /" or directory listing:** Set the document root to the **project root** (so root `index.php` and `.htaccess` run; they serve from `core/`). Or set it to `core/public/`.
 - **URLs show /core/public/:** Use the root `.htaccess` (Apache: `AllowOverride All`) so assets are served from `core/public/` with clean URLs (e.g. `/css/...`).
 - **500 error:** Check that `core/storage/` and `core/bootstrap/cache/` are writable and that `APP_KEY` is set in `core/.env`.
