@@ -6,14 +6,10 @@
     RewriteCond %{REQUEST_URI} ^/core/public/ [NC]
     RewriteRule ^ - [L]
 
-    # Serve existing files in core/public/ (CSS, JS, images) – clean URLs
+    # Serve existing files in core/public/ (CSS, JS, images)
     RewriteCond %{DOCUMENT_ROOT}/core/public%{REQUEST_URI} -f
     RewriteRule ^(.*)$ core/public/$1 [L]
 
-    # Serve existing files in document root (e.g. ok.php for diagnostics)
-    RewriteCond %{REQUEST_FILENAME} -f
-    RewriteRule ^ - [L]
-
-    # Everything else: root index.php (boots Laravel from core/)
+    # Everything else: root index.php
     RewriteRule ^(.*)$ index.php [L]
 </IfModule>

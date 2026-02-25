@@ -1,8 +1,8 @@
 <?php
-/*
-| Eden – Application Entry Point (Flippa-style: root entry, Laravel in core/)
-| No Laravel "use" or require above so PHP never tries to load missing vendor when showing setup.
-*/
+/**
+ * Eden – entry point. Laravel lives in core/.
+ * Document root must be this folder (project root) or core/public.
+ */
 error_reporting(E_ALL & ~E_DEPRECATED);
 define('LARAVEL_START', microtime(true));
 
@@ -10,72 +10,16 @@ $root = __DIR__;
 $core = $root . DIRECTORY_SEPARATOR . 'core';
 $autoloader = $core . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
 
-// If vendor is missing: send 200 immediately (avoid 503/ErrorDocument), then show setup or try composer.
 if (!file_exists($autoloader)) {
-    header('HTTP/1.1 200 OK');
     header('Content-Type: text/html; charset=utf-8');
-    @set_time_limit(300);
-    $phar = $root . DIRECTORY_SEPARATOR . 'composer.phar';
-
-    if (! file_exists($phar) && ! in_array('file_get_contents', array_map('trim', explode(',', (string) ini_get('disable_functions'))), true)) {
-        $content = @file_get_contents('https://getcomposer.org/composer.phar');
-        if ($content !== false && strlen($content) > 1000) {
-            @file_put_contents($phar, $content);
-        }
-    }
-
-    $composerPath = null;
-    if (function_exists('shell_exec') && ! in_array('shell_exec', array_map('trim', explode(',', (string) ini_get('disable_functions'))), true)) {
-        $check = @shell_exec('composer --version 2>&1');
-        if ($check && strpos($check, 'Composer') !== false) {
-            $composerPath = 'composer';
-        }
-        if (! $composerPath && file_exists($phar)) {
-            $check = @shell_exec('php ' . escapeshellarg($phar) . ' --version 2>&1');
-            if ($check && strpos($check, 'Composer') !== false) {
-                $composerPath = 'php ' . escapeshellarg($phar);
-            }
-        }
-        if (! $composerPath) {
-            $check = @shell_exec('php composer.phar --version 2>&1');
-            if ($check && strpos($check, 'Composer') !== false) {
-                $composerPath = 'php composer.phar';
-            }
-        }
-    }
-
-    if ($composerPath) {
-        $command = 'cd ' . escapeshellarg($core) . ' && ' . $composerPath . ' install --no-dev --no-interaction --optimize-autoloader 2>&1';
-        if (file_exists($phar) && strpos($composerPath, 'composer.phar') !== false) {
-            $command = 'cd ' . escapeshellarg($core) . ' && php ' . escapeshellarg($phar) . ' install --no-dev --no-interaction --optimize-autoloader 2>&1';
-        }
-        @shell_exec($command);
-        if (file_exists($autoloader)) {
-            header('Location: ' . (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/'));
-            exit;
-        }
-    }
-
-    echo '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Setup required – Eden</title><style>body{font-family:system-ui,sans-serif;max-width:560px;margin:3rem auto;padding:0 1rem;background:#f5f0e1;}h1{color:#6CAA64;}a{color:#6CAA64;}code{background:#eee;padding:.2em .4em;border-radius:4px;}p{line-height:1.5;}</style></head><body><h1>Setup required</h1><p>Run in the <code>core</code> directory: <code>composer install --no-dev</code> (or put <code>composer.phar</code> in the project root and reload). Then <a href="/install">open the installer</a>.</p></body></html>';
+    echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Setup</title></head><body><h1>Setup required</h1><p>Run: <code>cd core && composer install --no-dev</code></p><p>Then open <a href="/install">/install</a></p></body></html>';
     exit;
 }
 
-// Maintenance mode (skip when app not configured so we never 503 on first deploy)
-$maintenance = $core . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'framework' . DIRECTORY_SEPARATOR . 'maintenance.php';
-$envFile = $core . DIRECTORY_SEPARATOR . '.env';
-if (file_exists($maintenance) && file_exists($envFile)) {
-    require $maintenance;
-}
-
 require $autoloader;
-
-$configCache = $core . DIRECTORY_SEPARATOR . 'bootstrap' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'config.php';
-if (file_exists($configCache)) {
-    @unlink($configCache);
-}
-
 $app = require_once $core . DIRECTORY_SEPARATOR . 'bootstrap' . DIRECTORY_SEPARATOR . 'app.php';
 $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 $request = Illuminate\Http\Request::capture();
-$response = $kernel->handle($request)->send();
+$response = $kernel->handle($request);
+$response->send();
 $kernel->terminate($request, $response);
