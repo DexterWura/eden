@@ -322,7 +322,8 @@ By default Eden uses `file` for cache and sessions. For better performance on bu
 
 ### Troubleshooting
 
-- **"Index of /" or directory listing instead of the app:** The document root is pointing at the project root instead of `public/`. Either (1) set the web server document root to the `public` directory (recommended), or (2) use the root `index.php` included in the repo: it redirects to `/public/` so the app and installer can run (URLs will contain `/public/` until you fix the document root).
+- **"Index of /" or directory listing instead of the app:** The document root is the project root. Use the root `.htaccess` (Apache): it rewrites requests to `public/` so the app runs at clean URLs (e.g. `eden.co.zw/install` with no `/public`). Or set the document root to the `public` directory.
+- **URLs show /public/ (e.g. eden.co.zw/public/install):** Enable the root `.htaccess` (Apache: `AllowOverride All` for the app directory) so requests are rewritten and the browser URL stays clean. Or set the document root to `public/`.
 - **500 error:** Check that `storage/` and `bootstrap/cache/` are writable and that `APP_KEY` is set in `.env`.
 - **Install page not loading:** Ensure `EDEN_INSTALLED` is not set to `true` in `.env` before you’ve finished installing.
 - **Database connection error:** Verify `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, and `DB_PASSWORD` in `.env`.

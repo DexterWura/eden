@@ -1,0 +1,15 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # If already under /public/, stop
+    RewriteCond %{REQUEST_URI} ^/public/ [NC]
+    RewriteRule ^ - [L]
+
+    # Serve existing files in public/ (CSS, JS, images) so URLs stay clean
+    RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f
+    RewriteRule ^(.*)$ public/$1 [L]
+
+    # Everything else: Laravel front controller (browser URL stays e.g. /install, no /public)
+    RewriteRule ^(.*)$ public/index.php [L]
+</IfModule>
