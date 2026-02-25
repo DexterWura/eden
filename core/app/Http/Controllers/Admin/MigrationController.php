@@ -189,10 +189,10 @@ class MigrationController extends Controller
     {
         try {
             // Security check - only allow in non-production or with force flag
-            if (app()->environment('production') && !$request->has('force')) {
+            if (app()->environment('production') && !$request->boolean('force')) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Migrations cannot be run in production without force flag'
+                    'message' => 'In production you must check "Force (Production Mode)" to run migrations.'
                 ], 403);
             }
 

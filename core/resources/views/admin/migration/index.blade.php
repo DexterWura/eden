@@ -205,7 +205,7 @@
 <script>
     window.EDEN_MIGRATION = {
         runUrl: '{{ route("admin.migration.run") }}',
-        runSpecificUrlTemplate: '{{ route("admin.migration.run.specific", ":migration") }}',
+        runSpecificUrlTemplate: '{{ route("admin.migration.run.specific", "REPLACE_MIGRATION") }}',
         rollbackUrl: '{{ route("admin.migration.rollback") }}',
         refreshUrl: '{{ route("admin.migration.refresh") }}',
         csrfToken: '{{ csrf_token() }}'

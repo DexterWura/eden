@@ -19,7 +19,7 @@
 
     @stack('style')
 </head>
-<body>
+<body class="backoffice">
 @yield('content')
 
 

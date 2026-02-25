@@ -104,7 +104,7 @@
   function buildUrl() {
     if (currentAction === 'run') return runUrl;
     if (currentAction === 'run-specific' && currentMigration) {
-      return runSpecificUrlTemplate.replace(':migration', encodeURIComponent(currentMigration));
+      return runSpecificUrlTemplate.replace('REPLACE_MIGRATION', encodeURIComponent(currentMigration));
     }
     if (currentAction === 'rollback') return rollbackUrl;
     return '';

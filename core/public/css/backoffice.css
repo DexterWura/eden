@@ -3,6 +3,38 @@
  * Loaded on all backoffice pages (layout) and used by migration, dashboard, etc.
  */
 
+/* Base layout when no theme app.css is present */
+body.backoffice {
+  background: #f1f3f4;
+  color: #202124;
+  font-family: 'Poppins', system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+.backoffice .page-wrapper {
+  min-height: 100vh;
+}
+
+.backoffice .container-fluid {
+  padding-top: 1rem;
+  padding-bottom: 2rem;
+}
+
+.backoffice .body-wrapper,
+.backoffice .bodywrapper__inner {
+  min-height: 0;
+}
+
+.backoffice .navbar-wrapper {
+  background: #1e293b;
+  color: #fff;
+  padding: 0.5rem 1rem;
+}
+
+.backoffice .sidebar {
+  background: #1e293b;
+}
+
 /* Cards – reusable across backoffice */
 .backoffice .card,
 .migration-panel .card {
