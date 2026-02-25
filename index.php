@@ -1,13 +1,8 @@
 <?php
-
-use Illuminate\Http\Request;
-
 /*
-|--------------------------------------------------------------------------
 | Eden – Application Entry Point (Flippa-style: root entry, Laravel in core/)
-|--------------------------------------------------------------------------
+| No Laravel "use" or require above so PHP never tries to load missing vendor when showing setup.
 */
-
 error_reporting(E_ALL & ~E_DEPRECATED);
 define('LARAVEL_START', microtime(true));
 
@@ -15,8 +10,8 @@ $root = __DIR__;
 $core = $root . DIRECTORY_SEPARATOR . 'core';
 $autoloader = $core . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
 
-// If vendor is missing, try to run composer in core/ (Flippa-style). Send 200 first so server never uses 503 ErrorDocument.
-if (! file_exists($autoloader)) {
+// If vendor is missing: send 200 immediately (avoid 503/ErrorDocument), then show setup or try composer.
+if (!file_exists($autoloader)) {
     header('HTTP/1.1 200 OK');
     header('Content-Type: text/html; charset=utf-8');
     @set_time_limit(300);
@@ -81,5 +76,6 @@ if (file_exists($configCache)) {
 
 $app = require_once $core . DIRECTORY_SEPARATOR . 'bootstrap' . DIRECTORY_SEPARATOR . 'app.php';
 $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
-$response = $kernel->handle($request = Request::capture())->send();
+$request = Illuminate\Http\Request::capture();
+$response = $kernel->handle($request)->send();
 $kernel->terminate($request, $response);

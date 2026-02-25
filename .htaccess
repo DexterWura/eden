@@ -10,6 +10,10 @@
     RewriteCond %{DOCUMENT_ROOT}/core/public%{REQUEST_URI} -f
     RewriteRule ^(.*)$ core/public/$1 [L]
 
+    # Serve existing files in document root (e.g. ok.php for diagnostics)
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^ - [L]
+
     # Everything else: root index.php (boots Laravel from core/)
     RewriteRule ^(.*)$ index.php [L]
 </IfModule>
