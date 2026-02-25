@@ -450,9 +450,15 @@ nav a:hover { color: var(--accent); }
   color: var(--text);
   outline: none;
 }
+.newsletter-form { display: flex; flex-wrap: wrap; gap: 12px; flex: 1; min-width: 200px; }
+.newsletter-form input { flex: 1; min-width: 120px; }
 .newsletter input::placeholder { color: var(--text-muted); }
 .newsletter input:focus { border-color: var(--accent); }
 .newsletter-note { width: 100%; font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+
+.flash { padding: 12px 16px; border-radius: var(--radius-sm); margin-bottom: 0; }
+.flash-success { background: var(--accent-dim, #e8f4ff); color: var(--accent, #2563eb); }
+.flash-error { background: #fef2f2; color: #b91c1c; }
 
 /* Footer */
 .site-footer {

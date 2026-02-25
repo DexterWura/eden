@@ -24,14 +24,24 @@
         <a href="<?= e(url('/submit')) ?>">Submit</a>
         <a href="<?= e(url('/about')) ?>">About</a>
         <a href="<?= e(url('/contact')) ?>">Contact</a>
-        <a href="#" class="btn btn-ghost" data-modal="login">Log in</a>
-        <a href="#" class="btn btn-primary" data-modal="signup">Sign up</a>
+        <a href="<?= e(url('/login')) ?>" class="btn btn-ghost" data-modal="login">Log in</a>
+        <a href="<?= e(url('/register')) ?>" class="btn btn-primary" data-modal="signup">Sign up</a>
       </nav>
       <button type="button" class="nav-toggle" aria-label="Open menu" id="navToggle"><i class="fa-solid fa-bars"></i></button>
     </div>
   </header>
 
   <main>
+    <?php if (session('success')): ?>
+    <div class="wrap" style="padding-top: 16px;">
+      <div class="flash flash-success"><?= e(session('success')) ?></div>
+    </div>
+    <?php endif; ?>
+    <?php if (isset($errors) && $errors->any()): ?>
+    <div class="wrap" style="padding-top: 16px;">
+      <div class="flash flash-error"><?= e($errors->first()) ?></div>
+    </div>
+    <?php endif; ?>
     <?= $content ?? '' ?>
   </main>
 
@@ -57,14 +67,15 @@
         <button type="button" class="modal-close" aria-label="Close" data-close="modalLogin"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="modal-body">
-        <form action="#" method="get">
+        <form action="<?= e(url('/login')) ?>" method="POST">
+          <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
           <div class="form-group">
             <label class="form-label" for="loginEmail">Email</label>
-            <input type="email" id="loginEmail" class="form-input" placeholder="you@example.com" required>
+            <input type="email" id="loginEmail" name="email" class="form-input" placeholder="you@example.com" value="<?= e(old('email')) ?>" required>
           </div>
           <div class="form-group">
             <label class="form-label" for="loginPassword">Password</label>
-            <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required>
+            <input type="password" id="loginPassword" name="password" class="form-input" placeholder="••••••••" required>
           </div>
           <div class="form-actions">
             <button type="submit" class="btn btn-primary btn-block">Log in</button>
@@ -72,7 +83,7 @@
         </form>
       </div>
       <div class="modal-footer">
-        Don't have an account? <a href="#" data-switch="signup">Sign up</a>
+        Don't have an account? <a href="<?= e(url('/register')) ?>" data-switch="signup">Sign up</a>
         <a href="<?= e(url('/startup')) ?>">Startup dashboard</a>
         <a href="<?= e(url('/backoffice')) ?>">Admin</a>
       </div>
@@ -86,18 +97,23 @@
         <button type="button" class="modal-close" aria-label="Close" data-close="modalSignup"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="modal-body">
-        <form action="#" method="get">
+        <form action="<?= e(url('/register')) ?>" method="POST">
+          <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
           <div class="form-group">
             <label class="form-label" for="signupName">Name</label>
-            <input type="text" id="signupName" class="form-input" placeholder="Your name" required>
+            <input type="text" id="signupName" name="name" class="form-input" placeholder="Your name" value="<?= e(old('name')) ?>" required>
           </div>
           <div class="form-group">
             <label class="form-label" for="signupEmail">Email</label>
-            <input type="email" id="signupEmail" class="form-input" placeholder="you@example.com" required>
+            <input type="email" id="signupEmail" name="email" class="form-input" placeholder="you@example.com" value="<?= e(old('email')) ?>" required>
           </div>
           <div class="form-group">
             <label class="form-label" for="signupPassword">Password</label>
-            <input type="password" id="signupPassword" class="form-input" placeholder="At least 8 characters" required minlength="8">
+            <input type="password" id="signupPassword" name="password" class="form-input" placeholder="At least 8 characters" required minlength="8">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="signupPasswordConfirmation">Confirm password</label>
+            <input type="password" id="signupPasswordConfirmation" name="password_confirmation" class="form-input" placeholder="At least 8 characters" required minlength="8">
           </div>
           <div class="form-actions">
             <button type="submit" class="btn btn-primary btn-block">Create account</button>
@@ -105,7 +121,7 @@
         </form>
       </div>
       <div class="modal-footer">
-        Already have an account? <a href="#" data-switch="login">Log in</a>
+        Already have an account? <a href="<?= e(url('/login')) ?>" data-switch="login">Log in</a>
       </div>
     </div>
   </div>

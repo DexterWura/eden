@@ -4,102 +4,99 @@ namespace App\Lib;
 
 use App\Constants\Status;
 use App\Models\Extension;
+use Illuminate\Database\QueryException;
 
-class Captcha{
-
-    /*
-    |--------------------------------------------------------------------------
-    | Captcha
-    |--------------------------------------------------------------------------
-    |
-    | This class is using verify and show captcha. Here is currently available
-    | custom captcha and google recaptcha2. Developer can use verify method
-    | to verify all captcha or can use separately if required
-    |
-    */
-
+class Captcha
+{
     /**
-    * Google recaptcha2 script
-    *
-    * @return string
-    */
-    public static function reCaptcha(){
-        $reCaptcha = Extension::where('act', 'google-recaptcha2')->where('status', Status::ENABLE)->first();
-        return $reCaptcha ? $reCaptcha->generateScript() : null;
+     * Run a callable that may query extensions table; return default if table missing.
+     */
+    private static function whenExtensionsExist(callable $fn, mixed $default = null): mixed
+    {
+        try {
+            return $fn();
+        } catch (QueryException $e) {
+            $msg = $e->getMessage();
+            if ($e->getCode() === '42S02' || str_contains($msg, "doesn't exist") || str_contains($msg, 'Base table or view not found')) {
+                return $default;
+            }
+            throw $e;
+        }
     }
 
     /**
-    * Custom captcha script
-    *
-    * @return string
-    */
-    public static function customCaptcha($width = '100%', $height = 46, $bgColor = '#003'){
-
-        $textColor = '#'.gs('base_color');
-        $captcha = Extension::where('act', 'custom-captcha')->where('status', Status::ENABLE)->first();
-        if (!$captcha) {
-            return 0;
-        }
-        $code = rand(100000, 999999);
-        $char = str_split($code);
-        $ret = '<link href="https://fonts.googleapis.com/css?family=Henny+Penny&display=swap" rel="stylesheet">';
-        $ret .= '<div style="height: ' . $height . 'px; line-height: ' . $height . 'px; width:' . $width . '; text-align: center; background-color: ' . $bgColor . '; color: ' . $textColor . '; font-size: ' . ($height - 20) . 'px; font-weight: bold; letter-spacing: 20px; font-family: \'Henny Penny\', cursive;  -webkit-user-select: none; -moz-user-select: none;-ms-user-select: none;user-select: none;  display: flex; justify-content: center;">';
-        foreach ($char as $value) {
-            $ret .= '<span style="    float:left;     -webkit-transform: rotate(' . rand(-60, 60) . 'deg);">' . $value . '</span>';
-        }
-        $ret .= '</div>';
-        $captchaSecret = hash_hmac('sha256', $code, $captcha->shortcode->random_key->value);
-        $ret .= '<input type="hidden" name="captcha_secret" value="' . $captchaSecret . '">';
-        return $ret;
-
+     * Google recaptcha2 script
+     */
+    public static function reCaptcha(): ?string
+    {
+        return self::whenExtensionsExist(function () {
+            $reCaptcha = Extension::where('act', 'google-recaptcha2')->where('status', Status::ENABLE)->first();
+            return $reCaptcha ? $reCaptcha->generateScript() : null;
+        }, null);
     }
 
     /**
-    * Verify all captcha
-    *
-    * @return boolean
-    */
-    public static function verify(){
+     * Custom captcha script (returns 0 when disabled or extensions table missing).
+     */
+    public static function customCaptcha($width = '100%', $height = 46, $bgColor = '#003')
+    {
+        return self::whenExtensionsExist(function () use ($width, $height, $bgColor) {
+            $textColor = '#' . gs('base_color');
+            $captcha = Extension::where('act', 'custom-captcha')->where('status', Status::ENABLE)->first();
+            if (!$captcha) {
+                return 0;
+            }
+            $code = rand(100000, 999999);
+            $char = str_split($code);
+            $ret = '<link href="https://fonts.googleapis.com/css?family=Henny+Penny&display=swap" rel="stylesheet">';
+            $ret .= '<div style="height: ' . $height . 'px; line-height: ' . $height . 'px; width:' . $width . '; text-align: center; background-color: ' . $bgColor . '; color: ' . $textColor . '; font-size: ' . ($height - 20) . 'px; font-weight: bold; letter-spacing: 20px; font-family: \'Henny Penny\', cursive;  -webkit-user-select: none; -moz-user-select: none;-ms-user-select: none;user-select: none;  display: flex; justify-content: center;">';
+            foreach ($char as $value) {
+                $ret .= '<span style="    float:left;     -webkit-transform: rotate(' . rand(-60, 60) . 'deg);">' . $value . '</span>';
+            }
+            $ret .= '</div>';
+            $captchaSecret = hash_hmac('sha256', (string) $code, $captcha->shortcode->random_key->value);
+            $ret .= '<input type="hidden" name="captcha_secret" value="' . $captchaSecret . '">';
+            return $ret;
+        }, 0);
+    }
+
+    /**
+     * Verify all captcha (passes when no captcha is configured or extensions table missing).
+     */
+    public static function verify(): bool
+    {
         $gCaptchaPass = self::verifyGoogleCaptcha();
         $cCaptchaPass = self::verifyCustomCaptcha();
-        if ($gCaptchaPass && $cCaptchaPass) {
-            return true;
-        }
-        return false;
+        return $gCaptchaPass && $cCaptchaPass;
     }
 
     /**
-    * Verify google recaptcha2
-    *
-    * @return boolean
-    */
-    public static function verifyGoogleCaptcha(){
-        $pass = true;
-        $googleCaptcha = Extension::where('act', 'google-recaptcha2')->where('status', Status::ENABLE)->first();
-        if ($googleCaptcha) {
-            $resp = json_decode(file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=".$googleCaptcha->shortcode->secret_key->value."&response=".request()['g-recaptcha-response']."&remoteip=".getRealIP()), true);
-            if (!$resp['success']) {
-                $pass = false;
+     * Verify google recaptcha2
+     */
+    public static function verifyGoogleCaptcha(): bool
+    {
+        return self::whenExtensionsExist(function () {
+            $googleCaptcha = Extension::where('act', 'google-recaptcha2')->where('status', Status::ENABLE)->first();
+            if (!$googleCaptcha) {
+                return true;
             }
-        }
-        return $pass;
+            $resp = json_decode(file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=" . $googleCaptcha->shortcode->secret_key->value . "&response=" . request()->input('g-recaptcha-response', '') . "&remoteip=" . getRealIP()), true);
+            return !empty($resp['success']);
+        }, true);
     }
 
     /**
-    * Verify custom captcha
-    *
-    * @return boolean
-    */
-    public static function verifyCustomCaptcha(){
-        $pass = true;
-        $customCaptcha = Extension::where('act', 'custom-captcha')->where('status', Status::ENABLE)->first();
-        if ($customCaptcha) {
-            $captchaSecret = hash_hmac('sha256', request()->captcha, $customCaptcha->shortcode->random_key->value);
-            if ($captchaSecret != request()->captcha_secret) {
-                $pass = false;
+     * Verify custom captcha (passes when no custom captcha configured or extensions table missing).
+     */
+    public static function verifyCustomCaptcha(): bool
+    {
+        return self::whenExtensionsExist(function () {
+            $customCaptcha = Extension::where('act', 'custom-captcha')->where('status', Status::ENABLE)->first();
+            if (!$customCaptcha) {
+                return true;
             }
-        }
-        return $pass;
+            $captchaSecret = hash_hmac('sha256', (string) request()->input('captcha', ''), $customCaptcha->shortcode->random_key->value);
+            return hash_equals($captchaSecret, (string) request()->input('captcha_secret', ''));
+        }, true);
     }
-
 }

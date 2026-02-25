@@ -5,8 +5,9 @@ $rank = $rank ?? null;
 $showRank = isset($showRank) ? $showRank : false;
 $url = url('/startup/' . e($s->slug));
 $logo = $s->logo_letters ?? strtoupper(mb_substr($s->name, 0, 2));
+$searchText = implode(' ', array_filter([$s->name, $s->tagline, $s->category, $s->location, $s->founder_name], fn($v) => $v !== null && $v !== ''));
 ?>
-<div class="startup-card<?= $s->is_featured ? ' featured' : '' ?>">
+<div class="startup-card<?= $s->is_featured ? ' featured' : '' ?>" data-search="<?= e(mb_strtolower($searchText)) ?>">
   <?php if ($showRank && $rank !== null): ?><span class="card-rank"><?= (int)$rank ?></span><?php endif; ?>
   <div class="card-top">
     <div class="card-logo"><?= e($logo) ?></div>

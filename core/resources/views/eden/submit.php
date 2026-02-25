@@ -6,48 +6,53 @@
 </section>
 
 <div class="wrap content-block">
-  <form class="form-max" action="#" method="get">
+  <form class="form-max" action="<?= e(url('/submit')) ?>" method="POST">
+    <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
     <div class="form-group">
       <label class="form-label" for="startup-name">Startup name</label>
-      <input type="text" id="startup-name" class="form-input" placeholder="e.g. Nexus Pay" required>
+      <input type="text" id="startup-name" name="name" class="form-input" placeholder="e.g. Nexus Pay" value="<?= e(old('name')) ?>" required>
     </div>
     <div class="form-group">
       <label class="form-label" for="tagline">Short tagline</label>
-      <input type="text" id="tagline" class="form-input" placeholder="One line that describes your startup" maxlength="120">
-      <p class="form-hint">Max 120 characters. Shown on your card.</p>
+      <input type="text" id="tagline" name="tagline" class="form-input" placeholder="One line that describes your startup" maxlength="255" value="<?= e(old('tagline')) ?>">
+      <p class="form-hint">Max 255 characters. Shown on your card.</p>
     </div>
     <div class="form-group">
       <label class="form-label" for="description">Description</label>
-      <textarea id="description" class="form-textarea" placeholder="What does your startup do? Who is it for?" required></textarea>
+      <textarea id="description" name="description" class="form-textarea" placeholder="What does your startup do? Who is it for?" required><?= e(old('description')) ?></textarea>
     </div>
     <div class="form-group">
       <label class="form-label" for="category">Category</label>
-      <select id="category" class="form-select" required>
+      <select id="category" name="category" class="form-select" required>
         <option value="">Choose a category…</option>
-        <option value="fintech">Fintech</option>
-        <option value="health">Health</option>
-        <option value="ai">AI & ML</option>
-        <option value="saas">SaaS</option>
-        <option value="marketplace">Marketplace</option>
-        <option value="edtech">EdTech</option>
-        <option value="climate">Climate</option>
-        <option value="agtech">AgTech</option>
-        <option value="other">Other</option>
+        <option value="Fintech"<?= old('category') === 'Fintech' ? ' selected' : '' ?>>Fintech</option>
+        <option value="Health"<?= old('category') === 'Health' ? ' selected' : '' ?>>Health</option>
+        <option value="AI & ML"<?= old('category') === 'AI & ML' ? ' selected' : '' ?>>AI & ML</option>
+        <option value="SaaS"<?= old('category') === 'SaaS' ? ' selected' : '' ?>>SaaS</option>
+        <option value="Marketplace"<?= old('category') === 'Marketplace' ? ' selected' : '' ?>>Marketplace</option>
+        <option value="EdTech"<?= old('category') === 'EdTech' ? ' selected' : '' ?>>EdTech</option>
+        <option value="Climate"<?= old('category') === 'Climate' ? ' selected' : '' ?>>Climate</option>
+        <option value="AgTech"<?= old('category') === 'AgTech' ? ' selected' : '' ?>>AgTech</option>
+        <option value="Other"<?= old('category') === 'Other' ? ' selected' : '' ?>>Other</option>
       </select>
     </div>
     <div class="form-group">
       <label class="form-label" for="website">Website</label>
-      <input type="url" id="website" class="form-input" placeholder="https://…" required>
+      <input type="url" id="website" name="website" class="form-input" placeholder="https://…" value="<?= e(old('website')) ?>" required>
     </div>
     <div class="form-group">
       <label class="form-label" for="location">Location</label>
-      <input type="text" id="location" class="form-input" placeholder="e.g. Harare, Remote">
+      <input type="text" id="location" name="location" class="form-input" placeholder="e.g. Harare, Remote" value="<?= e(old('location')) ?>">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="founder_name">Founder name</label>
+      <input type="text" id="founder_name" name="founder_name" class="form-input" placeholder="e.g. Jane Doe" value="<?= e(old('founder_name')) ?>">
     </div>
     <div class="form-group">
       <label class="form-label" for="launch-date">Launching today?</label>
-      <select id="launch-date" class="form-select">
+      <select id="launch-date" name="launch_today" class="form-select">
         <option value="">No</option>
-        <option value="today">Yes, we're launching today</option>
+        <option value="today"<?= old('launch_today') === 'today' ? ' selected' : '' ?>>Yes, we're launching today</option>
       </select>
       <p class="form-hint">If yes, your startup will appear on the Launching today page.</p>
     </div>

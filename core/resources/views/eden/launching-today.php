@@ -28,8 +28,11 @@
   </div>
 
   <div class="newsletter">
-    <input type="email" placeholder="Your email" aria-label="Email">
-    <button type="button" class="btn btn-primary">Subscribe</button>
+    <form action="<?= e(url('/subscribe')) ?>" method="POST" class="newsletter-form">
+      <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
+      <input type="email" name="email" placeholder="Your email" aria-label="Email" required>
+      <button type="submit" class="btn btn-primary">Subscribe</button>
+    </form>
     <p class="newsletter-note">Get notified when new startups launch.</p>
   </div>
 </div>
