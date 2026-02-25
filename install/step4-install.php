@@ -51,14 +51,25 @@ if ($done) {
             $steps[] = [true, 'Migrations run'];
 
             $hashed = \Illuminate\Support\Facades\Hash::make($admin['password']);
-            $userId = \Illuminate\Support\Facades\DB::table('users')->insertGetId([
-                'name' => $admin['name'],
-                'email' => $admin['email'],
-                'password' => $hashed,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-            $steps[] = [true, 'Admin user created'];
+            $existingUser = \Illuminate\Support\Facades\DB::table('users')->where('email', $admin['email'])->first();
+            if ($existingUser) {
+                \Illuminate\Support\Facades\DB::table('users')->where('id', $existingUser->id)->update([
+                    'name' => $admin['name'],
+                    'password' => $hashed,
+                    'updated_at' => now(),
+                ]);
+                $userId = $existingUser->id;
+                $steps[] = [true, 'Admin user updated'];
+            } else {
+                $userId = \Illuminate\Support\Facades\DB::table('users')->insertGetId([
+                    'name' => $admin['name'],
+                    'email' => $admin['email'],
+                    'password' => $hashed,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                $steps[] = [true, 'Admin user created'];
+            }
 
             try {
                 \Illuminate\Support\Facades\Schema::hasColumn('users', 'is_admin') &&
@@ -85,8 +96,18 @@ if ($done) {
                 if (\Illuminate\Support\Facades\Schema::hasColumn('admins', 'status')) {
                     $adminRow['status'] = 1;
                 }
-                \Illuminate\Support\Facades\DB::table('admins')->insert($adminRow);
-                $steps[] = [true, 'Admin login created (username: ' . $username . ')'];
+                $existingAdmin = \Illuminate\Support\Facades\DB::table('admins')->where('email', $admin['email'])->first();
+                if ($existingAdmin) {
+                    \Illuminate\Support\Facades\DB::table('admins')->where('id', $existingAdmin->id)->update([
+                        'name' => $admin['name'],
+                        'password' => $hashed,
+                        'updated_at' => now(),
+                    ]);
+                    $steps[] = [true, 'Admin login updated (username: ' . $existingAdmin->username . ')'];
+                } else {
+                    \Illuminate\Support\Facades\DB::table('admins')->insert($adminRow);
+                    $steps[] = [true, 'Admin login created (username: ' . $username . ')'];
+                }
             }
 
             $cache = $laravel->make('cache');
