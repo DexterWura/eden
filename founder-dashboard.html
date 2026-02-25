@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" class="dashboard">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Founder dashboard — Eden</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body class="dashboard">
+  <div class="dash-layout">
+    <div class="dash-sidebar-backdrop" id="dashSidebarBackdrop"></div>
+    <button type="button" class="dash-sidebar-toggle" id="dashSidebarToggle" aria-label="Open menu"><i class="fa-solid fa-bars"></i></button>
+    <aside class="dash-sidebar" id="dashSidebar">
+      <a href="founder-dashboard.html" class="active" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i></a>
+      <a href="#" aria-label="My startup" title="My startup"><i class="fa-solid fa-building-user"></i></a>
+      <a href="#" aria-label="Upvotes" title="Upvotes"><i class="fa-solid fa-arrow-up"></i></a>
+      <a href="#" aria-label="Settings" title="Settings"><i class="fa-solid fa-gear"></i></a>
+      <div class="dash-nav-bottom">
+        <a href="index.html" aria-label="Back to Eden" title="Back to site"><i class="fa-solid fa-arrow-left"></i></a>
+      </div>
+    </aside>
+    <div class="dash-body">
+      <header class="dash-topbar">
+        <div class="dash-topbar-left">
+          <a href="founder-dashboard.html" class="dash-logo">
+            <span class="dash-logo-dots"><span></span><span></span><span></span><span></span></span>
+            Eden
+          </a>
+          <button type="button" class="dash-account" title="Switch account">Nexus Pay · Founder</button>
+        </div>
+        <div class="dash-search-wrap" style="position: relative;">
+          <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--d-text-secondary); pointer-events: none;"></i>
+          <input type="search" class="dash-search" placeholder="Try searching 'upvotes this week'" aria-label="Search">
+        </div>
+        <div class="dash-topbar-right">
+          <a href="#" aria-label="Help">?</a>
+          <div class="dash-avatar" title="Account">S</div>
+        </div>
+      </header>
+      <main class="dash-main">
+        <div class="dash-content">
+          <h1 class="dash-page-title">Home</h1>
+          <div class="dash-welcome">
+            <strong>Welcome back!</strong> Here are the top highlights for your startup since your last visit on 24 Feb 2026.
+          </div>
+          <div class="dash-kpi-row">
+            <div class="dash-kpi-card">
+              <div class="dash-kpi-label">Upvotes <span><i class="fa-solid fa-chevron-down"></i></span></div>
+              <div class="dash-kpi-value">127</div>
+              <div class="dash-kpi-spark">
+                <svg viewBox="0 0 120 32" preserveAspectRatio="none"><path fill="none" stroke="var(--d-primary)" stroke-width="1.5" d="M0,24 L20,20 L40,22 L60,16 L80,18 L100,12 L120,14"/></svg>
+              </div>
+            </div>
+            <div class="dash-kpi-card">
+              <div class="dash-kpi-label">Profile views</div>
+              <div class="dash-kpi-value">892</div>
+              <div class="dash-kpi-spark">
+                <svg viewBox="0 0 120 32" preserveAspectRatio="none"><path fill="none" stroke="var(--d-primary)" stroke-width="1.5" d="M0,28 L20,26 L40,20 L60,22 L80,18 L100,14 L120,16"/></svg>
+              </div>
+            </div>
+            <div class="dash-kpi-card">
+              <div class="dash-kpi-label">Link clicks</div>
+              <div class="dash-kpi-value">43</div>
+              <div class="dash-kpi-spark">
+                <svg viewBox="0 0 120 32" preserveAspectRatio="none"><path fill="none" stroke="var(--d-primary)" stroke-width="1.5" d="M0,20 L30,18 L60,24 L90,10 L120,14"/></svg>
+              </div>
+            </div>
+            <div class="dash-kpi-card">
+              <div class="dash-kpi-label">Product of the day</div>
+              <div class="dash-kpi-value">#1</div>
+              <div class="dash-kpi-spark"></div>
+            </div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <span class="dash-card-title">Upvotes over time</span>
+              <div class="dash-pills">
+                <button type="button" class="dash-pill active">Last 7 days</button>
+                <button type="button" class="dash-pill">Previous period</button>
+              </div>
+            </div>
+            <div class="dash-card-body">
+              <div class="dash-chart-placeholder">Chart: Upvotes from 18 Feb – 24 Feb</div>
+            </div>
+            <div class="dash-card-footer">
+              <a href="#">View reports snapshot →</a>
+            </div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <span class="dash-card-title">Upvotes in last 30 minutes</span>
+            </div>
+            <div class="dash-card-body">
+              <p style="font-size: 2rem; font-weight: 400; color: var(--d-text); margin: 0 0 16px;">0</p>
+              <p style="font-size: 0.875rem; color: var(--d-text-secondary); margin: 0 0 20px;">Upvotes per minute</p>
+              <div class="dash-table-wrap">
+                <table class="dash-table">
+                  <thead><tr><th>Source</th><th>Upvotes</th></tr></thead>
+                  <tbody><tr><td colspan="2" style="color: var(--d-text-secondary);">No data for this period</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="dash-card-footer">
+              <a href="#">View real time →</a>
+            </div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <span class="dash-card-title">Recently accessed</span>
+            </div>
+            <div class="dash-card-body">
+              <div class="dash-placeholder">
+                <div class="dash-placeholder-icon"><i class="fa-regular fa-file-lines"></i></div>
+                Reports and pages you've recently visited will appear here.
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script>
+    (function() {
+      var toggle = document.getElementById('dashSidebarToggle');
+      var sidebar = document.getElementById('dashSidebar');
+      var backdrop = document.getElementById('dashSidebarBackdrop');
+      if (toggle && sidebar) {
+        toggle.addEventListener('click', function() {
+          sidebar.classList.toggle('is-open');
+          if (backdrop) backdrop.classList.toggle('is-open');
+        });
+        if (backdrop) {
+          backdrop.addEventListener('click', function() {
+            sidebar.classList.remove('is-open');
+            backdrop.classList.remove('is-open');
+          });
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nexus Pay — Eden</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a href="index.html" class="logo">Eden</a>
+      <nav>
+        <a href="launching-today.html">Launching today</a>
+        <a href="categories.html">Categories</a>
+        <a href="index.html#startups">Startups</a>
+        <a href="submit.html">Submit</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="#" class="btn btn-ghost">Log in</a>
+        <a href="submit.html" class="btn btn-primary">Add startup</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap content-block" style="padding-top: 48px; padding-bottom: 60px;">
+      <div style="display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 24px; margin-bottom: 32px;">
+        <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+          <div class="card-logo" style="width: 72px; height: 72px; font-size: 1.75rem;">Nx</div>
+          <div>
+            <h1 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 4px;">Nexus Pay</h1>
+            <p style="color: var(--text-muted); font-size: 1rem;">Instant cross-border payments and treasury for African businesses.</p>
+          </div>
+        </div>
+        <div class="upvote-ui" style="align-self: center;">
+          <button type="button" class="upvote-btn voted" aria-label="Upvote"><i class="fa-solid fa-arrow-up"></i></button>
+          <span class="upvote-count">127</span>
+          <span style="font-size: 0.85rem; color: var(--text-muted); margin-left: 4px;">upvotes</span>
+        </div>
+      </div>
+
+      <div class="detail-badges">
+        <span class="badge">Featured</span>
+        <span class="badge sponsored">Sponsored</span>
+        <span class="badge">Fintech</span>
+      </div>
+
+      <div class="detail-meta">
+        <span>📍 Harare</span>
+        <span>📅 Launched 2024</span>
+        <a href="#">nexuspay.co.zw</a>
+      </div>
+
+      <div class="detail-section">
+        <h3>About</h3>
+        <p style="color: var(--text); max-width: 640px;">
+          Nexus Pay helps African businesses send and receive payments across borders without the usual delays and fees. We provide treasury and FX tools so teams can hold, convert, and move money in one place. Built for SMEs and startups who need reliability and transparency.
+        </p>
+      </div>
+
+      <div class="detail-section">
+        <h3>Founder</h3>
+        <div class="detail-founder">
+          <div class="detail-founder-avatar">SC</div>
+          <div class="detail-founder-info">
+            <strong>Sarah Chen</strong>
+            <span>CEO &amp; Co-founder</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3>Website &amp; socials</h3>
+        <div class="detail-socials">
+          <a href="#"><i class="fa-solid fa-globe"></i> Website</a>
+          <a href="#"><i class="fa-brands fa-x-twitter"></i> Twitter / X</a>
+          <a href="#"><i class="fa-brands fa-linkedin-in"></i> LinkedIn</a>
+          <a href="#"><i class="fa-solid fa-envelope"></i> Contact</a>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3>Tags</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <span class="pill active">Payments</span>
+          <span class="pill">B2B</span>
+          <span class="pill">Africa</span>
+          <span class="pill">Treasury</span>
+          <span class="pill">FX</span>
+        </div>
+      </div>
+
+      <div class="cta-strip" style="margin-top: 40px;">
+        <h3>Like this startup?</h3>
+        <p>Upvote at the top of the page. Discover more on the homepage or launching today.</p>
+        <a href="index.html" class="btn btn-primary">Explore more startups</a>
+        <a href="launching-today.html" class="btn btn-ghost">Launching today</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p><a href="index.html">Eden</a> — Startup directory. <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="contact.html">Contact</a></p>
+    </div>
+  </footer>
+
+  <script>
+    document.querySelector('.upvote-btn').addEventListener('click', function() {
+      var countEl = this.nextElementSibling;
+      if (this.classList.toggle('voted')) {
+        countEl.textContent = parseInt(countEl.textContent, 10) + 1;
+      } else {
+        countEl.textContent = Math.max(0, parseInt(countEl.textContent, 10) - 1);
+      }
+    });
+  </script>
+</body>
+</html>
