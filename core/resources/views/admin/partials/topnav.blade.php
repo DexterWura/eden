@@ -150,7 +150,6 @@
         event.stopPropagation();
     });
 </script>
-<script src="{{ asset('assets/admin/js/search.js') }}"></script>
 <script>
     "use strict";
     function getEmptyMessage(){

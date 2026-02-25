@@ -1,6 +1,5 @@
-<link href="{{ asset('assets/global/css/iziToast.min.css') }}" rel="stylesheet">
-<link href="{{ asset('assets/global/css/iziToast_custom.css') }}" rel="stylesheet">
-<script src="{{ asset('assets/global/js/iziToast.min.js') }}"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css" rel="stylesheet" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js" crossorigin="anonymous"></script>
 
 <script>
     "use strict";

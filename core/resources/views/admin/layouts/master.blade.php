@@ -8,17 +8,14 @@
     @php try { $faviconUrl = siteFavicon(); } catch (\Throwable $e) { $faviconUrl = asset('favicon.ico'); } @endphp
     <link rel="shortcut icon" type="image/png" href="{{ $faviconUrl }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('assets/global/css/bootstrap.min.css') }}">
-
-    <link rel="stylesheet" href="{{asset('assets/admin/css/vendor/bootstrap-toggle.min.css')}}">
-    <link rel="stylesheet" href="{{asset('assets/global/css/all.min.css')}}">
-    <link rel="stylesheet" href="{{asset('assets/global/css/line-awesome.min.css')}}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/line-awesome/1.3.0/line-awesome/css/line-awesome.min.css" rel="stylesheet" crossorigin="anonymous">
 
     @stack('style-lib')
 
-    <link rel="stylesheet" href="{{asset('assets/global/css/select2.min.css')}}">
-    <link rel="stylesheet" href="{{asset('assets/admin/css/app.css')}}">
-
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ asset('css/backoffice.css') }}">
 
     @stack('style')
 </head>
@@ -28,44 +25,24 @@
 
 
 
-<script src="{{asset('assets/global/js/jquery-3.7.1.min.js')}}"></script>
-<script src="{{asset('assets/global/js/bootstrap.bundle.min.js')}}"></script>
-<script src="{{asset('assets/admin/js/vendor/bootstrap-toggle.min.js')}}"></script>
-
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 
 @include('partials.notify')
 @stack('script-lib')
 
-<script src="{{ asset('assets/global/js/nicEdit.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js" crossorigin="anonymous"></script>
 
-<script src="{{asset('assets/global/js/select2.min.js')}}"></script>
-<script src="{{ asset('assets/admin/js/cu-modal.js') }}"></script>
-
-<script src="{{asset('assets/admin/js/app.js')}}"></script>
-
-{{-- LOAD NIC EDIT --}}
+{{-- Breadcrumb and sidebar toggle (always) --}}
 <script>
-    "use strict";
-    bkLib.onDomLoaded(function() {
-        $( ".nicEdit" ).each(function( index ) {
-            $(this).attr("id","nicEditor"+index);
-            new nicEditor({fullPanel : true}).panelInstance('nicEditor'+index,{hasPanel : true});
-        });
-    });
     (function($){
-        $( document ).on('mouseover ', '.nicEdit-main,.nicEdit-panelContain',function(){
-            $('.nicEdit-main').focus();
-        });
-
         $('.breadcrumb-nav-open').on('click', function() {
             $(this).toggleClass('active');
             $('.breadcrumb-nav').toggleClass('active');
         });
-
         $('.breadcrumb-nav-close').on('click', function() {
             $('.breadcrumb-nav').removeClass('active');
         });
-
         if($('.topTap').length){
             $('.breadcrumb-nav-open').removeClass('d-none');
         }

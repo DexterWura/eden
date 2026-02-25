@@ -1,7 +1,7 @@
 @extends('admin.layouts.app')
 
 @section('panel')
-<div class="row">
+<div class="row migration-panel backoffice">
     <div class="col-lg-12">
         <div class="card">
             <div class="card-header">
@@ -203,129 +203,14 @@
 
 @push('script')
 <script>
-    let currentAction = null;
-    let currentMigration = null;
-
-    function runMigrations() {
-        currentAction = 'run';
-        $('#confirmMessage').text('Are you sure you want to run all pending migrations?');
-        $('#confirmModal').modal('show');
-    }
-
-    function runSpecificMigration(migrationName) {
-        currentAction = 'run-specific';
-        currentMigration = migrationName;
-        $('#confirmMessage').text('Are you sure you want to run migration: ' + migrationName + '?');
-        $('#confirmModal').modal('show');
-    }
-
-    function rollbackMigrations() {
-        currentAction = 'rollback';
-        $('#confirmMessage').text('Are you sure you want to rollback the last batch of migrations? This action cannot be undone.');
-        $('#confirmModal').modal('show');
-    }
-
-    function refreshStatus() {
-        $.ajax({
-            url: '{{ route("admin.migration.refresh") }}',
-            method: 'POST',
-            data: {
-                _token: '{{ csrf_token() }}'
-            },
-            success: function(response) {
-                if(response.status === 'success') {
-                    notify('success', response.message);
-                    setTimeout(() => location.reload(), 1000);
-                } else {
-                    notify('info', response.message);
-                }
-            },
-            error: function(xhr) {
-                notify('error', xhr.responseJSON?.message || 'Failed to refresh status');
-            }
-        });
-    }
-
-    function installMigrationsTable() {
-        if(!confirm('This will create the migrations table. Continue?')) return;
-        
-        $.ajax({
-            url: '{{ route("admin.migration.run") }}',
-            method: 'POST',
-            data: {
-                _token: '{{ csrf_token() }}',
-                confirm: true,
-                force: $('#forceCheck').is(':checked')
-            },
-            success: function(response) {
-                if(response.status === 'success') {
-                    notify('success', response.message);
-                    setTimeout(() => location.reload(), 2000);
-                } else {
-                    notify('info', response.message);
-                }
-            },
-            error: function(xhr) {
-                notify('error', xhr.responseJSON?.message || 'Failed to install migrations table');
-            }
-        });
-    }
-
-    $('#confirmBtn').on('click', function() {
-        if(!$('#confirmCheck').is(':checked')) {
-            notify('error', 'Please confirm you want to proceed');
-            return;
-        }
-
-        let url = '';
-        let data = {
-            _token: '{{ csrf_token() }}',
-            confirm: true,
-            force: $('#forceCheck').is(':checked')
-        };
-
-        if(currentAction === 'run') {
-            url = '{{ route("admin.migration.run") }}';
-        } else if(currentAction === 'run-specific') {
-            url = '{{ route("admin.migration.run.specific", ":migration") }}'.replace(':migration', currentMigration);
-        } else if(currentAction === 'rollback') {
-            url = '{{ route("admin.migration.rollback") }}';
-            data.steps = 1;
-        }
-
-        $.ajax({
-            url: url,
-            method: 'POST',
-            data: data,
-            beforeSend: function() {
-                $('#confirmBtn').prop('disabled', true).html('<i class="las la-spinner la-spin"></i> Processing...');
-            },
-            success: function(response) {
-                $('#confirmModal').modal('hide');
-                if(response.status === 'success') {
-                    notify('success', response.message);
-                    if(response.data && response.data.output) {
-                        console.log('Migration Output:', response.data.output);
-                    }
-                    setTimeout(() => location.reload(), 2000);
-                } else {
-                    notify('info', response.message);
-                }
-            },
-            error: function(xhr) {
-                $('#confirmBtn').prop('disabled', false).html('Confirm');
-                notify('error', xhr.responseJSON?.message || 'An error occurred');
-            }
-        });
-    });
-
-    $('#confirmModal').on('hidden.bs.modal', function() {
-        $('#confirmCheck').prop('checked', false);
-        $('#forceCheck').prop('checked', false);
-        $('#confirmBtn').prop('disabled', false).html('Confirm');
-        currentAction = null;
-        currentMigration = null;
-    });
+    window.EDEN_MIGRATION = {
+        runUrl: '{{ route("admin.migration.run") }}',
+        runSpecificUrlTemplate: '{{ route("admin.migration.run.specific", ":migration") }}',
+        rollbackUrl: '{{ route("admin.migration.rollback") }}',
+        refreshUrl: '{{ route("admin.migration.refresh") }}',
+        csrfToken: '{{ csrf_token() }}'
+    };
 </script>
+<script src="{{ asset('js/migration.js') }}"></script>
 @endpush
 
