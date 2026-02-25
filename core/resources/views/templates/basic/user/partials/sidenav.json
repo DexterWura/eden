@@ -1,0 +1,86 @@
+{
+    "dashboard": {
+        "title": "Dashboard",
+        "icon": "las la-home",
+        "route_name": "user.home",
+        "menu_active": "user.home"
+    },
+    "my_listings": {
+        "title": "My Listings",
+        "icon": "las la-store",
+        "route_name": "user.listing.index",
+        "menu_active": "user.listing*"
+    },
+    "bids": {
+        "title": "My Bids",
+        "icon": "las la-gavel",
+        "route_name": "user.bid.index",
+        "menu_active": "user.bid*"
+    },
+    "offers": {
+        "title": "My Offers",
+        "icon": "las la-handshake",
+        "route_name": "user.offer.index",
+        "menu_active": "user.offer*"
+    },
+    "watchlist": {
+        "title": "Watchlist",
+        "icon": "las la-heart",
+        "route_name": "user.watchlist.index",
+        "menu_active": "user.watchlist*"
+    },
+    "escrow": {
+        "title": "My Purchases",
+        "icon": "las la-shopping-cart",
+        "route_name": "user.escrow.index",
+        "menu_active": "user.escrow*"
+    },
+    "transactions": {
+        "title": "Transactions",
+        "icon": "las la-exchange-alt",
+        "route_name": "user.transactions",
+        "menu_active": "user.transactions"
+    },
+    "deposits": {
+        "title": "Deposits",
+        "icon": "las la-file-invoice-dollar",
+        "route_name": "user.deposit.history",
+        "menu_active": "user.deposit*"
+    },
+    "withdrawals": {
+        "title": "Withdrawals",
+        "icon": "la la-bank",
+        "route_name": "user.withdraw.history",
+        "menu_active": "user.withdraw*"
+    },
+    "profile": {
+        "title": "Profile Settings",
+        "icon": "las la-user-circle",
+        "route_name": "user.profile.setting",
+        "menu_active": "user.profile*"
+    },
+    "security": {
+        "title": "Security",
+        "icon": "las la-shield-alt",
+        "menu_active": "user.twofactor,user.kyc*",
+        "submenu": [
+            {
+                "title": "2FA Security",
+                "route_name": "user.twofactor",
+                "menu_active": "user.twofactor"
+            },
+            {
+                "title": "KYC Verification",
+                "route_name": "user.kyc.form",
+                "menu_active": "user.kyc*"
+            }
+        ]
+    },
+    "support": {
+        "title": "Support",
+        "icon": "la la-ticket",
+        "route_name": "ticket.index",
+        "menu_active": "ticket*"
+    }
+}
+

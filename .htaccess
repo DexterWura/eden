@@ -1,0 +1,30 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+    RewriteEngine On
+
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Allow install directory
+    RewriteCond %{REQUEST_URI} ^/install
+    RewriteRule ^ - [L]
+
+    # Existing files in core/public (CSS, JS, images)
+    RewriteCond %{DOCUMENT_ROOT}/core/public%{REQUEST_URI} -f
+    RewriteRule ^(.*)$ core/public/$1 [L]
+
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+<Files .env>
+    Order allow,deny
+    Deny from all
+</Files>
