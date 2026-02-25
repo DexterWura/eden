@@ -17,39 +17,49 @@ use Symfony\Component\Process\Process;
 class MigrationController extends Controller
 {
     /**
-     * Display migration status page
+     * Display migration status page (Eden dashboard layout)
      */
     public function index()
     {
-        $pageTitle = 'Database Migrations';
-        
-        // Get all migration files
         $migrationFiles = $this->getMigrationFiles();
-        
-        // Get migration status from database
         $migrationStatus = $this->getMigrationStatus();
-        
-        // Get pending migrations
         $pendingMigrations = $this->getPendingMigrations();
-        
-        // Get modified migrations
         $modifiedMigrations = $this->getModifiedMigrations();
-        
-        // Get ran migrations
         $ranMigrations = $this->getRanMigrations();
-        
-        // Check if migrations table exists
         $migrationsTableExists = Schema::hasTable('migrations');
-        
-        return view('admin.migration.index', compact(
-            'pageTitle',
+
+        $content = view('eden.migrations', compact(
             'migrationFiles',
             'migrationStatus',
             'pendingMigrations',
             'modifiedMigrations',
             'ranMigrations',
             'migrationsTableExists'
-        ));
+        ))->render();
+
+        $runSpecificUrlTemplate = route('admin.migration.run.specific', ['migration' => 'REPLACE_MIGRATION']);
+        $scripts = '<script>window.EDEN_MIGRATION=' . json_encode([
+            'runUrl' => route('admin.migration.run'),
+            'runSpecificUrlTemplate' => $runSpecificUrlTemplate,
+            'rollbackUrl' => route('admin.migration.rollback'),
+            'refreshUrl' => route('admin.migration.refresh'),
+            'csrfToken' => csrf_token(),
+        ]) . ';</script>' . "\n" . '<script src="' . asset('js/migration.js') . '"></script>';
+
+        return response()->view('eden.layout-dashboard', [
+            'title' => 'Database migrations',
+            'sidebar' => 'admin',
+            'activeNav' => 'migrations',
+            'dashboardLogo' => 'Eden Admin',
+            'dashboardTopbar' => '<button type="button" class="dash-account" title="Property">All startups</button>',
+            'searchPlaceholder' => "Try searching 'startups by category'",
+            'avatarTitle' => 'Admin',
+            'avatarLetter' => 'A',
+            'content' => $content,
+            'scriptDeps' => '<script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>',
+            'notifyPartial' => view('partials.notify')->render(),
+            'scripts' => $scripts,
+        ]);
     }
 
     /**

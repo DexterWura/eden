@@ -16,8 +16,8 @@
     <div class="dash-sidebar-backdrop" id="dashSidebarBackdrop"></div>
     <aside class="dash-sidebar" id="dashSidebar">
       <?php if (($sidebar ?? '') === 'admin'): ?>
-        <a href="<?= e(url('/backoffice')) ?>" class="active" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i></a>
-        <a href="<?= e(url('/backoffice/migrations')) ?>" aria-label="Migrations" title="Migrations"><i class="fa-solid fa-database"></i></a>
+        <a href="<?= e(url('/backoffice')) ?>" class="<?= ($activeNav ?? '') === 'migrations' ? '' : 'active' ?>" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i></a>
+        <a href="<?= e(url('/backoffice/migrations')) ?>" class="<?= ($activeNav ?? '') === 'migrations' ? 'active' : '' ?>" aria-label="Migrations" title="Migrations"><i class="fa-solid fa-database"></i></a>
         <a href="#" aria-label="Startups" title="Startups"><i class="fa-solid fa-rocket"></i></a>
         <a href="#" aria-label="Users" title="Users"><i class="fa-solid fa-user"></i></a>
         <a href="#" aria-label="Reports" title="Reports"><i class="fa-solid fa-chart-line"></i></a>
@@ -80,6 +80,8 @@
       }
     })();
   </script>
+  <?= $scriptDeps ?? '' ?>
+  <?= $notifyPartial ?? '' ?>
   <?= $scripts ?? '' ?>
 </body>
 </html>

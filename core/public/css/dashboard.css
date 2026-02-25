@@ -329,6 +329,47 @@ body.dashboard {
   padding: 24px;
 }
 
+/* Buttons (migrations and other dash actions) */
+.dash-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  border-radius: var(--d-radius);
+  border: 1px solid var(--d-border);
+  background: var(--d-surface);
+  color: var(--d-text);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.dash-btn:hover:not(:disabled) {
+  background: var(--d-bg);
+  border-color: var(--d-text-secondary);
+}
+.dash-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.dash-btn-primary {
+  background: var(--d-primary);
+  border-color: var(--d-primary);
+  color: #fff;
+}
+.dash-btn-primary:hover:not(:disabled) {
+  background: var(--d-primary-hover);
+  border-color: var(--d-primary-hover);
+  color: #fff;
+}
+.dash-btn-secondary {
+  background: var(--d-surface);
+  border-color: var(--d-border);
+  color: var(--d-text-secondary);
+}
+.dash-btn-secondary:hover:not(:disabled) {
+  background: var(--d-bg);
+  color: var(--d-text);
+}
+
 /* Backdrop and toggle (mobile) */
 .dash-sidebar-backdrop {
   display: none;

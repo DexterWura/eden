@@ -18,20 +18,26 @@
   var confirmModal = confirmModalEl && typeof bootstrap !== 'undefined'
     ? bootstrap.Modal.getOrCreateInstance(confirmModalEl)
     : null;
+  var plainModal = !confirmModal && confirmModalEl;
 
   function showConfirmModal() {
     if (confirmModal) {
       confirmModal.show();
-    } else if (typeof $ !== 'undefined' && $('#confirmModal').length) {
+    } else if (typeof $ !== 'undefined' && $('#confirmModal').length && $('#confirmModal').data('bs.modal')) {
       $('#confirmModal').modal('show');
+    } else if (plainModal) {
+      confirmModalEl.style.display = 'flex';
     }
   }
 
   function hideConfirmModal() {
     if (confirmModal) {
       confirmModal.hide();
-    } else if (typeof $ !== 'undefined') {
+    } else if (typeof $ !== 'undefined' && $('#confirmModal').data('bs.modal')) {
       $('#confirmModal').modal('hide');
+    } else if (plainModal) {
+      confirmModalEl.style.display = 'none';
+      resetModalState();
     }
   }
 
@@ -129,7 +135,7 @@
     if (currentAction === 'rollback') data.steps = 1;
 
     var $btn = $('#confirmBtn');
-    $btn.prop('disabled', true).html('<i class="las la-spinner la-spin"></i> Processing...');
+    $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> Processing...');
 
     $.ajax({
       url: url,
@@ -170,5 +176,10 @@
       confirmModalEl.addEventListener('hidden.bs.modal', resetModalState);
     }
     $(document).on('hidden.bs.modal', '#confirmModal', resetModalState);
+    if (plainModal) {
+      confirmModalEl.addEventListener('click', function (e) {
+        if (e.target === confirmModalEl) hideConfirmModal();
+      });
+    }
   });
 })();
