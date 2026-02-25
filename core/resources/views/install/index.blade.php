@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Install Eden</title>
-    <link rel="stylesheet" href="{{ asset('css/install.css') }}">
+    <link rel="stylesheet" href="/css/install.css">
 </head>
 <body>
     <h1>Install Eden</h1>
