@@ -43,7 +43,7 @@
   </div>
   <div class="dash-card-body">
     <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
-      <button type="button" class="dash-btn dash-btn-primary" onclick="runMigrations()" {{ count($pendingMigrations) == 0 && count($modifiedMigrations) == 0 ? 'disabled' : '' }}>
+      <button type="button" class="dash-btn dash-btn-primary" onclick="runMigrations()">
         <i class="fa-solid fa-play"></i> Run pending migrations
       </button>
       <button type="button" class="dash-btn dash-btn-secondary" onclick="refreshStatus()">
