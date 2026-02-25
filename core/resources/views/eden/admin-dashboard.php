@@ -46,7 +46,7 @@
         </thead>
         <tbody>
           <tr>
-            <td><a href="<?= e(url('/startup')) ?>" class="dash-table-link">QuickPay</a></td>
+            <td><a href="<?= e(url('/founder')) ?>" class="dash-table-link">QuickPay</a></td>
             <td>Fintech</td>
             <td>76</td>
             <td>Live</td>

@@ -5,16 +5,7 @@ namespace App\Providers;
 use App\Constants\Status;
 use App\Lib\Searchable;
 use App\Models\AdminNotification;
-use App\Models\Deposit;
-use App\Models\Bid;
-use App\Models\Escrow;
 use App\Models\Frontend;
-use App\Models\Listing;
-use App\Models\Offer;
-use App\Models\Review;
-use App\Models\SupportTicket;
-use App\Models\User;
-use App\Models\Withdrawal;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
@@ -148,35 +139,32 @@ class AppServiceProvider extends ServiceProvider
 
             $this->app->make('view')->composer('admin.partials.sidenav', function ($view) {
                 try {
-                    // Load and filter sidenav by admin module access
                     $sidenavPath = resource_path('views/admin/partials/sidenav.json');
                     $sidenavRaw = file_exists($sidenavPath) ? file_get_contents($sidenavPath) : '{}';
                     $sidenavData = json_decode($sidenavRaw, true) ?: [];
                     $admin = auth('admin')->user();
-                    if ($admin && !$admin->isSuperAdmin()) {
+                    if ($admin && method_exists($admin, 'isSuperAdmin') && !$admin->isSuperAdmin() && method_exists($admin, 'getAllowedModules')) {
                         $allowed = $admin->getAllowedModules();
                         $sidenavData = array_intersect_key($sidenavData, array_flip($allowed));
                     }
                     $sidenavJson = json_encode((object) $sidenavData);
-
                     $view->with([
                         'sidenav' => $sidenavJson,
-                        'bannedUsersCount'           => User::banned()->count(),
-                        'emailUnverifiedUsersCount' => User::emailUnverified()->count(),
-                        'mobileUnverifiedUsersCount'   => User::mobileUnverified()->count(),
-                        'kycUnverifiedUsersCount'   => User::kycUnverified()->count(),
-                        'kycPendingUsersCount'   => User::kycPending()->count(),
-                        'pendingTicketCount'         => SupportTicket::whereIN('status', [Status::TICKET_OPEN, Status::TICKET_REPLY])->count(),
-                        'pendingDepositsCount'    => Deposit::pending()->count(),
-                        'pendingWithdrawCount'    => Withdrawal::pending()->count(),
-                        'disputedEscrowCount'        => Escrow::disputed()->count(),
-                        'pendingListingsCount'    => Listing::where('status', Status::LISTING_PENDING)->count(),
-                        'pendingOffersCount'      => Offer::where('status', Status::OFFER_PENDING)->count(),
-                        'pendingReviewsCount'     => Review::where('status', Status::REVIEW_PENDING)->count(),
-                        'updateAvailable'    => false, // Update functionality disabled
+                        'bannedUsersCount' => 0,
+                        'emailUnverifiedUsersCount' => 0,
+                        'mobileUnverifiedUsersCount' => 0,
+                        'kycUnverifiedUsersCount' => 0,
+                        'kycPendingUsersCount' => 0,
+                        'pendingTicketCount' => 0,
+                        'pendingDepositsCount' => 0,
+                        'pendingWithdrawCount' => 0,
+                        'disputedEscrowCount' => 0,
+                        'pendingListingsCount' => 0,
+                        'pendingOffersCount' => 0,
+                        'pendingReviewsCount' => 0,
+                        'updateAvailable' => false,
                     ]);
                 } catch (\Exception $e) {
-                    // Database might not be ready, use full sidenav and default counts
                     $sidenavPath = resource_path('views/admin/partials/sidenav.json');
                     $sidenavRaw = file_exists($sidenavPath) ? file_get_contents($sidenavPath) : '{}';
                     $view->with([
@@ -198,75 +186,12 @@ class AppServiceProvider extends ServiceProvider
                 }
             });
 
-            // User dashboard sidenav indicators (pending/open deals)
-            // Note: user sidenav is template-based (e.g. templates.basic.user.partials.sidenav),
-            // so we use a wildcard to support multiple templates.
             $this->app->make('view')->composer('templates.*.user.partials.sidenav', function ($view) {
-                try {
-                    $userId = auth()->id();
-
-                    if (!$userId) {
-                        $view->with([
-                            'pendingDealsCount' => 0,
-                            'pendingReceivedOffersCount' => 0,
-                            'wonAuctionsCount' => 0,
-                        ]);
-                        return;
-                    }
-
-                    // Only marketplace-related escrows (escrows linked to listings)
-                    $listingEscrowIdsQuery = Listing::where(function ($q) use ($userId) {
-                        $q->where('user_id', $userId)->orWhere('winner_id', $userId);
-                    })->where('escrow_id', '>', 0)->select('escrow_id');
-
-                    // "Pending deals" = any open marketplace escrow where the user is buyer or seller
-                    // (i.e. not completed/cancelled). This covers both buying and selling.
-                    $pendingDealsCount = Escrow::where(function ($q) use ($userId) {
-                        $q->where('buyer_id', $userId)->orWhere('seller_id', $userId);
-                    })
-                        ->whereIn('id', $listingEscrowIdsQuery)
-                        ->whereIn('status', [
-                            Status::ESCROW_NOT_ACCEPTED,
-                            Status::ESCROW_ACCEPTED,
-                            Status::ESCROW_DISPUTED,
-                        ])
-                        ->count();
-
-                    // Offers that require the seller's action (pending/countered offers received)
-                    $pendingReceivedOffersCount = Offer::where('seller_id', $userId)
-                        ->whereIn('status', [Status::OFFER_PENDING, Status::OFFER_COUNTERED])
-                        ->count();
-
-                    // Won auctions that still need attention (no escrow yet, or escrow not completed/cancelled)
-                    $wonAuctionsCount = Bid::where('user_id', $userId)
-                        ->where('status', Status::BID_WON)
-                        ->whereHas('listing', function ($q) {
-                            $q->where(function ($listingQ) {
-                                $listingQ->whereNull('escrow_id')
-                                    ->orWhere('escrow_id', '<=', 0)
-                                    ->orWhereHas('escrow', function ($eq) {
-                                        $eq->whereNotIn('status', [
-                                            Status::ESCROW_COMPLETED,
-                                            Status::ESCROW_CANCELLED,
-                                        ]);
-                                    });
-                            });
-                        })
-                        ->count();
-
-                    $view->with([
-                        'pendingDealsCount' => $pendingDealsCount,
-                        'pendingReceivedOffersCount' => $pendingReceivedOffersCount,
-                        'wonAuctionsCount' => $wonAuctionsCount,
-                    ]);
-                } catch (\Exception $e) {
-                    // Fail closed; sidenav should still render even if counts fail.
-                    $view->with([
-                        'pendingDealsCount' => 0,
-                        'pendingReceivedOffersCount' => 0,
-                        'wonAuctionsCount' => 0,
-                    ]);
-                }
+                $view->with([
+                    'pendingDealsCount' => 0,
+                    'pendingReceivedOffersCount' => 0,
+                    'wonAuctionsCount' => 0,
+                ]);
             });
 
             $this->app->make('view')->composer('admin.partials.topnav', function ($view) {

@@ -14,7 +14,6 @@
 <body class="dashboard">
   <div class="dash-layout">
     <div class="dash-sidebar-backdrop" id="dashSidebarBackdrop"></div>
-    <button type="button" class="dash-sidebar-toggle" id="dashSidebarToggle" aria-label="Open menu"><i class="fa-solid fa-bars"></i></button>
     <aside class="dash-sidebar" id="dashSidebar">
       <?php if (($sidebar ?? '') === 'admin'): ?>
         <a href="<?= e(url('/backoffice')) ?>" class="active" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i></a>
@@ -24,7 +23,7 @@
         <a href="#" aria-label="Reports" title="Reports"><i class="fa-solid fa-chart-line"></i></a>
         <a href="#" aria-label="Settings" title="Settings"><i class="fa-solid fa-gear"></i></a>
       <?php else: ?>
-        <a href="<?= e(url('/startup')) ?>" class="active" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i></a>
+        <a href="<?= e(url('/founder')) ?>" class="active" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i></a>
         <a href="#" aria-label="My startup" title="My startup"><i class="fa-solid fa-building-user"></i></a>
         <a href="#" aria-label="Upvotes" title="Upvotes"><i class="fa-solid fa-arrow-up"></i></a>
         <a href="#" aria-label="Settings" title="Settings"><i class="fa-solid fa-gear"></i></a>
@@ -35,8 +34,9 @@
     </aside>
     <div class="dash-body">
       <header class="dash-topbar">
+        <button type="button" class="dash-sidebar-toggle" id="dashSidebarToggle" aria-label="Open menu"><i class="fa-solid fa-bars"></i></button>
         <div class="dash-topbar-left">
-          <a href="<?= e($sidebar === 'admin' ? url('/backoffice') : url('/startup')) ?>" class="dash-logo">
+          <a href="<?= e($sidebar === 'admin' ? url('/backoffice') : url('/founder')) ?>" class="dash-logo">
             <span class="dash-logo-dots"><span></span><span></span><span></span><span></span></span>
             <?= e($dashboardLogo ?? 'Eden') ?>
           </a>
@@ -47,7 +47,7 @@
           <input type="search" class="dash-search" placeholder="<?= e($searchPlaceholder ?? 'Search') ?>" aria-label="Search">
         </div>
         <div class="dash-topbar-right">
-          <a href="#" aria-label="Help">?</a>
+          <a href="#" aria-label="Help" title="Help"><i class="fa-solid fa-circle-question" aria-hidden="true"></i></a>
           <?php if (($sidebar ?? '') === 'admin' && function_exists('route') && auth()->guard('admin')->check()): ?>
             <a href="<?= e(route('admin.logout')) ?>" class="dash-logout" aria-label="Log out" title="Log out"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
           <?php endif; ?>

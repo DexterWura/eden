@@ -35,14 +35,17 @@
     </div>
     <div class="navbar__right">
         <ul class="navbar__action-list">
-            @if(version_compare(gs('available_version'),systemDetails()['version'],'>'))
+            @if(\Illuminate\Support\Facades\Route::has('admin.system.update') && version_compare(gs('available_version'), systemDetails()['version'], '>'))
             <li><button type="button" class="primary--layer" data-bs-toggle="tooltip" data-bs-placement="bottom" title="@lang('Update Available')"><a href="{{ route('admin.system.update') }}" class="primary--layer"><i class="las la-download text--warning"></i></a> </button></li>
             @endif
+            @if(\Illuminate\Support\Facades\Route::has('home'))
             <li>
                 <button type="button" class="primary--layer" data-bs-toggle="tooltip" data-bs-placement="bottom" title="@lang('Visit Website')">
                     <a href="{{ route('home') }}" target="_blank"><i class="las la-globe"></i></a>
                 </button>
             </li>
+            @endif
+            @if(\Illuminate\Support\Facades\Route::has('admin.notification.read'))
             <li class="dropdown">
                 <button type="button" class="primary--layer notification-bell" data-bs-toggle="dropdown" data-display="static"
                     aria-haspopup="true" aria-expanded="false">
@@ -79,17 +82,22 @@
                         </div>
                         @endforelse
                     </div>
+                    @if(\Illuminate\Support\Facades\Route::has('admin.notifications'))
                     <div class="dropdown-menu__footer">
                         <a href="{{ route('admin.notifications') }}"
                             class="view-all-message">@lang('View all notifications')</a>
                     </div>
+                    @endif
                 </div>
             </li>
+            @endif
+            @if(\Illuminate\Support\Facades\Route::has('admin.setting.system'))
             <li>
                 <button type="button" class="primary--layer" data-bs-toggle="tooltip" data-bs-placement="bottom" title="@lang('System Setting')">
                     <a href="{{ route('admin.setting.system') }}"><i class="las la-wrench"></i></a>
                 </button>
             </li>
+            @endif
             <li class="dropdown d-flex profile-dropdown">
                 <button type="button" data-bs-toggle="dropdown" data-display="static" aria-haspopup="true"
                     aria-expanded="false">
@@ -102,22 +110,26 @@
                     </span>
                 </button>
                 <div class="dropdown-menu dropdown-menu--sm p-0 border-0 box--shadow1 dropdown-menu-right">
+                    @if(\Illuminate\Support\Facades\Route::has('admin.profile'))
                     <a href="{{ route('admin.profile') }}"
                         class="dropdown-menu__item d-flex align-items-center px-3 py-2">
                         <i class="dropdown-menu__icon las la-user-circle"></i>
                         <span class="dropdown-menu__caption">@lang('Profile')</span>
                     </a>
-
+                    @endif
+                    @if(\Illuminate\Support\Facades\Route::has('admin.password'))
                     <a href="{{ route('admin.password') }}"
                         class="dropdown-menu__item d-flex align-items-center px-3 py-2">
                         <i class="dropdown-menu__icon las la-key"></i>
                         <span class="dropdown-menu__caption">@lang('Password')</span>
                     </a>
-
+                    @endif
+                    @if(\Illuminate\Support\Facades\Route::has('admin.logout'))
                     <a href="{{ route('admin.logout') }}" class="dropdown-menu__item d-flex align-items-center px-3 py-2">
                         <i class="dropdown-menu__icon las la-sign-out-alt"></i>
                         <span class="dropdown-menu__caption">@lang('Logout')</span>
                     </a>
+                    @endif
                 </div>
                 <button type="button" class="breadcrumb-nav-open ms-2 d-none">
                     <i class="las la-sliders-h"></i>

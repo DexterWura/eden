@@ -31,7 +31,7 @@ class AuthController extends Controller
 
         if (Auth::guard('web')->attempt($request->only('email', 'password'), (bool) $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended(route('startup.dashboard'));
+            return redirect()->intended(route('founder.dashboard'));
         }
 
         return redirect()->route('login')->withErrors(['email' => __('The provided credentials do not match our records.')])->withInput($request->only('email'));
@@ -62,7 +62,7 @@ class AuthController extends Controller
 
         Auth::guard('web')->login($user);
         $request->session()->regenerate();
-        return redirect()->intended('/startup');
+        return redirect()->intended('/founder');
     }
 
     public function logout(Request $request): RedirectResponse

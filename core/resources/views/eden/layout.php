@@ -24,8 +24,16 @@
         <a href="<?= e(url('/submit')) ?>">Submit</a>
         <a href="<?= e(url('/about')) ?>">About</a>
         <a href="<?= e(url('/contact')) ?>">Contact</a>
+        <?php if (auth()->check()): ?>
+        <a href="<?= e(url('/founder')) ?>" class="btn btn-ghost"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i> Dashboard</a>
+        <form action="<?= e(route('logout')) ?>" method="POST" class="nav-logout-form">
+          <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
+          <button type="submit" class="btn btn-primary">Log out</button>
+        </form>
+        <?php else: ?>
         <a href="<?= e(url('/login')) ?>" class="btn btn-ghost" data-modal="login">Log in</a>
         <a href="<?= e(url('/register')) ?>" class="btn btn-primary" data-modal="signup">Sign up</a>
+        <?php endif; ?>
       </nav>
       <button type="button" class="nav-toggle" aria-label="Open menu" id="navToggle"><i class="fa-solid fa-bars"></i></button>
     </div>
@@ -45,19 +53,33 @@
     <?= $content ?? '' ?>
   </main>
 
-  <div class="nav-drawer-backdrop" id="navBackdrop"></div>
-  <aside class="nav-drawer" id="navDrawer">
-    <a href="<?= e(url('/')) ?>" class="logo">Eden</a>
-    <a href="<?= e(url('/launching-today')) ?>">Launching today</a>
-    <a href="<?= e(url('/categories')) ?>">Categories</a>
-    <a href="<?= e(url('/#startups')) ?>">Startups</a>
-    <a href="<?= e(url('/submit')) ?>">Submit</a>
-    <a href="<?= e(url('/about')) ?>">About</a>
-    <a href="<?= e(url('/contact')) ?>">Contact</a>
-    <a href="#" class="btn btn-ghost" data-modal="login">Log in</a>
-    <a href="<?= e(url('/submit')) ?>" class="btn btn-primary">Add startup</a>
-    <a href="<?= e(url('/startup')) ?>" style="font-size: 0.9rem; margin-top: 8px;">Startup dashboard</a>
-    <a href="<?= e(url('/backoffice')) ?>" style="font-size: 0.9rem;">Admin</a>
+  <div class="nav-drawer-backdrop" id="navBackdrop" aria-hidden="true"></div>
+  <aside class="nav-drawer" id="navDrawer" aria-label="Main menu" aria-hidden="true">
+    <div class="nav-drawer-header">
+      <a href="<?= e(url('/')) ?>" class="logo">Eden</a>
+      <button type="button" class="nav-drawer-close" id="navDrawerClose" aria-label="Close menu"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <nav class="nav-drawer-links">
+      <a href="<?= e(url('/launching-today')) ?>">Launching today</a>
+      <a href="<?= e(url('/categories')) ?>">Categories</a>
+      <a href="<?= e(url('/#startups')) ?>">Startups</a>
+      <a href="<?= e(url('/submit')) ?>">Submit</a>
+      <a href="<?= e(url('/about')) ?>">About</a>
+      <a href="<?= e(url('/contact')) ?>">Contact</a>
+      <?php if (auth()->check()): ?>
+      <a href="<?= e(url('/founder')) ?>" class="nav-drawer-extra"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i> Dashboard</a>
+      <form action="<?= e(route('logout')) ?>" method="POST" class="nav-logout-form nav-drawer-logout">
+        <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
+        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i> Log out</button>
+      </form>
+      <?php if (auth()->guard('admin')->check()): ?>
+      <a href="<?= e(url('/backoffice')) ?>" class="nav-drawer-extra"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Admin</a>
+      <?php endif; ?>
+      <?php else: ?>
+      <a href="<?= e(url('/login')) ?>" class="btn btn-ghost" data-modal="login">Log in</a>
+      <a href="<?= e(url('/register')) ?>" class="btn btn-primary" data-modal="signup">Sign up</a>
+      <?php endif; ?>
+    </nav>
   </aside>
 
   <div class="modal-overlay" id="modalLogin" aria-hidden="true">
@@ -84,8 +106,6 @@
       </div>
       <div class="modal-footer">
         Don't have an account? <a href="<?= e(url('/register')) ?>" data-switch="signup">Sign up</a>
-        <a href="<?= e(url('/startup')) ?>">Startup dashboard</a>
-        <a href="<?= e(url('/backoffice')) ?>">Admin</a>
       </div>
     </div>
   </div>
@@ -128,7 +148,7 @@
 
   <footer class="site-footer">
     <div class="wrap">
-      <p><a href="<?= e(url('/')) ?>">Eden</a> — Startup directory. <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="<?= e(url('/contact')) ?>">Contact</a> · <a href="<?= e(url('/startup')) ?>">Dashboard</a> · <a href="<?= e(url('/backoffice')) ?>">Admin</a></p>
+      <p><a href="<?= e(url('/')) ?>">Eden</a> — Startup directory. <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="<?= e(url('/contact')) ?>">Contact</a></p>
     </div>
   </footer>
 
@@ -136,20 +156,31 @@
     (function() {
       var navToggle = document.getElementById('navToggle');
       var navDrawer = document.getElementById('navDrawer');
+      var navDrawerClose = document.getElementById('navDrawerClose');
       var navBackdrop = document.getElementById('navBackdrop');
+      function openNav() {
+        if (navDrawer) navDrawer.classList.add('is-open');
+        if (navBackdrop) navBackdrop.classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+        if (navDrawer) navDrawer.setAttribute('aria-hidden', 'false');
+        if (navBackdrop) navBackdrop.setAttribute('aria-hidden', 'false');
+      }
+      function closeNav() {
+        if (navDrawer) navDrawer.classList.remove('is-open');
+        if (navBackdrop) navBackdrop.classList.remove('is-open');
+        document.body.style.overflow = '';
+        if (navDrawer) navDrawer.setAttribute('aria-hidden', 'true');
+        if (navBackdrop) navBackdrop.setAttribute('aria-hidden', 'true');
+      }
       if (navToggle && navDrawer) {
-        navToggle.addEventListener('click', function() {
-          navDrawer.classList.toggle('is-open');
-          if (navBackdrop) navBackdrop.classList.toggle('is-open');
-          document.body.style.overflow = navDrawer.classList.contains('is-open') ? 'hidden' : '';
+        navToggle.addEventListener('click', function() { openNav(); });
+      }
+      if (navDrawerClose) navDrawerClose.addEventListener('click', closeNav);
+      if (navBackdrop) navBackdrop.addEventListener('click', closeNav);
+      if (navDrawer) {
+        navDrawer.querySelectorAll('a').forEach(function(link) {
+          link.addEventListener('click', closeNav);
         });
-        if (navBackdrop) {
-          navBackdrop.addEventListener('click', function() {
-            navDrawer.classList.remove('is-open');
-            navBackdrop.classList.remove('is-open');
-            document.body.style.overflow = '';
-          });
-        }
       }
       document.querySelectorAll('[data-modal]').forEach(function(el) {
         el.addEventListener('click', function(e) {

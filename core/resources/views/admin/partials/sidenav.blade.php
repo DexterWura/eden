@@ -38,9 +38,12 @@
                                                 $submenuParams[] = array_values((array)$submenuParamVal)[0];
                                             }
                                         }
+                                        $routeName = @$menu->route_name;
+                                        $routeExists = $routeName && \Illuminate\Support\Facades\Route::has($routeName);
                                     @endphp
+                                        @if($routeExists)
                                         <li class="sidebar-menu-item {{ menuActive(@$menu->menu_active) }} ">
-                                            <a href="{{ route(@$menu->route_name,$submenuParams) }}" class="nav-link">
+                                            <a href="{{ route($routeName, $submenuParams) }}" class="nav-link">
                                                 <i class="menu-icon las la-dot-circle"></i>
                                                 <span class="menu-title">{{ __($menu->title) }}</span>
                                                 @php $counter = @$menu->counter; @endphp
@@ -49,6 +52,7 @@
                                                 @endif
                                             </a>
                                         </li>
+                                        @endif
                                     @endforeach
                                 </ul>
                             </div>
@@ -61,9 +65,12 @@
                                     $mainParams[] = array_values((array)$paramVal)[0];
                                 }
                             }
+                            $mainRouteName = @$data->route_name;
+                            $mainRouteExists = $mainRouteName && \Illuminate\Support\Facades\Route::has($mainRouteName);
                         @endphp
+                        @if($mainRouteExists)
                         <li class="sidebar-menu-item {{ menuActive(@$data->menu_active) }}">
-                            <a href="{{ route(@$data->route_name,$mainParams) }}" class="nav-link ">
+                            <a href="{{ route($mainRouteName, $mainParams) }}" class="nav-link ">
                                 <i class="menu-icon {{ $data->icon }}"></i>
                                 <span class="menu-title">{{ __(@$data->title) }}</span>
                                 @php $counter = @$data->counter; @endphp
@@ -72,6 +79,7 @@
                                 @endif
                             </a>
                         </li>
+                        @endif
                     @endif
                 @endforeach
             </ul>

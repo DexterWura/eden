@@ -8,13 +8,18 @@ Eden is a curated startup directory: first-visit install, public site, and found
 
 - **First-visit install wizard** (steps 1–5): requirements check (PHP 8.1+, extensions, writable dirs, `core/vendor`), database config, app name/URL + admin user, run migrations and create admin, completion with links to site and admin.
 - **Public site (Laravel-driven):**
-  - **Home:** hero, “launching today” strip, product of the day, category filters, startup list, CTA, newsletter block.
-  - **Pages:** About, Contact, Submit startup (forms), Categories, Launching today (list), single Startup (Nexus Pay placeholder).
-  - **Global:** header/nav, mobile drawer, login/signup modals (UI only), footer; links use clean URLs (no `.html`).
-- **Dashboards (UI only):**
-  - **Founder dashboard:** KPIs (upvotes, profile views, link clicks, product of the day), upvotes-over-time card, “recently accessed” placeholder.
-  - **Admin dashboard:** KPIs (total startups, new this week, launching today, pending review), recent startups table, moderation queue placeholder.
-- **Assets:** CSS from `core/public/css/` (main.css, dashboard.css); `.htaccess` serves `core/public` for existing files.
+  - **Home:** hero, “launching today” strip, product of the day (top 5 by upvotes), category filters, startup list (from DB), debounced search, CTA, newsletter form (subscribe).
+  - **Pages:** About, Contact, Submit startup (form posts to DB), Categories (from DB), Launching today (DB), single Startup by slug (dynamic).
+  - **Global:** header/nav, mobile drawer, login/signup modals (working auth); footer; clean URLs.
+- **Auth:** User registration and login (session); `/startup` (founder dashboard) protected by `auth` middleware; `/backoffice` (admin) protected by `admin` middleware. Logout and redirects (e.g. intended URL after login) supported.
+- **Data:** Startups table (migration + seed of 3 sample startups); categories derived from startups; home, launching-today, categories, and single startup page are DB-driven. Submit startup form creates new startups (slug, category, launch date, etc.).
+- **Newsletter:** Subscribers table; POST `/subscribe` stores email; forms on home and launching-today.
+- **Admin backoffice:** Dashboard plus **Migrations** page at `/backoffice/migrations`: list all migrations (ran / pending / modified), run pending, rerun modified, rollback, download SQL backup. Admin-only; tables created on demand.
+- **Dashboards (UI):**
+  - **Founder dashboard** (`/startup`): KPIs, upvotes-over-time card, recently accessed placeholder; responsive layout and topbar.
+  - **Admin dashboard** (`/backoffice`): Same layout; sidebar link to Migrations.
+- **UI & responsiveness:** Dashboard and public site use responsive CSS (breakpoints at 1024px, 768px, 640px, 380px). Dashboard: topbar wraps cleanly (search full-width on small screens), sidebar becomes overlay with hamburger in topbar; KPI grid and cards stack on small screens; chart placeholder has clear min-height. Public: wrap padding, hero, filters/pills, startup cards, category list, forms, and startup detail page adapt to all screen sizes.
+- **Assets:** CSS in `core/public/css/` (main.css, dashboard.css); `.htaccess` serves `core/public` for existing files.
 - **Tech:** PHP 8.1+, Laravel (core in `core/`), document root at project root; no `.env` → redirect to `/install/`.
 
 ---
@@ -30,32 +35,23 @@ The install wizard step 1 requires `core/vendor/autoload.php` to be present befo
 
 ---
 
-## Features not implemented (planned)
-
-- **Auth:** Login/signup modals and “Log in”/“Sign up” do not persist or authenticate; no session-based auth or registration.
-- **Data:** All startup/category data is static (views). No DB-backed startups, categories, or “launching today”; no search.
-- **Forms:** Contact, Submit startup, and newsletter do not submit to backend or send email.
-- **Founder dashboard:** No real “my startup”, upvotes, or reports; no backend.
-- **Admin dashboard:** No real startup list or moderation actions yet; admin auth is in place.
-- **Single startup page:** Only one placeholder (Nexus Pay); no dynamic slug or DB-driven startup pages.
-- **Categories:** Category cards use `href="#"`; no category detail or filtered listing.
-- **Upvotes:** Upvote buttons are client-only (no persistence).
-- **Privacy/Terms:** Footer “Privacy” and “Terms” are placeholders.
-
----
-
 ## Roadmap
 
-Implement in this order as we build:
+**Done**
 
-1. **Auth** — Registration and login (session or Laravel auth), then protect founder/admin dashboards.
-2. **Startups data model** — Migrations and models for startups (and categories if needed); CRUD for admin; “Submit your startup” saves to DB.
-3. **Public listings** — Home, Launching today, and Categories driven by DB; single startup page by slug/id.
-4. **Upvotes** — Store upvotes (e.g. startup_id + user/session); show counts and “Product of the day” from data.
-5. **Contact form** — Backend handler and email (or queue).
-6. **Newsletter** — Store emails and/or integrate a provider.
-7. **Founder dashboard** — Real KPIs and “my startup” linked to logged-in user’s startup(s).
-8. **Admin dashboard** — Real startup list, moderation queue, and actions (approve/reject).
-9. **Privacy/Terms** — Static or editable pages and footer links.
+1. **Auth** — Registration and login; founder dashboard (`/startup`) and admin (`/backoffice`) protected by middleware.
+2. **Startups data model** — Migration + seed (3 sample startups); “Submit your startup” saves to DB; single startup page by slug.
+3. **Public listings** — Home, Launching today, and Categories driven by DB; category filter on home; single startup page by slug.
+4. **Newsletter** — Subscribers table and POST `/subscribe`; forms wired on home and launching-today.
+5. **Admin migrations UI** — `/backoffice/migrations`: list migrations (ran/pending/modified), run pending, rerun modified, rollback, download SQL.
+6. **UI & responsiveness** — Dashboard and public site responsive across breakpoints; dashboard topbar/cards/chart and public pages (hero, filters, cards, forms, startup detail) fixed for all screens.
 
-Optional later: search, filters, email verification, password reset, roles (admin vs founder).
+**Planned (in order)**
+
+1. **Upvotes** — Store upvotes (startup_id + user/session); show counts and “Product of the day” from data.
+2. **Contact form** — Backend handler and email (or queue).
+3. **Founder dashboard** — Real KPIs and “my startup” linked to logged-in user’s startup(s).
+4. **Admin dashboard** — Real startup list, moderation queue, and actions (approve/reject).
+5. **Privacy/Terms** — Static or editable pages and footer links.
+
+Optional later: server-side search, email verification, password reset, roles (admin vs founder).

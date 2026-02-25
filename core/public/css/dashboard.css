@@ -77,18 +77,23 @@ body.dashboard {
 
 /* Topbar */
 .dash-topbar {
-  height: var(--d-topbar-height);
   min-height: var(--d-topbar-height);
   background: var(--d-surface);
   border-bottom: 1px solid var(--d-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 0 24px;
+  gap: 12px;
+  padding: 12px 24px;
   flex-wrap: wrap;
 }
-.dash-topbar-left { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.dash-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 0 1 auto;
+}
 .dash-logo {
   display: flex;
   align-items: center;
@@ -96,39 +101,41 @@ body.dashboard {
   color: var(--d-text);
   text-decoration: none;
   font-weight: 600;
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   flex-shrink: 0;
 }
-.dash-logo-dots { display: flex; gap: 2px; }
+.dash-logo-dots { display: flex; gap: 2px; flex-shrink: 0; }
 .dash-logo-dots span { width: 6px; height: 6px; border-radius: 50%; }
 .dash-logo-dots span:nth-child(1) { background: #4285f4; }
 .dash-logo-dots span:nth-child(2) { background: #ea4335; }
 .dash-logo-dots span:nth-child(3) { background: #fbbc04; }
 .dash-logo-dots span:nth-child(4) { background: #34a853; }
 .dash-account {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: var(--d-text-secondary);
-  padding: 8px 12px;
+  padding: 6px 10px;
   border: 1px solid var(--d-border);
   border-radius: var(--d-radius);
   background: var(--d-surface);
   cursor: pointer;
-  max-width: 220px;
+  max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex-shrink: 1;
 }
 .dash-search-wrap {
-  flex: 1;
+  flex: 1 1 200px;
   min-width: 0;
-  max-width: 520px;
+  max-width: 400px;
+  order: 0;
 }
 .dash-search {
   width: 100%;
-  padding: 10px 16px 10px 40px;
-  font-size: 0.9rem;
+  padding: 8px 14px 8px 36px;
+  font-size: 0.875rem;
   border: 1px solid var(--d-border);
-  border-radius: 24px;
+  border-radius: 20px;
   background: var(--d-bg);
   color: var(--d-text);
   outline: none;
@@ -136,7 +143,12 @@ body.dashboard {
 }
 .dash-search:focus { background: var(--d-surface); border-color: var(--d-primary); }
 .dash-search::placeholder { color: var(--d-text-secondary); }
-.dash-topbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.dash-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
 .dash-topbar-right a,
 .dash-topbar-right button {
   width: 40px;
@@ -222,6 +234,7 @@ body.dashboard {
   box-shadow: var(--d-shadow);
   margin-bottom: 24px;
   overflow: hidden;
+  min-width: 0;
 }
 .dash-card-header {
   display: flex;
@@ -229,13 +242,18 @@ body.dashboard {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
-  padding: 20px 24px;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--d-border);
 }
-.dash-card-title { font-size: 1rem; font-weight: 500; color: var(--d-text); }
-.dash-card-body { padding: 24px; }
+.dash-card-title {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--d-text);
+  min-width: 0;
+}
+.dash-card-body { padding: 20px; min-width: 0; }
 .dash-card-footer {
-  padding: 12px 24px;
+  padding: 12px 20px;
   border-top: 1px solid var(--d-border);
   font-size: 0.875rem;
 }
@@ -297,14 +315,18 @@ body.dashboard {
 
 /* Chart placeholder */
 .dash-chart-placeholder {
+  min-height: 200px;
   height: 240px;
   background: linear-gradient(180deg, var(--d-bg) 0%, var(--d-surface) 100%);
+  border: 1px dashed var(--d-border);
   border-radius: var(--d-radius);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--d-text-secondary);
   font-size: 0.9rem;
+  text-align: center;
+  padding: 24px;
 }
 
 /* Backdrop and toggle (mobile) */
@@ -332,8 +354,8 @@ body.dashboard {
 .dash-sidebar-toggle:hover { background: var(--d-sidebar-bg); color: var(--d-text); }
 
 @media (max-width: 1024px) {
-  .dash-kpi-row { grid-template-columns: repeat(2, 1fr); }
-  .dash-search-wrap { max-width: 100%; }
+  .dash-kpi-row { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .dash-search-wrap { max-width: 280px; }
 }
 
 @media (max-width: 768px) {
@@ -344,29 +366,49 @@ body.dashboard {
     bottom: 0;
     z-index: 200;
     transform: translateX(-100%);
-    transition: transform 0.2s;
-    box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+    box-shadow: 2px 0 12px rgba(0,0,0,0.12);
   }
   .dash-sidebar.is-open { transform: translateX(0); }
-  .dash-sidebar-toggle { display: flex; }
+  .dash-sidebar-toggle { display: flex; flex-shrink: 0; }
+  .dash-topbar .dash-sidebar-toggle { margin-right: 4px; }
   .dash-sidebar-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.3);
+    background: rgba(0,0,0,0.35);
     z-index: 199;
   }
-  .dash-topbar { padding: 0 16px; }
-  .dash-account { display: none; }
+  .dash-topbar {
+    padding: 10px 16px;
+    gap: 10px;
+  }
+  .dash-topbar-left { gap: 8px; }
+  .dash-logo { font-size: 1rem; }
+  .dash-account { max-width: 120px; font-size: 0.75rem; padding: 6px 8px; }
+  .dash-search-wrap {
+    order: 3;
+    flex: 1 1 100%;
+    max-width: none;
+    min-width: 0;
+  }
   .dash-content { padding: 16px; }
   .dash-kpi-row { grid-template-columns: 1fr; gap: 12px; }
-  .dash-card-header,
+  .dash-kpi-card { padding: 16px; }
+  .dash-card-header { padding: 14px 16px; }
   .dash-card-body { padding: 16px; }
+  .dash-card-footer { padding: 10px 16px; }
+  .dash-chart-placeholder { min-height: 160px; height: 200px; font-size: 0.85rem; }
   .dash-table th,
   .dash-table td { padding: 10px 12px; font-size: 0.8rem; }
+  .dash-pills { margin-top: 4px; }
 }
 
 @media (max-width: 480px) {
-  .dash-page-title { font-size: 1.5rem; }
+  .dash-page-title { font-size: 1.375rem; }
   .dash-kpi-value { font-size: 1.5rem; }
-  .dash-welcome { padding: 12px 16px; font-size: 0.85rem; }
+  .dash-kpi-label { font-size: 0.7rem; }
+  .dash-welcome { padding: 12px 16px; font-size: 0.8125rem; }
+  .dash-account { display: none; }
+  .dash-topbar-right a,
+  .dash-topbar-right .dash-avatar { width: 36px; height: 36px; }
 }
