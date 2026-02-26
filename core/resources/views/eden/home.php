@@ -1,7 +1,7 @@
 <section class="hero">
   <div class="wrap">
     <h1>Discover the next wave of startups</h1>
-    <p>Explore, search, and connect with innovative companies. One directory. Zero noise.</p>
+    <p>Explore, search, and connect. One directory. Zero noise.</p>
     <div class="hero-actions">
       <div class="search-wrap hero-search">
         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
@@ -9,6 +9,15 @@
       </div>
       <a href="<?= e(url('/submit')) ?>" class="btn btn-primary btn-add"><i class="fa-solid fa-plus" aria-hidden="true"></i> Submit your startup</a>
     </div>
+    <nav class="hero-quick-nav" aria-label="Quick links">
+      <a href="<?= e(url('/launching-today')) ?>">Launching today</a>
+      <span class="hero-quick-nav-sep" aria-hidden="true">·</span>
+      <a href="<?= e(url('/leaderboard')) ?>">Leaderboard</a>
+      <span class="hero-quick-nav-sep" aria-hidden="true">·</span>
+      <a href="<?= e(url('/categories')) ?>">Categories</a>
+      <span class="hero-quick-nav-sep" aria-hidden="true">·</span>
+      <a href="<?= e(url('/submit')) ?>">Submit</a>
+    </nav>
     <?php $browseCategories = $browseCategories ?? []; ?>
     <?php if (count($browseCategories) > 0): ?>
     <div class="hero-categories" id="heroCategories">
@@ -39,6 +48,7 @@
     <div class="section-cards-row" tabindex="0">
       <?php foreach ($launchingToday as $startup): $badgeLabel = 'Launch'; include __DIR__ . '/_startup-card-deal.php'; endforeach; ?>
     </div>
+    <p class="section-browse-all"><a href="<?= e(url('/launching-today')) ?>">Browse all on Launching today</a></p>
   </section>
   <?php endif; ?>
 
@@ -55,6 +65,7 @@
     <div class="section-cards-row" tabindex="0">
       <?php foreach ($featuredProducts as $startup): $badgeLabel = 'Featured'; include __DIR__ . '/_startup-card-deal.php'; endforeach; ?>
     </div>
+    <p class="section-browse-all"><a href="<?= e(url('/?featured=1')) ?>">Browse all featured startups</a></p>
   </section>
   <?php endif; ?>
 
@@ -69,8 +80,9 @@
     </header>
     <?php if ($topPerforming->isNotEmpty()): ?>
     <div class="section-cards-row" tabindex="0">
-      <?php foreach ($topPerforming as $startup): $badgeLabel = null; include __DIR__ . '/_startup-card-deal.php'; endforeach; ?>
+      <?php foreach ($topPerforming as $startup): $badgeLabel = 'Top'; include __DIR__ . '/_startup-card-deal.php'; endforeach; ?>
     </div>
+    <p class="section-browse-all"><a href="<?= e(url('/leaderboard')) ?>">Browse all on Leaderboard</a></p>
     <?php else: ?>
     <p class="section-empty">No startups yet. <a href="<?= e(url('/submit')) ?>">Submit your startup</a>.</p>
     <?php endif; ?>
@@ -89,6 +101,7 @@
     <div class="section-cards-row" tabindex="0">
       <?php foreach ($justListed as $startup): $badgeLabel = 'New'; include __DIR__ . '/_startup-card-deal.php'; endforeach; ?>
     </div>
+    <p class="section-browse-all"><a href="<?= e(url('/?sort=newest')) ?>">Browse all just listed</a></p>
   </section>
   <?php endif; ?>
 
