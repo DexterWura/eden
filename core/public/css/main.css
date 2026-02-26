@@ -164,20 +164,21 @@ nav a:hover { color: var(--accent); }
 .hero-category-pill {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
+  gap: 8px;
+  padding: 10px 16px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: 999px;
   color: var(--text-muted);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   font-weight: 500;
-  transition: border-color 0.2s, background 0.2s, color 0.2s;
+  transition: border-color 0.2s, background 0.2s, color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 .hero-category-pill i {
-  font-size: 1rem;
-  width: 1.25em;
+  font-size: 0.95rem;
+  width: 1.2em;
   text-align: center;
   color: var(--accent);
   opacity: 0.9;
@@ -186,13 +187,15 @@ nav a:hover { color: var(--accent); }
   border-color: var(--accent);
   background: var(--surface-hover);
   color: var(--text);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 .hero-category-pill.active {
-  background: var(--accent-dim);
+  background: var(--accent);
   border-color: var(--accent);
-  color: var(--accent);
+  color: var(--bg);
+  box-shadow: 0 2px 8px rgba(0, 212, 170, 0.25);
 }
-.hero-category-pill.active i { color: var(--accent); }
+.hero-category-pill.active i { color: var(--bg); }
 
 /* Search */
 .search-wrap {
@@ -343,11 +346,12 @@ nav a:hover { color: var(--accent); }
   font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 4px 10px;
-  border-radius: 6px;
-  background: rgba(245, 158, 11, 0.2);
-  color: #d97706;
+  letter-spacing: 0.05em;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--bg);
+  box-shadow: 0 2px 8px rgba(0, 212, 170, 0.3);
 }
 .deal-card-top {
   display: flex;
@@ -544,7 +548,7 @@ nav a:hover { color: var(--accent); }
 .leaderboard-founder-name { font-size: 0.9rem; color: var(--text); }
 .leaderboard-pagination { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: center; }
 
-/* Browse by category – centered pill grid */
+/* Browse by category – centered badge grid */
 .filters--categories {
   justify-content: center;
   gap: 10px 12px;
@@ -553,6 +557,15 @@ nav a:hover { color: var(--accent); }
 .filters--categories .pill {
   padding: 10px 18px;
   font-size: 0.9rem;
+  border-radius: 999px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  transition: box-shadow 0.2s;
+}
+.filters--categories .pill:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+.filters--categories .pill.active {
+  box-shadow: 0 2px 8px rgba(0, 212, 170, 0.25);
 }
 
 /* Stats */
@@ -582,7 +595,7 @@ nav a:hover { color: var(--accent); }
 }
 .filters span { font-size: 0.9rem; color: var(--text-muted); margin-right: 8px; }
 .pill {
-  padding: 8px 16px;
+  padding: 10px 18px;
   border-radius: 999px;
   font-size: 0.9rem;
   font-weight: 500;
@@ -593,8 +606,20 @@ nav a:hover { color: var(--accent); }
   transition: all 0.2s;
   text-decoration: none;
   font-family: inherit;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
-.pill:hover, .pill.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+.pill:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+.pill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+  box-shadow: 0 2px 8px rgba(0, 212, 170, 0.25);
+}
 
 /* Section title */
 .section-title {

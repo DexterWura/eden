@@ -13,13 +13,11 @@
     <?php if (count($browseCategories) > 0): ?>
     <div class="hero-categories" id="heroCategories">
       <h2 class="hero-categories-title">Browse by category</h2>
-      <div class="hero-categories-grid">
+      <div class="filters filters--categories">
         <?php $categoryFilter = $categoryFilter ?? null; ?>
+        <a href="<?= e(url('/')) ?>" class="pill<?= $categoryFilter === null || $categoryFilter === '' ? ' active' : '' ?>">All</a>
         <?php foreach ($browseCategories as $cat): ?>
-        <a href="<?= e(url('/?category=' . urlencode($cat->name))) ?>" class="hero-category-pill<?= ($categoryFilter !== null && $categoryFilter === $cat->name) ? ' active' : '' ?>">
-          <?php if ($cat->icon): ?><i class="<?= e($cat->icon) ?>" aria-hidden="true"></i><?php endif; ?>
-          <span><?= e($cat->name) ?></span>
-        </a>
+        <a href="<?= e(url('/?category=' . urlencode($cat->name))) ?>" class="pill<?= $categoryFilter === $cat->name ? ' active' : '' ?>"><?= e($cat->name) ?></a>
         <?php endforeach; ?>
       </div>
     </div>
