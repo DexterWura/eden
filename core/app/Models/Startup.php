@@ -164,6 +164,50 @@ class Startup extends Model
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Whether the given user can manage this startup (owner or listed founder by email).
+     */
+    public function userCanManage(?\Illuminate\Contracts\Auth\Authenticatable $user): bool
+    {
+        if ($user === null) {
+            return false;
+        }
+        if ($this->user_id === $user->getAuthIdentifier()) {
+            return true;
+        }
+        $userEmail = is_string($user->email ?? null) ? strtolower(trim($user->email)) : '';
+        if ($userEmail === '') {
+            return false;
+        }
+        $founders = $this->founders ?? [];
+        foreach ($founders as $f) {
+            $email = is_array($f) ? ($f['email'] ?? '') : (is_object($f) ? ($f->email ?? '') : '');
+            if (is_string($email) && strtolower(trim($email)) === $userEmail) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Scope: startups the user can manage (owner or listed as founder by email).
+     */
+    public function scopeVisibleToUser($query, \App\Models\User $user)
+    {
+        $userId = $user->getAuthIdentifier();
+        $email = $user->email ?? '';
+
+        return $query->where(function ($q) use ($userId, $email) {
+            $q->where('user_id', $userId);
+            if ($email !== '') {
+                $q->orWhereRaw(
+                    "founders IS NOT NULL AND JSON_SEARCH(founders, 'one', ?, NULL, '$[*].email') IS NOT NULL",
+                    [$email]
+                );
+            }
+        });
+    }
+
     public function upvoteRecords()
     {
         return $this->hasMany(StartupUpvote::class);

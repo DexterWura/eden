@@ -17,7 +17,7 @@ class DashboardController extends EdenController
     public function founderDashboard(): Response
     {
         $user = auth()->user();
-        $myStartups = $user->startups()->orderByDesc('updated_at')->get();
+        $myStartups = Startup::visibleToUser($user)->orderByDesc('updated_at')->get();
         $totalUpvotes = $myStartups->sum('upvotes');
         $primaryStartup = $myStartups->first();
         $siteName = $this->siteName();

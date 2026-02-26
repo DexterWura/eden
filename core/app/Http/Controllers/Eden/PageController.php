@@ -60,7 +60,8 @@ class PageController extends EdenController
             'category' => 'nullable|string|exists:categories,name',
             'website' => 'nullable|url|max:500',
             'location' => 'nullable|string|max:255',
-            'founder_name' => 'nullable|string|max:255',
+            'founder_names' => 'nullable|array',
+            'founder_names.*' => 'nullable|string|max:255',
             'launch_today' => 'nullable|in:today,1,yes',
             'logo' => 'nullable|image|mimes:jpeg,png,gif,webp|max:2048',
             'product_images' => 'nullable|array',
@@ -75,8 +76,15 @@ class PageController extends EdenController
             $slug = $baseSlug . '-' . $n;
         }
 
-        $founderName = $validated['founder_name'] ?? null;
-        $founders = $founderName ? [['name' => $founderName, 'photo_url' => null]] : [];
+        $founderNames = array_values(array_filter(array_map('trim', $validated['founder_names'] ?? [])));
+        $founders = array_map(fn (string $name) => [
+            'name' => $name,
+            'photo_url' => null,
+            'email' => null,
+            'twitter_url' => null,
+            'linkedin_url' => null,
+        ], $founderNames);
+        $founderName = $founders[0]['name'] ?? null;
 
         $startup = new Startup();
         $startup->name = $validated['name'];

@@ -10,8 +10,8 @@ $productImages = $s->product_images ?? [];
   <div class="wrap">
     <a href="<?= e(url('/')) ?>" class="back-link">&larr; All startups</a>
     <div class="startup-hero">
-      <div class="startup-hero-logo">
-        <?php if ($logoPath): ?><img src="<?= e(asset($logoPath)) ?>" alt="" class="startup-hero-logo-img"><?php else: ?><?= e($logoLetters) ?><?php endif; ?>
+      <div class="startup-hero-logo" role="img" aria-label="<?= e($s->name) ?> logo">
+        <?php if ($logoPath): ?><img src="<?= e(asset($logoPath)) ?>" alt="<?= e($s->name) ?> – logo" class="startup-hero-logo-img" width="80" height="80" loading="eager"><?php else: ?><?= e($logoLetters) ?><?php endif; ?>
       </div>
       <div>
         <h1><?= e($s->name) ?></h1>
@@ -40,6 +40,9 @@ $productImages = $s->product_images ?? [];
           <?php if (!empty($s->website)): ?>
           <a href="<?= e(url('/startup/' . $s->slug . '/out')) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="margin-left: 4px;"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Visit website</a>
           <?php endif; ?>
+          <?php if (auth()->check() && $s->user_id === null): ?>
+          <a href="<?= e(route('startup.claim', $s->slug)) ?>" class="btn btn-ghost" style="margin-left: 4px;"><i class="fa-solid fa-hand-holding-hand" aria-hidden="true"></i> Claim this startup</a>
+          <?php endif; ?>
         </div>
       </div>
     </div>
@@ -48,11 +51,11 @@ $productImages = $s->product_images ?? [];
 
 <div class="wrap">
   <?php if (!empty($productImages)): ?>
-  <section class="startup-section startup-product-images">
-    <h2>Product</h2>
+  <section class="startup-section startup-product-images" aria-labelledby="product-heading">
+    <h2 id="product-heading">Product</h2>
     <div class="product-images-grid">
-      <?php foreach ($productImages as $img): ?>
-      <div class="product-image-wrap"><img src="<?= e(asset($img)) ?>" alt="Product"></div>
+      <?php foreach ($productImages as $i => $img): ?>
+      <div class="product-image-wrap"><img src="<?= e(asset($img)) ?>" alt="<?= e($s->name) ?> – product<?= count($productImages) > 1 ? ' ' . ((int)$i + 1) : '' ?>" width="400" height="300" loading="lazy"></div>
       <?php endforeach; ?>
     </div>
   </section>
@@ -77,10 +80,12 @@ $productImages = $s->product_images ?? [];
         <div class="startup-founder-info">
           <strong class="startup-founder-name"><?= e($f['name']) ?></strong>
           <?php if (!empty($f['email'])): ?><p class="startup-founder-email"><a href="mailto:<?= e($f['email']) ?>"><?= e($f['email']) ?></a></p><?php endif; ?>
-          <div class="card-links startup-founder-links">
-            <?php if (!empty($f['twitter_url'])): ?><a href="<?= e($f['twitter_url']) ?>" target="_blank" rel="noopener" aria-label="<?= e($f['name']) ?> on X"><i class="fa-brands fa-x-twitter"></i> X</a><?php endif; ?>
-            <?php if (!empty($f['linkedin_url'])): ?><a href="<?= e($f['linkedin_url']) ?>" target="_blank" rel="noopener" aria-label="<?= e($f['name']) ?> on LinkedIn"><i class="fa-brands fa-linkedin-in"></i> LinkedIn</a><?php endif; ?>
+          <?php if (!empty($f['twitter_url']) || !empty($f['linkedin_url'])): ?>
+          <div class="startup-founder-links" aria-label="Social links for <?= e($f['name']) ?>">
+            <?php if (!empty($f['twitter_url'])): ?><a href="<?= e($f['twitter_url']) ?>" target="_blank" rel="noopener" aria-label="<?= e($f['name']) ?> on X"><i class="fa-brands fa-x-twitter" aria-hidden="true"></i> X</a><?php endif; ?>
+            <?php if (!empty($f['linkedin_url'])): ?><a href="<?= e($f['linkedin_url']) ?>" target="_blank" rel="noopener" aria-label="<?= e($f['name']) ?> on LinkedIn"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i> LinkedIn</a><?php endif; ?>
           </div>
+          <?php endif; ?>
         </div>
       </div>
       <?php endforeach; ?>

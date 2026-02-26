@@ -28,10 +28,91 @@ class StartupController extends EdenController
         $startup->increment('views');
         $hasUpvoted = auth()->check() && StartupUpvote::where('user_id', auth()->id())
             ->where('startup_id', $startup->id)->exists();
-        return $this->page('startup-show', $startup->name, null, [
+
+        $siteName = function_exists('gs') && gs('site_name') ? (string) gs('site_name') : 'Eden';
+        $pageTitle = $startup->name;
+        if ($startup->tagline) {
+            $pageTitle .= ' | ' . \Illuminate\Support\Str::limit($startup->tagline, 50);
+        } elseif ($startup->category) {
+            $pageTitle .= ' | ' . $startup->category;
+        }
+        $pageTitle .= ' | ' . $siteName;
+
+        $metaDesc = $this->startupMetaDescription($startup);
+        $metaImage = $this->startupMetaImageUrl($startup);
+        $canonicalUrl = route('startup.show', $startup->slug);
+        $keywords = array_filter([$startup->name, $startup->category, $startup->location, $siteName . ' startup directory']);
+        $structuredData = $this->startupStructuredData($startup, $canonicalUrl, $metaImage);
+
+        $layoutData = [
+            'pageTitle' => $pageTitle,
+            'metaDescription' => $metaDesc,
+            'metaImage' => $metaImage,
+            'canonicalUrl' => $canonicalUrl,
+            'metaKeywords' => implode(', ', $keywords),
+            'structuredData' => $structuredData,
+        ];
+
+        return $this->page('startup-show', $pageTitle, null, [
             'startup' => $startup,
             'hasUpvoted' => $hasUpvoted,
-        ]);
+        ], $layoutData);
+    }
+
+    private function startupMetaDescription(Startup $startup, int $maxLength = 160): string
+    {
+        $raw = $startup->description ?: $startup->tagline ?: $startup->name . ' – startup listed on ' . (function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden');
+        $text = strip_tags(preg_replace('/\s+/', ' ', (string) $raw));
+        if (mb_strlen($text) <= $maxLength) {
+            return $text;
+        }
+        return mb_substr($text, 0, $maxLength - 3) . '...';
+    }
+
+    private function startupMetaImageUrl(Startup $startup): ?string
+    {
+        if ($startup->logo_path) {
+            return url()->asset($startup->logo_path);
+        }
+        $productImages = $startup->product_images ?? [];
+        if (! empty($productImages) && is_string($productImages[0] ?? null)) {
+            return url()->asset($productImages[0]);
+        }
+        return null;
+    }
+
+    private function startupStructuredData(Startup $startup, string $url, ?string $imageUrl): array
+    {
+        $siteName = function_exists('gs') && gs('site_name') ? (string) gs('site_name') : 'Eden';
+        $data = [
+            '@context' => 'https://schema.org',
+            '@type' => 'Organization',
+            'name' => $startup->name,
+            'url' => $startup->website ?: $url,
+            'description' => $this->startupMetaDescription($startup, 500),
+        ];
+        if ($imageUrl) {
+            $data['image'] = $imageUrl;
+        }
+        if ($startup->location) {
+            $data['address'] = ['@type' => 'PostalAddress', 'addressLocality' => $startup->location];
+        }
+        $founders = $startup->founders_display ?? [];
+        if (! empty($founders)) {
+            $data['member'] = array_values(array_map(function ($f) {
+                $member = ['@type' => 'Person', 'name' => $f['name'] ?? ''];
+                if (! empty($f['email'])) {
+                    $member['email'] = $f['email'];
+                }
+                return $member;
+            }, $founders));
+        }
+        $data['publisher'] = [
+            '@type' => 'Organization',
+            'name' => $siteName,
+            'url' => url('/'),
+        ];
+        return $data;
     }
 
     public function out(string $slug): RedirectResponse

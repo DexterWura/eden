@@ -14,7 +14,7 @@ class StartupController extends Controller
 {
     public function index()
     {
-        $startups = auth()->user()->startups()->orderByDesc('updated_at')->get();
+        $startups = Startup::visibleToUser(auth()->user())->orderByDesc('updated_at')->get();
 
         $content = view('eden.founder.startups-index', ['startups' => $startups])->render();
 
@@ -199,8 +199,8 @@ class StartupController extends Controller
 
     private function authorizeStartup(Startup $startup): void
     {
-        if ($startup->user_id !== auth()->id()) {
-            abort(403, 'Not your startup.');
+        if (! $startup->userCanManage(auth()->user())) {
+            abort(403, 'You do not have permission to manage this startup.');
         }
     }
 

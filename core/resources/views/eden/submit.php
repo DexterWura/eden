@@ -49,8 +49,21 @@
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label" for="founder_name">Founder name</label>
-          <input type="text" id="founder_name" name="founder_name" class="form-input" placeholder="e.g. Jane Doe" value="<?= e(old('founder_name')) ?>">
+          <label class="form-label">Founders</label>
+          <p class="form-hint" style="margin-bottom: 10px;">Add one or more founders. Use "Add another founder" to list co-founders.</p>
+          <div id="founders-container">
+            <?php
+              $founderNames = old('founder_names', ['']);
+              if (is_string($founderNames)) { $founderNames = [$founderNames]; }
+              foreach ($founderNames as $i => $name):
+            ?>
+            <div class="founder-row" style="display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px;">
+              <input type="text" name="founder_names[]" class="form-input" placeholder="e.g. Jane Doe" value="<?= e(is_string($name) ? $name : '') ?>" style="flex: 1;">
+              <button type="button" class="btn btn-ghost founder-remove" aria-label="Remove founder" style="flex-shrink: 0; padding: 10px 14px;" title="Remove founder"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
+            <?php endforeach; ?>
+          </div>
+          <button type="button" id="add-founder-btn" class="btn btn-ghost" style="margin-top: 6px; font-size: 0.875rem;"><i class="fa-solid fa-plus" aria-hidden="true"></i> Add another founder</button>
         </div>
       </div>
 
@@ -130,5 +143,27 @@
   container.addEventListener('change', function(e) {
     if (e.target.name === 'product_images[]') updateSummary();
   });
+
+  var foundersContainer = document.getElementById('founders-container');
+  var addFounderBtn = document.getElementById('add-founder-btn');
+  if (foundersContainer && addFounderBtn) {
+    addFounderBtn.addEventListener('click', function() {
+      var row = document.createElement('div');
+      row.className = 'founder-row';
+      row.style.cssText = 'display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px;';
+      row.innerHTML = '<input type="text" name="founder_names[]" class="form-input" placeholder="e.g. Jane Doe" style="flex: 1;"> <button type="button" class="btn btn-ghost founder-remove" aria-label="Remove founder" style="flex-shrink: 0; padding: 10px 14px;" title="Remove founder"><i class="fa-solid fa-trash-can"></i></button>';
+      foundersContainer.appendChild(row);
+      row.querySelector('.founder-remove').addEventListener('click', function() {
+        var rows = foundersContainer.querySelectorAll('.founder-row');
+        if (rows.length > 1) row.remove();
+      });
+    });
+    foundersContainer.querySelectorAll('.founder-remove').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var rows = foundersContainer.querySelectorAll('.founder-row');
+        if (rows.length > 1) btn.closest('.founder-row').remove();
+      });
+    });
+  }
 })();
 </script>
