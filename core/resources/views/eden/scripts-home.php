@@ -7,15 +7,16 @@
   });
 
   (function() {
-    var searchEl = document.querySelector('.search-input');
+    var searchEl = document.getElementById('homeSearch') || document.querySelector('.search-input');
     if (!searchEl) return;
     var debounceMs = 300;
     var timeoutId = null;
     function runSearch() {
       var q = (searchEl.value || '').trim().toLowerCase();
-      document.querySelectorAll('.startup-list').forEach(function(list) {
+      var containers = document.querySelectorAll('.startup-list, .section-cards-row');
+      containers.forEach(function(list) {
         var cards = list.querySelectorAll('.startup-card');
-        var emptyNote = list.querySelector('.text-muted');
+        var emptyNote = list.querySelector('.text-muted, .section-empty');
         var visible = 0;
         cards.forEach(function(card) {
           var match = !q || (card.getAttribute('data-search') || '').indexOf(q) !== -1;

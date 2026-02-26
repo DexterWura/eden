@@ -3,13 +3,15 @@ $s = $startup ?? null;
 if (!$s) return;
 $rank = $rank ?? null;
 $showRank = isset($showRank) ? $showRank : false;
+$cardVariant = $cardVariant ?? null;
 $url = url('/startup/' . e($s->slug));
 $logoPath = $s->logo_path ?? null;
 $logoLetters = $s->logo_letters ?? strtoupper(mb_substr($s->name, 0, 2));
 $foundersDisplay = $s->founders_display ?? [];
 $searchText = implode(' ', array_filter([$s->name, $s->tagline, $s->category, $s->location, $s->founder_name, implode(' ', array_column($foundersDisplay, 'name'))], fn($v) => $v !== null && $v !== ''));
+$isRow = $cardVariant === 'row';
 ?>
-<div class="startup-card<?= $s->is_featured ? ' featured' : '' ?>" data-search="<?= e(mb_strtolower($searchText)) ?>">
+<div class="startup-card<?= $s->is_featured ? ' featured' : '' ?><?= $isRow ? ' startup-card--row' : '' ?>" data-search="<?= e(mb_strtolower($searchText)) ?>">
   <?php if ($showRank && $rank !== null): ?><span class="card-rank"><?= (int)$rank ?></span><?php endif; ?>
   <div class="card-top">
     <div class="card-logo">
