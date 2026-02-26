@@ -9,8 +9,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
-  <link rel="stylesheet" href="<?= e(asset('css/main.css')) ?>">
-  <link rel="stylesheet" href="<?= e(asset('css/dashboard.css')) ?>">
+  <?php
+    $mainCssPath = public_path('css/main.css');
+    $mainCssVersion = file_exists($mainCssPath) ? filemtime($mainCssPath) : '';
+    $dashCssPath = public_path('css/dashboard.css');
+    $dashCssVersion = file_exists($dashCssPath) ? filemtime($dashCssPath) : '';
+  ?>
+  <link rel="stylesheet" href="<?= e(asset('css/main.css')) ?><?= $mainCssVersion ? '?v=' . $mainCssVersion : '' ?>">
+  <link rel="stylesheet" href="<?= e(asset('css/dashboard.css')) ?><?= $dashCssVersion ? '?v=' . $dashCssVersion : '' ?>">
 </head>
 <body class="dashboard">
   <div class="dash-layout" id="dashLayout">
