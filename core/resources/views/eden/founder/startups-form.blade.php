@@ -34,7 +34,12 @@
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
         <div>
           <label for="category" class="dash-label">Category</label>
-          <input type="text" id="category" name="category" value="{{ old('category', $startup->category) }}" class="dash-input" placeholder="e.g. Fintech">
+          <select id="category" name="category" class="dash-input">
+            <option value="">Choose a category…</option>
+            @foreach($categories ?? [] as $cat)
+            <option value="{{ $cat->name }}" {{ old('category', $startup->category) === $cat->name ? 'selected' : '' }}>{{ $cat->name }}</option>
+            @endforeach
+          </select>
           @error('category') <span class="dash-error">{{ $message }}</span> @enderror
         </div>
         <div>

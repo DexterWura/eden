@@ -25,15 +25,9 @@
       <label class="form-label" for="category">Category</label>
       <select id="category" name="category" class="form-select" required>
         <option value="">Choose a category…</option>
-        <option value="Fintech"<?= old('category') === 'Fintech' ? ' selected' : '' ?>>Fintech</option>
-        <option value="Health"<?= old('category') === 'Health' ? ' selected' : '' ?>>Health</option>
-        <option value="AI & ML"<?= old('category') === 'AI & ML' ? ' selected' : '' ?>>AI & ML</option>
-        <option value="SaaS"<?= old('category') === 'SaaS' ? ' selected' : '' ?>>SaaS</option>
-        <option value="Marketplace"<?= old('category') === 'Marketplace' ? ' selected' : '' ?>>Marketplace</option>
-        <option value="EdTech"<?= old('category') === 'EdTech' ? ' selected' : '' ?>>EdTech</option>
-        <option value="Climate"<?= old('category') === 'Climate' ? ' selected' : '' ?>>Climate</option>
-        <option value="AgTech"<?= old('category') === 'AgTech' ? ' selected' : '' ?>>AgTech</option>
-        <option value="Other"<?= old('category') === 'Other' ? ' selected' : '' ?>>Other</option>
+        <?php foreach ($categories ?? [] as $cat): ?>
+        <option value="<?= e($cat->name) ?>"<?= old('category') === $cat->name ? ' selected' : '' ?>><?= e($cat->name) ?></option>
+        <?php endforeach; ?>
       </select>
     </div>
     <div class="form-group">

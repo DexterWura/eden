@@ -15,11 +15,11 @@
       var q = (searchEl.value || '').trim().toLowerCase();
       var containers = document.querySelectorAll('.startup-list, .section-cards-row');
       containers.forEach(function(list) {
-        var cards = list.querySelectorAll('.startup-card');
+        var cards = list.querySelectorAll('.startup-card, .deal-card');
         var emptyNote = list.querySelector('.text-muted, .section-empty');
         var visible = 0;
         cards.forEach(function(card) {
-          var match = !q || (card.getAttribute('data-search') || '').indexOf(q) !== -1;
+          var match = !q || (card.getAttribute('data-search') || '').toLowerCase().indexOf(q) !== -1;
           card.style.display = match ? '' : 'none';
           if (match) visible++;
         });

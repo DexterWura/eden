@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Founder;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Startup;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,7 +24,8 @@ class StartupController extends Controller
     public function create()
     {
         $startup = new Startup(['status' => Startup::STATUS_ACTIVE]);
-        $content = view('eden.founder.startups-form', ['startup' => $startup])->render();
+        $categories = Category::orderBy('sort_order')->get();
+        $content = view('eden.founder.startups-form', ['startup' => $startup, 'categories' => $categories])->render();
         return $this->layoutResponse('Add startup', 'startups', $content, true);
     }
 
@@ -53,7 +55,8 @@ class StartupController extends Controller
     public function edit(Startup $startup)
     {
         $this->authorizeStartup($startup);
-        $content = view('eden.founder.startups-form', ['startup' => $startup])->render();
+        $categories = Category::orderBy('sort_order')->get();
+        $content = view('eden.founder.startups-form', ['startup' => $startup, 'categories' => $categories])->render();
         return $this->layoutResponse('Edit startup', 'startups', $content, true);
     }
 
@@ -189,7 +192,7 @@ class StartupController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'tagline' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'category' => ['nullable', 'string', 'max:64'],
+            'category' => ['nullable', 'string', 'exists:categories,name'],
             'website' => ['nullable', 'string', 'max:500', 'url'],
             'location' => ['nullable', 'string', 'max:255'],
             'founder_email' => ['nullable', 'email', 'max:255'],

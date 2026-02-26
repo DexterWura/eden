@@ -28,6 +28,7 @@ Route::redirect('/founder-dashboard', '/founder', 301);
 Route::redirect('/startup', '/founder', 301);
 
 Route::get('/', [HomeController::class, 'index']);
+Route::get('/leaderboard', [HomeController::class, 'leaderboard'])->name('leaderboard');
 Route::get('/about', [PageController::class, 'about']);
 Route::get('/contact', [PageController::class, 'contact']);
 Route::post('/contact', [PageController::class, 'contactStore']);

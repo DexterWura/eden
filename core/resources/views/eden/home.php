@@ -9,6 +9,21 @@
       </div>
       <a href="<?= e(url('/submit')) ?>" class="btn btn-primary btn-add"><i class="fa-solid fa-plus" aria-hidden="true"></i> Submit your startup</a>
     </div>
+    <?php $browseCategories = $browseCategories ?? []; ?>
+    <?php if (count($browseCategories) > 0): ?>
+    <div class="hero-categories" id="heroCategories">
+      <h2 class="hero-categories-title">Browse by category</h2>
+      <div class="hero-categories-grid">
+        <?php $categoryFilter = $categoryFilter ?? null; ?>
+        <?php foreach ($browseCategories as $cat): ?>
+        <a href="<?= e(url('/?category=' . urlencode($cat->name))) ?>" class="hero-category-pill<?= ($categoryFilter !== null && $categoryFilter === $cat->name) ? ' active' : '' ?>">
+          <?php if ($cat->icon): ?><i class="<?= e($cat->icon) ?>" aria-hidden="true"></i><?php endif; ?>
+          <span><?= e($cat->name) ?></span>
+        </a>
+        <?php endforeach; ?>
+      </div>
+    </div>
+    <?php endif; ?>
   </div>
 </section>
 
@@ -24,35 +39,131 @@
       <a href="<?= e(url('/launching-today')) ?>" class="section-link-all">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
     </header>
     <div class="section-cards-row" tabindex="0">
-      <?php foreach ($launchingToday as $startup): $rank = null; $showRank = false; $cardVariant = 'row'; include __DIR__ . '/_startup-card.php'; endforeach; ?>
+      <?php foreach ($launchingToday as $startup): $badgeLabel = 'Launch'; include __DIR__ . '/_startup-card-deal.php'; endforeach; ?>
     </div>
   </section>
   <?php endif; ?>
 
-  <section class="section-block product-of-day" aria-labelledby="product-of-day-heading">
+  <?php $featuredProducts = $featuredProducts ?? collect(); ?>
+  <?php if ($featuredProducts->isNotEmpty()): ?>
+  <section class="section-block" aria-labelledby="featured-heading">
     <header class="section-header">
       <div>
-        <h2 id="product-of-day-heading" class="section-heading">Product of the day</h2>
-        <p class="section-sub">Top 5 by upvotes today.</p>
+        <h2 id="featured-heading" class="section-heading">Featured products</h2>
+        <p class="section-sub">Hand-picked startups to watch.</p>
       </div>
+      <a href="<?= e(url('/?featured=1')) ?>" class="section-link-all">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
     </header>
-    <?php $productOfDay = $productOfDay ?? collect(); ?>
-    <?php if ($productOfDay->isNotEmpty()): ?>
     <div class="section-cards-row" tabindex="0">
-      <?php foreach ($productOfDay as $index => $startup): $rank = $index + 1; $showRank = true; $cardVariant = 'row'; include __DIR__ . '/_startup-card.php'; endforeach; ?>
+      <?php foreach ($featuredProducts as $startup): $badgeLabel = 'Featured'; include __DIR__ . '/_startup-card-deal.php'; endforeach; ?>
+    </div>
+  </section>
+  <?php endif; ?>
+
+  <?php $topPerforming = $topPerforming ?? collect(); ?>
+  <section class="section-block" aria-labelledby="top-performing-heading">
+    <header class="section-header">
+      <div>
+        <h2 id="top-performing-heading" class="section-heading">Top performing products</h2>
+        <p class="section-sub">Most upvoted this week.</p>
+      </div>
+      <a href="<?= e(url('/leaderboard')) ?>" class="section-link-all">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+    </header>
+    <?php if ($topPerforming->isNotEmpty()): ?>
+    <div class="section-cards-row" tabindex="0">
+      <?php foreach ($topPerforming as $startup): $badgeLabel = null; include __DIR__ . '/_startup-card-deal.php'; endforeach; ?>
     </div>
     <?php else: ?>
     <p class="section-empty">No startups yet. <a href="<?= e(url('/submit')) ?>">Submit your startup</a>.</p>
     <?php endif; ?>
   </section>
 
+  <?php $justListed = $justListed ?? collect(); ?>
+  <?php if ($justListed->isNotEmpty()): ?>
+  <section class="section-block" aria-labelledby="just-listed-heading">
+    <header class="section-header">
+      <div>
+        <h2 id="just-listed-heading" class="section-heading">Just listed</h2>
+        <p class="section-sub">Newest additions to the directory.</p>
+      </div>
+      <a href="<?= e(url('/?sort=newest')) ?>" class="section-link-all">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+    </header>
+    <div class="section-cards-row" tabindex="0">
+      <?php foreach ($justListed as $startup): $badgeLabel = 'New'; include __DIR__ . '/_startup-card-deal.php'; endforeach; ?>
+    </div>
+  </section>
+  <?php endif; ?>
+
+  <?php $leaderboardPreview = $leaderboardPreview ?? null; ?>
+  <?php if ($leaderboardPreview && count($leaderboardPreview->items()) > 0): ?>
+  <section class="section-block" aria-labelledby="leaderboard-heading">
+    <header class="section-header">
+      <h2 id="leaderboard-heading" class="section-heading">Leaderboard</h2>
+      <a href="<?= e(url('/leaderboard')) ?>" class="section-link-all">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+    </header>
+    <div class="leaderboard-wrap">
+      <table class="leaderboard-table">
+        <thead>
+          <tr>
+            <th class="col-rank">#</th>
+            <th class="col-startup">Startup</th>
+            <th class="col-founder">Founder</th>
+            <th class="col-upvotes">Upvotes</th>
+            <th class="col-launched">Launched</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php
+          $foundersDisplay = null;
+          foreach ($leaderboardPreview as $index => $s):
+            $rank = $leaderboardPreview->firstItem() + $index;
+            $logoPath = $s->logo_path ?? null;
+            $logoLetters = $s->logo_letters ?? strtoupper(mb_substr($s->name, 0, 2));
+            $foundersDisplay = $s->founders_display ?? [];
+            $founderName = count($foundersDisplay) > 0 ? implode(', ', array_column($foundersDisplay, 'name')) : ($s->founder_name ?? '—');
+            $founderPhoto = count($foundersDisplay) > 0 && !empty($foundersDisplay[0]['photo_url']) ? $foundersDisplay[0]['photo_url'] : null;
+            $founderInitials = count($foundersDisplay) > 0 ? \App\Models\Startup::founderInitials($foundersDisplay[0]['name']) : '?';
+          ?>
+          <tr>
+            <td class="col-rank"><?= (int)$rank ?></td>
+            <td class="col-startup">
+              <a href="<?= e(url('/startup/' . $s->slug)) ?>" class="leaderboard-startup">
+                <div class="leaderboard-startup-logo">
+                  <?php if ($logoPath): ?><img src="<?= e(asset($logoPath)) ?>" alt=""><?php else: ?><?= e($logoLetters) ?><?php endif; ?>
+                </div>
+                <div class="leaderboard-startup-info">
+                  <p class="leaderboard-startup-name"><?= e($s->name) ?></p>
+                  <p class="leaderboard-startup-desc"><?= e($s->short_description) ?></p>
+                </div>
+              </a>
+            </td>
+            <td class="col-founder">
+              <div class="leaderboard-founder">
+                <?php if ($founderPhoto): ?>
+                <div class="leaderboard-founder-avatar"><img src="<?= e(asset($founderPhoto)) ?>" alt=""></div>
+                <?php else: ?>
+                <div class="leaderboard-founder-avatar"><span class="leaderboard-founder-initials"><?= e($founderInitials) ?></span></div>
+                <?php endif; ?>
+                <span class="leaderboard-founder-name"><?= e($founderName) ?></span>
+              </div>
+            </td>
+            <td class="col-upvotes"><?= (int)$s->upvotes ?></td>
+            <td class="col-launched"><?= $s->launch_date ? $s->launch_date->format('Y') : '—' ?></td>
+          </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <?php endif; ?>
+
   <section class="section-block" aria-labelledby="browse-category-heading">
     <h2 id="browse-category-heading" class="section-heading section-heading--center">Browse by category</h2>
     <div class="filters filters--categories" id="categories">
-      <?php $categoryFilter = $categoryFilter ?? null; ?>
+      <?php $categoryFilter = $categoryFilter ?? null; $browseCategories = $browseCategories ?? []; ?>
       <a href="<?= e(url('/')) ?>" class="pill<?= $categoryFilter === null || $categoryFilter === '' ? ' active' : '' ?>">All</a>
-      <?php foreach ($categories ?? [] as $cat): ?>
-      <a href="<?= e(url('/?category=' . urlencode($cat->category))) ?>" class="pill<?= $categoryFilter === $cat->category ? ' active' : '' ?>"><?= e($cat->category) ?></a>
+      <?php foreach ($browseCategories as $cat): ?>
+      <a href="<?= e(url('/?category=' . urlencode($cat->name))) ?>" class="pill<?= $categoryFilter === $cat->name ? ' active' : '' ?>"><?= e($cat->name) ?></a>
       <?php endforeach; ?>
     </div>
   </section>

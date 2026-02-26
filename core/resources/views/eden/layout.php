@@ -39,6 +39,7 @@
       <a href="<?= e(url('/')) ?>" class="logo"><?= e(function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden') ?></a>
       <nav class="nav-main">
         <a href="<?= e(url('/launching-today')) ?>">Launching today</a>
+        <a href="<?= e(url('/leaderboard')) ?>">Leaderboard</a>
         <a href="<?= e(url('/categories')) ?>">Categories</a>
         <a href="<?= e(url('/#startups')) ?>">Startups</a>
         <a href="<?= e(url('/submit')) ?>">Submit</a>
@@ -91,6 +92,7 @@
     </div>
     <nav class="nav-drawer-links">
       <a href="<?= e(url('/launching-today')) ?>">Launching today</a>
+      <a href="<?= e(url('/leaderboard')) ?>">Leaderboard</a>
       <a href="<?= e(url('/categories')) ?>">Categories</a>
       <a href="<?= e(url('/#startups')) ?>">Startups</a>
       <a href="<?= e(url('/submit')) ?>">Submit</a>

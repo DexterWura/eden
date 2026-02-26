@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Startup;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -228,7 +229,8 @@ class StartupController extends Controller
 
     private function formResponse(string $title, Startup $startup)
     {
-        $content = view('eden.startups.form', ['startup' => $startup])->render();
+        $categories = Category::orderBy('sort_order')->get();
+        $content = view('eden.startups.form', ['startup' => $startup, 'categories' => $categories])->render();
         return response()->view('eden.layout-dashboard', [
             'title' => $title,
             'sidebar' => 'admin',
@@ -250,7 +252,7 @@ class StartupController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'tagline' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'category' => ['nullable', 'string', 'max:64'],
+            'category' => ['nullable', 'string', 'exists:categories,name'],
             'website' => ['nullable', 'string', 'max:500', 'url'],
             'location' => ['nullable', 'string', 'max:255'],
             'founder_email' => ['nullable', 'email', 'max:255'],

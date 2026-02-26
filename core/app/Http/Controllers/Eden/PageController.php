@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Eden;
 
+use App\Models\Category;
 use App\Models\ContactSubmission;
 use App\Models\Startup;
 use App\Models\Subscriber;
@@ -40,7 +41,8 @@ class PageController extends EdenController
 
     public function submit()
     {
-        return $this->page('submit', 'Submit your startup');
+        $categories = Category::orderBy('sort_order')->get();
+        return $this->page('submit', 'Submit your startup', null, ['categories' => $categories]);
     }
 
     public function submitStore(Request $request): RedirectResponse
@@ -49,7 +51,7 @@ class PageController extends EdenController
             'name' => 'required|string|max:255',
             'tagline' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:10000',
-            'category' => 'nullable|string|max:64',
+            'category' => 'nullable|string|exists:categories,name',
             'website' => 'nullable|url|max:500',
             'location' => 'nullable|string|max:255',
             'founder_name' => 'nullable|string|max:255',
