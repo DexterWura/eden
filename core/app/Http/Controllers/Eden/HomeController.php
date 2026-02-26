@@ -14,22 +14,28 @@ class HomeController extends EdenController
     public function index(Request $request)
     {
         $categoryFilter = $request->query('category');
-        $launchingToday = $this->startupService->getLaunchingToday();
+        $featuredOnly = (bool) $request->query('featured');
+        $sortNewest = $request->query('sort') === 'newest';
+
+        $launchingToday = $this->startupService->getLaunchingToday($categoryFilter, $featuredOnly, 0);
         $featuredProducts = $this->startupService->getFeatured($categoryFilter, 10);
-        $topPerforming = $this->startupService->getTopPerforming($categoryFilter, 10);
-        $justListed = $this->startupService->getJustListed($categoryFilter, 10);
-        if ($request->query('featured')) {
+        $topPerforming = $this->startupService->getTopPerforming($categoryFilter, $featuredOnly, 10);
+        $justListed = $this->startupService->getJustListed($categoryFilter, $featuredOnly, 10);
+
+        if ($featuredOnly) {
             $allStartups = $this->startupService->getFeatured($categoryFilter, 500);
-        } elseif ($request->query('sort') === 'newest') {
-            $allStartups = $this->startupService->getJustListed($categoryFilter, 500);
+        } elseif ($sortNewest) {
+            $allStartups = $this->startupService->getJustListed($categoryFilter, false, 500);
         } else {
             $allStartups = $this->startupService->getAllStartups($categoryFilter);
         }
+
         $categories = $this->startupService->getCategoriesWithCounts();
         $browseCategories = $this->startupService->getCategoriesWithCounts()
             ->take(12)
             ->map(fn ($c) => (object) ['name' => $c->category]);
-        $leaderboardPreview = $this->startupService->getLeaderboard('upvotes', 10);
+        // Home: top 10 only (no pagination); full list on /leaderboard
+        $leaderboardPreview = $this->startupService->getLeaderboard('upvotes', 10, $categoryFilter, $featuredOnly);
 
         return $this->page('home', null, 'scripts-home', [
             'launchingToday' => $launchingToday,
@@ -41,6 +47,9 @@ class HomeController extends EdenController
             'browseCategories' => $browseCategories,
             'categoryFilter' => $categoryFilter,
             'leaderboardPreview' => $leaderboardPreview,
+            'featuredOnly' => $featuredOnly,
+            'sortNewest' => $sortNewest,
+            'productOfDayId' => $this->startupService->getProductOfDayId(),
         ]);
     }
 
@@ -50,11 +59,12 @@ class HomeController extends EdenController
         if (! in_array($sortBy, ['upvotes', 'views', 'clicks', 'mrr', 'revenue', 'newest'], true)) {
             $sortBy = 'upvotes';
         }
-        $startups = $this->startupService->getLeaderboard($sortBy, 20);
+        $startups = $this->startupService->getLeaderboard($sortBy, 50);
 
         return $this->page('leaderboard', 'Leaderboard', null, [
             'startups' => $startups,
             'sortBy' => $sortBy,
+            'productOfDayId' => $this->startupService->getProductOfDayId(),
         ]);
     }
 }

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class GeneralSetting extends Model
 {
-    protected $fillable = ['site_name'];
+    protected $fillable = ['site_name', 'robots_txt'];
 
     protected $casts = [
         'mail_config' => 'object',

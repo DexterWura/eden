@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\GeneralSetting;
+use App\Services\RobotsTxtService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Cache;
@@ -64,7 +65,9 @@ class SettingsController extends Controller
         $about = $general && is_array($general->about_page ?? null) ? array_merge($aboutDefaults, $general->about_page) : $aboutDefaults;
         $adsenseEnabled = $general ? (bool) ($general->adsense_enabled ?? false) : false;
         $adsenseScript = $general ? (string) ($general->adsense_script ?? '') : '';
-        $content = view('eden.settings.index', compact('seo', 'about', 'adsenseEnabled', 'adsenseScript'))->render();
+        $robotsTxt = $general && isset($general->robots_txt) ? (string) $general->robots_txt : '';
+        $recommendedRobotsTxt = RobotsTxtService::recommendedContent();
+        $content = view('eden.settings.index', compact('seo', 'about', 'adsenseEnabled', 'adsenseScript', 'robotsTxt', 'recommendedRobotsTxt'))->render();
 
         return response()->view('eden.layout-dashboard', [
             'title' => 'Settings',
@@ -178,5 +181,37 @@ class SettingsController extends Controller
         Cache::forget('GeneralSetting');
 
         return redirect()->route('admin.settings.index')->with('notify', [['success', 'AdSense settings saved.']]);
+    }
+
+    public function updateRobots(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'robots_txt' => 'nullable|string|max:8000',
+        ]);
+
+        $general = $this->getOrCreateGeneral();
+        if (! $general) {
+            return redirect()->route('admin.settings.index')->with('notify', [['error', 'General settings not found. Run migrations and ensure the general_settings table exists.']]);
+        }
+
+        $content = $request->filled('robots_txt') ? trim($request->robots_txt) : null;
+        if ($content !== null && $content !== '') {
+            $general->robots_txt = $content;
+            $general->save();
+            try {
+                app(RobotsTxtService::class)->writeToPublic($content);
+            } catch (\Throwable $e) {
+                return redirect()->route('admin.settings.index')->with('notify', [['error', 'Saved to database but could not write robots.txt file: ' . $e->getMessage()]]);
+            }
+        } else {
+            $general->robots_txt = null;
+            $general->save();
+            if (file_exists(public_path('robots.txt'))) {
+                @unlink(public_path('robots.txt'));
+            }
+        }
+        Cache::forget('GeneralSetting');
+
+        return redirect()->route('admin.settings.index')->with('notify', [['success', 'Robots.txt saved and file updated.']]);
     }
 }

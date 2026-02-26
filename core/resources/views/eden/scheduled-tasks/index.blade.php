@@ -1,0 +1,102 @@
+<h1 class="dash-page-title">Scheduled tasks</h1>
+<div class="dash-welcome">
+  Configure how often tasks (e.g. sitemap) run automatically. The system runs due tasks every minute when the Laravel scheduler is active (<code>php artisan schedule:run</code> or cron). You can run any task manually below.
+</div>
+
+<div class="dash-card" style="margin-top: 20px;">
+  <div class="dash-card-header"><span class="dash-card-title">Tasks</span></div>
+  <div class="dash-card-body" style="padding: 0;">
+    <div class="dash-table-wrap">
+      <table class="dash-table">
+        <thead>
+          <tr>
+            <th>Task</th>
+            <th>Interval</th>
+            <th>Enabled</th>
+            <th>Last run</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach($tasks as $task)
+          <tr>
+            <td>
+              <strong>{{ $task->display_name }}</strong>
+              @if($task->description)
+                <div style="font-size: 0.8rem; color: var(--d-text-secondary); margin-top: 2px;">{{ $task->description }}</div>
+              @endif
+            </td>
+            <td>
+              <form action="{{ route('admin.scheduled-tasks.update', $task) }}" method="post" style="display: inline;" class="scheduled-task-form">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="is_enabled" value="{{ $task->is_enabled ? '1' : '0' }}">
+                <select name="interval_minutes" class="dash-input" style="width: auto; padding: 6px 10px; font-size: 0.85rem;" onchange="this.form.submit();">
+                  @foreach($intervalOptions as $minutes => $label)
+                    <option value="{{ $minutes }}" {{ (int)$task->interval_minutes === (int)$minutes ? 'selected' : '' }}>{{ $label }}</option>
+                  @endforeach
+                </select>
+              </form>
+            </td>
+            <td>
+              <form action="{{ route('admin.scheduled-tasks.update', $task) }}" method="post" style="display: inline;" class="scheduled-task-form">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="interval_minutes" value="{{ $task->interval_minutes }}">
+                <input type="hidden" name="is_enabled" value="0">
+                <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                  <input type="checkbox" name="is_enabled" value="1" {{ $task->is_enabled ? 'checked' : '' }} onchange="this.form.submit();">
+                  <span style="font-size: 0.875rem;">On</span>
+                </label>
+              </form>
+            </td>
+            <td>
+              @if($task->last_run_at)
+                <span title="{{ $task->last_run_at->format('Y-m-d H:i:s') }}">{{ $task->last_run_at->diffForHumans() }}</span>
+              @else
+                <span style="color: var(--d-text-secondary);">Never</span>
+              @endif
+            </td>
+            <td>
+              @if($task->last_status === 'success')
+                <span class="dash-badge dash-badge-success">Success</span>
+              @elseif($task->last_status === 'failed')
+                <span class="dash-badge dash-badge-danger">Failed</span>
+                @if($task->last_message)
+                  <div style="font-size: 0.75rem; color: var(--d-text-secondary); margin-top: 2px;" title="{{ $task->last_message }}">{{ Str::limit($task->last_message, 40) }}</div>
+                @endif
+              @else
+                <span style="color: var(--d-text-secondary); font-size: 0.875rem;">—</span>
+              @endif
+            </td>
+            <td>
+              <form action="{{ route('admin.scheduled-tasks.run', $task) }}" method="post" style="display: inline;">
+                @csrf
+                <button type="submit" class="dash-btn dash-btn-primary" style="padding: 4px 10px; font-size: 0.8rem;">Run now</button>
+              </form>
+            </td>
+          </tr>
+          @endforeach
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+@if($tasks->isEmpty())
+<p class="dash-placeholder" style="padding: 24px;">No scheduled tasks. Run migrations to seed the sitemap task.</p>
+@endif
+
+<div class="dash-card" style="margin-top: 20px;">
+  <div class="dash-card-header"><span class="dash-card-title">Sitemap</span></div>
+  <div class="dash-card-body">
+    <p style="margin: 0 0 8px; font-size: 0.875rem; color: var(--d-text-secondary);">When the Sitemap task runs, it generates <code>public/sitemap.xml</code> with the homepage, about, contact, submit, categories, launching-today, leaderboard, and all active startup URLs. Serve it at <a href="{{ url('/sitemap.xml') }}" target="_blank" rel="noopener">{{ url('/sitemap.xml') }}</a>.</p>
+  </div>
+</div>
+
+<style>
+.dash-badge { display: inline-block; padding: 2px 8px; font-size: 0.75rem; border-radius: 4px; }
+.dash-badge-success { background: #d1fae5; color: #065f46; }
+.dash-badge-danger { background: #fee2e2; color: #991b1b; }
+</style>

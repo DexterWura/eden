@@ -17,18 +17,20 @@
     <div class="dash-sidebar-backdrop" id="dashSidebarBackdrop"></div>
     <aside class="dash-sidebar" id="dashSidebar">
       <?php if (($sidebar ?? '') === 'admin'): ?>
-        <a href="<?= e(url('/backoffice')) ?>" class="<?= in_array($activeNav ?? '', ['migrations', 'startups', 'users', 'categories', 'subscribers', 'reports', 'settings'], true) ? '' : 'active' ?>" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i></a>
+        <a href="<?= e(url('/backoffice')) ?>" class="<?= in_array($activeNav ?? '', ['migrations', 'startups', 'users', 'categories', 'subscribers', 'reports', 'scheduled-tasks', 'settings'], true) ? '' : 'active' ?>" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i></a>
         <a href="<?= e(url('/backoffice/migrations')) ?>" class="<?= ($activeNav ?? '') === 'migrations' ? 'active' : '' ?>" aria-label="Migrations" title="Migrations"><i class="fa-solid fa-database"></i></a>
         <a href="<?= e(url('/backoffice/startups')) ?>" class="<?= ($activeNav ?? '') === 'startups' ? 'active' : '' ?>" aria-label="Startups" title="Startups"><i class="fa-solid fa-rocket"></i></a>
         <a href="<?= e(url('/backoffice/users')) ?>" class="<?= ($activeNav ?? '') === 'users' ? 'active' : '' ?>" aria-label="Users" title="Users"><i class="fa-solid fa-user"></i></a>
         <a href="<?= e(url('/backoffice/categories')) ?>" class="<?= ($activeNav ?? '') === 'categories' ? 'active' : '' ?>" aria-label="Categories" title="Categories"><i class="fa-solid fa-folder-tree"></i></a>
         <a href="<?= e(url('/backoffice/subscribers')) ?>" class="<?= ($activeNav ?? '') === 'subscribers' ? 'active' : '' ?>" aria-label="Subscribers" title="Subscribers"><i class="fa-solid fa-envelope"></i></a>
         <a href="<?= e(url('/backoffice/reports')) ?>" class="<?= ($activeNav ?? '') === 'reports' ? 'active' : '' ?>" aria-label="Reports" title="Reports"><i class="fa-solid fa-chart-line"></i></a>
+        <a href="<?= e(url('/backoffice/scheduled-tasks')) ?>" class="<?= ($activeNav ?? '') === 'scheduled-tasks' ? 'active' : '' ?>" aria-label="Scheduled tasks" title="Scheduled tasks"><i class="fa-solid fa-clock-rotate-left"></i></a>
         <a href="<?= e(url('/backoffice/settings')) ?>" class="<?= ($activeNav ?? '') === 'settings' ? 'active' : '' ?>" aria-label="Settings" title="Settings"><i class="fa-solid fa-gear"></i></a>
       <?php else: ?>
         <a href="<?= e(url('/founder')) ?>" class="<?= ($activeNav ?? '') === 'home' ? 'active' : '' ?>" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i></a>
         <a href="<?= e(url('/founder/startups')) ?>" class="<?= ($activeNav ?? '') === 'startups' ? 'active' : '' ?>" aria-label="My startup" title="My startups"><i class="fa-solid fa-building-user"></i></a>
         <a href="<?= e(url('/founder/upvotes')) ?>" class="<?= ($activeNav ?? '') === 'upvotes' ? 'active' : '' ?>" aria-label="Upvotes" title="Upvotes"><i class="fa-solid fa-arrow-up"></i></a>
+        <a href="<?= e(url('/founder/revenue-api')) ?>" class="<?= ($activeNav ?? '') === 'revenue-api' ? 'active' : '' ?>" aria-label="Revenue API" title="Revenue API"><i class="fa-solid fa-code"></i></a>
         <a href="<?= e(url('/founder/settings')) ?>" class="<?= ($activeNav ?? '') === 'settings' ? 'active' : '' ?>" aria-label="Settings" title="Settings"><i class="fa-solid fa-gear"></i></a>
       <?php endif; ?>
       <div class="dash-nav-bottom">

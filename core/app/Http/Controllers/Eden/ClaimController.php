@@ -36,9 +36,8 @@ class ClaimController extends EdenController
     public function show(Request $request, string $slug)
     {
         if (! auth()->check()) {
-            return redirect()->route('login')
-                ->with('info', 'Please log in to claim this startup.')
-                ->with('url.intended', route('startup.claim', ['slug' => $slug]));
+            return redirect()->guest(route('login'))
+                ->with('info', 'Please log in or sign up to claim this startup.');
         }
 
         $startup = $this->getStartup($slug);

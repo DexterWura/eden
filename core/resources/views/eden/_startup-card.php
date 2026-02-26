@@ -18,6 +18,8 @@ $isRow = $cardVariant === 'row';
       <?php if ($logoPath): ?><img src="<?= e(asset($logoPath)) ?>" alt="" class="card-logo-img"><?php else: ?><?= e($logoLetters) ?><?php endif; ?>
     </div>
     <div class="card-badges">
+      <?php $productOfDayId = $productOfDayId ?? null; ?>
+      <?php if ($productOfDayId && (int)$s->id === (int)$productOfDayId): ?><span class="badge badge-product-of-day">Product of the day</span><?php endif; ?>
       <?php if ($s->is_featured): ?><span class="badge">Featured</span><?php endif; ?>
       <?php if ($s->launch_date && $s->launch_date->isToday()): ?><span class="badge launch">Launch</span><?php endif; ?>
     </div>

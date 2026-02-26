@@ -29,6 +29,13 @@ Schedule::call(function () {
     \Illuminate\Support\Facades\Cache::put('schedule:run:last', now()->toIso8601String(), now()->addMinutes(10));
 })->everyMinute();
 
+// Eden scheduled tasks (sitemap, etc.) - admin-configurable intervals
+Schedule::command('eden:run-scheduled-tasks')
+    ->everyMinute()
+    ->withoutOverlapping(2)
+    ->onOneServer()
+    ->appendOutputTo(storage_path('logs/eden-scheduled-tasks.log'));
+
 // Process ending auctions - run every minute (always enabled)
 Schedule::command('auctions:process-ending --minutes=5')
     ->everyMinute()

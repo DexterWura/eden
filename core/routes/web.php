@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Admin\Auth\LoginController as AdminLoginController;
+use App\Http\Controllers\Api\Eden\RevenueController as EdenRevenueController;
 use App\Http\Controllers\Admin\MigrationController;
 use App\Http\Controllers\Admin\ReportsController;
+use App\Http\Controllers\Admin\ScheduledTasksController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\StartupController as AdminStartupController;
 use App\Http\Controllers\Admin\CategoryController;
@@ -15,11 +17,16 @@ use App\Http\Controllers\Eden\HomeController;
 use App\Http\Controllers\Eden\PageController;
 use App\Http\Controllers\Eden\StartupController;
 use App\Http\Controllers\User\Auth\SocialiteController;
+use App\Http\Controllers\Founder\RevenueApiController as FounderRevenueApiController;
 use App\Http\Controllers\Founder\SettingsController as FounderSettingsController;
 use App\Http\Controllers\Founder\StartupController as FounderStartupController;
 use App\Http\Controllers\Founder\UpvotesController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
+
+Route::post('api/eden/v1/revenue', [EdenRevenueController::class, 'record'])
+    ->middleware(['throttle:60,1', 'eden.revenue.api'])
+    ->name('api.eden.revenue.record');
 
 Route::get('/admin', [AdminLoginController::class, 'showLoginForm'])->name('admin.login')->middleware('admin.guest');
 Route::post('/admin', [AdminLoginController::class, 'login'])->middleware('admin.guest');
@@ -55,6 +62,9 @@ Route::middleware('auth')->prefix('founder')->name('founder.')->group(function (
     Route::get('startups/{startup}/edit', [FounderStartupController::class, 'edit'])->name('startups.edit');
     Route::put('startups/{startup}', [FounderStartupController::class, 'update'])->name('startups.update');
     Route::get('upvotes', [UpvotesController::class, 'index'])->name('upvotes');
+    Route::get('revenue-api', [FounderRevenueApiController::class, 'index'])->name('revenue-api');
+    Route::post('revenue-api/startups/{startup}/create-key', [FounderRevenueApiController::class, 'createKey'])->name('revenue-api.create-key');
+    Route::post('revenue-api/startups/{startup}/regenerate-key', [FounderRevenueApiController::class, 'regenerateKey'])->name('revenue-api.regenerate-key');
     Route::get('settings', [FounderSettingsController::class, 'index'])->name('settings');
     Route::put('settings', [FounderSettingsController::class, 'update'])->name('settings.update');
 });
@@ -95,10 +105,14 @@ Route::middleware('admin')->prefix('backoffice')->name('admin.')->group(function
     Route::post('subscribers/send', [SubscriberController::class, 'send'])->name('subscribers.send');
     Route::delete('subscribers/{subscriber}', [SubscriberController::class, 'destroy'])->name('subscribers.destroy');
     Route::get('reports', [ReportsController::class, 'index'])->name('reports.index');
+    Route::get('scheduled-tasks', [ScheduledTasksController::class, 'index'])->name('scheduled-tasks.index');
+    Route::put('scheduled-tasks/{task}', [ScheduledTasksController::class, 'update'])->name('scheduled-tasks.update');
+    Route::post('scheduled-tasks/{task}/run', [ScheduledTasksController::class, 'runNow'])->name('scheduled-tasks.run');
     Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::post('settings/seo', [SettingsController::class, 'updateSeo'])->name('settings.seo');
     Route::post('settings/about', [SettingsController::class, 'updateAbout'])->name('settings.about');
     Route::post('settings/adsense', [SettingsController::class, 'updateAdsense'])->name('settings.adsense');
+    Route::post('settings/robots', [SettingsController::class, 'updateRobots'])->name('settings.robots');
     Route::post('migrations/run', [MigrationController::class, 'run'])->name('migration.run');
     Route::post('migrations/refresh', [MigrationController::class, 'refresh'])->name('migration.refresh');
     Route::post('migrations/rollback', [MigrationController::class, 'rollback'])->name('migration.rollback');

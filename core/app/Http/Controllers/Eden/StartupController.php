@@ -7,6 +7,7 @@ use App\Models\StartupUpvote;
 use App\Services\StartupService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class StartupController extends EdenController
 {
@@ -19,6 +20,7 @@ class StartupController extends EdenController
         $startups = $this->startupService->getLaunchingToday();
         return $this->page('launching-today', 'Launching today', 'scripts-launching-today', [
             'startups' => $startups,
+            'productOfDayId' => $this->startupService->getProductOfDayId(),
         ]);
     }
 
@@ -56,6 +58,7 @@ class StartupController extends EdenController
         return $this->page('startup-show', $pageTitle, null, [
             'startup' => $startup,
             'hasUpvoted' => $hasUpvoted,
+            'isProductOfDay' => $this->startupService->getProductOfDayId() === $startup->id,
         ], $layoutData);
     }
 
@@ -143,6 +146,7 @@ class StartupController extends EdenController
         }
         StartupUpvote::create(['user_id' => auth()->id(), 'startup_id' => $startup->id]);
         $startup->increment('upvotes');
+        Cache::forget(StartupService::PRODUCT_OF_DAY_CACHE_KEY);
         return redirect()->back()->with('success', 'Upvote recorded. Thanks!');
     }
 }

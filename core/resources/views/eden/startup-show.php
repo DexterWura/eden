@@ -15,6 +15,8 @@ $productImages = $s->product_images ?? [];
       </div>
       <div>
         <h1><?= e($s->name) ?></h1>
+        <?php $isProductOfDay = $isProductOfDay ?? false; ?>
+        <?php if ($isProductOfDay): ?><span class="badge badge-product-of-day" style="display: inline-block; margin-bottom: 8px;">Product of the day</span><?php endif; ?>
         <?php if ($s->tagline): ?><p class="tagline"><?= e($s->tagline) ?></p><?php endif; ?>
         <div class="startup-meta">
           <?php if ($s->category): ?><span><?= e($s->category) ?></span><?php endif; ?>
@@ -40,7 +42,7 @@ $productImages = $s->product_images ?? [];
           <?php if (!empty($s->website)): ?>
           <a href="<?= e(url('/startup/' . $s->slug . '/out')) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="margin-left: 4px;"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Visit website</a>
           <?php endif; ?>
-          <?php if (auth()->check() && $s->user_id === null): ?>
+          <?php if ($s->user_id === null): ?>
           <a href="<?= e(route('startup.claim', $s->slug)) ?>" class="btn btn-ghost" style="margin-left: 4px;"><i class="fa-solid fa-hand-holding-hand" aria-hidden="true"></i> Claim this startup</a>
           <?php endif; ?>
         </div>
@@ -104,7 +106,7 @@ $productImages = $s->product_images ?? [];
   </section>
 
   <div class="cta-strip">
-    <?php if (auth()->check() && $s->user_id === null): ?>
+    <?php if ($s->user_id === null): ?>
     <a href="<?= e(route('startup.claim', $s->slug)) ?>" class="btn btn-primary"><i class="fa-solid fa-hand-holding-hand" aria-hidden="true"></i> Claim this startup</a>
     <?php endif; ?>
     <a href="<?= e(url('/')) ?>" class="btn btn-ghost">Browse more startups</a>

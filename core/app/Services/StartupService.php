@@ -4,9 +4,22 @@ namespace App\Services;
 
 use App\Models\Startup;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class StartupService
 {
+    public const PRODUCT_OF_DAY_CACHE_KEY = 'eden_product_of_day_id';
+    public const PRODUCT_OF_DAY_CACHE_TTL_SECONDS = 60;
+
+    public function getProductOfDayId(): ?int
+    {
+        return Cache::remember(
+            self::PRODUCT_OF_DAY_CACHE_KEY,
+            self::PRODUCT_OF_DAY_CACHE_TTL_SECONDS,
+            fn () => Startup::active()->orderByDesc('upvotes')->value('id')
+        );
+    }
+
     public function getProductOfDay(?string $category = null, int $limit = 5): Collection
     {
         $query = Startup::active()->orderByDesc('upvotes');
@@ -36,9 +49,16 @@ class StartupService
             ->get();
     }
 
-    public function getLaunchingToday(): Collection
+    public function getLaunchingToday(?string $category = null, bool $featuredOnly = false, int $limit = 0): Collection
     {
-        return Startup::active()->launchingToday()->orderByDesc('upvotes')->get();
+        $query = Startup::active()->launchingToday()->orderByDesc('upvotes');
+        if ($category !== null && $category !== '') {
+            $query->byCategory($category);
+        }
+        if ($featuredOnly) {
+            $query->featured();
+        }
+        return $limit > 0 ? $query->take($limit)->get() : $query->get();
     }
 
     public function getFeatured(?string $category = null, int $limit = 10): Collection
@@ -50,27 +70,39 @@ class StartupService
         return $query->take($limit)->get();
     }
 
-    public function getTopPerforming(?string $category = null, int $limit = 10): Collection
+    public function getTopPerforming(?string $category = null, bool $featuredOnly = false, int $limit = 10): Collection
     {
         $query = Startup::active()->orderByDesc('upvotes');
         if ($category !== null && $category !== '') {
             $query->byCategory($category);
         }
+        if ($featuredOnly) {
+            $query->featured();
+        }
         return $query->take($limit)->get();
     }
 
-    public function getJustListed(?string $category = null, int $limit = 10): Collection
+    public function getJustListed(?string $category = null, bool $featuredOnly = false, int $limit = 10): Collection
     {
         $query = Startup::active()->orderByDesc('created_at');
         if ($category !== null && $category !== '') {
             $query->byCategory($category);
         }
+        if ($featuredOnly) {
+            $query->featured();
+        }
         return $query->take($limit)->get();
     }
 
-    public function getLeaderboard(string $sortBy = 'upvotes', int $perPage = 20)
+    public function getLeaderboard(string $sortBy = 'upvotes', int $perPage = 20, ?string $category = null, bool $featuredOnly = false)
     {
         $query = Startup::active();
+        if ($category !== null && $category !== '') {
+            $query->byCategory($category);
+        }
+        if ($featuredOnly) {
+            $query->featured();
+        }
         $sortColumn = match ($sortBy) {
             'views' => 'views',
             'clicks' => 'clicks',

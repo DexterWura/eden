@@ -29,10 +29,17 @@
     <div class="hero-categories" id="heroCategories">
       <h2 class="hero-categories-title">Browse by category</h2>
       <div class="filters filters--categories">
-        <?php $categoryFilter = $categoryFilter ?? null; ?>
-        <a href="<?= e(url('/')) ?>" class="pill<?= $categoryFilter === null || $categoryFilter === '' ? ' active' : '' ?>">All</a>
+        <?php
+        $categoryFilter = $categoryFilter ?? null;
+        $featuredOnly = $featuredOnly ?? false;
+        $sortNewest = $sortNewest ?? false;
+        $baseQuery = array_filter(['featured' => $featuredOnly ? '1' : null, 'sort' => $sortNewest ? 'newest' : null]);
+        $urlAll = url('/') . ($baseQuery ? '?' . http_build_query($baseQuery) : '');
+        ?>
+        <a href="<?= e($urlAll) ?>" class="pill<?= $categoryFilter === null || $categoryFilter === '' ? ' active' : '' ?>">All</a>
         <?php foreach ($browseCategories as $cat): ?>
-        <a href="<?= e(url('/?category=' . urlencode($cat->name))) ?>" class="pill<?= $categoryFilter === $cat->name ? ' active' : '' ?>"><?= e($cat->name) ?></a>
+        <?php $query = array_merge($baseQuery, ['category' => $cat->name]); ?>
+        <a href="<?= e(url('/') . '?' . http_build_query($query)) ?>" class="pill<?= $categoryFilter === $cat->name ? ' active' : '' ?>"><?= e($cat->name) ?></a>
         <?php endforeach; ?>
       </div>
     </div>
@@ -41,8 +48,9 @@
 </section>
 
 <div class="wrap">
+  <?php $sortNewest = $sortNewest ?? false; ?>
   <?php $launchingToday = $launchingToday ?? collect(); ?>
-  <?php if ($launchingToday->isNotEmpty()): ?>
+  <?php if (!$sortNewest && $launchingToday->isNotEmpty()): ?>
   <section class="section-block" aria-labelledby="products-launching-heading">
     <header class="section-header">
       <div>
@@ -64,7 +72,7 @@
   <?php endif; ?>
 
   <?php $featuredProducts = $featuredProducts ?? collect(); ?>
-  <?php if ($featuredProducts->isNotEmpty()): ?>
+  <?php if (!$sortNewest && $featuredProducts->isNotEmpty()): ?>
   <section class="section-block" aria-labelledby="featured-heading">
     <header class="section-header">
       <div>
@@ -85,54 +93,8 @@
   </section>
   <?php endif; ?>
 
-  <?php $topPerforming = $topPerforming ?? collect(); ?>
-  <section class="section-block" aria-labelledby="top-performing-heading">
-    <header class="section-header">
-      <div>
-        <h2 id="top-performing-heading" class="section-heading">Top performing products</h2>
-        <p class="section-sub">Most upvoted this week.</p>
-      </div>
-      <a href="<?= e(url('/leaderboard')) ?>" class="section-link-all">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
-    </header>
-    <?php if ($topPerforming->isNotEmpty()): ?>
-    <div class="section-cards-row" tabindex="0">
-      <?php foreach ($topPerforming as $startup):
-        $rank = null;
-        $showRank = false;
-        $cardVariant = 'row';
-        include __DIR__ . '/_startup-card.php';
-      endforeach; ?>
-    </div>
-    <p class="section-browse-all"><a href="<?= e(url('/leaderboard')) ?>">Browse all on Leaderboard</a></p>
-    <?php else: ?>
-    <p class="section-empty">No startups yet. <a href="<?= e(url('/submit')) ?>">Submit your startup</a>.</p>
-    <?php endif; ?>
-  </section>
-
-  <?php $justListed = $justListed ?? collect(); ?>
-  <?php if ($justListed->isNotEmpty()): ?>
-  <section class="section-block" aria-labelledby="just-listed-heading">
-    <header class="section-header">
-      <div>
-        <h2 id="just-listed-heading" class="section-heading">Just listed</h2>
-        <p class="section-sub">Newest additions to the directory.</p>
-      </div>
-      <a href="<?= e(url('/?sort=newest')) ?>" class="section-link-all">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
-    </header>
-    <div class="section-cards-row" tabindex="0">
-      <?php foreach ($justListed as $startup):
-        $rank = null;
-        $showRank = false;
-        $cardVariant = 'row';
-        include __DIR__ . '/_startup-card.php';
-      endforeach; ?>
-    </div>
-    <p class="section-browse-all"><a href="<?= e(url('/?sort=newest')) ?>">Browse all just listed</a></p>
-  </section>
-  <?php endif; ?>
-
   <?php $leaderboardPreview = $leaderboardPreview ?? null; ?>
-  <?php if ($leaderboardPreview && count($leaderboardPreview->items()) > 0): ?>
+  <?php if (!$sortNewest && $leaderboardPreview && count($leaderboardPreview->items()) > 0): ?>
   <section class="section-block" aria-labelledby="leaderboard-heading">
     <div class="leaderboard-wrap">
       <div class="leaderboard-header">
@@ -171,7 +133,7 @@
                   <?php if ($logoPath): ?><img src="<?= e(asset($logoPath)) ?>" alt=""><?php else: ?><?= e($logoLetters) ?><?php endif; ?>
                 </div>
                 <div class="leaderboard-startup-info">
-                  <p class="leaderboard-startup-name"><?= e($s->name) ?></p>
+                  <p class="leaderboard-startup-name"><?= e($s->name) ?><?php if (!empty($productOfDayId) && (int)$s->id === (int)$productOfDayId): ?> <span class="badge badge-product-of-day">Product of the day</span><?php endif; ?></p>
                   <p class="leaderboard-startup-desc"><?= e($s->short_description) ?></p>
                 </div>
               </a>
@@ -196,10 +158,62 @@
   </section>
   <?php endif; ?>
 
+  <?php $topPerforming = $topPerforming ?? collect(); ?>
+  <?php if (!$sortNewest): ?>
+  <section class="section-block" aria-labelledby="top-performing-heading">
+    <header class="section-header">
+      <div>
+        <h2 id="top-performing-heading" class="section-heading">Top performing products</h2>
+        <p class="section-sub">Most upvoted this week.</p>
+      </div>
+      <a href="<?= e(url('/leaderboard')) ?>" class="section-link-all">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+    </header>
+    <?php if ($topPerforming->isNotEmpty()): ?>
+    <div class="section-cards-row" tabindex="0">
+      <?php foreach ($topPerforming as $startup):
+        $rank = null;
+        $showRank = false;
+        $cardVariant = 'row';
+        include __DIR__ . '/_startup-card.php';
+      endforeach; ?>
+    </div>
+    <p class="section-browse-all"><a href="<?= e(url('/leaderboard')) ?>">Browse all on Leaderboard</a></p>
+    <?php else: ?>
+    <p class="section-empty">No startups yet. <a href="<?= e(url('/submit')) ?>">Submit your startup</a>.</p>
+    <?php endif; ?>
+  </section>
+  <?php endif; ?>
+
+  <?php $justListed = $justListed ?? collect(); ?>
+  <?php if (!$sortNewest && $justListed->isNotEmpty()): ?>
+  <section class="section-block" aria-labelledby="just-listed-heading">
+    <header class="section-header">
+      <div>
+        <h2 id="just-listed-heading" class="section-heading">Just listed</h2>
+        <p class="section-sub">Newest additions to the directory.</p>
+      </div>
+      <a href="<?= e(url('/?sort=newest')) ?>" class="section-link-all">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+    </header>
+    <div class="section-cards-row" tabindex="0">
+      <?php foreach ($justListed as $startup):
+        $rank = null;
+        $showRank = false;
+        $cardVariant = 'row';
+        include __DIR__ . '/_startup-card.php';
+      endforeach; ?>
+    </div>
+    <p class="section-browse-all"><a href="<?= e(url('/?sort=newest')) ?>">Browse all just listed</a></p>
+  </section>
+  <?php endif; ?>
+
   <section class="section-block" aria-labelledby="startups-heading">
     <header class="section-header">
-      <h2 id="startups-heading" class="section-heading">Startups</h2>
+      <h2 id="startups-heading" class="section-heading"><?= ($sortNewest ?? false) ? 'Just listed' : (($featuredOnly ?? false) ? 'Featured startups' : 'Startups') ?></h2>
+      <?php if ($sortNewest ?? false): ?>
+      <a href="<?= e(url('/leaderboard?sort=newest')) ?>" class="section-link-all">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+      <?php else: ?>
       <a href="<?= e(url('/launching-today')) ?>" class="section-link-all">Launching today <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+      <?php endif; ?>
     </header>
     <div class="startup-list" id="startups">
       <?php

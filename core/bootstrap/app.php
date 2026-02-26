@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => RedirectIfNotAdmin::class,
             'admin.guest' => RedirectIfAdmin::class,
+            'eden.revenue.api' => \App\Http\Middleware\AuthenticateRevenueApi::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
