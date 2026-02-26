@@ -83,3 +83,15 @@
   </div>
 </div>
 
+<div class="dash-card" style="margin-top: 20px;">
+  <div class="dash-card-header">
+    <span class="dash-card-title">Email</span>
+  </div>
+  <div class="dash-card-body">
+    <p style="margin-bottom: 16px; color: #5f6368;">Configure SMTP or other email transport, the global HTML email wrapper, and the welcome / verification email templates used across Eden.</p>
+    <a href="{{ route('admin.settings.email') }}" class="dash-btn dash-btn-secondary" style="text-decoration: none;">
+      <i class="fa-solid fa-envelope"></i> Open email settings
+    </a>
+  </div>
+</div>
+

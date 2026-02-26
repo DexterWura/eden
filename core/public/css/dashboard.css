@@ -63,7 +63,7 @@ body.dashboard {
   height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
-  background: var(--d-surface);
+  background: var(--d-sidebar-bg);
   border-right: 1px solid var(--d-border);
   display: flex;
   flex-direction: column;

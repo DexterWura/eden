@@ -17,6 +17,7 @@
             <th>Email</th>
             <th>Subject</th>
             <th>Message</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -27,10 +28,20 @@
             <td><a href="mailto:{{ $m->email }}">{{ $m->email }}</a></td>
             <td>{{ $m->subject ? ucfirst($m->subject) : '—' }}</td>
             <td style="max-width: 280px;">{{ Str::limit($m->message, 80) }}</td>
+            <td style="white-space: nowrap;">
+              <a href="{{ route('admin.contact-messages.show', $m) }}" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; text-decoration: none;">
+                <i class="fa-solid fa-reply"></i> View &amp; reply
+              </a>
+              @if($m->replied_at)
+                <div style="margin-top: 4px; font-size: 0.75rem; color: var(--d-text-secondary);">
+                  Replied {{ $m->replied_at->diffForHumans() }}
+                </div>
+              @endif
+            </td>
           </tr>
           @empty
           <tr>
-            <td colspan="5" class="dash-placeholder">No contact messages yet.</td>
+            <td colspan="6" class="dash-placeholder">No contact messages yet.</td>
           </tr>
           @endforelse
         </tbody>

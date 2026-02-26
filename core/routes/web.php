@@ -114,6 +114,8 @@ Route::middleware('admin')->prefix('backoffice')->name('admin.')->group(function
     Route::put('blog/{post}', [BlogPostController::class, 'update'])->name('blog.update');
     Route::delete('blog/{post}', [BlogPostController::class, 'destroy'])->name('blog.destroy');
     Route::get('contact-messages', [ContactMessageController::class, 'index'])->name('contact-messages.index');
+    Route::get('contact-messages/{submission}', [ContactMessageController::class, 'show'])->name('contact-messages.show');
+    Route::post('contact-messages/{submission}/reply', [ContactMessageController::class, 'reply'])->name('contact-messages.reply');
     Route::get('subscribers', [SubscriberController::class, 'index'])->name('subscribers.index');
     Route::get('subscribers/import', [SubscriberController::class, 'import'])->name('subscribers.import');
     Route::post('subscribers/import', [SubscriberController::class, 'importStore'])->name('subscribers.import.store');
@@ -128,10 +130,12 @@ Route::middleware('admin')->prefix('backoffice')->name('admin.')->group(function
     Route::get('seo', [SettingsController::class, 'seo'])->name('seo');
     Route::get('about', [SettingsController::class, 'aboutPage'])->name('about');
     Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
+    Route::get('settings/email', [SettingsController::class, 'email'])->name('settings.email');
     Route::post('settings/seo', [SettingsController::class, 'updateSeo'])->name('settings.seo');
     Route::post('settings/about', [SettingsController::class, 'updateAbout'])->name('settings.about');
     Route::post('settings/adsense', [SettingsController::class, 'updateAdsense'])->name('settings.adsense');
     Route::post('settings/robots', [SettingsController::class, 'updateRobots'])->name('settings.robots');
+    Route::post('settings/email', [SettingsController::class, 'updateEmail'])->name('settings.email.update');
     Route::post('migrations/run', [MigrationController::class, 'run'])->name('migration.run');
     Route::post('migrations/refresh', [MigrationController::class, 'refresh'])->name('migration.refresh');
     Route::post('migrations/rollback', [MigrationController::class, 'rollback'])->name('migration.rollback');

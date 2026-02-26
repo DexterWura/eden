@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\GeneralSetting;
+use App\Models\NotificationTemplate;
+use App\Constants\Status;
 use App\Services\RobotsTxtService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -253,5 +255,127 @@ class SettingsController extends Controller
         Cache::forget('GeneralSetting');
 
         return redirect()->route('admin.settings.index')->with('notify', [['success', 'Robots.txt saved and file updated.']]);
+    }
+
+    public function email()
+    {
+        $general = function_exists('gs') ? gs() : null;
+        $mailConfig = $general ? ($general->mail_config ?? null) : null;
+
+        $emailFromName = $general ? (string) ($general->email_from_name ?? '') : '';
+        $emailFrom = $general ? (string) ($general->email_from ?? '') : '';
+        $emailTemplate = $general ? (string) ($general->email_template ?? '') : '';
+
+        $emailNotificationsEnabled = $general ? (bool) ($general->en ?? false) : false;
+        $welcomeEmailEnabled = $general ? (bool) ($general->welcome_email_enable ?? false) : false;
+        $verificationRequired = $general ? (bool) ($general->ev ?? false) : false;
+
+        $welcomeTemplate = NotificationTemplate::where('act', 'WELCOME_EMAIL')->first();
+        $verificationTemplate = NotificationTemplate::where('act', 'EVER_CODE')->first();
+
+        $content = view('eden.settings.email', compact(
+            'mailConfig',
+            'emailFromName',
+            'emailFrom',
+            'emailTemplate',
+            'emailNotificationsEnabled',
+            'welcomeEmailEnabled',
+            'verificationRequired',
+            'welcomeTemplate',
+            'verificationTemplate'
+        ))->render();
+
+        return response()->view('eden.layout-dashboard', [
+            'title' => 'Email settings',
+            'sidebar' => 'admin',
+            'activeNav' => 'settings',
+            'dashboardLogo' => (function_exists('gs') && gs('site_name') ? (string) gs('site_name') : 'Eden') . ' Admin',
+            'dashboardTopbar' => '',
+            'searchPlaceholder' => "Search…",
+            'avatarTitle' => 'Admin',
+            'avatarLetter' => 'A',
+            'content' => $content,
+            'scriptDeps' => '<script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>',
+            'notifyPartial' => view('partials.notify')->render(),
+        ]);
+    }
+
+    public function updateEmail(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'email_method' => 'required|in:php,smtp,sendgrid,mailjet',
+            'host' => 'required_if:email_method,smtp',
+            'port' => 'required_if:email_method,smtp',
+            'username' => 'required_if:email_method,smtp',
+            'password' => 'required_if:email_method,smtp',
+            'enc' => 'required_if:email_method,smtp',
+            'appkey' => 'required_if:email_method,sendgrid',
+            'public_key' => 'required_if:email_method,mailjet',
+            'secret_key' => 'required_if:email_method,mailjet',
+            'email_from_name' => 'required|string|max:191',
+            'email_from' => 'required|email|string|max:191',
+            'email_template' => 'required|string',
+            'welcome_subject' => 'required|string|max:255',
+            'welcome_body' => 'required|string',
+            'verification_subject' => 'required|string|max:255',
+            'verification_body' => 'required|string',
+        ], [
+            'host.required_if' => 'The :attribute is required for SMTP configuration',
+            'port.required_if' => 'The :attribute is required for SMTP configuration',
+            'username.required_if' => 'The :attribute is required for SMTP configuration',
+            'password.required_if' => 'The :attribute is required for SMTP configuration',
+            'enc.required_if' => 'The :attribute is required for SMTP configuration',
+            'appkey.required_if' => 'The :attribute is required for SendGrid configuration',
+            'public_key.required_if' => 'The :attribute is required for Mailjet configuration',
+            'secret_key.required_if' => 'The :attribute is required for Mailjet configuration',
+        ]);
+
+        $general = $this->getOrCreateGeneral();
+        if (! $general) {
+            return redirect()->route('admin.settings.index')->with('notify', [['error', 'General settings not found. Run migrations and ensure the general_settings table exists.']]);
+        }
+
+        if ($request->email_method === 'php') {
+            $data = ['name' => 'php'];
+        } elseif ($request->email_method === 'smtp') {
+            $request->merge(['name' => 'smtp']);
+            $data = $request->only('name', 'host', 'port', 'enc', 'username', 'password', 'driver');
+        } elseif ($request->email_method === 'sendgrid') {
+            $request->merge(['name' => 'sendgrid']);
+            $data = $request->only('name', 'appkey');
+        } else { // mailjet
+            $request->merge(['name' => 'mailjet']);
+            $data = $request->only('name', 'public_key', 'secret_key');
+        }
+
+        $general->mail_config = $data;
+        $general->email_from = $request->input('email_from');
+        $general->email_from_name = $request->input('email_from_name');
+        $general->email_template = $request->input('email_template');
+
+        $general->en = $request->boolean('email_notifications_enabled') ? Status::ENABLE : Status::DISABLE;
+        $general->welcome_email_enable = $request->boolean('welcome_email_enabled') ? Status::ENABLE : Status::DISABLE;
+        $general->ev = $request->boolean('verification_required') ? Status::ENABLE : Status::DISABLE;
+
+        $general->save();
+        Cache::forget('GeneralSetting');
+
+        $welcomeTemplate = NotificationTemplate::where('act', 'WELCOME_EMAIL')->first();
+        if ($welcomeTemplate) {
+            $welcomeTemplate->subject = $request->input('welcome_subject');
+            $welcomeTemplate->email_body = $request->input('welcome_body');
+            $welcomeTemplate->email_status = $request->boolean('welcome_email_enabled') ? Status::ENABLE : Status::DISABLE;
+            $welcomeTemplate->save();
+        }
+
+        $verificationTemplate = NotificationTemplate::where('act', 'EVER_CODE')->first();
+        if ($verificationTemplate) {
+            $verificationTemplate->subject = $request->input('verification_subject');
+            $verificationTemplate->email_body = $request->input('verification_body');
+            $verificationTemplate->email_status = $request->boolean('verification_required') ? Status::ENABLE : Status::DISABLE;
+            $verificationTemplate->save();
+        }
+
+        return redirect()->route('admin.settings.email')->with('notify', [['success', 'Email settings saved.']]);
     }
 }
