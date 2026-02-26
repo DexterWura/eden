@@ -32,7 +32,7 @@
   </div>
   <div class="dash-kpi-card">
     <div class="dash-kpi-label">Total</div>
-    <div class="dash-kpi-value">{{ count($migrationFiles) }}</div>
+    <div class="dash-kpi-value">{{ $migrationFiles->total() }}</div>
     <div class="dash-kpi-spark"></div>
   </div>
 </div>
@@ -151,6 +151,11 @@
         </tbody>
       </table>
     </div>
+    @if($migrationFiles->hasPages())
+    <div class="dash-card-footer" style="padding: 12px 20px; border-top: 1px solid var(--d-border);">
+      {{ $migrationFiles->links() }}
+    </div>
+    @endif
   </div>
 </div>
 

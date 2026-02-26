@@ -55,19 +55,11 @@ class SettingsController extends Controller
     public function index()
     {
         $general = function_exists('gs') ? gs() : null;
-        $seo = $general ? (object) [
-            'meta_keywords' => $general->meta_keywords ?? '',
-            'meta_description' => $general->meta_description ?? '',
-            'social_description' => $general->social_description ?? '',
-            'seo_image' => $general->seo_image ?? '',
-        ] : (object) ['meta_keywords' => '', 'meta_description' => '', 'social_description' => '', 'seo_image' => ''];
-        $aboutDefaults = self::aboutPageDefaults();
-        $about = $general && is_array($general->about_page ?? null) ? array_merge($aboutDefaults, $general->about_page) : $aboutDefaults;
         $adsenseEnabled = $general ? (bool) ($general->adsense_enabled ?? false) : false;
         $adsenseScript = $general ? (string) ($general->adsense_script ?? '') : '';
         $robotsTxt = $general && isset($general->robots_txt) ? (string) $general->robots_txt : '';
         $recommendedRobotsTxt = RobotsTxtService::recommendedContent();
-        $content = view('eden.settings.index', compact('seo', 'about', 'adsenseEnabled', 'adsenseScript', 'robotsTxt', 'recommendedRobotsTxt'))->render();
+        $content = view('eden.settings.index', compact('adsenseEnabled', 'adsenseScript', 'robotsTxt', 'recommendedRobotsTxt'))->render();
 
         return response()->view('eden.layout-dashboard', [
             'title' => 'Settings',
@@ -95,7 +87,7 @@ class SettingsController extends Controller
 
         $general = $this->getOrCreateGeneral();
         if (! $general) {
-            return redirect()->route('admin.settings.index')->with('notify', [['error', 'General settings not found. Run migrations and ensure the general_settings table exists.']]);
+            return redirect()->route('admin.seo')->with('notify', [['error', 'General settings not found. Run migrations and ensure the general_settings table exists.']]);
         }
 
         $general->meta_keywords = $request->filled('meta_keywords') ? $request->meta_keywords : null;
@@ -115,7 +107,33 @@ class SettingsController extends Controller
         $general->save();
         Cache::forget('GeneralSetting');
 
-        return redirect()->route('admin.settings.index')->with('notify', [['success', 'SEO settings saved.']]);
+        return redirect()->route('admin.seo')->with('notify', [['success', 'SEO settings saved.']]);
+    }
+
+    public function seo()
+    {
+        $general = function_exists('gs') ? gs() : null;
+        $seo = $general ? (object) [
+            'meta_keywords' => $general->meta_keywords ?? '',
+            'meta_description' => $general->meta_description ?? '',
+            'social_description' => $general->social_description ?? '',
+            'seo_image' => $general->seo_image ?? '',
+        ] : (object) ['meta_keywords' => '', 'meta_description' => '', 'social_description' => '', 'seo_image' => ''];
+        $content = view('eden.settings.seo', compact('seo'))->render();
+
+        return response()->view('eden.layout-dashboard', [
+            'title' => 'SEO',
+            'sidebar' => 'admin',
+            'activeNav' => 'seo',
+            'dashboardLogo' => (function_exists('gs') && gs('site_name') ? (string) gs('site_name') : 'Eden') . ' Admin',
+            'dashboardTopbar' => '',
+            'searchPlaceholder' => 'Search…',
+            'avatarTitle' => 'Admin',
+            'avatarLetter' => 'A',
+            'content' => $content,
+            'scriptDeps' => '<script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>',
+            'notifyPartial' => view('partials.notify')->render(),
+        ]);
     }
 
     public function updateAbout(Request $request): RedirectResponse
@@ -137,7 +155,7 @@ class SettingsController extends Controller
 
         $general = $this->getOrCreateGeneral();
         if (! $general) {
-            return redirect()->route('admin.settings.index')->with('notify', [['error', 'General settings not found. Run migrations and ensure the general_settings table exists.']]);
+            return redirect()->route('admin.about')->with('notify', [['error', 'General settings not found. Run migrations and ensure the general_settings table exists.']]);
         }
 
         $items = $request->input('guidelines_items', '');
@@ -160,7 +178,29 @@ class SettingsController extends Controller
         $general->save();
         Cache::forget('GeneralSetting');
 
-        return redirect()->route('admin.settings.index')->with('notify', [['success', 'About page content saved.']]);
+        return redirect()->route('admin.about')->with('notify', [['success', 'About page content saved.']]);
+    }
+
+    public function aboutPage()
+    {
+        $general = function_exists('gs') ? gs() : null;
+        $aboutDefaults = self::aboutPageDefaults();
+        $about = $general && is_array($general->about_page ?? null) ? array_merge($aboutDefaults, $general->about_page) : $aboutDefaults;
+        $content = view('eden.settings.about', compact('about'))->render();
+
+        return response()->view('eden.layout-dashboard', [
+            'title' => 'About page',
+            'sidebar' => 'admin',
+            'activeNav' => 'about',
+            'dashboardLogo' => (function_exists('gs') && gs('site_name') ? (string) gs('site_name') : 'Eden') . ' Admin',
+            'dashboardTopbar' => '',
+            'searchPlaceholder' => 'Search…',
+            'avatarTitle' => 'Admin',
+            'avatarLetter' => 'A',
+            'content' => $content,
+            'scriptDeps' => '<script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>',
+            'notifyPartial' => view('partials.notify')->render(),
+        ]);
     }
 
     public function updateAdsense(Request $request): RedirectResponse

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\Auth\LoginController as AdminLoginController;
+use App\Http\Controllers\Api\Eden\FlipitController as EdenFlipitController;
 use App\Http\Controllers\Api\Eden\RevenueController as EdenRevenueController;
 use App\Http\Controllers\Admin\MigrationController;
 use App\Http\Controllers\Admin\ReportsController;
@@ -30,6 +31,10 @@ use Illuminate\Support\Facades\Route;
 Route::post('api/eden/v1/revenue', [EdenRevenueController::class, 'record'])
     ->middleware(['throttle:60,1', 'eden.revenue.api'])
     ->name('api.eden.revenue.record');
+
+Route::post('api/eden/v1/flipit/listing-sold', [EdenFlipitController::class, 'listingSold'])
+    ->middleware(['throttle:30,1'])
+    ->name('api.eden.flipit.listing-sold');
 
 Route::get('/admin', [AdminLoginController::class, 'showLoginForm'])->name('admin.login')->middleware('admin.guest');
 Route::post('/admin', [AdminLoginController::class, 'login'])->middleware('admin.guest');
@@ -120,6 +125,8 @@ Route::middleware('admin')->prefix('backoffice')->name('admin.')->group(function
     Route::get('scheduled-tasks', [ScheduledTasksController::class, 'index'])->name('scheduled-tasks.index');
     Route::put('scheduled-tasks/{task}', [ScheduledTasksController::class, 'update'])->name('scheduled-tasks.update');
     Route::post('scheduled-tasks/{task}/run', [ScheduledTasksController::class, 'runNow'])->name('scheduled-tasks.run');
+    Route::get('seo', [SettingsController::class, 'seo'])->name('seo');
+    Route::get('about', [SettingsController::class, 'aboutPage'])->name('about');
     Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::post('settings/seo', [SettingsController::class, 'updateSeo'])->name('settings.seo');
     Route::post('settings/about', [SettingsController::class, 'updateAbout'])->name('settings.about');

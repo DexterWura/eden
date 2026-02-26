@@ -38,17 +38,46 @@ class Startup extends Model
         'linkedin_url',
         'status',
         'dormant_at',
+        'for_sale',
+        'flipit_listing_id',
+        'sold_at',
     ];
+
+    /** FLIPit listing URL pattern: https://flipit.co.zw/marketplace/listing/{id} */
+    public const FLIPIT_LISTING_URL_PATTERN = '#^https?://(?:www\.)?flipit\.co\.zw/marketplace/listing/([a-zA-Z0-9_-]+)/?$#i';
 
     protected $casts = [
         'launch_date' => 'date',
         'dormant_at' => 'datetime',
+        'sold_at' => 'datetime',
         'is_featured' => 'boolean',
+        'for_sale' => 'boolean',
         'founders' => 'array',
         'product_images' => 'array',
         'mrr' => 'decimal:2',
         'revenue' => 'decimal:2',
     ];
+
+    /**
+     * Extract FLIPit listing ID from a marketplace listing URL.
+     * Example: https://flipit.co.zw/marketplace/listing/edencozw-JRCFDcJE -> edencozw-JRCFDcJE
+     */
+    public static function flipitListingIdFromUrl(?string $url): ?string
+    {
+        if ($url === null || $url === '') {
+            return null;
+        }
+        $url = trim($url);
+        if (preg_match(self::FLIPIT_LISTING_URL_PATTERN, $url, $m)) {
+            return $m[1];
+        }
+        return null;
+    }
+
+    public function scopeForSale($query)
+    {
+        return $query->where('for_sale', true)->whereNull('sold_at');
+    }
 
     public static function founderInitials(string $name): string
     {

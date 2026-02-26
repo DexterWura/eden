@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Symfony\Component\Process\Process;
@@ -19,14 +20,26 @@ class MigrationController extends Controller
     /**
      * Display migration status page (Eden dashboard layout)
      */
-    public function index()
+    public function index(Request $request)
     {
-        $migrationFiles = $this->getMigrationFiles();
+        $migrationFilesAll = $this->getMigrationFiles();
         $migrationStatus = $this->getMigrationStatus();
         $pendingMigrations = $this->getPendingMigrations();
         $modifiedMigrations = $this->getModifiedMigrations();
         $ranMigrations = $this->getRanMigrations();
         $migrationsTableExists = Schema::hasTable('migrations');
+
+        $page = max(1, (int) $request->get('page', 1));
+        $perPage = 10;
+        $total = count($migrationFilesAll);
+        $slice = array_slice($migrationFilesAll, ($page - 1) * $perPage, $perPage);
+        $migrationFiles = new LengthAwarePaginator(
+            $slice,
+            $total,
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
 
         $content = view('eden.migrations', compact(
             'migrationFiles',

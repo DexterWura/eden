@@ -242,6 +242,32 @@
     </div>
   </div>
 
+  {{-- List for sale (FLIPit) – uncomment to show to founders
+  <div class="founder-card-block" style="margin-top: 24px;">
+    <div class="founder-card">
+      <div class="founder-card-head">
+        <span class="founder-card-num">List for sale</span>
+      </div>
+      <p style="font-size: 0.875rem; color: var(--d-text-secondary); margin-bottom: 16px;">Link this startup to a FLIPit listing. Eden will use the listing ID to communicate with FLIPit (e.g. mark as sold, transfer to new owner).</p>
+      <div class="dash-form" style="display: flex; flex-direction: column; gap: 14px;">
+        <div>
+          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+            <input type="hidden" name="for_sale" value="0">
+            <input type="checkbox" name="for_sale" value="1" {{ old('for_sale', $startup->for_sale) ? 'checked' : '' }}>
+            <span class="dash-label">Mark this startup as for sale</span>
+          </label>
+        </div>
+        <div>
+          <label for="flipit_listing_url" class="dash-label">FLIPit listing URL</label>
+          <input type="url" id="flipit_listing_url" name="flipit_listing_url" value="{{ old('flipit_listing_url', $startup->flipit_listing_id ? 'https://flipit.co.zw/marketplace/listing/'.$startup->flipit_listing_id : '') }}" class="dash-input" placeholder="https://flipit.co.zw/marketplace/listing/your-listing-id">
+          @error('flipit_listing_url') <span class="dash-error">{{ $message }}</span> @enderror
+          <span class="dash-hint" style="display: block; margin-top: 4px; font-size: 0.8rem; color: var(--d-text-secondary);">Paste the full listing page URL; the system will store the listing ID for Eden–FLIPit communication.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  --}}
+
   <div style="display: flex; gap: 12px; flex-wrap: wrap;">
     <button type="submit" class="dash-btn dash-btn-primary">
       <i class="fa-solid fa-check"></i> {{ $isEdit ? 'Save changes' : 'Add startup' }}

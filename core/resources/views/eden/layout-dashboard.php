@@ -13,30 +13,35 @@
   <link rel="stylesheet" href="<?= e(asset('css/dashboard.css')) ?>">
 </head>
 <body class="dashboard">
-  <div class="dash-layout">
+  <div class="dash-layout" id="dashLayout">
     <div class="dash-sidebar-backdrop" id="dashSidebarBackdrop"></div>
     <aside class="dash-sidebar" id="dashSidebar">
+      <button type="button" class="dash-sidebar-expand-toggle" id="dashSidebarExpandToggle" aria-label="Expand sidebar" title="Expand sidebar">
+        <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+      </button>
       <?php if (($sidebar ?? '') === 'admin'): ?>
-        <a href="<?= e(url('/backoffice')) ?>" class="<?= in_array($activeNav ?? '', ['migrations', 'startups', 'users', 'categories', 'blog', 'contact-messages', 'subscribers', 'reports', 'scheduled-tasks', 'settings'], true) ? '' : 'active' ?>" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i></a>
-        <a href="<?= e(url('/backoffice/migrations')) ?>" class="<?= ($activeNav ?? '') === 'migrations' ? 'active' : '' ?>" aria-label="Migrations" title="Migrations"><i class="fa-solid fa-database"></i></a>
-        <a href="<?= e(url('/backoffice/startups')) ?>" class="<?= ($activeNav ?? '') === 'startups' ? 'active' : '' ?>" aria-label="Startups" title="Startups"><i class="fa-solid fa-rocket"></i></a>
-        <a href="<?= e(url('/backoffice/users')) ?>" class="<?= ($activeNav ?? '') === 'users' ? 'active' : '' ?>" aria-label="Users" title="Users"><i class="fa-solid fa-user"></i></a>
-        <a href="<?= e(url('/backoffice/categories')) ?>" class="<?= ($activeNav ?? '') === 'categories' ? 'active' : '' ?>" aria-label="Categories" title="Categories"><i class="fa-solid fa-folder-tree"></i></a>
-        <a href="<?= e(url('/backoffice/blog')) ?>" class="<?= ($activeNav ?? '') === 'blog' ? 'active' : '' ?>" aria-label="Blog" title="Blog"><i class="fa-solid fa-pen-nib"></i></a>
-        <a href="<?= e(url('/backoffice/contact-messages')) ?>" class="<?= ($activeNav ?? '') === 'contact-messages' ? 'active' : '' ?>" aria-label="Contact messages" title="Contact messages"><i class="fa-solid fa-message"></i></a>
-        <a href="<?= e(url('/backoffice/subscribers')) ?>" class="<?= ($activeNav ?? '') === 'subscribers' ? 'active' : '' ?>" aria-label="Subscribers" title="Subscribers"><i class="fa-solid fa-envelope"></i></a>
-        <a href="<?= e(url('/backoffice/reports')) ?>" class="<?= ($activeNav ?? '') === 'reports' ? 'active' : '' ?>" aria-label="Reports" title="Reports"><i class="fa-solid fa-chart-line"></i></a>
-        <a href="<?= e(url('/backoffice/scheduled-tasks')) ?>" class="<?= ($activeNav ?? '') === 'scheduled-tasks' ? 'active' : '' ?>" aria-label="Scheduled tasks" title="Scheduled tasks"><i class="fa-solid fa-clock-rotate-left"></i></a>
-        <a href="<?= e(url('/backoffice/settings')) ?>" class="<?= ($activeNav ?? '') === 'settings' ? 'active' : '' ?>" aria-label="Settings" title="Settings"><i class="fa-solid fa-gear"></i></a>
+        <a href="<?= e(url('/backoffice')) ?>" class="<?= in_array($activeNav ?? '', ['migrations', 'startups', 'users', 'categories', 'blog', 'contact-messages', 'subscribers', 'reports', 'scheduled-tasks', 'seo', 'about', 'settings'], true) ? '' : 'active' ?>" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i><span class="dash-sidebar-label">Home</span></a>
+        <a href="<?= e(url('/backoffice/migrations')) ?>" class="<?= ($activeNav ?? '') === 'migrations' ? 'active' : '' ?>" aria-label="Migrations" title="Migrations"><i class="fa-solid fa-database"></i><span class="dash-sidebar-label">Migrations</span></a>
+        <a href="<?= e(url('/backoffice/startups')) ?>" class="<?= ($activeNav ?? '') === 'startups' ? 'active' : '' ?>" aria-label="Startups" title="Startups"><i class="fa-solid fa-rocket"></i><span class="dash-sidebar-label">Startups</span></a>
+        <a href="<?= e(url('/backoffice/users')) ?>" class="<?= ($activeNav ?? '') === 'users' ? 'active' : '' ?>" aria-label="Users" title="Users"><i class="fa-solid fa-user"></i><span class="dash-sidebar-label">Users</span></a>
+        <a href="<?= e(url('/backoffice/categories')) ?>" class="<?= ($activeNav ?? '') === 'categories' ? 'active' : '' ?>" aria-label="Categories" title="Categories"><i class="fa-solid fa-folder-tree"></i><span class="dash-sidebar-label">Categories</span></a>
+        <a href="<?= e(url('/backoffice/blog')) ?>" class="<?= ($activeNav ?? '') === 'blog' ? 'active' : '' ?>" aria-label="Blog" title="Blog"><i class="fa-solid fa-pen-nib"></i><span class="dash-sidebar-label">Blog</span></a>
+        <a href="<?= e(url('/backoffice/contact-messages')) ?>" class="<?= ($activeNav ?? '') === 'contact-messages' ? 'active' : '' ?>" aria-label="Contact messages" title="Contact messages"><i class="fa-solid fa-message"></i><span class="dash-sidebar-label">Messages</span></a>
+        <a href="<?= e(url('/backoffice/subscribers')) ?>" class="<?= ($activeNav ?? '') === 'subscribers' ? 'active' : '' ?>" aria-label="Subscribers" title="Subscribers"><i class="fa-solid fa-envelope"></i><span class="dash-sidebar-label">Subscribers</span></a>
+        <a href="<?= e(url('/backoffice/reports')) ?>" class="<?= ($activeNav ?? '') === 'reports' ? 'active' : '' ?>" aria-label="Reports" title="Reports"><i class="fa-solid fa-chart-line"></i><span class="dash-sidebar-label">Reports</span></a>
+        <a href="<?= e(url('/backoffice/scheduled-tasks')) ?>" class="<?= ($activeNav ?? '') === 'scheduled-tasks' ? 'active' : '' ?>" aria-label="Scheduled tasks" title="Scheduled tasks"><i class="fa-solid fa-clock-rotate-left"></i><span class="dash-sidebar-label">Scheduled</span></a>
+        <a href="<?= e(url('/backoffice/seo')) ?>" class="<?= ($activeNav ?? '') === 'seo' ? 'active' : '' ?>" aria-label="SEO" title="SEO"><i class="fa-solid fa-magnifying-glass-chart"></i><span class="dash-sidebar-label">SEO</span></a>
+        <a href="<?= e(url('/backoffice/about')) ?>" class="<?= ($activeNav ?? '') === 'about' ? 'active' : '' ?>" aria-label="About page" title="About page"><i class="fa-solid fa-circle-info"></i><span class="dash-sidebar-label">About</span></a>
+        <a href="<?= e(url('/backoffice/settings')) ?>" class="<?= ($activeNav ?? '') === 'settings' ? 'active' : '' ?>" aria-label="Settings" title="Settings"><i class="fa-solid fa-gear"></i><span class="dash-sidebar-label">Settings</span></a>
       <?php else: ?>
-        <a href="<?= e(url('/founder')) ?>" class="<?= ($activeNav ?? '') === 'home' ? 'active' : '' ?>" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i></a>
-        <a href="<?= e(url('/founder/startups')) ?>" class="<?= ($activeNav ?? '') === 'startups' ? 'active' : '' ?>" aria-label="My startup" title="My startups"><i class="fa-solid fa-building-user"></i></a>
-        <a href="<?= e(url('/founder/upvotes')) ?>" class="<?= ($activeNav ?? '') === 'upvotes' ? 'active' : '' ?>" aria-label="Upvotes" title="Upvotes"><i class="fa-solid fa-arrow-up"></i></a>
-        <a href="<?= e(url('/founder/revenue-api')) ?>" class="<?= ($activeNav ?? '') === 'revenue-api' ? 'active' : '' ?>" aria-label="Revenue API" title="Revenue API"><i class="fa-solid fa-code"></i></a>
-        <a href="<?= e(url('/founder/settings')) ?>" class="<?= ($activeNav ?? '') === 'settings' ? 'active' : '' ?>" aria-label="Settings" title="Settings"><i class="fa-solid fa-gear"></i></a>
+        <a href="<?= e(url('/founder')) ?>" class="<?= ($activeNav ?? '') === 'home' ? 'active' : '' ?>" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i><span class="dash-sidebar-label">Home</span></a>
+        <a href="<?= e(url('/founder/startups')) ?>" class="<?= ($activeNav ?? '') === 'startups' ? 'active' : '' ?>" aria-label="My startup" title="My startups"><i class="fa-solid fa-building-user"></i><span class="dash-sidebar-label">Startups</span></a>
+        <a href="<?= e(url('/founder/upvotes')) ?>" class="<?= ($activeNav ?? '') === 'upvotes' ? 'active' : '' ?>" aria-label="Upvotes" title="Upvotes"><i class="fa-solid fa-arrow-up"></i><span class="dash-sidebar-label">Upvotes</span></a>
+        <a href="<?= e(url('/founder/revenue-api')) ?>" class="<?= ($activeNav ?? '') === 'revenue-api' ? 'active' : '' ?>" aria-label="Revenue API" title="Revenue API"><i class="fa-solid fa-code"></i><span class="dash-sidebar-label">Revenue API</span></a>
+        <a href="<?= e(url('/founder/settings')) ?>" class="<?= ($activeNav ?? '') === 'settings' ? 'active' : '' ?>" aria-label="Settings" title="Settings"><i class="fa-solid fa-gear"></i><span class="dash-sidebar-label">Settings</span></a>
       <?php endif; ?>
       <div class="dash-nav-bottom">
-        <a href="<?= e(url('/')) ?>" aria-label="Back to Eden" title="Back to site"><i class="fa-solid fa-arrow-left"></i></a>
+        <a href="<?= e(url('/')) ?>" aria-label="Back to Eden" title="Back to site"><i class="fa-solid fa-arrow-left"></i><span class="dash-sidebar-label">Back to site</span></a>
       </div>
     </aside>
     <div class="dash-body">
@@ -79,6 +84,10 @@
       var toggle = document.getElementById('dashSidebarToggle');
       var sidebar = document.getElementById('dashSidebar');
       var backdrop = document.getElementById('dashSidebarBackdrop');
+      var layout = document.getElementById('dashLayout');
+      var expandBtn = document.getElementById('dashSidebarExpandToggle');
+      var STORAGE_KEY = 'eden-dash-sidebar-expanded';
+
       if (toggle && sidebar) {
         toggle.addEventListener('click', function() {
           sidebar.classList.toggle('is-open');
@@ -90,6 +99,38 @@
             backdrop.classList.remove('is-open');
           });
         }
+      }
+
+      function setExpanded(expanded) {
+        if (!layout) return;
+        if (expanded) {
+          layout.classList.add('dash-sidebar-expanded');
+          if (expandBtn) {
+            expandBtn.setAttribute('aria-label', 'Collapse sidebar');
+            expandBtn.setAttribute('title', 'Collapse sidebar');
+            var icon = expandBtn.querySelector('i');
+            if (icon) { icon.className = 'fa-solid fa-chevron-left'; }
+          }
+          try { localStorage.setItem(STORAGE_KEY, '1'); } catch (e) {}
+        } else {
+          layout.classList.remove('dash-sidebar-expanded');
+          if (expandBtn) {
+            expandBtn.setAttribute('aria-label', 'Expand sidebar');
+            expandBtn.setAttribute('title', 'Expand sidebar');
+            var icon = expandBtn.querySelector('i');
+            if (icon) { icon.className = 'fa-solid fa-chevron-right'; }
+          }
+          try { localStorage.setItem(STORAGE_KEY, '0'); } catch (e) {}
+        }
+      }
+
+      if (expandBtn && layout) {
+        expandBtn.addEventListener('click', function() {
+          setExpanded(!layout.classList.contains('dash-sidebar-expanded'));
+        });
+        try {
+          if (localStorage.getItem(STORAGE_KEY) === '1') setExpanded(true);
+        } catch (e) {}
       }
     })();
   </script>

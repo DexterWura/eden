@@ -50,6 +50,7 @@ class StartupController extends Controller
         $data['founder_twitter_url'] = $first['twitter_url'] ?? null;
         $data['founder_linkedin_url'] = $first['linkedin_url'] ?? null;
         $data['twitter_url'] = $this->normalizeTwitterInput($data['twitter_url'] ?? null);
+        $this->applyFlipitForSaleFromRequest($request, $data);
         $startup = Startup::create($data);
         $this->processStartupFiles($request, $startup);
         return redirect()->route('founder.startups.index')->with('notify', [['success', 'Startup added.']]);
@@ -83,6 +84,7 @@ class StartupController extends Controller
         $data['founder_twitter_url'] = $first['twitter_url'] ?? $startup->founder_twitter_url;
         $data['founder_linkedin_url'] = $first['linkedin_url'] ?? $startup->founder_linkedin_url;
         $data['twitter_url'] = $this->normalizeTwitterInput($data['twitter_url'] ?? null);
+        $this->applyFlipitForSaleFromRequest($request, $data);
         $startup->update($data);
         $this->processStartupFiles($request, $startup);
         return redirect()->route('founder.startups.index')->with('notify', [['success', 'Startup updated.']]);
@@ -254,6 +256,26 @@ class StartupController extends Controller
             'product_images.*' => ['nullable', 'image', 'mimes:jpeg,png,gif,webp', 'max:2048'],
             'mrr' => ['nullable', 'numeric', 'min:0'],
             'revenue' => ['nullable', 'numeric', 'min:0'],
+            'for_sale' => ['nullable', 'boolean'],
+            'flipit_listing_url' => [
+                'nullable',
+                'string',
+                'max:500',
+                'regex:/^https?:\/\/(?:www\.)?flipit\.co\.zw\/marketplace\/listing\/[a-zA-Z0-9_-]+\/?$/i',
+            ],
         ];
+    }
+
+    private function applyFlipitForSaleFromRequest(Request $request, array &$data): void
+    {
+        unset($data['flipit_listing_url']);
+        $forSale = filter_var($data['for_sale'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        $data['for_sale'] = $forSale;
+        if ($forSale) {
+            $url = $request->input('flipit_listing_url');
+            $data['flipit_listing_id'] = $url ? Startup::flipitListingIdFromUrl($url) : null;
+        } else {
+            $data['flipit_listing_id'] = null;
+        }
     }
 }
