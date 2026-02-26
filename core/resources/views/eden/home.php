@@ -46,7 +46,12 @@
       <a href="<?= e(url('/launching-today')) ?>" class="section-link-all">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
     </header>
     <div class="section-cards-row" tabindex="0">
-      <?php foreach ($launchingToday as $startup): $badgeLabel = 'Launch'; include __DIR__ . '/_startup-card-deal.php'; endforeach; ?>
+      <?php foreach ($launchingToday as $startup):
+        $rank = null;
+        $showRank = false;
+        $cardVariant = 'row';
+        include __DIR__ . '/_startup-card.php';
+      endforeach; ?>
     </div>
     <p class="section-browse-all"><a href="<?= e(url('/launching-today')) ?>">Browse all on Launching today</a></p>
   </section>
@@ -63,7 +68,12 @@
       <a href="<?= e(url('/?featured=1')) ?>" class="section-link-all">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
     </header>
     <div class="section-cards-row" tabindex="0">
-      <?php foreach ($featuredProducts as $startup): $badgeLabel = 'Featured'; include __DIR__ . '/_startup-card-deal.php'; endforeach; ?>
+      <?php foreach ($featuredProducts as $startup):
+        $rank = null;
+        $showRank = false;
+        $cardVariant = 'row';
+        include __DIR__ . '/_startup-card.php';
+      endforeach; ?>
     </div>
     <p class="section-browse-all"><a href="<?= e(url('/?featured=1')) ?>">Browse all featured startups</a></p>
   </section>
@@ -80,7 +90,12 @@
     </header>
     <?php if ($topPerforming->isNotEmpty()): ?>
     <div class="section-cards-row" tabindex="0">
-      <?php foreach ($topPerforming as $startup): $badgeLabel = 'Top'; include __DIR__ . '/_startup-card-deal.php'; endforeach; ?>
+      <?php foreach ($topPerforming as $startup):
+        $rank = null;
+        $showRank = false;
+        $cardVariant = 'row';
+        include __DIR__ . '/_startup-card.php';
+      endforeach; ?>
     </div>
     <p class="section-browse-all"><a href="<?= e(url('/leaderboard')) ?>">Browse all on Leaderboard</a></p>
     <?php else: ?>
@@ -99,7 +114,12 @@
       <a href="<?= e(url('/?sort=newest')) ?>" class="section-link-all">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
     </header>
     <div class="section-cards-row" tabindex="0">
-      <?php foreach ($justListed as $startup): $badgeLabel = 'New'; include __DIR__ . '/_startup-card-deal.php'; endforeach; ?>
+      <?php foreach ($justListed as $startup):
+        $rank = null;
+        $showRank = false;
+        $cardVariant = 'row';
+        include __DIR__ . '/_startup-card.php';
+      endforeach; ?>
     </div>
     <p class="section-browse-all"><a href="<?= e(url('/?sort=newest')) ?>">Browse all just listed</a></p>
   </section>
