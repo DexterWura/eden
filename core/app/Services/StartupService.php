@@ -68,15 +68,19 @@ class StartupService
         return $query->take($limit)->get();
     }
 
-    public function getLeaderboard(?string $category = null, string $sortBy = 'upvotes', int $perPage = 20)
+    public function getLeaderboard(string $sortBy = 'upvotes', int $perPage = 20)
     {
         $query = Startup::active();
-        if ($category !== null && $category !== '') {
-            $query->byCategory($category);
-        }
-        if ($sortBy === 'newest') {
-            $query->orderByDesc('created_at');
-        } else {
+        $sortColumn = match ($sortBy) {
+            'views' => 'views',
+            'clicks' => 'clicks',
+            'mrr' => 'mrr',
+            'revenue' => 'revenue',
+            'newest' => 'created_at',
+            default => 'upvotes',
+        };
+        $query->orderByDesc($sortColumn);
+        if (in_array($sortColumn, ['mrr', 'revenue'], true)) {
             $query->orderByDesc('upvotes');
         }
         return $query->paginate($perPage)->withQueryString();

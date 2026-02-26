@@ -21,7 +21,7 @@ $productImages = $s->product_images ?? [];
           <?php if ($s->location): ?><span><?= e($s->location) ?></span><?php endif; ?>
           <?php if ($s->launch_date): ?><span><?= $s->launch_date->format('F Y') ?></span><?php endif; ?>
         </div>
-        <div class="upvote-ui" style="margin-top: 12px; display: flex; align-items: center; gap: 8px;">
+        <div class="upvote-ui" style="margin-top: 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
           <?php $hasUpvoted = $hasUpvoted ?? false; ?>
           <?php if ($hasUpvoted): ?>
           <span class="upvote-btn" style="opacity: 0.8; cursor: default;" aria-label="Upvoted"><i class="fa-solid fa-arrow-up"></i></span>
@@ -36,6 +36,9 @@ $productImages = $s->product_images ?? [];
           <?php if (!auth()->check()): ?>
           <span style="font-size: 0.875rem; color: var(--text-muted, #64748b);">Log in to upvote</span>
           <?php endif; ?>
+          <?php endif; ?>
+          <?php if (!empty($s->website)): ?>
+          <a href="<?= e(url('/startup/' . $s->slug . '/out')) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="margin-left: 4px;"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Visit website</a>
           <?php endif; ?>
         </div>
       </div>
@@ -62,25 +65,25 @@ $productImages = $s->product_images ?? [];
   </section>
   <?php endif; ?>
 
-  <?php if (count($foundersDisplay) > 0 || $s->founder_email || $s->founder_twitter_url || $s->founder_linkedin_url): ?>
+  <?php if (count($foundersDisplay) > 0): ?>
   <section class="startup-section">
     <h2>Founder<?= count($foundersDisplay) > 1 ? 's' : '' ?></h2>
-    <?php if (count($foundersDisplay) > 0): ?>
-    <div class="startup-founders">
+    <div class="startup-founders startup-founders--detailed">
       <?php foreach ($foundersDisplay as $f): ?>
-      <div class="startup-founder-block">
+      <div class="startup-founder-block startup-founder-block--card">
         <span class="startup-founder-avatar" title="<?= e($f['name']) ?>">
           <?php if (!empty($f['photo_url'])): ?><img src="<?= e(asset($f['photo_url'])) ?>" alt=""><?php else: ?><span class="startup-founder-initials"><?= e(\App\Models\Startup::founderInitials($f['name'])) ?></span><?php endif; ?>
         </span>
-        <strong><?= e($f['name']) ?></strong>
+        <div class="startup-founder-info">
+          <strong class="startup-founder-name"><?= e($f['name']) ?></strong>
+          <?php if (!empty($f['email'])): ?><p class="startup-founder-email"><a href="mailto:<?= e($f['email']) ?>"><?= e($f['email']) ?></a></p><?php endif; ?>
+          <div class="card-links startup-founder-links">
+            <?php if (!empty($f['twitter_url'])): ?><a href="<?= e($f['twitter_url']) ?>" target="_blank" rel="noopener" aria-label="<?= e($f['name']) ?> on X"><i class="fa-brands fa-x-twitter"></i> X</a><?php endif; ?>
+            <?php if (!empty($f['linkedin_url'])): ?><a href="<?= e($f['linkedin_url']) ?>" target="_blank" rel="noopener" aria-label="<?= e($f['name']) ?> on LinkedIn"><i class="fa-brands fa-linkedin-in"></i> LinkedIn</a><?php endif; ?>
+          </div>
+        </div>
       </div>
       <?php endforeach; ?>
-    </div>
-    <?php endif; ?>
-    <?php if ($s->founder_email): ?><p><a href="mailto:<?= e($s->founder_email) ?>"><?= e($s->founder_email) ?></a></p><?php endif; ?>
-    <div class="card-links" style="margin-top: 8px;">
-      <?php if (!empty($s->founder_twitter_url)): ?><a href="<?= e($s->founder_twitter_url) ?>" target="_blank" rel="noopener" aria-label="Founder on X"><i class="fa-brands fa-x-twitter"></i> X</a><?php endif; ?>
-      <?php if (!empty($s->founder_linkedin_url)): ?><a href="<?= e($s->founder_linkedin_url) ?>" target="_blank" rel="noopener" aria-label="Founder on LinkedIn"><i class="fa-brands fa-linkedin-in"></i> LinkedIn</a><?php endif; ?>
     </div>
   </section>
   <?php endif; ?>
@@ -96,6 +99,9 @@ $productImages = $s->product_images ?? [];
   </section>
 
   <div class="cta-strip">
+    <?php if (auth()->check() && $s->user_id === null): ?>
+    <a href="<?= e(route('startup.claim', $s->slug)) ?>" class="btn btn-primary"><i class="fa-solid fa-hand-holding-hand" aria-hidden="true"></i> Claim this startup</a>
+    <?php endif; ?>
     <a href="<?= e(url('/')) ?>" class="btn btn-ghost">Browse more startups</a>
     <a href="<?= e(url('/submit')) ?>" class="btn btn-primary">Submit your startup</a>
   </div>

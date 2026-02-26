@@ -1,36 +1,36 @@
 <?php
 $startups = $startups ?? null;
-$browseCategories = $browseCategories ?? [];
-$categoryFilter = $categoryFilter ?? null;
 $sortBy = $sortBy ?? 'upvotes';
+$sortLabels = [
+  'upvotes' => 'Upvotes',
+  'views' => 'Views',
+  'clicks' => 'Clicks',
+  'mrr' => 'MRR',
+  'revenue' => 'Revenue',
+  'newest' => 'Newest',
+];
+$sortLabel = $sortLabels[$sortBy] ?? 'Upvotes';
 ?>
 <section class="page-head">
   <div class="wrap">
     <h1>Leaderboard</h1>
-    <p>Top startups by upvotes. Discover what’s trending.</p>
+    <p>Top startups. Sort by upvotes, views, clicks, MRR, or revenue.</p>
   </div>
 </section>
 
 <div class="wrap content-block">
-  <?php if (count($browseCategories) > 0): ?>
-  <div class="filters filters--categories" style="margin-bottom: 24px;">
-    <a href="<?= e(url('/leaderboard')) ?>" class="pill<?= $categoryFilter === null || $categoryFilter === '' ? ' active' : '' ?>">All</a>
-    <?php foreach ($browseCategories as $cat): ?>
-    <a href="<?= e(url('/leaderboard?category=' . urlencode($cat->name))) ?>" class="pill<?= $categoryFilter === $cat->name ? ' active' : '' ?>"><?= e($cat->name) ?></a>
-    <?php endforeach; ?>
-  </div>
-  <?php endif; ?>
-
   <div class="leaderboard-wrap">
     <div class="leaderboard-header">
       <h2 class="leaderboard-title">Leaderboard</h2>
       <div class="leaderboard-filters">
+        <label for="leaderboardSort" class="leaderboard-filter-label">Sort by</label>
         <select id="leaderboardSort" aria-label="Sort by">
           <option value="upvotes"<?= $sortBy === 'upvotes' ? ' selected' : '' ?>>Upvotes</option>
+          <option value="views"<?= $sortBy === 'views' ? ' selected' : '' ?>>Views</option>
+          <option value="clicks"<?= $sortBy === 'clicks' ? ' selected' : '' ?>>Clicks</option>
+          <option value="mrr"<?= $sortBy === 'mrr' ? ' selected' : '' ?>>MRR</option>
+          <option value="revenue"<?= $sortBy === 'revenue' ? ' selected' : '' ?>>Revenue</option>
           <option value="newest"<?= $sortBy === 'newest' ? ' selected' : '' ?>>Newest</option>
-        </select>
-        <select id="leaderboardPeriod" aria-label="Period" disabled>
-          <option>All time</option>
         </select>
       </div>
     </div>
@@ -40,7 +40,7 @@ $sortBy = $sortBy ?? 'upvotes';
           <th class="col-rank">#</th>
           <th class="col-startup">Startup</th>
           <th class="col-founder">Founder</th>
-          <th class="col-upvotes">Upvotes</th>
+          <th class="col-metric"><?= e($sortLabel) ?></th>
           <th class="col-launched">Launched</th>
         </tr>
       </thead>
@@ -54,6 +54,12 @@ $sortBy = $sortBy ?? 'upvotes';
           $founderName = count($foundersDisplay) > 0 ? implode(', ', array_column($foundersDisplay, 'name')) : ($s->founder_name ?? '—');
           $founderPhoto = count($foundersDisplay) > 0 && !empty($foundersDisplay[0]['photo_url']) ? $foundersDisplay[0]['photo_url'] : null;
           $founderInitials = count($foundersDisplay) > 0 ? \App\Models\Startup::founderInitials($foundersDisplay[0]['name']) : '?';
+          if ($sortBy === 'mrr') { $metricVal = $s->mrr !== null && $s->mrr !== '' ? number_format((float)$s->mrr, 0) : '—'; }
+          elseif ($sortBy === 'revenue') { $metricVal = $s->revenue !== null && $s->revenue !== '' ? number_format((float)$s->revenue, 0) : '—'; }
+          elseif ($sortBy === 'views') { $metricVal = (int)($s->views ?? 0); }
+          elseif ($sortBy === 'clicks') { $metricVal = (int)($s->clicks ?? 0); }
+          elseif ($sortBy === 'newest') { $metricVal = $s->created_at ? $s->created_at->format('M Y') : '—'; }
+          else { $metricVal = (int)$s->upvotes; }
         ?>
         <tr>
           <td class="col-rank">
@@ -80,7 +86,7 @@ $sortBy = $sortBy ?? 'upvotes';
               <span class="leaderboard-founder-name"><?= e($founderName) ?></span>
             </div>
           </td>
-          <td class="col-upvotes"><?= (int)$s->upvotes ?></td>
+          <td class="col-metric"><?= e($metricVal) ?></td>
           <td class="col-launched"><?= $s->launch_date ? $s->launch_date->format('Y') : '—' ?></td>
         </tr>
         <?php endforeach; ?>

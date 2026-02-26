@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Eden;
 
+use App\Http\Controllers\Admin\SettingsController;
 use App\Models\Category;
 use App\Models\ContactSubmission;
 use App\Models\Startup;
@@ -19,7 +20,12 @@ class PageController extends EdenController
 
     public function about()
     {
-        return $this->page('about', 'About');
+        $general = function_exists('gs') ? gs() : null;
+        $aboutDefaults = SettingsController::aboutPageDefaults();
+        $about = $general && is_array($general->about_page ?? null)
+            ? array_merge($aboutDefaults, $general->about_page)
+            : $aboutDefaults;
+        return $this->page('about', 'About', null, ['about' => $about]);
     }
 
     public function contact()
@@ -119,8 +125,12 @@ class PageController extends EdenController
 
     public function categories()
     {
-        $categories = $this->startupService->getCategoriesWithCounts();
-        return $this->page('categories', 'Categories', null, ['categories' => $categories]);
+        $allCategories = Category::orderBy('sort_order')->orderBy('name')->get();
+        $countsByCategory = $this->startupService->getCategoriesWithCounts()->keyBy('category');
+        foreach ($allCategories as $cat) {
+            $cat->count = $countsByCategory->has($cat->name) ? (int) $countsByCategory->get($cat->name)->count : 0;
+        }
+        return $this->page('categories', 'Categories', null, ['categories' => $allCategories]);
     }
 
     public function subscribe(Request $request): RedirectResponse

@@ -4,8 +4,12 @@
 </div>
 
 <div class="dash-card">
-  <div class="dash-card-header">
+  <div class="dash-card-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
     <span class="dash-card-title">Email list</span>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <a href="{{ route('admin.subscribers.import') }}" class="dash-btn dash-btn-secondary" style="text-decoration: none;"><i class="fa-solid fa-file-import"></i> Import emails</a>
+      <a href="{{ route('admin.subscribers.compose') }}" class="dash-btn dash-btn-primary" style="text-decoration: none;"><i class="fa-solid fa-pen-to-square"></i> Compose email</a>
+    </div>
   </div>
   <div class="dash-card-body">
     <form method="get" action="{{ route('admin.subscribers.index') }}" style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">

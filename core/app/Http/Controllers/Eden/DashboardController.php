@@ -31,6 +31,7 @@ class DashboardController extends EdenController
             'searchPlaceholder' => "Try searching 'upvotes this week'",
             'avatarTitle' => $user->name ?? 'Account',
             'avatarLetter' => strtoupper(mb_substr($user->name ?? '?', 0, 1)),
+            'notifyPartial' => view('partials.notify')->render(),
             'content' => view('eden.founder-dashboard', [
                 'myStartups' => $myStartups,
                 'totalUpvotes' => $totalUpvotes,

@@ -1,31 +1,55 @@
-<?php $siteName = function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden'; ?>
+<?php
+$about = $about ?? [];
+$headTitle = $about['head_title'] ?? 'About';
+$headSubtitle = $about['head_subtitle'] ?? '';
+$whatWeDoTitle = $about['what_we_do_title'] ?? 'What we do';
+$whatWeDoBody = $about['what_we_do_body'] ?? '';
+$forFoundersTitle = $about['for_founders_title'] ?? 'For founders';
+$forFoundersBody = $about['for_founders_body'] ?? '';
+$forVisitorsTitle = $about['for_visitors_title'] ?? 'For visitors';
+$forVisitorsBody = $about['for_visitors_body'] ?? '';
+$guidelinesTitle = $about['guidelines_title'] ?? 'Guidelines';
+$guidelinesItems = $about['guidelines_items'] ?? [];
+$ctaTitle = $about['cta_title'] ?? 'Ready to list your startup?';
+$ctaSubtitle = $about['cta_subtitle'] ?? 'Submit in under 2 minutes.';
+?>
 <section class="page-head">
   <div class="wrap">
-    <h1>About <?= e($siteName) ?></h1>
-    <p>The startup directory for discoverability and growth.</p>
+    <h1><?= e($headTitle) ?></h1>
+    <?php if ($headSubtitle !== ''): ?><p><?= e($headSubtitle) ?></p><?php endif; ?>
   </div>
 </section>
 
 <div class="wrap content-block">
-  <h2>What we do</h2>
-  <p><?= e($siteName) ?> is a curated directory of startups. We help founders get discovered by investors, customers, and partners—and help everyone else find the next wave of innovation.</p>
+  <?php if ($whatWeDoTitle !== '' || $whatWeDoBody !== ''): ?>
+  <h2><?= e($whatWeDoTitle) ?></h2>
+  <?php if ($whatWeDoBody !== ''): ?><p><?= nl2br(e($whatWeDoBody)) ?></p><?php endif; ?>
+  <?php endif; ?>
 
-  <h2>For founders</h2>
-  <p>Submit your startup once. It appears in search, categories, and—if you're launching today—on the Launching today page. No paywall for a basic listing.</p>
+  <?php if ($forFoundersTitle !== '' || $forFoundersBody !== ''): ?>
+  <h2><?= e($forFoundersTitle) ?></h2>
+  <?php if ($forFoundersBody !== ''): ?><p><?= nl2br(e($forFoundersBody)) ?></p><?php endif; ?>
+  <?php endif; ?>
 
-  <h2>For visitors</h2>
-  <p>Browse by category, search by name or tag, and check the Launching today page for fresh launches. Subscribe to the weekly digest to stay updated.</p>
+  <?php if ($forVisitorsTitle !== '' || $forVisitorsBody !== ''): ?>
+  <h2><?= e($forVisitorsTitle) ?></h2>
+  <?php if ($forVisitorsBody !== ''): ?><p><?= nl2br(e($forVisitorsBody)) ?></p><?php endif; ?>
+  <?php endif; ?>
 
-  <h2>Guidelines</h2>
+  <?php if ($guidelinesTitle !== '' || !empty($guidelinesItems)): ?>
+  <h2><?= e($guidelinesTitle) ?></h2>
+  <?php if (!empty($guidelinesItems)): ?>
   <ul>
-    <li>Your startup must be real and operational (no placeholders).</li>
-    <li>Provide a clear description and link.</li>
-    <li>One listing per startup. Updates are free.</li>
+    <?php foreach ($guidelinesItems as $item): ?>
+    <li><?= e($item) ?></li>
+    <?php endforeach; ?>
   </ul>
+  <?php endif; ?>
+  <?php endif; ?>
 
   <div class="cta-strip">
-    <h3>Ready to list your startup?</h3>
-    <p>Submit in under 2 minutes.</p>
+    <h3><?= e($ctaTitle) ?></h3>
+    <?php if ($ctaSubtitle !== ''): ?><p><?= e($ctaSubtitle) ?></p><?php endif; ?>
     <a href="<?= e(url('/submit')) ?>" class="btn btn-primary">Submit your startup</a>
     <a href="<?= e(url('/contact')) ?>" class="btn btn-ghost">Contact us</a>
   </div>

@@ -11,10 +11,11 @@
     <?php
     $categories = $categories ?? collect();
     foreach ($categories as $cat):
-      $count = (int) $cat->count;
+      $count = (int) ($cat->count ?? 0);
       $label = $count === 1 ? '1 startup' : $count . ' startups';
+      $name = $cat->name ?? $cat->category ?? '';
     ?>
-    <a href="<?= e(url('/?category=' . urlencode($cat->category))) ?>" class="category-card"><strong><?= e($cat->category) ?></strong><span><?= e($label) ?></span></a>
+    <a href="<?= e(url('/?category=' . urlencode($name))) ?>" class="category-card"><strong><?= e($name) ?></strong><span><?= e($label) ?></span></a>
     <?php endforeach; ?>
     <?php if ($categories->isEmpty()): ?>
     <p class="text-muted">No categories yet. <a href="<?= e(url('/submit')) ?>">Submit your startup</a> to create the first.</p>

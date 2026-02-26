@@ -42,9 +42,17 @@
                                                         <i class="las la-eye-slash"></i>@lang('Disable')
                                                     </button>
                                                 @else
-                                                    <button class="btn btn-outline--success btn-sm confirmationBtn" data-question="@lang('Are you sure that you want to enable login credential?')" data-action="{{ route('admin.setting.socialite.credentials.status.update', $key) }}">
-                                                        <i  class="las la-eye"></i>@lang('Enable')
-                                                    </button>
+                                                    @php $hasCreds = isset($credentialsComplete[$key]) && $credentialsComplete[$key]; @endphp
+                                                    @if ($hasCreds)
+                                                        <button class="btn btn-outline--success btn-sm confirmationBtn" data-question="@lang('Are you sure that you want to enable login credential?')" data-action="{{ route('admin.setting.socialite.credentials.status.update', $key) }}">
+                                                            <i class="las la-eye"></i>@lang('Enable')
+                                                        </button>
+                                                    @else
+                                                        <button type="button" class="btn btn-outline--secondary btn-sm" disabled title="@lang('Set Client ID and Client Secret via Configure first')">
+                                                            <i class="las la-eye"></i>@lang('Enable')
+                                                        </button>
+                                                        <span class="text-muted small ms-1">@lang('Configure credentials first')</span>
+                                                    @endif
                                                 @endif
                                             </div>
                                         </td>
@@ -187,6 +195,13 @@
                         <li class="list-group-item"><b>@lang('Step 2')</b>: @lang('Click on create app and provide required information').</li>
                         <li class="list-group-item"><b>@lang('Step 3')</b>: @lang('Click on Sign In with Linkedin > Request access').</li>
                         <li class="list-group-item"><b>@lang('Step 4')</b>: @lang('Click Auth option and copy the credentials and paste it to admin panel and don\'t forget to add redirect url here').</li>
+                    </ul>`;
+                } else if (key == 'twitter') {
+                    rules = `<ul class="list-group list-group-flush">
+                        <li class="list-group-item"><b>@lang('Step 1')</b>: @lang('Go to') <a href="https://developer.twitter.com/" target="_blank">Twitter Developer Portal</a>.</li>
+                        <li class="list-group-item"><b>@lang('Step 2')</b>: Create a project and app, then enable OAuth 2.0.</li>
+                        <li class="list-group-item"><b>@lang('Step 3')</b>: In User authentication settings, set up OAuth 2.0 with callback URL (use the Callback URL shown in Configure).</li>
+                        <li class="list-group-item"><b>@lang('Step 4')</b>: Copy Client ID and Client Secret into the admin panel.</li>
                     </ul>`;
                 }
 

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Eden;
 
-use App\Models\Category;
 use App\Services\StartupService;
 use Illuminate\Http\Request;
 
@@ -27,8 +26,10 @@ class HomeController extends EdenController
             $allStartups = $this->startupService->getAllStartups($categoryFilter);
         }
         $categories = $this->startupService->getCategoriesWithCounts();
-        $browseCategories = Category::orderBy('sort_order')->get();
-        $leaderboardPreview = $this->startupService->getLeaderboard($categoryFilter, 'upvotes', 10);
+        $browseCategories = $this->startupService->getCategoriesWithCounts()
+            ->take(12)
+            ->map(fn ($c) => (object) ['name' => $c->category]);
+        $leaderboardPreview = $this->startupService->getLeaderboard('upvotes', 10);
 
         return $this->page('home', null, 'scripts-home', [
             'launchingToday' => $launchingToday,
@@ -45,18 +46,14 @@ class HomeController extends EdenController
 
     public function leaderboard(Request $request)
     {
-        $categoryFilter = $request->query('category');
         $sortBy = $request->query('sort', 'upvotes');
-        if (!in_array($sortBy, ['upvotes', 'newest'], true)) {
+        if (! in_array($sortBy, ['upvotes', 'views', 'clicks', 'mrr', 'revenue', 'newest'], true)) {
             $sortBy = 'upvotes';
         }
-        $startups = $this->startupService->getLeaderboard($categoryFilter, $sortBy, 20);
-        $browseCategories = Category::orderBy('sort_order')->get();
+        $startups = $this->startupService->getLeaderboard($sortBy, 20);
 
         return $this->page('leaderboard', 'Leaderboard', null, [
             'startups' => $startups,
-            'browseCategories' => $browseCategories,
-            'categoryFilter' => $categoryFilter,
             'sortBy' => $sortBy,
         ]);
     }

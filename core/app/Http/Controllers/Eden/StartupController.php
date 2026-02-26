@@ -25,12 +25,23 @@ class StartupController extends EdenController
     public function show(string $slug)
     {
         $startup = $this->startupService->getBySlug($slug);
+        $startup->increment('views');
         $hasUpvoted = auth()->check() && StartupUpvote::where('user_id', auth()->id())
             ->where('startup_id', $startup->id)->exists();
         return $this->page('startup-show', $startup->name, null, [
             'startup' => $startup,
             'hasUpvoted' => $hasUpvoted,
         ]);
+    }
+
+    public function out(string $slug): RedirectResponse
+    {
+        $startup = Startup::where('slug', $slug)->first();
+        if (! $startup || ! $startup->isActive() || empty($startup->website)) {
+            return redirect()->to(url('/startup/' . $slug))->with('error', 'Startup or website not found.');
+        }
+        $startup->increment('clicks');
+        return redirect()->away($startup->website);
     }
 
     public function upvote(Request $request, string $slug): RedirectResponse

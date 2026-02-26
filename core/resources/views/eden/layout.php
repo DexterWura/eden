@@ -30,6 +30,11 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
   <?php $cssPath = public_path('css/main.css'); $cssVersion = file_exists($cssPath) ? filemtime($cssPath) : ''; ?>
   <link rel="stylesheet" href="<?= e(asset('css/main.css')) ?><?= $cssVersion ? '?v=' . $cssVersion : '' ?>">
+  <?php
+    if (function_exists('gs') && gs('adsense_enabled') && !empty(trim((string) (gs('adsense_script') ?? ''))) {
+      echo "\n  " . trim((string) gs('adsense_script')) . "\n";
+    }
+  ?>
 </head>
 <body>
   <div class="bg-grid"></div>
@@ -122,6 +127,28 @@
         <button type="button" class="modal-close" aria-label="Close" data-close="modalLogin"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="modal-body">
+        <?php
+          $socialCreds = function_exists('gs') ? gs('socialite_credentials') : null;
+          $socialProviders = [];
+          if ($socialCreds && is_object($socialCreds)) {
+            foreach (['google' => 'Google', 'linkedin' => 'LinkedIn', 'facebook' => 'Facebook', 'twitter' => 'Twitter'] as $key => $label) {
+              if (isset($socialCreds->$key) && is_object($socialCreds->$key) && !empty($socialCreds->$key->client_id) && !empty($socialCreds->$key->client_secret) && (int)($socialCreds->$key->status ?? 0) === 1) {
+                $socialProviders[$key] = $label;
+              }
+            }
+          }
+        ?>
+        <?php if (!empty($socialProviders)): ?>
+        <div class="social-login-wrap" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
+          <?php foreach ($socialProviders as $key => $label): ?>
+          <a href="<?= e(route('user.social.login', $key)) ?>" class="btn btn-ghost" style="flex: 1; min-width: 100px; justify-content: center;">
+            <i class="fa-brands fa-<?= $key === 'google' ? 'google' : ($key === 'linkedin' ? 'linkedin' : ($key === 'twitter' ? 'x-twitter' : 'facebook')) ?>" aria-hidden="true"></i>
+            <?= e($label) ?>
+          </a>
+          <?php endforeach; ?>
+        </div>
+        <p class="form-hint" style="text-align: center; margin-bottom: 16px; font-size: 0.875rem; color: var(--text-muted, #64748b);">Or sign in with email</p>
+        <?php endif; ?>
         <form action="<?= e(url('/login')) ?>" method="POST">
           <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
           <div class="form-group">
@@ -150,6 +177,17 @@
         <button type="button" class="modal-close" aria-label="Close" data-close="modalSignup"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="modal-body">
+        <?php if (!empty($socialProviders)): ?>
+        <div class="social-login-wrap" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
+          <?php foreach ($socialProviders as $key => $label): ?>
+          <a href="<?= e(route('user.social.login', $key)) ?>" class="btn btn-ghost" style="flex: 1; min-width: 100px; justify-content: center;">
+            <i class="fa-brands fa-<?= $key === 'google' ? 'google' : ($key === 'linkedin' ? 'linkedin' : ($key === 'twitter' ? 'x-twitter' : 'facebook')) ?>" aria-hidden="true"></i>
+            <?= e($label) ?>
+          </a>
+          <?php endforeach; ?>
+        </div>
+        <p class="form-hint" style="text-align: center; margin-bottom: 16px; font-size: 0.875rem; color: var(--text-muted, #64748b);">Or sign up with email</p>
+        <?php endif; ?>
         <form action="<?= e(url('/register')) ?>" method="POST">
           <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
           <div class="form-group">

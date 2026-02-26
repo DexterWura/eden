@@ -29,6 +29,10 @@ class Startup extends Model
         'launch_date',
         'is_featured',
         'upvotes',
+        'views',
+        'clicks',
+        'mrr',
+        'revenue',
         'twitter_url',
         'linkedin_url',
         'status',
@@ -39,6 +43,8 @@ class Startup extends Model
         'is_featured' => 'boolean',
         'founders' => 'array',
         'product_images' => 'array',
+        'mrr' => 'decimal:2',
+        'revenue' => 'decimal:2',
     ];
 
     public static function founderInitials(string $name): string
@@ -63,7 +69,7 @@ class Startup extends Model
         return strtoupper(mb_substr($this->name, 0, 2));
     }
 
-    /** @return array<int, array{name: string, photo_url: string|null}> */
+    /** @return array<int, array{name: string, photo_url: string|null, email: string|null, twitter_url: string|null, linkedin_url: string|null}> */
     public function getFoundersDisplayAttribute(): array
     {
         $list = $this->founders ?? [];
@@ -71,11 +77,26 @@ class Startup extends Model
             return array_values(array_map(function ($f) {
                 $name = is_array($f) ? ($f['name'] ?? '') : (is_object($f) ? ($f->name ?? '') : '');
                 $photo = is_array($f) ? ($f['photo_url'] ?? null) : (is_object($f) ? ($f->photo_url ?? null) : null);
-                return ['name' => (string) $name, 'photo_url' => $photo ? (string) $photo : null];
+                $email = is_array($f) ? ($f['email'] ?? null) : (is_object($f) ? ($f->email ?? null) : null);
+                $twitter = is_array($f) ? ($f['twitter_url'] ?? null) : (is_object($f) ? ($f->twitter_url ?? null) : null);
+                $linkedin = is_array($f) ? ($f['linkedin_url'] ?? null) : (is_object($f) ? ($f->linkedin_url ?? null) : null);
+                return [
+                    'name' => (string) $name,
+                    'photo_url' => $photo ? (string) $photo : null,
+                    'email' => $email ? (string) $email : null,
+                    'twitter_url' => $twitter ? (string) $twitter : null,
+                    'linkedin_url' => $linkedin ? (string) $linkedin : null,
+                ];
             }, $list));
         }
         if ($this->founder_name) {
-            return [['name' => $this->founder_name, 'photo_url' => null]];
+            return [[
+                'name' => $this->founder_name,
+                'photo_url' => null,
+                'email' => $this->founder_email ? (string) $this->founder_email : null,
+                'twitter_url' => $this->founder_twitter_url ? (string) $this->founder_twitter_url : null,
+                'linkedin_url' => $this->founder_linkedin_url ? (string) $this->founder_linkedin_url : null,
+            ]];
         }
         return [];
     }

@@ -384,9 +384,15 @@ class GeneralSettingController extends Controller
     public function socialiteCredentials()
     {
         $pageTitle = 'Social Login Credentials';
-        
-        // Mask sensitive social login credentials if demo user
         $socialiteCredentials = gs('socialite_credentials');
+        $credentialsComplete = [];
+        if ($socialiteCredentials && is_object($socialiteCredentials)) {
+            foreach ($socialiteCredentials as $provider => $credential) {
+                if (is_object($credential)) {
+                    $credentialsComplete[$provider] = !empty(trim($credential->client_id ?? '')) && !empty(trim($credential->client_secret ?? ''));
+                }
+            }
+        }
         if (auth('admin')->user() && auth('admin')->user()->isDemoUser() && $socialiteCredentials) {
             foreach ($socialiteCredentials as $provider => $credential) {
                 if (is_object($credential)) {
@@ -399,8 +405,7 @@ class GeneralSettingController extends Controller
                 }
             }
         }
-        
-        return view('admin.setting.social_credential', compact('pageTitle'));
+        return view('admin.setting.social_credential', compact('pageTitle', 'credentialsComplete'));
     }
 
     public function updateSocialiteCredentialStatus($key)
@@ -408,11 +413,23 @@ class GeneralSettingController extends Controller
         $general     = gs();
         $credentials = $general->socialite_credentials;
         try {
-            $credentials->$key->status = $credentials->$key->status == Status::ENABLE ? Status::DISABLE : Status::ENABLE;
+            $cred = $credentials->$key;
         } catch (\Throwable $th) {
             abort(404);
         }
 
+        $newStatus = ($cred->status ?? Status::DISABLE) == Status::ENABLE ? Status::DISABLE : Status::ENABLE;
+
+        if ($newStatus == Status::ENABLE) {
+            $clientId     = trim($cred->client_id ?? '');
+            $clientSecret = trim($cred->client_secret ?? '');
+            if ($clientId === '' || $clientSecret === '') {
+                $notify[] = ['error', 'Cannot enable ' . ucfirst($key) . ' login. Please set Client ID and Client Secret first via Configure.'];
+                return back()->withNotify($notify);
+            }
+        }
+
+        $credentials->$key->status = $newStatus;
         $general->socialite_credentials = $credentials;
         $general->save();
 
