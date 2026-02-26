@@ -6,7 +6,7 @@
 </section>
 
 <div class="wrap content-block">
-  <form class="form-max" action="<?= e(url('/submit')) ?>" method="POST">
+  <form class="form-max" action="<?= e(url('/submit')) ?>" method="POST" enctype="multipart/form-data">
     <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
     <div class="form-group">
       <label class="form-label" for="startup-name">Startup name</label>
@@ -47,6 +47,14 @@
     <div class="form-group">
       <label class="form-label" for="founder_name">Founder name</label>
       <input type="text" id="founder_name" name="founder_name" class="form-input" placeholder="e.g. Jane Doe" value="<?= e(old('founder_name')) ?>">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="logo">Startup logo (optional)</label>
+      <input type="file" id="logo" name="logo" accept="image/jpeg,image/png,image/gif,image/webp" class="form-input">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Product images (optional)</label>
+      <input type="file" name="product_images[]" accept="image/jpeg,image/png,image/gif,image/webp" multiple class="form-input">
     </div>
     <div class="form-group">
       <label class="form-label" for="launch-date">Launching today?</label>

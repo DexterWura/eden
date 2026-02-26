@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <?php if (function_exists('csrf_token')): ?><meta name="csrf-token" content="<?= e(csrf_token()) ?>"><?php endif; ?>
-  <title><?= e($title ?? 'Dashboard') ?> — Eden</title>
+  <title><?= e($title ?? 'Dashboard') ?> — <?= e($dashboardLogo ?? 'Eden') ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -25,10 +25,10 @@
         <a href="<?= e(url('/backoffice/reports')) ?>" class="<?= ($activeNav ?? '') === 'reports' ? 'active' : '' ?>" aria-label="Reports" title="Reports"><i class="fa-solid fa-chart-line"></i></a>
         <a href="<?= e(url('/backoffice/settings')) ?>" class="<?= ($activeNav ?? '') === 'settings' ? 'active' : '' ?>" aria-label="Settings" title="Settings"><i class="fa-solid fa-gear"></i></a>
       <?php else: ?>
-        <a href="<?= e(url('/founder')) ?>" class="active" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i></a>
-        <a href="#" aria-label="My startup" title="My startup"><i class="fa-solid fa-building-user"></i></a>
-        <a href="#" aria-label="Upvotes" title="Upvotes"><i class="fa-solid fa-arrow-up"></i></a>
-        <a href="#" aria-label="Settings" title="Settings"><i class="fa-solid fa-gear"></i></a>
+        <a href="<?= e(url('/founder')) ?>" class="<?= ($activeNav ?? '') === 'home' ? 'active' : '' ?>" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i></a>
+        <a href="<?= e(url('/founder/startups')) ?>" class="<?= ($activeNav ?? '') === 'startups' ? 'active' : '' ?>" aria-label="My startup" title="My startups"><i class="fa-solid fa-building-user"></i></a>
+        <a href="<?= e(url('/founder/upvotes')) ?>" class="<?= ($activeNav ?? '') === 'upvotes' ? 'active' : '' ?>" aria-label="Upvotes" title="Upvotes"><i class="fa-solid fa-arrow-up"></i></a>
+        <a href="<?= e(url('/founder/settings')) ?>" class="<?= ($activeNav ?? '') === 'settings' ? 'active' : '' ?>" aria-label="Settings" title="Settings"><i class="fa-solid fa-gear"></i></a>
       <?php endif; ?>
       <div class="dash-nav-bottom">
         <a href="<?= e(url('/')) ?>" aria-label="Back to Eden" title="Back to site"><i class="fa-solid fa-arrow-left"></i></a>
@@ -49,9 +49,15 @@
           <input type="search" class="dash-search" placeholder="<?= e($searchPlaceholder ?? 'Search') ?>" aria-label="Search">
         </div>
         <div class="dash-topbar-right">
-          <a href="#" aria-label="Help" title="Help"><i class="fa-solid fa-circle-question" aria-hidden="true"></i></a>
+          <a href="<?= e(url('/contact')) ?>" aria-label="Help" title="Contact / Help"><i class="fa-solid fa-circle-question" aria-hidden="true"></i></a>
           <?php if (($sidebar ?? '') === 'admin' && function_exists('route') && auth()->guard('admin')->check()): ?>
             <a href="<?= e(route('admin.logout')) ?>" class="dash-logout" aria-label="Log out" title="Log out"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
+          <?php endif; ?>
+          <?php if (($sidebar ?? '') === 'founder' && auth()->check()): ?>
+            <form action="<?= e(route('logout')) ?>" method="POST" style="display: inline;">
+              <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
+              <button type="submit" class="dash-logout" style="background: none; border: none; padding: 0; cursor: pointer; color: inherit; font-size: inherit;" aria-label="Log out" title="Log out"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+            </form>
           <?php endif; ?>
           <div class="dash-avatar" title="<?= e($avatarTitle ?? 'Account') ?>"><?= e($avatarLetter ?? '?') ?></div>
         </div>

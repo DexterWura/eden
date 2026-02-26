@@ -9,17 +9,32 @@ use Illuminate\Http\Response;
 
 class DashboardController extends EdenController
 {
+    private function siteName(): string
+    {
+        return function_exists('gs') && gs('site_name') ? (string) gs('site_name') : 'Eden';
+    }
+
     public function founderDashboard(): Response
     {
+        $user = auth()->user();
+        $myStartups = $user->startups()->orderByDesc('updated_at')->get();
+        $totalUpvotes = $myStartups->sum('upvotes');
+        $primaryStartup = $myStartups->first();
+        $siteName = $this->siteName();
+
         return response()->view('eden.layout-dashboard', [
             'title' => 'Startup dashboard',
             'sidebar' => 'founder',
-            'dashboardLogo' => 'Eden',
-            'dashboardTopbar' => '<button type="button" class="dash-account" title="Switch account">Nexus Pay · Founder</button>',
+            'activeNav' => 'home',
+            'dashboardLogo' => $siteName,
+            'dashboardTopbar' => $primaryStartup ? '<a href="' . url('/startup/' . $primaryStartup->slug) . '" target="_blank" class="dash-account" style="text-decoration:none;">' . e($primaryStartup->name) . ' · Founder</a>' : '',
             'searchPlaceholder' => "Try searching 'upvotes this week'",
-            'avatarTitle' => 'Account',
-            'avatarLetter' => 'S',
-            'content' => view('eden.founder-dashboard')->render(),
+            'avatarTitle' => $user->name ?? 'Account',
+            'avatarLetter' => strtoupper(mb_substr($user->name ?? '?', 0, 1)),
+            'content' => view('eden.founder-dashboard', [
+                'myStartups' => $myStartups,
+                'totalUpvotes' => $totalUpvotes,
+            ])->render(),
         ]);
     }
 
@@ -29,11 +44,12 @@ class DashboardController extends EdenController
         $activeStartups = Startup::active()->count();
         $launchingToday = Startup::active()->launchingToday()->count();
         $recentStartups = Startup::query()->orderByDesc('created_at')->limit(5)->get();
+        $siteName = $this->siteName();
 
         return response()->view('eden.layout-dashboard', [
             'title' => 'Admin dashboard',
             'sidebar' => 'admin',
-            'dashboardLogo' => 'Eden Admin',
+            'dashboardLogo' => $siteName . ' Admin',
             'dashboardTopbar' => '<button type="button" class="dash-account" title="Property">All startups</button>',
             'searchPlaceholder' => "Try searching 'startups by category'",
             'avatarTitle' => 'Admin',

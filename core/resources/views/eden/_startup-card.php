@@ -4,13 +4,17 @@ if (!$s) return;
 $rank = $rank ?? null;
 $showRank = isset($showRank) ? $showRank : false;
 $url = url('/startup/' . e($s->slug));
-$logo = $s->logo_letters ?? strtoupper(mb_substr($s->name, 0, 2));
-$searchText = implode(' ', array_filter([$s->name, $s->tagline, $s->category, $s->location, $s->founder_name], fn($v) => $v !== null && $v !== ''));
+$logoPath = $s->logo_path ?? null;
+$logoLetters = $s->logo_letters ?? strtoupper(mb_substr($s->name, 0, 2));
+$foundersDisplay = $s->founders_display ?? [];
+$searchText = implode(' ', array_filter([$s->name, $s->tagline, $s->category, $s->location, $s->founder_name, implode(' ', array_column($foundersDisplay, 'name'))], fn($v) => $v !== null && $v !== ''));
 ?>
 <div class="startup-card<?= $s->is_featured ? ' featured' : '' ?>" data-search="<?= e(mb_strtolower($searchText)) ?>">
   <?php if ($showRank && $rank !== null): ?><span class="card-rank"><?= (int)$rank ?></span><?php endif; ?>
   <div class="card-top">
-    <div class="card-logo"><?= e($logo) ?></div>
+    <div class="card-logo">
+      <?php if ($logoPath): ?><img src="<?= e(asset($logoPath)) ?>" alt="" class="card-logo-img"><?php else: ?><?= e($logoLetters) ?><?php endif; ?>
+    </div>
     <div class="card-badges">
       <?php if ($s->is_featured): ?><span class="badge">Featured</span><?php endif; ?>
       <?php if ($s->launch_date && $s->launch_date->isToday()): ?><span class="badge launch">Launch</span><?php endif; ?>
@@ -28,7 +32,18 @@ $searchText = implode(' ', array_filter([$s->name, $s->tagline, $s->category, $s
       <?php if ($s->location): ?><span><?= e($s->location) ?></span><?php endif; ?>
       <span><?= $s->launch_date ? $s->launch_date->format('Y') : '—' ?></span>
     </div>
-    <?php if ($s->founder_name): ?><p class="card-founder">Founded by <strong><?= e($s->founder_name) ?></strong></p><?php endif; ?>
+    <?php if (count($foundersDisplay) > 0): ?>
+    <p class="card-founder">
+      <span class="card-founder-avatars">
+        <?php foreach ($foundersDisplay as $f): ?>
+        <span class="card-founder-avatar" title="<?= e($f['name']) ?>">
+          <?php if (!empty($f['photo_url'])): ?><img src="<?= e(asset($f['photo_url'])) ?>" alt="" aria-hidden="true"><?php else: ?><span class="card-founder-initials"><?= e(\App\Models\Startup::founderInitials($f['name'])) ?></span><?php endif; ?>
+        </span>
+        <?php endforeach; ?>
+      </span>
+      Founded by <strong><?= e(implode(', ', array_column($foundersDisplay, 'name'))) ?></strong>
+    </p>
+    <?php endif; ?>
     <div class="card-links">
       <?php if ($s->website): ?><a href="<?= e($s->website) ?>" target="_blank" rel="noopener"><i class="fa-solid fa-globe" aria-hidden="true"></i> Website</a><?php endif; ?>
       <?php if (!empty($s->twitter_url)): ?><a href="<?= e($s->twitter_url) ?>" target="_blank" rel="noopener" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a><?php endif; ?>

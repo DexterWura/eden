@@ -1,13 +1,14 @@
+<?php $siteName = function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden'; ?>
 <section class="page-head">
   <div class="wrap">
-    <h1>About Eden</h1>
+    <h1>About <?= e($siteName) ?></h1>
     <p>The startup directory for discoverability and growth.</p>
   </div>
 </section>
 
 <div class="wrap content-block">
   <h2>What we do</h2>
-  <p>Eden is a curated directory of startups. We help founders get discovered by investors, customers, and partners—and help everyone else find the next wave of innovation.</p>
+  <p><?= e($siteName) ?> is a curated directory of startups. We help founders get discovered by investors, customers, and partners—and help everyone else find the next wave of innovation.</p>
 
   <h2>For founders</h2>
   <p>Submit your startup once. It appears in search, categories, and—if you're launching today—on the Launching today page. No paywall for a basic listing.</p>

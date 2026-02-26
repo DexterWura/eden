@@ -1,12 +1,12 @@
 @php
   $isEdit = $startup->exists;
-  $formAction = $isEdit ? route('admin.startups.update', $startup) : route('admin.startups.store');
+  $formAction = $isEdit ? route('founder.startups.update', $startup) : route('founder.startups.store');
   $formMethod = $isEdit ? 'PUT' : 'POST';
 @endphp
 
 <h1 class="dash-page-title">{{ $isEdit ? 'Edit startup' : 'Add startup' }}</h1>
 <div class="dash-welcome">
-  {{ $isEdit ? 'Update startup details, founder, links and status.' : 'Create a new startup and set the founder, socials and details.' }}
+  {{ $isEdit ? 'Update your startup details and links.' : 'Add a new startup to your account.' }}
 </div>
 
 <form action="{{ $formAction }}" method="post" class="dash-form" enctype="multipart/form-data">
@@ -53,13 +53,16 @@
         <input type="file" id="logo_path" name="logo" accept="image/jpeg,image/png,image/gif,image/webp" class="dash-input">
         @error('logo') <span class="dash-error">{{ $message }}</span> @enderror
         @if($startup->logo_path)
-          <p style="margin-top: 8px;"><img src="{{ asset($startup->logo_path) }}" alt="Current logo" style="max-width: 80px; height: auto; border-radius: 8px;"> Current logo.</p>
+          <p style="margin-top: 8px;"><img src="{{ asset($startup->logo_path) }}" alt="Current logo" style="max-width: 80px; height: auto; border-radius: 8px;"> Current logo. Upload to replace.</p>
         @endif
       </div>
       <div>
         <label class="dash-label">Product images</label>
         <input type="file" name="product_images[]" accept="image/jpeg,image/png,image/gif,image/webp" multiple class="dash-input">
         @error('product_images') <span class="dash-error">{{ $message }}</span> @enderror
+        @if(!empty($startup->product_images))
+          <p style="margin-top: 8px; font-size: 0.875rem; color: var(--d-text-secondary);">{{ count($startup->product_images) }} image(s). Upload more to add.</p>
+        @endif
       </div>
     </div>
   </div>
@@ -67,9 +70,10 @@
   <div class="dash-card" style="margin-bottom: 20px;">
     <div class="dash-card-header"><span class="dash-card-title">Founders</span></div>
     <div class="dash-card-body" style="display: flex; flex-direction: column; gap: 16px;">
+      <p style="font-size: 0.875rem; color: var(--d-text-secondary);">Add one or more founders. Profile photo is optional (round avatar with initials used if not set).</p>
       <div id="founders-list">
-        @php $adminFoundersList = old('founders_names', $startup->founders_display ? array_column($startup->founders_display, 'name') : ($startup->founder_name ? [$startup->founder_name] : [])); @endphp
-        @foreach($adminFoundersList as $idx => $fn)
+        @php $foundersList = old('founders_names', $startup->founders_display ? array_column($startup->founders_display, 'name') : ($startup->founder_name ? [$startup->founder_name] : [auth()->user()->name ?? ''])); @endphp
+        @foreach($foundersList as $idx => $fn)
         <div class="founder-row" style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
           <div style="flex: 1; min-width: 140px;">
             <label class="dash-label">Name</label>
@@ -82,7 +86,7 @@
           <button type="button" class="dash-btn dash-btn-secondary founder-remove" style="flex-shrink: 0;">Remove</button>
         </div>
         @endforeach
-        @if(count($adminFoundersList) === 0)
+        @if(count($foundersList) === 0)
         <div class="founder-row" style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
           <div style="flex: 1; min-width: 140px;">
             <label class="dash-label">Name</label>
@@ -100,18 +104,18 @@
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
         <div>
           <label for="founder_email" class="dash-label">Contact email</label>
-          <input type="email" id="founder_email" name="founder_email" value="{{ old('founder_email', $startup->founder_email) }}" class="dash-input" placeholder="email@example.com">
+          <input type="email" id="founder_email" name="founder_email" value="{{ old('founder_email', $startup->founder_email ?? auth()->user()->email) }}" class="dash-input" placeholder="email@example.com">
           @error('founder_email') <span class="dash-error">{{ $message }}</span> @enderror
         </div>
         <div></div>
       </div>
       <div>
-        <label for="founder_twitter_url" class="dash-label">Founder Twitter / X</label>
+        <label for="founder_twitter_url" class="dash-label">Your Twitter / X</label>
         <input type="url" id="founder_twitter_url" name="founder_twitter_url" value="{{ old('founder_twitter_url', $startup->founder_twitter_url) }}" class="dash-input" placeholder="https://twitter.com/...">
         @error('founder_twitter_url') <span class="dash-error">{{ $message }}</span> @enderror
       </div>
       <div>
-        <label for="founder_linkedin_url" class="dash-label">Founder LinkedIn</label>
+        <label for="founder_linkedin_url" class="dash-label">Your LinkedIn</label>
         <input type="url" id="founder_linkedin_url" name="founder_linkedin_url" value="{{ old('founder_linkedin_url', $startup->founder_linkedin_url) }}" class="dash-input" placeholder="https://linkedin.com/in/...">
         @error('founder_linkedin_url') <span class="dash-error">{{ $message }}</span> @enderror
       </div>
@@ -141,51 +145,26 @@
     </div>
   </div>
 
-  <div class="dash-card" style="margin-bottom: 20px;">
-    <div class="dash-card-header"><span class="dash-card-title">Status & visibility</span></div>
-    <div class="dash-card-body" style="display: flex; flex-direction: column; gap: 16px;">
-      @if($isEdit)
-      <div>
-        <label for="status" class="dash-label">Status</label>
-        <select id="status" name="status" class="dash-input">
-          <option value="active" {{ old('status', $startup->status) === 'active' ? 'selected' : '' }}>Active</option>
-          <option value="disabled" {{ old('status', $startup->status) === 'disabled' ? 'selected' : '' }}>Disabled</option>
-          <option value="banned" {{ old('status', $startup->status) === 'banned' ? 'selected' : '' }}>Banned</option>
-        </select>
-        @error('status') <span class="dash-error">{{ $message }}</span> @enderror
-      </div>
-      @endif
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <input type="hidden" name="is_featured" value="0">
-        <input type="checkbox" id="is_featured" name="is_featured" value="1" {{ old('is_featured', $startup->is_featured) ? 'checked' : '' }} style="width: 18px; height: 18px;">
-        <label for="is_featured" class="dash-label" style="margin: 0;">Featured on homepage</label>
-      </div>
-    </div>
-  </div>
-
   <div style="display: flex; gap: 12px; flex-wrap: wrap;">
     <button type="submit" class="dash-btn dash-btn-primary">
-      <i class="fa-solid fa-check"></i> {{ $isEdit ? 'Save changes' : 'Create startup' }}
+      <i class="fa-solid fa-check"></i> {{ $isEdit ? 'Save changes' : 'Add startup' }}
     </button>
-    <a href="{{ route('admin.startups.index') }}" class="dash-btn dash-btn-secondary" style="text-decoration: none;">Cancel</a>
+    <a href="{{ route('founder.startups.index') }}" class="dash-btn dash-btn-secondary" style="text-decoration: none;">Cancel</a>
   </div>
 </form>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  var addBtn = document.getElementById('founder-add');
-  if (addBtn) {
-    addBtn.addEventListener('click', function() {
-      var t = document.getElementById('founders-list');
-      var row = document.createElement('div');
-      row.className = 'founder-row';
-      row.style.cssText = 'display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;';
-      row.innerHTML = '<div style="flex: 1; min-width: 140px;"><label class="dash-label">Name</label><input type="text" name="founders_names[]" class="dash-input" placeholder="Full name"></div><div style="min-width: 160px;"><label class="dash-label">Photo (optional)</label><input type="file" name="founders_photos[]" accept="image/jpeg,image/png,image/gif,image/webp" class="dash-input"></div><button type="button" class="dash-btn dash-btn-secondary founder-remove" style="flex-shrink: 0;">Remove</button>';
-      t.appendChild(row);
-      row.querySelector('.founder-remove').addEventListener('click', function() { row.remove(); });
-    });
-  }
-  document.querySelectorAll('.founder-remove').forEach(function(btn) {
+  document.getElementById('founder-add').addEventListener('click', function() {
+    var t = document.getElementById('founders-list');
+    var row = document.createElement('div');
+    row.className = 'founder-row';
+    row.style.cssText = 'display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;';
+    row.innerHTML = '<div style="flex: 1; min-width: 140px;"><label class="dash-label">Name</label><input type="text" name="founders_names[]" class="dash-input" placeholder="Full name"></div><div style="min-width: 160px;"><label class="dash-label">Photo (optional)</label><input type="file" name="founders_photos[]" accept="image/jpeg,image/png,image/gif,image/webp" class="dash-input"></div><button type="button" class="dash-btn dash-btn-secondary founder-remove" style="flex-shrink: 0;">Remove</button>';
+    t.appendChild(row);
+    row.querySelector('.founder-remove').addEventListener('click', function() { row.remove(); });
+  });
+  document.getElementById('founders-list').querySelectorAll('.founder-remove').forEach(function(btn) {
     btn.addEventListener('click', function() { btn.closest('.founder-row').remove(); });
   });
 });

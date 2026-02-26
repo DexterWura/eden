@@ -370,6 +370,37 @@ body.dashboard {
   color: var(--d-text);
 }
 
+/* Form elements (settings, forms) */
+.dash-form .dash-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--d-text);
+}
+.dash-form .dash-input,
+.dash-form input.dash-input,
+.dash-form textarea.dash-input {
+  width: 100%;
+  max-width: 100%;
+  padding: 8px 12px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  border: 1px solid var(--d-border);
+  border-radius: var(--d-radius);
+  background: var(--d-surface);
+  color: var(--d-text);
+  box-sizing: border-box;
+}
+.dash-form textarea.dash-input { min-height: 64px; resize: vertical; }
+.dash-form .dash-hint {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.8125rem;
+  color: var(--d-text-secondary);
+}
+.dash-form .dash-error { display: block; margin-top: 4px; font-size: 0.8rem; color: #dc2626; }
+
 /* Backdrop and toggle (mobile) */
 .dash-sidebar-backdrop {
   display: none;

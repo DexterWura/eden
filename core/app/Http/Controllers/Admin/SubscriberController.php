@@ -40,7 +40,7 @@ class SubscriberController extends Controller
             'title' => $title,
             'sidebar' => 'admin',
             'activeNav' => $activeNav,
-            'dashboardLogo' => 'Eden Admin',
+            'dashboardLogo' => (function_exists('gs') && gs('site_name') ? (string) gs('site_name') : 'Eden') . ' Admin',
             'dashboardTopbar' => '',
             'searchPlaceholder' => "Search…",
             'avatarTitle' => 'Admin',

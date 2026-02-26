@@ -10,15 +10,28 @@
 </section>
 
 <div class="wrap">
+  <?php $launchingToday = $launchingToday ?? collect(); ?>
+  <?php if ($launchingToday->isNotEmpty()): ?>
   <div class="launch-strip">
     <div class="wrap launch-strip-inner">
       <div>
-        <h2>Startups launching today</h2>
+        <h2>Products launching today</h2>
         <p>Fresh launches. Be the first to discover them.</p>
       </div>
       <a href="<?= e(url('/launching-today')) ?>" class="btn btn-primary">View all</a>
     </div>
+    <div class="launch-strip-marquee-wrap" aria-hidden="true">
+      <div class="launch-strip-marquee-track">
+        <div class="launch-strip-marquee-inner">
+          <?php foreach ($launchingToday as $startup): $rank = null; $showRank = false; include __DIR__ . '/_startup-card.php'; endforeach; ?>
+        </div>
+        <div class="launch-strip-marquee-inner" aria-hidden="true">
+          <?php foreach ($launchingToday as $startup): $rank = null; $showRank = false; include __DIR__ . '/_startup-card.php'; endforeach; ?>
+        </div>
+      </div>
+    </div>
   </div>
+  <?php endif; ?>
 
   <section class="product-of-day">
     <h2 class="section-title">Product of the day</h2>

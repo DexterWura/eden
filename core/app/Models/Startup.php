@@ -11,6 +11,7 @@ class Startup extends Model
     public const STATUS_BANNED = 'banned';
 
     protected $fillable = [
+        'user_id',
         'name',
         'slug',
         'tagline',
@@ -22,6 +23,9 @@ class Startup extends Model
         'founder_email',
         'founder_twitter_url',
         'founder_linkedin_url',
+        'founders',
+        'logo_path',
+        'product_images',
         'launch_date',
         'is_featured',
         'upvotes',
@@ -33,7 +37,22 @@ class Startup extends Model
     protected $casts = [
         'launch_date' => 'date',
         'is_featured' => 'boolean',
+        'founders' => 'array',
+        'product_images' => 'array',
     ];
+
+    public static function founderInitials(string $name): string
+    {
+        $name = trim($name);
+        if ($name === '') {
+            return '?';
+        }
+        $words = preg_split('/\s+/', $name, 2);
+        if (count($words) >= 2) {
+            return strtoupper(mb_substr($words[0], 0, 1) . mb_substr($words[1], 0, 1));
+        }
+        return strtoupper(mb_substr($name, 0, 2));
+    }
 
     public function getLogoLettersAttribute(): string
     {
@@ -42,6 +61,23 @@ class Startup extends Model
             return strtoupper(mb_substr($words[0], 0, 1) . mb_substr($words[1], 0, 1));
         }
         return strtoupper(mb_substr($this->name, 0, 2));
+    }
+
+    /** @return array<int, array{name: string, photo_url: string|null}> */
+    public function getFoundersDisplayAttribute(): array
+    {
+        $list = $this->founders ?? [];
+        if (is_array($list) && count($list) > 0) {
+            return array_values(array_map(function ($f) {
+                $name = is_array($f) ? ($f['name'] ?? '') : (is_object($f) ? ($f->name ?? '') : '');
+                $photo = is_array($f) ? ($f['photo_url'] ?? null) : (is_object($f) ? ($f->photo_url ?? null) : null);
+                return ['name' => (string) $name, 'photo_url' => $photo ? (string) $photo : null];
+            }, $list));
+        }
+        if ($this->founder_name) {
+            return [['name' => $this->founder_name, 'photo_url' => null]];
+        }
+        return [];
     }
 
     public function getShortDescriptionAttribute(?int $maxLength = null): string
@@ -100,5 +136,15 @@ class Startup extends Model
     public function isBanned(): bool
     {
         return $this->status === self::STATUS_BANNED;
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function upvoteRecords()
+    {
+        return $this->hasMany(StartupUpvote::class);
     }
 }

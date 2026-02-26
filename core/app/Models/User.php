@@ -124,6 +124,16 @@ class User extends Authenticatable
         return $this->hasMany(Offer::class, 'seller_id');
     }
 
+    public function startups()
+    {
+        return $this->hasMany(Startup::class);
+    }
+
+    public function startupUpvotes()
+    {
+        return $this->hasMany(StartupUpvote::class);
+    }
+
     public function watchlist()
     {
         return $this->hasMany(Watchlist::class);

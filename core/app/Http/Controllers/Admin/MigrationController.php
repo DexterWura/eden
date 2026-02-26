@@ -50,7 +50,7 @@ class MigrationController extends Controller
             'title' => 'Database migrations',
             'sidebar' => 'admin',
             'activeNav' => 'migrations',
-            'dashboardLogo' => 'Eden Admin',
+            'dashboardLogo' => (function_exists('gs') && gs('site_name') ? (string) gs('site_name') : 'Eden') . ' Admin',
             'dashboardTopbar' => '<button type="button" class="dash-account" title="Property">All startups</button>',
             'searchPlaceholder' => "Try searching 'startups by category'",
             'avatarTitle' => 'Admin',

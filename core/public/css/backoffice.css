@@ -148,3 +148,162 @@ body.backoffice {
 .migration-panel #confirmModal .form-check-label {
   user-select: none;
 }
+
+/* Admin login page – full-height, clear contrast, no external images */
+.admin-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  position: relative;
+}
+
+.admin-login__bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(145deg, #1e293b 0%, #334155 50%, #0f172a 100%);
+  z-index: 0;
+}
+
+.admin-login__container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+}
+
+.admin-login__card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2), 0 8px 16px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.admin-login__header {
+  padding: 32px 32px 24px;
+  text-align: center;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-login__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 20px;
+}
+
+.admin-login__logo-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.admin-login__logo-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3b82f6;
+}
+
+.admin-login__logo-dots span:nth-child(1) { background: #3b82f6; }
+.admin-login__logo-dots span:nth-child(2) { background: #8b5cf6; }
+.admin-login__logo-dots span:nth-child(3) { background: #06b6d4; }
+.admin-login__logo-dots span:nth-child(4) { background: #10b981; }
+
+.admin-login__title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 4px;
+}
+
+.admin-login__subtitle {
+  font-size: 0.9375rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.admin-login__body {
+  padding: 28px 32px 32px;
+}
+
+.admin-login__form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.admin-login__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-login__label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #334155;
+}
+
+.admin-login__label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.admin-login__forgot {
+  font-size: 0.8125rem;
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.admin-login__forgot:hover {
+  text-decoration: underline;
+}
+
+.admin-login__input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 1rem;
+  color: #0f172a;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.admin-login__input::placeholder {
+  color: #94a3b8;
+}
+
+.admin-login__input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.admin-login__btn {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background: #1e293b;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-top: 8px;
+}
+
+.admin-login__btn:hover {
+  background: #334155;
+}
+
+.admin-login__btn:active {
+  transform: scale(0.99);
+}

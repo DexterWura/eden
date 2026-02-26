@@ -12,6 +12,9 @@ use App\Http\Controllers\Eden\DashboardController;
 use App\Http\Controllers\Eden\HomeController;
 use App\Http\Controllers\Eden\PageController;
 use App\Http\Controllers\Eden\StartupController;
+use App\Http\Controllers\Founder\SettingsController as FounderSettingsController;
+use App\Http\Controllers\Founder\StartupController as FounderStartupController;
+use App\Http\Controllers\Founder\UpvotesController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
@@ -27,13 +30,25 @@ Route::redirect('/startup', '/founder', 301);
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/about', [PageController::class, 'about']);
 Route::get('/contact', [PageController::class, 'contact']);
+Route::post('/contact', [PageController::class, 'contactStore']);
 Route::get('/submit', [PageController::class, 'submit']);
 Route::post('/submit', [PageController::class, 'submitStore']);
 Route::get('/categories', [PageController::class, 'categories']);
 Route::post('/subscribe', [PageController::class, 'subscribe']);
 Route::get('/launching-today', [StartupController::class, 'launchingToday']);
 Route::get('/startup/{slug}', [StartupController::class, 'show']);
-Route::get('/founder', [DashboardController::class, 'founderDashboard'])->middleware('auth')->name('founder.dashboard');
+Route::post('/startup/{slug}/upvote', [StartupController::class, 'upvote'])->name('startup.upvote')->middleware('auth');
+Route::middleware('auth')->prefix('founder')->name('founder.')->group(function () {
+    Route::get('/', [DashboardController::class, 'founderDashboard'])->name('dashboard');
+    Route::get('startups', [FounderStartupController::class, 'index'])->name('startups.index');
+    Route::get('startups/create', [FounderStartupController::class, 'create'])->name('startups.create');
+    Route::post('startups', [FounderStartupController::class, 'store'])->name('startups.store');
+    Route::get('startups/{startup}/edit', [FounderStartupController::class, 'edit'])->name('startups.edit');
+    Route::put('startups/{startup}', [FounderStartupController::class, 'update'])->name('startups.update');
+    Route::get('upvotes', [UpvotesController::class, 'index'])->name('upvotes');
+    Route::get('settings', [FounderSettingsController::class, 'index'])->name('settings');
+    Route::put('settings', [FounderSettingsController::class, 'update'])->name('settings.update');
+});
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login')->middleware('guest');
 Route::post('/login', [AuthController::class, 'login']);
@@ -59,6 +74,7 @@ Route::middleware('admin')->prefix('backoffice')->name('admin.')->group(function
     Route::delete('subscribers/{subscriber}', [SubscriberController::class, 'destroy'])->name('subscribers.destroy');
     Route::get('reports', [ReportsController::class, 'index'])->name('reports.index');
     Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
+    Route::post('settings/seo', [SettingsController::class, 'updateSeo'])->name('settings.seo');
     Route::post('migrations/run', [MigrationController::class, 'run'])->name('migration.run');
     Route::post('migrations/refresh', [MigrationController::class, 'refresh'])->name('migration.refresh');
     Route::post('migrations/rollback', [MigrationController::class, 'rollback'])->name('migration.rollback');

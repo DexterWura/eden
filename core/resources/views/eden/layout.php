@@ -3,7 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><?= e(isset($title) ? $title . ' — Eden' : 'Eden — Startup Directory') ?></title>
+  <title><?= e(isset($title) ? $title . ' — ' . (function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden') : (function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden') . ' — Startup Directory') ?></title>
+  <?php
+    $siteName = function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden';
+    $metaDesc = function_exists('gs') && gs('meta_description') ? gs('meta_description') : (function_exists('gs') && gs('social_description') ? gs('social_description') : 'Startup directory for discoverability and growth.');
+    $socialDesc = function_exists('gs') && gs('social_description') ? gs('social_description') : $metaDesc;
+    $metaKeywords = function_exists('gs') && gs('meta_keywords') ? gs('meta_keywords') : '';
+    $seoImage = function_exists('gs') && gs('seo_image') ? gs('seo_image') : '';
+    $seoImageUrl = $seoImage ? asset($seoImage) : '';
+    $canonicalUrl = url()->current();
+  ?>
+  <?php if ($metaKeywords !== ''): ?><meta name="keywords" content="<?= e($metaKeywords) ?>"><?php endif; ?>
+  <meta name="description" content="<?= e($metaDesc) ?>">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="<?= e($canonicalUrl) ?>">
+  <meta property="og:title" content="<?= e(isset($title) ? $title . ' — ' . $siteName : $siteName . ' — Startup Directory') ?>">
+  <meta property="og:description" content="<?= e($socialDesc) ?>">
+  <?php if ($seoImageUrl): ?><meta property="og:image" content="<?= e($seoImageUrl) ?>"><?php endif; ?>
+  <meta name="twitter:card" content="<?= $seoImageUrl ? 'summary_large_image' : 'summary' ?>">
+  <meta name="twitter:title" content="<?= e(isset($title) ? $title . ' — ' . $siteName : $siteName . ' — Startup Directory') ?>">
+  <meta name="twitter:description" content="<?= e($socialDesc) ?>">
+  <?php if ($seoImageUrl): ?><meta name="twitter:image" content="<?= e($seoImageUrl) ?>"><?php endif; ?>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -16,7 +36,7 @@
 
   <header class="site-header">
     <div class="wrap header-inner">
-      <a href="<?= e(url('/')) ?>" class="logo">Eden</a>
+      <a href="<?= e(url('/')) ?>" class="logo"><?= e(function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden') ?></a>
       <nav class="nav-main">
         <a href="<?= e(url('/launching-today')) ?>">Launching today</a>
         <a href="<?= e(url('/categories')) ?>">Categories</a>
@@ -45,6 +65,16 @@
       <div class="flash flash-success"><?= e(session('success')) ?></div>
     </div>
     <?php endif; ?>
+    <?php if (session('error')): ?>
+    <div class="wrap" style="padding-top: 16px;">
+      <div class="flash flash-error"><?= e(session('error')) ?></div>
+    </div>
+    <?php endif; ?>
+    <?php if (session('info')): ?>
+    <div class="wrap" style="padding-top: 16px;">
+      <div class="flash flash-info"><?= e(session('info')) ?></div>
+    </div>
+    <?php endif; ?>
     <?php if (isset($errors) && $errors->any()): ?>
     <div class="wrap" style="padding-top: 16px;">
       <div class="flash flash-error"><?= e($errors->first()) ?></div>
@@ -56,7 +86,7 @@
   <div class="nav-drawer-backdrop" id="navBackdrop" aria-hidden="true"></div>
   <aside class="nav-drawer" id="navDrawer" aria-label="Main menu" aria-hidden="true">
     <div class="nav-drawer-header">
-      <a href="<?= e(url('/')) ?>" class="logo">Eden</a>
+      <a href="<?= e(url('/')) ?>" class="logo"><?= e(function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden') ?></a>
       <button type="button" class="nav-drawer-close" id="navDrawerClose" aria-label="Close menu"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <nav class="nav-drawer-links">
@@ -148,7 +178,7 @@
 
   <footer class="site-footer">
     <div class="wrap">
-      <p><a href="<?= e(url('/')) ?>">Eden</a> — Startup directory. <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="<?= e(url('/contact')) ?>">Contact</a></p>
+      <p><a href="<?= e(url('/')) ?>"><?= e(function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden') ?></a> — Startup directory. <a href="<?= e(url('/about')) ?>">About</a> · <a href="<?= e(url('/contact')) ?>">Contact</a></p>
     </div>
   </footer>
 

@@ -6,29 +6,36 @@
 </section>
 
 <div class="wrap content-block">
-  <form class="form-max" action="#" method="get">
+  <?php if (session('success')): ?>
+  <p class="form-hint" style="color: var(--success, #0a0); margin-bottom: 16px;"><?= e(session('success')) ?></p>
+  <?php endif; ?>
+  <form class="form-max" action="<?= e(url('/contact')) ?>" method="POST">
+    <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
     <div class="form-group">
       <label class="form-label" for="name">Name</label>
-      <input type="text" id="name" class="form-input" placeholder="Your name" required>
+      <input type="text" id="name" name="name" class="form-input" placeholder="Your name" value="<?= e(old('name')) ?>" required>
     </div>
     <div class="form-group">
       <label class="form-label" for="email">Email</label>
-      <input type="email" id="email" class="form-input" placeholder="you@example.com" required>
+      <input type="email" id="email" name="email" class="form-input" placeholder="you@example.com" value="<?= e(old('email')) ?>" required>
     </div>
     <div class="form-group">
       <label class="form-label" for="subject">Subject</label>
-      <select id="subject" class="form-select">
+      <select id="subject" name="subject" class="form-select">
         <option value="">Choose…</option>
-        <option value="listing">Listing / startup</option>
-        <option value="partnership">Partnership</option>
-        <option value="press">Press</option>
-        <option value="other">Other</option>
+        <option value="listing" <?= (old('subject') === 'listing') ? 'selected' : '' ?>>Listing / startup</option>
+        <option value="partnership" <?= (old('subject') === 'partnership') ? 'selected' : '' ?>>Partnership</option>
+        <option value="press" <?= (old('subject') === 'press') ? 'selected' : '' ?>>Press</option>
+        <option value="other" <?= (old('subject') === 'other') ? 'selected' : '' ?>>Other</option>
       </select>
     </div>
     <div class="form-group">
       <label class="form-label" for="message">Message</label>
-      <textarea id="message" class="form-textarea" placeholder="Your message" required></textarea>
+      <textarea id="message" name="message" class="form-textarea" placeholder="Your message" required><?= e(old('message')) ?></textarea>
     </div>
+    <?php if (isset($errors) && $errors->any()): ?>
+    <p class="form-hint" style="color: var(--error, #c00); margin-bottom: 12px;"><?= e($errors->first()) ?></p>
+    <?php endif; ?>
     <div class="form-actions">
       <button type="submit" class="btn btn-primary">Send message</button>
       <a href="<?= e(url('/')) ?>" class="btn btn-ghost">Cancel</a>

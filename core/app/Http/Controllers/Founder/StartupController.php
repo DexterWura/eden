@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Founder;
 
 use App\Http\Controllers\Controller;
 use App\Models\Startup;
@@ -11,109 +11,70 @@ use Illuminate\Support\Str;
 
 class StartupController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $query = Startup::query()->orderByDesc('updated_at');
-        $statusFilter = $request->get('status', '');
-        if ($statusFilter === 'active') {
-            $query->active();
-        } elseif ($statusFilter === 'disabled') {
-            $query->disabled();
-        } elseif ($statusFilter === 'banned') {
-            $query->banned();
-        }
-        $search = $request->get('q', '');
-        if ($search !== '') {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', '%' . $search . '%')
-                    ->orWhere('founder_name', 'like', '%' . $search . '%')
-                    ->orWhere('category', 'like', '%' . $search . '%');
-            });
-        }
-        $startups = $query->paginate(20)->withQueryString();
+        $startups = auth()->user()->startups()->orderByDesc('updated_at')->get();
 
-        $content = view('eden.startups.index', [
-            'startups' => $startups,
-            'statusFilter' => $statusFilter,
-            'search' => $search,
-            'countActive' => Startup::active()->count(),
-            'countDisabled' => Startup::disabled()->count(),
-            'countBanned' => Startup::banned()->count(),
-            'countFeatured' => Startup::featured()->count(),
-        ])->render();
+        $content = view('eden.founder.startups-index', ['startups' => $startups])->render();
 
-        return response()->view('eden.layout-dashboard', [
-            'title' => 'Startups',
-            'sidebar' => 'admin',
-            'activeNav' => 'startups',
-            'dashboardLogo' => (function_exists('gs') && gs('site_name') ? (string) gs('site_name') : 'Eden') . ' Admin',
-            'dashboardTopbar' => '<button type="button" class="dash-account" title="Property">All startups</button>',
-            'searchPlaceholder' => "Try searching 'startups by category'",
-            'avatarTitle' => 'Admin',
-            'avatarLetter' => 'A',
-            'content' => $content,
-            'scriptDeps' => '<script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>',
-            'notifyPartial' => view('partials.notify')->render(),
-        ]);
+        return $this->layoutResponse('My startups', 'startups', $content);
     }
 
     public function create()
     {
         $startup = new Startup(['status' => Startup::STATUS_ACTIVE]);
-        return $this->formResponse('Add startup', $startup);
+        $content = view('eden.founder.startups-form', ['startup' => $startup])->render();
+        return $this->layoutResponse('Add startup', 'startups', $content, true);
     }
 
     public function store(Request $request): RedirectResponse
     {
-        $validator = Validator::make($request->all(), $this->validationRules(), $this->validationMessages());
+        $validator = Validator::make($request->all(), $this->rules(), []);
         if ($validator->fails()) {
-            return redirect()->route('admin.startups.create')
-                ->withErrors($validator)
-                ->withInput();
+            return redirect()->route('founder.startups.create')->withErrors($validator)->withInput();
         }
         $data = $validator->validated();
         unset($data['logo'], $data['founders_names'], $data['founders_photos'], $data['product_images']);
+        $data['user_id'] = auth()->id();
         $data['slug'] = Str::slug($data['name']);
         if (Startup::where('slug', $data['slug'])->exists()) {
             $data['slug'] = $data['slug'] . '-' . Str::random(4);
         }
-        $data['status'] = $data['status'] ?? Startup::STATUS_ACTIVE;
-        $data['is_featured'] = $request->boolean('is_featured');
-        $data['founders'] = $this->buildFoundersFromRequest($request, null);
-        $data['founder_name'] = $this->firstFounderName($data['founders']);
+        $data['status'] = Startup::STATUS_ACTIVE;
+        $data['founder_email'] = $data['founder_email'] ?? auth()->user()->email;
+        $data['founders'] = $this->buildFoundersFromRequest($request);
+        $firstFounderName = $this->firstFounderName($data['founders']);
+        $data['founder_name'] = $firstFounderName ?? auth()->user()->name;
         $startup = Startup::create($data);
         $this->processStartupFiles($request, $startup);
-        return redirect()->route('admin.startups.index')
-            ->with('notify', [['success', 'Startup created.']]);
+        return redirect()->route('founder.startups.index')->with('notify', [['success', 'Startup added.']]);
     }
 
     public function edit(Startup $startup)
     {
-        return $this->formResponse('Edit startup', $startup);
+        $this->authorizeStartup($startup);
+        $content = view('eden.founder.startups-form', ['startup' => $startup])->render();
+        return $this->layoutResponse('Edit startup', 'startups', $content, true);
     }
 
     public function update(Request $request, Startup $startup): RedirectResponse
     {
-        $validator = Validator::make($request->all(), $this->validationRules(), $this->validationMessages());
+        $this->authorizeStartup($startup);
+        $validator = Validator::make($request->all(), $this->rules(), []);
         if ($validator->fails()) {
-            return redirect()->route('admin.startups.edit', $startup)
-                ->withErrors($validator)
-                ->withInput();
+            return redirect()->route('founder.startups.edit', $startup)->withErrors($validator)->withInput();
         }
         $data = $validator->validated();
-        unset($data['logo'], $data['founders_names'], $data['founders_photos'], $data['product_images']);
         $data['slug'] = Str::slug($data['name']);
-        $existing = Startup::where('slug', $data['slug'])->where('id', '!=', $startup->id)->exists();
-        if ($existing) {
+        if (Startup::where('slug', $data['slug'])->where('id', '!=', $startup->id)->exists()) {
             $data['slug'] = $data['slug'] . '-' . Str::random(4);
         }
-        $data['is_featured'] = $request->boolean('is_featured');
+        unset($data['logo'], $data['founders_names'], $data['founders_photos'], $data['product_images']);
         $data['founders'] = $this->buildFoundersFromRequest($request, $startup);
         $data['founder_name'] = $this->firstFounderName($data['founders']) ?? $startup->founder_name;
         $startup->update($data);
         $this->processStartupFiles($request, $startup);
-        return redirect()->route('admin.startups.index')
-            ->with('notify', [['success', 'Startup updated.']]);
+        return redirect()->route('founder.startups.index')->with('notify', [['success', 'Startup updated.']]);
     }
 
     private function buildFoundersFromRequest(Request $request, ?Startup $startup = null): array
@@ -195,56 +156,34 @@ class StartupController extends Controller
         }
     }
 
-    public function disable(Startup $startup)
+    private function authorizeStartup(Startup $startup): void
     {
-        $startup->update(['status' => Startup::STATUS_DISABLED]);
-        return response()->json(['status' => 'success', 'message' => 'Startup disabled.']);
+        if ($startup->user_id !== auth()->id()) {
+            abort(403, 'Not your startup.');
+        }
     }
 
-    public function activate(Startup $startup)
+    private function layoutResponse(string $title, string $activeNav, string $content, bool $withFormAssets = false): \Illuminate\Http\Response
     {
-        $startup->update(['status' => Startup::STATUS_ACTIVE]);
-        return response()->json(['status' => 'success', 'message' => 'Startup activated.']);
-    }
-
-    public function ban(Startup $startup)
-    {
-        $startup->update(['status' => Startup::STATUS_BANNED]);
-        return response()->json(['status' => 'success', 'message' => 'Startup banned.']);
-    }
-
-    public function unban(Startup $startup)
-    {
-        $startup->update(['status' => Startup::STATUS_ACTIVE]);
-        return response()->json(['status' => 'success', 'message' => 'Startup unbanned.']);
-    }
-
-    public function toggleFeatured(Startup $startup)
-    {
-        $startup->update(['is_featured' => !$startup->is_featured]);
-        $label = $startup->is_featured ? 'Featured' : 'Unfeatured';
-        return response()->json(['status' => 'success', 'message' => "Startup {$label}.", 'is_featured' => $startup->is_featured]);
-    }
-
-    private function formResponse(string $title, Startup $startup)
-    {
-        $content = view('eden.startups.form', ['startup' => $startup])->render();
-        return response()->view('eden.layout-dashboard', [
+        $vars = [
             'title' => $title,
-            'sidebar' => 'admin',
-            'activeNav' => 'startups',
-            'dashboardLogo' => (function_exists('gs') && gs('site_name') ? (string) gs('site_name') : 'Eden') . ' Admin',
-            'dashboardTopbar' => '<button type="button" class="dash-account" title="Property">All startups</button>',
-            'searchPlaceholder' => "Try searching 'startups by category'",
-            'avatarTitle' => 'Admin',
-            'avatarLetter' => 'A',
+            'sidebar' => 'founder',
+            'activeNav' => $activeNav,
+            'dashboardLogo' => function_exists('gs') && gs('site_name') ? (string) gs('site_name') : 'Eden',
+            'dashboardTopbar' => '',
+            'searchPlaceholder' => "Search…",
+            'avatarTitle' => auth()->user()->name ?? 'Account',
+            'avatarLetter' => strtoupper(mb_substr(auth()->user()->name ?? '?', 0, 1)),
             'content' => $content,
-            'scriptDeps' => '<script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>',
-            'notifyPartial' => view('partials.notify')->render(),
-        ]);
+        ];
+        if ($withFormAssets) {
+            $vars['scriptDeps'] = '<script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>';
+            $vars['notifyPartial'] = view('partials.notify')->render();
+        }
+        return response()->view('eden.layout-dashboard', $vars);
     }
 
-    private function validationRules(): array
+    private function rules(): array
     {
         return [
             'name' => ['required', 'string', 'max:255'],
@@ -259,7 +198,6 @@ class StartupController extends Controller
             'launch_date' => ['nullable', 'date'],
             'twitter_url' => ['nullable', 'string', 'max:500', 'url'],
             'linkedin_url' => ['nullable', 'string', 'max:500', 'url'],
-            'status' => ['nullable', 'in:active,disabled,banned'],
             'logo' => ['nullable', 'image', 'mimes:jpeg,png,gif,webp', 'max:2048'],
             'founders_names' => ['nullable', 'array'],
             'founders_names.*' => ['nullable', 'string', 'max:255'],
@@ -268,10 +206,5 @@ class StartupController extends Controller
             'product_images' => ['nullable', 'array'],
             'product_images.*' => ['nullable', 'image', 'mimes:jpeg,png,gif,webp', 'max:2048'],
         ];
-    }
-
-    private function validationMessages(): array
-    {
-        return [];
     }
 }
