@@ -180,3 +180,32 @@
     </div>
   </div>
 </div>
+
+<script>
+(function () {
+  var runBtn = document.querySelector('button[onclick="runMigrations()"]');
+  if (!runBtn) return;
+  runBtn.addEventListener('click', function (e) {
+    if (typeof window.runMigrations !== 'function') {
+      e.preventDefault();
+      e.stopPropagation();
+      var cfg = window.EDEN_MIGRATION || {};
+      if (!cfg.runUrl) return;
+      if (!confirm('Run all pending migrations?')) return;
+      var token = (document.querySelector('meta[name="csrf-token"]') || {}).content || cfg.csrfToken || '';
+      fetch(cfg.runUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token, 'Accept': 'application/json' },
+        body: JSON.stringify({ _token: token, confirm: 1, force: false })
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        if (typeof notify === 'function') notify(d.status === 'success' ? 'success' : 'info', d.message);
+        else alert(d.message);
+        if (d.status === 'success') setTimeout(function () { location.reload(); }, 2000);
+      }).catch(function () {
+        if (typeof notify === 'function') notify('error', 'Request failed');
+        else alert('Request failed');
+      });
+    }
+  });
+})();
+</script>

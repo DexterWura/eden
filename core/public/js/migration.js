@@ -14,32 +14,48 @@
 
   var currentAction = null;
   var currentMigration = null;
-  var confirmModalEl = document.getElementById('confirmModal');
-  var confirmModal = confirmModalEl && typeof bootstrap !== 'undefined'
-    ? bootstrap.Modal.getOrCreateInstance(confirmModalEl)
-    : null;
-  var plainModal = !confirmModal && confirmModalEl;
+
+  function getConfirmModalEl() {
+    return document.getElementById('confirmModal');
+  }
 
   function showConfirmModal() {
-    if (confirmModal) {
-      confirmModal.show();
-    } else if (typeof $ !== 'undefined' && $('#confirmModal').length && $('#confirmModal').data('bs.modal')) {
+    var el = getConfirmModalEl();
+    if (typeof bootstrap !== 'undefined' && el) {
+      try {
+        bootstrap.Modal.getOrCreateInstance(el).show();
+        return;
+      } catch (e) {}
+    }
+    if (typeof $ !== 'undefined' && $ && $('#confirmModal').length && $('#confirmModal').data('bs.modal')) {
       $('#confirmModal').modal('show');
-    } else if (plainModal) {
-      confirmModalEl.style.display = 'flex';
+      return;
+    }
+    if (el) {
+      el.style.display = 'flex';
     }
   }
 
   function hideConfirmModal() {
-    if (confirmModal) {
-      confirmModal.hide();
-    } else if (typeof $ !== 'undefined' && $('#confirmModal').data('bs.modal')) {
+    var el = getConfirmModalEl();
+    if (typeof bootstrap !== 'undefined' && el) {
+      try {
+        var inst = bootstrap.Modal.getInstance(el);
+        if (inst) inst.hide();
+        return;
+      } catch (e) {}
+    }
+    if (typeof $ !== 'undefined' && $('#confirmModal').data('bs.modal')) {
       $('#confirmModal').modal('hide');
-    } else if (plainModal) {
-      confirmModalEl.style.display = 'none';
+      return;
+    }
+    if (el) {
+      el.style.display = 'none';
       resetModalState();
     }
   }
+
+  window.hideConfirmModal = hideConfirmModal;
 
   window.runMigrations = function () {
     currentAction = 'run';
@@ -171,15 +187,16 @@
   }
 
   $(function () {
+    var modalEl = getConfirmModalEl();
     $('#confirmBtn').on('click', onConfirmClick);
-    if (confirmModalEl) {
-      confirmModalEl.addEventListener('hidden.bs.modal', resetModalState);
+    if (modalEl) {
+      modalEl.addEventListener('hidden.bs.modal', resetModalState);
+      if (typeof bootstrap === 'undefined' && !$('#confirmModal').data('bs.modal')) {
+        modalEl.addEventListener('click', function (e) {
+          if (e.target === modalEl) hideConfirmModal();
+        });
+      }
     }
     $(document).on('hidden.bs.modal', '#confirmModal', resetModalState);
-    if (plainModal) {
-      confirmModalEl.addEventListener('click', function (e) {
-        if (e.target === confirmModalEl) hideConfirmModal();
-      });
-    }
   });
 })();
