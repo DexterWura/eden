@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class GeneralSetting extends Model
 {
+    protected $fillable = ['site_name'];
+
     protected $casts = [
         'mail_config' => 'object',
         'sms_config' => 'object',

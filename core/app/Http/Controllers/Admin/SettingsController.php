@@ -3,12 +3,31 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\GeneralSetting;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Cache;
 
 class SettingsController extends Controller
 {
+    private function getOrCreateGeneral(): ?GeneralSetting
+    {
+        $general = function_exists('gs') ? gs() : null;
+        if ($general instanceof GeneralSetting && $general->exists) {
+            return $general;
+        }
+        $general = GeneralSetting::first();
+        if ($general) {
+            return $general;
+        }
+        try {
+            $general = GeneralSetting::create(['site_name' => 'Eden']);
+            Cache::forget('GeneralSetting');
+            return $general;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
     public static function aboutPageDefaults(): array
     {
         $siteName = function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden';
@@ -71,9 +90,9 @@ class SettingsController extends Controller
             'seo_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
-        $general = function_exists('gs') ? gs() : null;
-        if (!$general || !$general->exists) {
-            return redirect()->route('admin.settings.index')->with('notify', [['error', 'General settings not found.']]);
+        $general = $this->getOrCreateGeneral();
+        if (! $general) {
+            return redirect()->route('admin.settings.index')->with('notify', [['error', 'General settings not found. Run migrations and ensure the general_settings table exists.']]);
         }
 
         $general->meta_keywords = $request->filled('meta_keywords') ? $request->meta_keywords : null;
@@ -113,9 +132,9 @@ class SettingsController extends Controller
             'cta_subtitle' => 'nullable|string|max:500',
         ]);
 
-        $general = function_exists('gs') ? gs() : null;
-        if (! $general || ! $general->exists) {
-            return redirect()->route('admin.settings.index')->with('notify', [['error', 'General settings not found.']]);
+        $general = $this->getOrCreateGeneral();
+        if (! $general) {
+            return redirect()->route('admin.settings.index')->with('notify', [['error', 'General settings not found. Run migrations and ensure the general_settings table exists.']]);
         }
 
         $items = $request->input('guidelines_items', '');
@@ -148,9 +167,9 @@ class SettingsController extends Controller
             'adsense_script' => 'nullable|string|max:10000',
         ]);
 
-        $general = function_exists('gs') ? gs() : null;
-        if (! $general || ! $general->exists) {
-            return redirect()->route('admin.settings.index')->with('notify', [['error', 'General settings not found.']]);
+        $general = $this->getOrCreateGeneral();
+        if (! $general) {
+            return redirect()->route('admin.settings.index')->with('notify', [['error', 'General settings not found. Run migrations and ensure the general_settings table exists.']]);
         }
 
         $general->adsense_enabled = $request->boolean('adsense_enabled');
