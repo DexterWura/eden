@@ -31,9 +31,8 @@
   <?php $cssPath = public_path('css/main.css'); $cssVersion = file_exists($cssPath) ? filemtime($cssPath) : ''; ?>
   <link rel="stylesheet" href="<?= e(asset('css/main.css')) ?><?= $cssVersion ? '?v=' . $cssVersion : '' ?>">
   <?php
-    if (function_exists('gs') && gs('adsense_enabled') && !empty(trim((string) (gs('adsense_script') ?? ''))) {
-      echo "\n  " . trim((string) gs('adsense_script')) . "\n";
-    }
+  $adsenseScript = (function_exists('gs') && gs('adsense_enabled')) ? trim((string)(gs('adsense_script') ?? '')) : '';
+  echo $adsenseScript !== '' ? "\n  " . $adsenseScript . "\n" : '';
   ?>
 </head>
 <body>
