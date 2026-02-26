@@ -19,8 +19,7 @@ class HomeController extends EdenController
 
         $launchingToday = $this->startupService->getLaunchingToday($categoryFilter, $featuredOnly, 0);
         $featuredProducts = $this->startupService->getFeatured($categoryFilter, 10);
-        $topPerforming = $this->startupService->getTopPerforming($categoryFilter, $featuredOnly, 10);
-        $justListed = $this->startupService->getJustListed($categoryFilter, $featuredOnly, 10);
+        $justListed = $this->startupService->getJustListed($categoryFilter, $featuredOnly, 8);
 
         if ($featuredOnly) {
             $allStartups = $this->startupService->getFeatured($categoryFilter, 500);
@@ -40,7 +39,6 @@ class HomeController extends EdenController
         return $this->page('home', null, 'scripts-home', [
             'launchingToday' => $launchingToday,
             'featuredProducts' => $featuredProducts,
-            'topPerforming' => $topPerforming,
             'justListed' => $justListed,
             'allStartups' => $allStartups,
             'categories' => $categories,

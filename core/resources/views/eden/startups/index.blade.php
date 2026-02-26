@@ -17,6 +17,10 @@
     <div class="dash-kpi-value">{{ $countBanned }}</div>
   </div>
   <div class="dash-kpi-card">
+    <div class="dash-kpi-label">Dormant</div>
+    <div class="dash-kpi-value">{{ $countDormant ?? 0 }}</div>
+  </div>
+  <div class="dash-kpi-card">
     <div class="dash-kpi-label">Featured</div>
     <div class="dash-kpi-value">{{ $countFeatured }}</div>
   </div>
@@ -37,6 +41,7 @@
         <option value="active" {{ $statusFilter === 'active' ? 'selected' : '' }}>Active</option>
         <option value="disabled" {{ $statusFilter === 'disabled' ? 'selected' : '' }}>Disabled</option>
         <option value="banned" {{ $statusFilter === 'banned' ? 'selected' : '' }}>Banned</option>
+        <option value="dormant" {{ $statusFilter === 'dormant' ? 'selected' : '' }}>Dormant</option>
       </select>
       <button type="submit" class="dash-btn dash-btn-secondary"><i class="fa-solid fa-magnifying-glass"></i> Filter</button>
     </form>
@@ -74,6 +79,8 @@
                 <span class="dash-badge dash-badge-success">Active</span>
               @elseif($startup->status === 'disabled')
                 <span class="dash-badge dash-badge-warning">Disabled</span>
+              @elseif($startup->status === 'dormant')
+                <span class="dash-badge dash-badge-info">Dormant</span>
               @else
                 <span class="dash-badge dash-badge-danger">Banned</span>
               @endif
@@ -86,7 +93,7 @@
                 @if($startup->isActive())
                   <button type="button" class="dash-btn dash-btn-secondary startup-action" style="padding: 4px 10px; font-size: 0.8rem;" data-action="disable" data-url="{{ route('admin.startups.disable', $startup) }}">Disable</button>
                 @else
-                  <button type="button" class="dash-btn dash-btn-primary startup-action" style="padding: 4px 10px; font-size: 0.8rem;" data-action="activate" data-url="{{ route('admin.startups.activate', $startup) }}">Activate</button>
+                  <button type="button" class="dash-btn dash-btn-primary startup-action" style="padding: 4px 10px; font-size: 0.8rem;" data-action="activate" data-url="{{ route('admin.startups.activate', $startup) }}">Set active</button>
                 @endif
                 @if($startup->isBanned())
                   <button type="button" class="dash-btn dash-btn-primary startup-action" style="padding: 4px 10px; font-size: 0.8rem;" data-action="unban" data-url="{{ route('admin.startups.unban', $startup) }}">Unban</button>
@@ -120,6 +127,7 @@
 .dash-badge-success { background: #d1fae5; color: #065f46; }
 .dash-badge-warning { background: #fef3c7; color: #92400e; }
 .dash-badge-danger { background: #fee2e2; color: #991b1b; }
+.dash-badge-info { background: #dbeafe; color: #1e40af; }
 </style>
 
 <script>

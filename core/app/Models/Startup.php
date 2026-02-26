@@ -9,6 +9,7 @@ class Startup extends Model
     public const STATUS_ACTIVE = 'active';
     public const STATUS_DISABLED = 'disabled';
     public const STATUS_BANNED = 'banned';
+    public const STATUS_DORMANT = 'dormant';
 
     protected $fillable = [
         'user_id',
@@ -36,10 +37,12 @@ class Startup extends Model
         'twitter_url',
         'linkedin_url',
         'status',
+        'dormant_at',
     ];
 
     protected $casts = [
         'launch_date' => 'date',
+        'dormant_at' => 'datetime',
         'is_featured' => 'boolean',
         'founders' => 'array',
         'product_images' => 'array',
@@ -144,6 +147,11 @@ class Startup extends Model
         return $query->where('status', self::STATUS_BANNED);
     }
 
+    public function scopeDormant($query)
+    {
+        return $query->where('status', self::STATUS_DORMANT);
+    }
+
     public function isActive(): bool
     {
         return $this->status === self::STATUS_ACTIVE;
@@ -157,6 +165,11 @@ class Startup extends Model
     public function isBanned(): bool
     {
         return $this->status === self::STATUS_BANNED;
+    }
+
+    public function isDormant(): bool
+    {
+        return $this->status === self::STATUS_DORMANT;
     }
 
     public function user()

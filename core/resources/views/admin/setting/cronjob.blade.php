@@ -75,6 +75,33 @@
                         </small>
                     </div>
                     @endif
+
+                    @if(isset($startupCheckCronCommand))
+                    <div class="col-12 mt-3 pt-3 border-top">
+                        <label class="form-label fw-bold">@lang('Startup Website Check (weekly) – cPanel')</label>
+                        <p class="form-text text-muted small mb-2">@lang('Optional: run only the startup website check weekly. In cPanel set schedule to') <code>0 0 * * 0</code> @lang('(e.g. Sunday midnight), then copy the command below.')</p>
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label small">@lang('Command only')</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="startupCheckCommand" value="{{ $startupCheckCronCommand }}" readonly>
+                                    <button class="btn btn--primary" type="button" onclick="copyStartupCheckCommand()">
+                                        <i class="las la-copy"></i> @lang('Copy')
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label small">@lang('Full line (schedule + command)')</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="startupCheckFull" value="{{ $startupCheckCronFull }}" readonly>
+                                    <button class="btn btn--primary" type="button" onclick="copyStartupCheckFull()">
+                                        <i class="las la-copy"></i> @lang('Copy')
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -300,7 +327,7 @@
             const commandInput = document.getElementById('modalCronCommand');
             commandInput.select();
             commandInput.setSelectionRange(0, 99999);
-            
+
             try {
                 document.execCommand('copy');
                 const btn = event.target.closest('button');
@@ -308,7 +335,7 @@
                 btn.innerHTML = '<i class="las la-check"></i> @lang("Copied!")';
                 btn.classList.add('btn--success');
                 btn.classList.remove('btn--primary');
-                
+
                 setTimeout(function() {
                     btn.innerHTML = originalHtml;
                     btn.classList.remove('btn--success');
@@ -318,7 +345,39 @@
                 alert('@lang("Failed to copy command. Please copy manually.")');
             }
         }
-        
+
+        function copyStartupCheckCommand() {
+            var el = document.getElementById('startupCheckCommand');
+            if (!el) return;
+            el.select();
+            el.setSelectionRange(0, 99999);
+            try {
+                document.execCommand('copy');
+                var btn = event.target.closest('button');
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<i class="las la-check"></i> @lang("Copied!")';
+                btn.classList.add('btn--success');
+                btn.classList.remove('btn--primary');
+                setTimeout(function() { btn.innerHTML = orig; btn.classList.remove('btn--success'); btn.classList.add('btn--primary'); }, 2000);
+            } catch (e) { alert('@lang("Failed to copy command. Please copy manually.")'); }
+        }
+
+        function copyStartupCheckFull() {
+            var el = document.getElementById('startupCheckFull');
+            if (!el) return;
+            el.select();
+            el.setSelectionRange(0, 99999);
+            try {
+                document.execCommand('copy');
+                var btn = event.target.closest('button');
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<i class="las la-check"></i> @lang("Copied!")';
+                btn.classList.add('btn--success');
+                btn.classList.remove('btn--primary');
+                setTimeout(function() { btn.innerHTML = orig; btn.classList.remove('btn--success'); btn.classList.add('btn--primary'); }, 2000);
+            } catch (e) { alert('@lang("Failed to copy command. Please copy manually.")'); }
+        }
+
         window.copyCronCommand = copyCronCommand;
         window.copyCronCommandFull = copyCronCommandFull;
         window.copyPhpCommand = copyPhpCommand;
@@ -342,7 +401,7 @@
 
 @push('style')
 <style>
-    #cronCommand, #cronCommandFull, #phpCommand {
+    #cronCommand, #cronCommandFull, #phpCommand, #startupCheckCommand, #startupCheckFull {
         font-family: 'Courier New', monospace;
         font-size: 13px;
     }

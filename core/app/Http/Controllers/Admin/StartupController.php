@@ -22,6 +22,8 @@ class StartupController extends Controller
             $query->disabled();
         } elseif ($statusFilter === 'banned') {
             $query->banned();
+        } elseif ($statusFilter === 'dormant') {
+            $query->dormant();
         }
         $search = $request->get('q', '');
         if ($search !== '') {
@@ -40,6 +42,7 @@ class StartupController extends Controller
             'countActive' => Startup::active()->count(),
             'countDisabled' => Startup::disabled()->count(),
             'countBanned' => Startup::banned()->count(),
+            'countDormant' => Startup::dormant()->count(),
             'countFeatured' => Startup::featured()->count(),
         ])->render();
 
@@ -121,6 +124,9 @@ class StartupController extends Controller
         $data['founder_twitter_url'] = $first['twitter_url'] ?? $startup->founder_twitter_url;
         $data['founder_linkedin_url'] = $first['linkedin_url'] ?? $startup->founder_linkedin_url;
         $data['twitter_url'] = $this->normalizeTwitterInput($data['twitter_url'] ?? null);
+        if (($data['status'] ?? $startup->status) === Startup::STATUS_ACTIVE) {
+            $data['dormant_at'] = null;
+        }
         $startup->update($data);
         $this->processStartupFiles($request, $startup);
         return redirect()->route('admin.startups.index')
@@ -244,7 +250,10 @@ class StartupController extends Controller
 
     public function activate(Startup $startup)
     {
-        $startup->update(['status' => Startup::STATUS_ACTIVE]);
+        $startup->update([
+            'status' => Startup::STATUS_ACTIVE,
+            'dormant_at' => null,
+        ]);
         return response()->json(['status' => 'success', 'message' => 'Startup activated.']);
     }
 
@@ -301,7 +310,7 @@ class StartupController extends Controller
             'launch_date' => ['nullable', 'date'],
             'twitter_url' => ['nullable', 'string', 'max:255'],
             'linkedin_url' => ['nullable', 'string', 'max:500', 'url'],
-            'status' => ['nullable', 'in:active,disabled,banned'],
+            'status' => ['nullable', 'in:active,disabled,banned,dormant'],
             'logo' => ['nullable', 'image', 'mimes:jpeg,png,gif,webp', 'max:2048'],
             'founders_names' => ['nullable', 'array'],
             'founders_names.*' => ['nullable', 'string', 'max:255'],

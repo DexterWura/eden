@@ -84,6 +84,14 @@ class CronjobController extends Controller
                 'command' => 'monthly:revenue-report',
                 'type' => 'important',
             ],
+            [
+                'name' => 'Startup Website Check',
+                'description' => 'Pings active startup websites weekly; marks failing as dormant, deletes after 1 week dormant',
+                'schedule' => 'Weekly',
+                'log_file' => 'startup-website-check.log',
+                'command' => 'startups:check-websites',
+                'type' => 'normal',
+            ],
         ];
 
         // Get status for each cron job
@@ -143,11 +151,14 @@ class CronjobController extends Controller
         // For minute-based: 15 minutes (more lenient)
         // For hourly: 2 hours
         // For daily: 26 hours (more lenient)
+        // For weekly: 8 days
         $threshold = 15; // minutes
         if (strpos($job['schedule'], 'Hourly') !== false) {
             $threshold = 120; // 2 hours
         } elseif (strpos($job['schedule'], 'Daily') !== false) {
             $threshold = 1560; // 26 hours
+        } elseif (strpos($job['schedule'], 'Weekly') !== false) {
+            $threshold = 11520; // 8 days in minutes
         }
         
         // Calculate minutes since last update (always positive)
@@ -179,6 +190,8 @@ class CronjobController extends Controller
                     $fallbackThreshold = 150; // 2.5 hours
                 } elseif (strpos($job['schedule'], 'Daily') !== false) {
                     $fallbackThreshold = 1620; // 27 hours
+                } elseif (strpos($job['schedule'], 'Weekly') !== false) {
+                    $fallbackThreshold = 12000; // ~8.3 days
                 }
                 
                 if ($minutesSinceUpdate <= $fallbackThreshold) {
@@ -320,6 +333,10 @@ class CronjobController extends Controller
         $phpCommand = $phpPath . ' ' . base_path('artisan') . ' schedule:run >> /dev/null 2>&1';
         $phpCommandFull = '* * * * * ' . $phpCommand;
 
+        // Optional: Run only startup website check weekly (for cPanel - copy and set schedule to 0 0 * * 0)
+        $startupCheckCronCommand = 'cd ' . base_path() . ' && ' . $phpPath . ' artisan startups:check-websites >> /dev/null 2>&1';
+        $startupCheckCronFull = '0 0 * * 0 ' . $startupCheckCronCommand;
+
         return view('admin.setting.cronjob', compact(
             'pageTitle',
             'cronJobs',
@@ -330,7 +347,9 @@ class CronjobController extends Controller
             'cronCommand',
             'cronCommandFull',
             'phpCommand',
-            'phpCommandFull'
+            'phpCommandFull',
+            'startupCheckCronCommand',
+            'startupCheckCronFull'
         ));
     }
 

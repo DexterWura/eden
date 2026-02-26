@@ -72,3 +72,10 @@ Schedule::command('monthly:revenue-report')
     ->withoutOverlapping()
     ->onOneServer()
     ->appendOutputTo(storage_path('logs/monthly-revenue-report.log'));
+
+// Startup website check - ping active startups weekly; mark failing as dormant, delete after 1 week dormant
+Schedule::command('startups:check-websites')
+    ->weekly()
+    ->withoutOverlapping()
+    ->onOneServer()
+    ->appendOutputTo(storage_path('logs/startup-website-check.log'));

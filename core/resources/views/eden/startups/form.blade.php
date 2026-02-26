@@ -253,6 +253,7 @@
         <select id="status" name="status" class="dash-input">
           <option value="active" {{ old('status', $startup->status) === 'active' ? 'selected' : '' }}>Active</option>
           <option value="disabled" {{ old('status', $startup->status) === 'disabled' ? 'selected' : '' }}>Disabled</option>
+          <option value="dormant" {{ old('status', $startup->status) === 'dormant' ? 'selected' : '' }}>Dormant</option>
           <option value="banned" {{ old('status', $startup->status) === 'banned' ? 'selected' : '' }}>Banned</option>
         </select>
         @error('status') <span class="dash-error">{{ $message }}</span> @enderror

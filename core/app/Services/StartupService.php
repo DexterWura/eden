@@ -70,9 +70,18 @@ class StartupService
         return $query->take($limit)->get();
     }
 
-    public function getTopPerforming(?string $category = null, bool $featuredOnly = false, int $limit = 10): Collection
+    /**
+     * Top performing = most upvoted this week. Returns top $limit startups.
+     */
+    public function getTopPerforming(?string $category = null, bool $featuredOnly = false, int $limit = 6): Collection
     {
-        $query = Startup::active()->orderByDesc('upvotes');
+        $startOfWeek = now()->copy()->startOfWeek();
+
+        $query = Startup::active()
+            ->selectRaw('startups.*, (SELECT COUNT(*) FROM startup_upvotes WHERE startup_upvotes.startup_id = startups.id AND startup_upvotes.created_at >= ?) AS upvotes_this_week', [$startOfWeek])
+            ->orderByDesc('upvotes_this_week')
+            ->orderByDesc('upvotes');
+
         if ($category !== null && $category !== '') {
             $query->byCategory($category);
         }
