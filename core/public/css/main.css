@@ -308,19 +308,14 @@ nav a:hover { color: var(--accent); }
 }
 .section-browse-all a:hover { color: var(--accent); }
 .section-cards-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
-  overflow-x: auto;
-  overflow-y: hidden;
   padding: 4px 0 16px 0;
-  margin: 0 -4px;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
 }
-.section-cards-row::-webkit-scrollbar { height: 8px; }
-.section-cards-row::-webkit-scrollbar-track { background: var(--surface-hover); border-radius: 4px; }
-.section-cards-row::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-.section-cards-row::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+.section-cards-row .startup-card--row {
+  min-width: 0;
+}
 .section-empty {
   color: var(--text-muted);
   font-size: 0.95rem;
@@ -677,7 +672,7 @@ nav a:hover { color: var(--accent); }
 /* Startup cards */
 .startup-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   padding-bottom: 40px;
 }
@@ -1232,7 +1227,8 @@ nav a:hover { color: var(--accent); }
 .modal-footer a:hover { color: var(--link-hover); text-decoration: underline; }
 
 @media (max-width: 900px) {
-  .startup-list { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+  .startup-list { grid-template-columns: repeat(2, 1fr); }
+  .section-cards-row { grid-template-columns: repeat(2, 1fr); }
   .section-title { flex-wrap: wrap; }
   .section-title::after { display: none; }
 }
@@ -1254,8 +1250,8 @@ nav a:hover { color: var(--accent); }
   .section-block { margin-bottom: 36px; }
   .section-header { margin-bottom: 16px; }
   .section-heading { font-size: 1.2rem; }
-  .section-cards-row { gap: 14px; padding-bottom: 12px; }
-  .startup-card--row { flex: 0 0 280px; min-width: 260px; padding: 16px; }
+  .section-cards-row { grid-template-columns: 1fr; gap: 14px; padding-bottom: 12px; }
+  .startup-card--row { padding: 16px; }
   .startup-list { grid-template-columns: 1fr; gap: 16px; padding-bottom: 32px; }
   .startup-card { padding: 20px; }
   .filters { gap: 8px; margin-bottom: 20px; }
