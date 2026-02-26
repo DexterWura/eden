@@ -66,10 +66,53 @@
 </div>
 <div class="dash-card">
   <div class="dash-card-header">
+    <span class="dash-card-title">Recent contact messages</span>
+    <a href="<?= e(url('/backoffice/contact-messages')) ?>" class="dash-table-link">View all</a>
+  </div>
+  <div class="dash-card-body" style="padding: 0;">
+    <div class="dash-table-wrap">
+      <table class="dash-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Subject</th>
+            <th>Message</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php $recentContactMessages = $recentContactMessages ?? []; ?>
+          <?php if (count($recentContactMessages) === 0): ?>
+          <tr>
+            <td colspan="5" class="dash-placeholder">No contact messages yet.</td>
+          </tr>
+          <?php else: ?>
+          <?php foreach ($recentContactMessages as $m): ?>
+          <tr>
+            <td style="white-space: nowrap;"><?= e($m->created_at->format('M j, Y H:i')) ?></td>
+            <td><?= e($m->name) ?></td>
+            <td><a href="mailto:<?= e($m->email) ?>"><?= e($m->email) ?></a></td>
+            <td><?= e($m->subject ? ucfirst($m->subject) : '—') ?></td>
+            <td style="max-width: 200px;"><?= e(mb_strlen($m->message) > 60 ? mb_substr($m->message, 0, 60) . '…' : $m->message) ?></td>
+          </tr>
+          <?php endforeach; ?>
+          <?php endif; ?>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="dash-card-footer">
+    <a href="<?= e(url('/backoffice/contact-messages')) ?>">View all contact messages →</a>
+  </div>
+</div>
+<div class="dash-card">
+  <div class="dash-card-header">
     <span class="dash-card-title">Quick links</span>
   </div>
   <div class="dash-card-body" style="display: flex; flex-wrap: wrap; gap: 12px;">
     <a href="<?= e(url('/backoffice/startups/create')) ?>" class="dash-btn dash-btn-primary" style="text-decoration: none;"><i class="fa-solid fa-plus"></i> Add startup</a>
+    <a href="<?= e(url('/backoffice/contact-messages')) ?>" class="dash-btn dash-btn-secondary" style="text-decoration: none;"><i class="fa-solid fa-message"></i> Contact messages</a>
     <a href="<?= e(url('/backoffice/users')) ?>" class="dash-btn dash-btn-secondary" style="text-decoration: none;"><i class="fa-solid fa-user"></i> Users</a>
     <a href="<?= e(url('/backoffice/subscribers')) ?>" class="dash-btn dash-btn-secondary" style="text-decoration: none;"><i class="fa-solid fa-envelope"></i> Subscribers</a>
     <a href="<?= e(url('/backoffice/reports')) ?>" class="dash-btn dash-btn-secondary" style="text-decoration: none;"><i class="fa-solid fa-chart-line"></i> Reports</a>

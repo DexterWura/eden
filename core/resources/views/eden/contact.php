@@ -5,7 +5,7 @@
   </div>
 </section>
 
-<div class="wrap content-block">
+<div class="wrap content-block contact-form-wrap" style="max-width: 560px; margin-left: auto; margin-right: auto;">
   <?php if (session('success')): ?>
   <p class="form-hint" style="color: var(--success, #0a0); margin-bottom: 16px;"><?= e(session('success')) ?></p>
   <?php endif; ?>

@@ -93,13 +93,25 @@
   </section>
   <?php endif; ?>
 
-  <?php $leaderboardPreview = $leaderboardPreview ?? null; ?>
+  <?php
+  $leaderboardPreview = $leaderboardPreview ?? null;
+  $leaderboardSort = $leaderboardSort ?? 'upvotes';
+  $leaderboardSortLabels = ['upvotes' => 'Upvotes', 'views' => 'Views', 'clicks' => 'Clicks', 'mrr' => 'MRR', 'revenue' => 'Revenue', 'newest' => 'Newest'];
+  ?>
   <?php if (!$sortNewest && $leaderboardPreview && count($leaderboardPreview->items()) > 0): ?>
   <section class="section-block" aria-labelledby="leaderboard-heading">
     <div class="leaderboard-wrap">
       <div class="leaderboard-header">
         <h2 id="leaderboard-heading" class="leaderboard-title">Leaderboard</h2>
-        <a href="<?= e(url('/leaderboard')) ?>" class="leaderboard-view-all">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+        <div class="leaderboard-header-actions" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <label for="home-leaderboard-sort" class="leaderboard-filter-label" style="font-size: 0.875rem; color: var(--text-muted, #64748b);">Sort by</label>
+          <select id="home-leaderboard-sort" aria-label="Sort leaderboard by" style="padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border, #e2e8f0); font-size: 0.875rem;">
+            <?php foreach ($leaderboardSortLabels as $value => $label): ?>
+            <option value="<?= e($value) ?>"<?= $leaderboardSort === $value ? ' selected' : '' ?>><?= e($label) ?></option>
+            <?php endforeach; ?>
+          </select>
+          <a href="<?= e(url('/leaderboard?' . http_build_query(['sort' => $leaderboardSort]))) ?>" class="leaderboard-view-all">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+        </div>
       </div>
       <table class="leaderboard-table">
         <thead>
@@ -107,7 +119,7 @@
             <th class="col-rank">#</th>
             <th class="col-startup">Startup</th>
             <th class="col-founder">Founder</th>
-            <th class="col-upvotes">Upvotes</th>
+            <th class="col-upvotes"><?= e($leaderboardSortLabels[$leaderboardSort] ?? 'Upvotes') ?></th>
             <th class="col-launched">Launched</th>
           </tr>
         </thead>
@@ -122,6 +134,12 @@
             $founderName = count($foundersDisplay) > 0 ? implode(', ', array_column($foundersDisplay, 'name')) : ($s->founder_name ?? '—');
             $founderPhoto = count($foundersDisplay) > 0 && !empty($foundersDisplay[0]['photo_url']) ? $foundersDisplay[0]['photo_url'] : null;
             $founderInitials = count($foundersDisplay) > 0 ? \App\Models\Startup::founderInitials($foundersDisplay[0]['name']) : '?';
+            if ($leaderboardSort === 'mrr') { $metricVal = $s->mrr !== null && $s->mrr !== '' ? number_format((float)$s->mrr, 0) : '—'; }
+            elseif ($leaderboardSort === 'revenue') { $metricVal = $s->revenue !== null && $s->revenue !== '' ? number_format((float)$s->revenue, 0) : '—'; }
+            elseif ($leaderboardSort === 'views') { $metricVal = (int)($s->views ?? 0); }
+            elseif ($leaderboardSort === 'clicks') { $metricVal = (int)($s->clicks ?? 0); }
+            elseif ($leaderboardSort === 'newest') { $metricVal = $s->created_at ? $s->created_at->format('M Y') : '—'; }
+            else { $metricVal = (int)$s->upvotes; }
           ?>
           <tr>
             <td class="col-rank">
@@ -148,13 +166,23 @@
                 <span class="leaderboard-founder-name"><?= e($founderName) ?></span>
               </div>
             </td>
-            <td class="col-upvotes"><?= (int)$s->upvotes ?></td>
+            <td class="col-upvotes"><?= $metricVal ?></td>
             <td class="col-launched"><?= $s->launch_date ? $s->launch_date->format('Y') : '—' ?></td>
           </tr>
           <?php endforeach; ?>
         </tbody>
       </table>
     </div>
+    <script>
+    (function() {
+      var sel = document.getElementById('home-leaderboard-sort');
+      if (sel) sel.addEventListener('change', function() {
+        var params = new URLSearchParams(window.location.search);
+        params.set('leaderboard_sort', this.value);
+        window.location = '<?= e(url('/')) ?>?' + params.toString();
+      });
+    })();
+    </script>
   </section>
   <?php endif; ?>
 

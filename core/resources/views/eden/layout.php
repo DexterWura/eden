@@ -51,7 +51,6 @@
         <a href="<?= e(url('/launching-today')) ?>">Launching today</a>
         <a href="<?= e(url('/leaderboard')) ?>">Leaderboard</a>
         <a href="<?= e(url('/categories')) ?>">Categories</a>
-        <a href="<?= e(url('/#startups')) ?>">Startups</a>
         <a href="<?= e(url('/blog')) ?>">Blog</a>
         <a href="<?= e(url('/submit')) ?>">Submit</a>
         <a href="<?= e(url('/about')) ?>">About</a>
@@ -105,7 +104,6 @@
       <a href="<?= e(url('/launching-today')) ?>">Launching today</a>
       <a href="<?= e(url('/leaderboard')) ?>">Leaderboard</a>
       <a href="<?= e(url('/categories')) ?>">Categories</a>
-      <a href="<?= e(url('/#startups')) ?>">Startups</a>
       <a href="<?= e(url('/blog')) ?>">Blog</a>
       <a href="<?= e(url('/submit')) ?>">Submit</a>
       <a href="<?= e(url('/about')) ?>">About</a>

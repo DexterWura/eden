@@ -33,8 +33,11 @@ class HomeController extends EdenController
         $browseCategories = $this->startupService->getCategoriesWithCounts()
             ->take(12)
             ->map(fn ($c) => (object) ['name' => $c->category]);
-        // Home: top 10 only (no pagination); full list on /leaderboard
-        $leaderboardPreview = $this->startupService->getLeaderboard('upvotes', 10, $categoryFilter, $featuredOnly);
+        $leaderboardSort = $request->query('leaderboard_sort', 'upvotes');
+        if (! in_array($leaderboardSort, ['upvotes', 'views', 'clicks', 'mrr', 'revenue', 'newest'], true)) {
+            $leaderboardSort = 'upvotes';
+        }
+        $leaderboardPreview = $this->startupService->getLeaderboard($leaderboardSort, 10, $categoryFilter, $featuredOnly);
 
         return $this->page('home', null, 'scripts-home', [
             'launchingToday' => $launchingToday,
@@ -45,6 +48,7 @@ class HomeController extends EdenController
             'browseCategories' => $browseCategories,
             'categoryFilter' => $categoryFilter,
             'leaderboardPreview' => $leaderboardPreview,
+            'leaderboardSort' => $leaderboardSort,
             'featuredOnly' => $featuredOnly,
             'sortNewest' => $sortNewest,
             'productOfDayId' => $this->startupService->getProductOfDayId(),

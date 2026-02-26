@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Eden;
 
+use App\Models\ContactSubmission;
 use App\Models\Startup;
 use App\Models\Subscriber;
 use App\Models\User;
@@ -45,6 +46,7 @@ class DashboardController extends EdenController
         $activeStartups = Startup::active()->count();
         $launchingToday = Startup::active()->launchingToday()->count();
         $recentStartups = Startup::query()->orderByDesc('created_at')->limit(5)->get();
+        $recentContactMessages = ContactSubmission::query()->orderByDesc('created_at')->limit(10)->get();
         $siteName = $this->siteName();
 
         return response()->view('eden.layout-dashboard', [
@@ -62,6 +64,7 @@ class DashboardController extends EdenController
                 'totalUsers' => User::count(),
                 'totalSubscribers' => Subscriber::count(),
                 'recentStartups' => $recentStartups,
+                'recentContactMessages' => $recentContactMessages,
             ])->render(),
         ]);
     }

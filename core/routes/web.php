@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\SubscriberController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\BlogPostController;
+use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Eden\AuthController;
 use App\Http\Controllers\Eden\ClaimController;
 use App\Http\Controllers\Eden\DashboardController;
@@ -107,6 +108,7 @@ Route::middleware('admin')->prefix('backoffice')->name('admin.')->group(function
     Route::get('blog/{post}', [BlogPostController::class, 'edit'])->name('blog.edit');
     Route::put('blog/{post}', [BlogPostController::class, 'update'])->name('blog.update');
     Route::delete('blog/{post}', [BlogPostController::class, 'destroy'])->name('blog.destroy');
+    Route::get('contact-messages', [ContactMessageController::class, 'index'])->name('contact-messages.index');
     Route::get('subscribers', [SubscriberController::class, 'index'])->name('subscribers.index');
     Route::get('subscribers/import', [SubscriberController::class, 'import'])->name('subscribers.import');
     Route::post('subscribers/import', [SubscriberController::class, 'importStore'])->name('subscribers.import.store');
