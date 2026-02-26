@@ -56,7 +56,9 @@ $sortBy = $sortBy ?? 'upvotes';
           $founderInitials = count($foundersDisplay) > 0 ? \App\Models\Startup::founderInitials($foundersDisplay[0]['name']) : '?';
         ?>
         <tr>
-          <td class="col-rank"><?= (int)$rank ?></td>
+          <td class="col-rank">
+            <?php if ($rank <= 3): ?><span class="leaderboard-rank-medal leaderboard-rank-medal--<?= $rank ?>"><?= $rank ?></span><?php else: ?><?= $rank ?><?php endif; ?>
+          </td>
           <td class="col-startup">
             <a href="<?= e(url('/startup/' . $s->slug)) ?>" class="leaderboard-startup">
               <div class="leaderboard-startup-logo">

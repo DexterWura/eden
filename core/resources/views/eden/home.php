@@ -1,4 +1,10 @@
 <section class="hero">
+  <div class="hero-bg" aria-hidden="true">
+    <span class="hero-bg-orb hero-bg-orb--1"></span>
+    <span class="hero-bg-orb hero-bg-orb--2"></span>
+    <span class="hero-bg-orb hero-bg-orb--3"></span>
+    <span class="hero-bg-grid"></span>
+  </div>
   <div class="wrap">
     <h1>Discover the next wave of startups</h1>
     <p>Explore, search, and connect. One directory. Zero noise.</p>
@@ -128,11 +134,11 @@
   <?php $leaderboardPreview = $leaderboardPreview ?? null; ?>
   <?php if ($leaderboardPreview && count($leaderboardPreview->items()) > 0): ?>
   <section class="section-block" aria-labelledby="leaderboard-heading">
-    <header class="section-header">
-      <h2 id="leaderboard-heading" class="section-heading">Leaderboard</h2>
-      <a href="<?= e(url('/leaderboard')) ?>" class="section-link-all">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
-    </header>
     <div class="leaderboard-wrap">
+      <div class="leaderboard-header">
+        <h2 id="leaderboard-heading" class="leaderboard-title">Leaderboard</h2>
+        <a href="<?= e(url('/leaderboard')) ?>" class="leaderboard-view-all">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+      </div>
       <table class="leaderboard-table">
         <thead>
           <tr>
@@ -147,7 +153,7 @@
           <?php
           $foundersDisplay = null;
           foreach ($leaderboardPreview as $index => $s):
-            $rank = $leaderboardPreview->firstItem() + $index;
+            $rank = (int)($leaderboardPreview->firstItem() + $index);
             $logoPath = $s->logo_path ?? null;
             $logoLetters = $s->logo_letters ?? strtoupper(mb_substr($s->name, 0, 2));
             $foundersDisplay = $s->founders_display ?? [];
@@ -156,7 +162,9 @@
             $founderInitials = count($foundersDisplay) > 0 ? \App\Models\Startup::founderInitials($foundersDisplay[0]['name']) : '?';
           ?>
           <tr>
-            <td class="col-rank"><?= (int)$rank ?></td>
+            <td class="col-rank">
+              <?php if ($rank <= 3): ?><span class="leaderboard-rank-medal leaderboard-rank-medal--<?= $rank ?>"><?= $rank ?></span><?php else: ?><?= $rank ?><?php endif; ?>
+            </td>
             <td class="col-startup">
               <a href="<?= e(url('/startup/' . $s->slug)) ?>" class="leaderboard-startup">
                 <div class="leaderboard-startup-logo">
@@ -187,17 +195,6 @@
     </div>
   </section>
   <?php endif; ?>
-
-  <section class="section-block" aria-labelledby="browse-category-heading">
-    <h2 id="browse-category-heading" class="section-heading section-heading--center">Browse by category</h2>
-    <div class="filters filters--categories" id="categories">
-      <?php $categoryFilter = $categoryFilter ?? null; $browseCategories = $browseCategories ?? []; ?>
-      <a href="<?= e(url('/')) ?>" class="pill<?= $categoryFilter === null || $categoryFilter === '' ? ' active' : '' ?>">All</a>
-      <?php foreach ($browseCategories as $cat): ?>
-      <a href="<?= e(url('/?category=' . urlencode($cat->name))) ?>" class="pill<?= $categoryFilter === $cat->name ? ' active' : '' ?>"><?= e($cat->name) ?></a>
-      <?php endforeach; ?>
-    </div>
-  </section>
 
   <section class="section-block" aria-labelledby="startups-heading">
     <header class="section-header">
