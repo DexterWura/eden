@@ -45,12 +45,16 @@ class SettingsController extends Controller
             return redirect()->route('founder.settings')->withErrors($validator)->withInput();
         }
         $data = $validator->validated();
-        if (!empty($data['password'])) {
-            $data['password'] = Hash::make($data['password']);
-        } else {
-            unset($data['password']);
+
+        // Apply only the allowed fields explicitly to avoid mass-assignment issues
+        $user->name = $data['name'];
+        $user->email = $data['email'];
+
+        if (!empty($data['password'] ?? null)) {
+            $user->password = Hash::make($data['password']);
         }
-        $user->update($data);
+
+        $user->save();
         return redirect()->route('founder.settings')->with('notify', [['success', 'Profile updated.']]);
     }
 }
