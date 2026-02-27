@@ -80,13 +80,15 @@
           </div>
           <div style="margin-top:14px;">
             <label for="email_template" class="dash-label">HTML template</label>
-            <textarea id="email_template" name="email_template" rows="10" class="dash-input" style="font-family: ui-monospace, monospace; font-size: 0.85rem;" placeholder="&lt;html&gt;...&lt;/html&gt;">{{ old('email_template', $emailTemplate ?: '<!DOCTYPE html>
+            @php
+              $defaultTemplate = <<<'HTML'
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset=\"UTF-8\">
+    <meta charset="UTF-8">
     <title>{{ '{{subject}}' }}</title>
     <style>
-      body { font-family: system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif; background: #0b1020; color: #e5e7eb; margin:0; padding:24px; }
+      body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0b1020; color: #e5e7eb; margin:0; padding:24px; }
       .wrapper { max-width: 560px; margin: 0 auto; background: #111827; border-radius: 12px; padding: 24px; border: 1px solid #1f2937; }
       .brand { font-weight: 600; font-size: 1.1rem; margin-bottom: 12px; }
       .content { font-size: 0.95rem; line-height: 1.6; }
@@ -94,17 +96,20 @@
     </style>
   </head>
   <body>
-    <div class=\"wrapper\">
-      <div class=\"brand\">Eden</div>
-      <div class=\"content\">
+    <div class="wrapper">
+      <div class="brand">Eden</div>
+      <div class="content">
         {{ '{{message}}' }}
       </div>
-      <div class=\"footer\">
+      <div class="footer">
         You are receiving this because you have an account on Eden.
       </div>
     </div>
   </body>
-</html>') }}</textarea>
+</html>
+HTML;
+            @endphp
+            <textarea id="email_template" name="email_template" rows="10" class="dash-input" style="font-family: ui-monospace, monospace; font-size: 0.85rem;" placeholder="&lt;html&gt;...&lt;/html&gt;">{{ old('email_template', $emailTemplate ?: $defaultTemplate) }}</textarea>
             @error('email_template') <span class="dash-error">{{ $message }}</span> @enderror
           </div>
         </div>
