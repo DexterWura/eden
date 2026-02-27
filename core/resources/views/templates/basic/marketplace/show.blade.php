@@ -287,6 +287,7 @@
                     <div class="card-body">
                         <h4 class="card-title">@lang('Description')</h4>
                         <div class="description-content">
+                            {{-- SAFE: e() escapes HTML special chars, nl2br() only converts \n to <br> --}}
                             {!! nl2br(e($listing->description)) !!}
                         </div>
                     </div>

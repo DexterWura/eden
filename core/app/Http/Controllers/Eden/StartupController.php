@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Eden;
 use App\Models\Startup;
 use App\Models\StartupUpvote;
 use App\Services\StartupService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -128,7 +129,7 @@ class StartupController extends EdenController
         return redirect()->away($startup->website);
     }
 
-    public function upvote(Request $request, string $slug): RedirectResponse
+    public function upvote(Request $request, string $slug): RedirectResponse|JsonResponse
     {
         $startup = Startup::where('slug', $slug)->first();
         if (!$startup) {

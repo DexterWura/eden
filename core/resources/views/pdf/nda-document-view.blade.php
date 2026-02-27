@@ -56,6 +56,7 @@
     </div>
 
     <div class="pdf-container" id="pdfContent">
+        {{-- SAFE: $html is pre-rendered from nda-document.blade.php where all user data is escaped --}}
         {!! $html !!}
     </div>
 

@@ -143,6 +143,7 @@ $authContent = getContent('auth.content', true);
             $('.select2').select2();
 
             // Countries that have states/provinces
+            // SAFE: getCountriesWithStatesJson() returns hardcoded JSON array, no user data
             const countriesWithStates = {!! getCountriesWithStatesJson() !!};
             
             function toggleStateZipFields(countryCode) {

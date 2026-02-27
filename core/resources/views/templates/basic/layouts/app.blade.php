@@ -71,6 +71,7 @@
         src="https://datafa.st/js/script.js">
     </script>
     @if(gs('google_adsense_enable') && gs('google_adsense_script'))
+        {{-- SAFE: Admin-controlled setting containing Google Adsense script --}}
         {!! gs('google_adsense_script') !!}
     @endif
 </head>
@@ -128,10 +129,12 @@
         $tawkScript = loadExtension('tawk-chat');
     @endphp
     @if($gaScript)
-    {!! preg_replace('/<script(?=\s|>)/', '<script async', $gaScript) !!}
+        {{-- SAFE: Admin-controlled extension for Google Analytics tracking --}}
+        {!! preg_replace('/<script(?=\s|>)/', '<script async', $gaScript) !!}
     @endif
     @if($tawkScript)
-    {!! preg_replace('/<script(?=\s|>)/', '<script defer', $tawkScript) !!}
+        {{-- SAFE: Admin-controlled extension for Tawk chat widget --}}
+        {!! preg_replace('/<script(?=\s|>)/', '<script defer', $tawkScript) !!}
     @endif
 
     @include('partials.notify')
