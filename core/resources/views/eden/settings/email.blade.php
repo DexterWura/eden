@@ -234,7 +234,7 @@
 
         <div>
           <h2 style="font-size:1rem;margin:0 0 8px 0;">Global email template</h2>
-          <p class="dash-hint" style="margin-bottom:12px;">This HTML wrapper is used for all emails. Use <code>{{ '{{fullname}}' }}</code>, <code>{{ '{{username}}' }}</code> and <code>{{ '{{message}}' }}</code> placeholders.</p>
+            <p class="dash-hint" style="margin-bottom:12px;">This HTML wrapper is used for all emails. Use placeholders: fullname, username, message</p>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;">
             <div>
               <label for="email_from_name" class="dash-label">Email sent from – name</label>
@@ -255,7 +255,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>{{ '{{subject}}' }}</title>
+    <title>@{{ subject }}</title>
     <style>
       body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0b1020; color: #e5e7eb; margin:0; padding:24px; }
       .wrapper { max-width: 560px; margin: 0 auto; background: #111827; border-radius: 12px; padding: 24px; border: 1px solid #1f2937; }
@@ -268,7 +268,7 @@
     <div class="wrapper">
       <div class="brand">Eden</div>
       <div class="content">
-        {{ '{{message}}' }}
+        @{{ message }}
       </div>
       <div class="footer">
         You are receiving this because you have an account on Eden.
