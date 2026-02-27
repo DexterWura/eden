@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Admin\Auth\LoginController as AdminLoginController;
 use App\Http\Controllers\Api\Eden\FlipitController as EdenFlipitController;
 use App\Http\Controllers\Api\Eden\RevenueController as EdenRevenueController;
 use App\Http\Controllers\Admin\MigrationController;
@@ -36,10 +35,11 @@ Route::post('api/eden/v1/flipit/listing-sold', [EdenFlipitController::class, 'li
     ->middleware(['throttle:30,1'])
     ->name('api.eden.flipit.listing-sold');
 
-Route::get('/admin', [AdminLoginController::class, 'showLoginForm'])->name('admin.login')->middleware('admin.guest');
-Route::post('/admin', [AdminLoginController::class, 'login'])->middleware('admin.guest');
-Route::get('/admin/logout', [AdminLoginController::class, 'logout'])->name('admin.logout')->middleware('admin');
-Route::get('/admin/password/reset', fn () => redirect()->route('admin.login'))->name('admin.password.reset');
+// Admin panel is hidden - all /admin routes return 404
+Route::get('/admin', fn () => abort(404))->name('admin.login');
+Route::post('/admin', fn () => abort(404));
+Route::get('/admin/logout', fn () => abort(404))->name('admin.logout');
+Route::get('/admin/password/reset', fn () => abort(404))->name('admin.password.reset');
 
 Route::redirect('/admin-dashboard', '/backoffice', 301);
 Route::redirect('/founder-dashboard', '/founder', 301);
