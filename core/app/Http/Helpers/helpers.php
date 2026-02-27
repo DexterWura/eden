@@ -282,7 +282,20 @@ function siteLogo($type = null) {
     return getImage(getFilePath('logo_icon') . $name);
 }
 function siteFavicon() {
-    return getImage(getFilePath('logo_icon'). '/favicon.png');
+    // Prefer a favicon placed in the public/images directory
+    $publicFaviconPng = public_path('images/favicon.png');
+    $publicFaviconIco = public_path('images/favicon.ico');
+
+    if (file_exists($publicFaviconIco)) {
+        return asset('images/favicon.ico');
+    }
+
+    if (file_exists($publicFaviconPng)) {
+        return asset('images/favicon.png');
+    }
+
+    // Fallback to configured logo_icon location
+    return getImage(getFilePath('logo_icon') . '/favicon.png');
 }
 
 function loadReCaptcha()
