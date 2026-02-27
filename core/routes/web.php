@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Eden\FlipitController as EdenFlipitController;
 use App\Http\Controllers\Api\Eden\RevenueController as EdenRevenueController;
+use App\Http\Controllers\Admin\Auth\LoginController as AdminLoginController;
 use App\Http\Controllers\Admin\MigrationController;
 use App\Http\Controllers\Admin\ReportsController;
 use App\Http\Controllers\Admin\ScheduledTasksController;
@@ -35,13 +36,13 @@ Route::post('api/eden/v1/flipit/listing-sold', [EdenFlipitController::class, 'li
     ->middleware(['throttle:30,1'])
     ->name('api.eden.flipit.listing-sold');
 
-// Admin panel is hidden - all /admin routes return 404
-Route::get('/admin', fn () => abort(404))->name('admin.login');
-Route::post('/admin', fn () => abort(404));
-Route::get('/admin/logout', fn () => abort(404))->name('admin.logout');
-Route::get('/admin/password/reset', fn () => abort(404))->name('admin.password.reset');
+// Admin login accessible at /backoffice (shows login for guests)
+Route::get('/backoffice', [AdminLoginController::class, 'showLoginForm'])->name('admin.login')->middleware('admin.guest');
+Route::post('/backoffice', [AdminLoginController::class, 'login'])->middleware('admin.guest');
+Route::get('/backoffice/logout', [AdminLoginController::class, 'logout'])->name('admin.logout')->middleware('admin');
+Route::get('/backoffice/password/reset', fn () => redirect()->route('admin.login'))->name('admin.password.reset');
 
-Route::redirect('/admin-dashboard', '/backoffice', 301);
+Route::redirect('/admin-dashboard', '/backoffice/dashboard', 301);
 Route::redirect('/founder-dashboard', '/founder', 301);
 Route::redirect('/startup', '/founder', 301);
 
@@ -88,7 +89,7 @@ Route::get('/auth/social/{provider}', [SocialiteController::class, 'socialLogin'
 Route::get('/auth/social/callback/{provider}', [SocialiteController::class, 'callback'])->name('user.social.login.callback')->where('provider', 'google|facebook|linkedin|twitter');
 
 Route::middleware('admin')->prefix('backoffice')->name('admin.')->group(function () {
-    Route::get('/', [DashboardController::class, 'adminDashboard'])->name('dashboard');
+    Route::get('dashboard', [DashboardController::class, 'adminDashboard'])->name('dashboard');
     Route::get('migrations', [MigrationController::class, 'index'])->name('migration.index');
     Route::get('startups', [AdminStartupController::class, 'index'])->name('startups.index');
     Route::get('startups/create', [AdminStartupController::class, 'create'])->name('startups.create');
