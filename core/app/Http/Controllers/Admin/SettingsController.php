@@ -270,8 +270,14 @@ class SettingsController extends Controller
         $welcomeEmailEnabled = $general ? (bool) ($general->welcome_email_enable ?? false) : false;
         $verificationRequired = $general ? (bool) ($general->ev ?? false) : false;
 
-        $welcomeTemplate = NotificationTemplate::where('act', 'WELCOME_EMAIL')->first();
-        $verificationTemplate = NotificationTemplate::where('act', 'EVER_CODE')->first();
+        // Safely query notification templates - handle case where table may not exist yet
+        try {
+            $welcomeTemplate = NotificationTemplate::where('act', 'WELCOME_EMAIL')->first();
+            $verificationTemplate = NotificationTemplate::where('act', 'EVER_CODE')->first();
+        } catch (\Exception $e) {
+            $welcomeTemplate = null;
+            $verificationTemplate = null;
+        }
 
         $content = view('eden.settings.email', compact(
             'mailConfig',
