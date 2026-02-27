@@ -132,21 +132,56 @@ class StartupController extends EdenController
     {
         $startup = Startup::where('slug', $slug)->first();
         if (!$startup) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'error' => 'not_found',
+                    'message' => 'Startup not found.',
+                ], 404);
+            }
             return redirect()->back()->with('error', 'Startup not found.');
         }
         if (!auth()->check()) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'error' => 'unauthenticated',
+                    'message' => 'Log in to upvote.',
+                    'login_url' => route('login'),
+                ], 401);
+            }
             return redirect()->route('login')->with('info', 'Please log in to upvote.');
         }
         if (!$startup->isActive()) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'error' => 'forbidden',
+                    'message' => 'This startup is not available.',
+                ], 403);
+            }
             return redirect()->back()->with('error', 'This startup is not available.');
         }
         $exists = StartupUpvote::where('user_id', auth()->id())->where('startup_id', $startup->id)->exists();
         if ($exists) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'status' => 'ok',
+                    'message' => 'You already upvoted this startup.',
+                    'already' => true,
+                    'upvotes' => (int) $startup->upvotes,
+                ], 200);
+            }
             return redirect()->back()->with('info', 'You already upvoted this startup.');
         }
         StartupUpvote::create(['user_id' => auth()->id(), 'startup_id' => $startup->id]);
         $startup->increment('upvotes');
         Cache::forget(StartupService::PRODUCT_OF_DAY_CACHE_KEY);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'status' => 'ok',
+                'message' => 'Upvote recorded.',
+                'already' => false,
+                'upvotes' => (int) $startup->fresh()->upvotes,
+            ], 201);
+        }
         return redirect()->back()->with('success', 'Upvote recorded. Thanks!');
     }
 }

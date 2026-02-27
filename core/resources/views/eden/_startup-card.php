@@ -24,7 +24,12 @@ $isRow = $cardVariant === 'row';
       <?php if ($s->launch_date && $s->launch_date->isToday()): ?><span class="badge launch">Launch</span><?php endif; ?>
     </div>
     <div class="upvote-ui">
-      <button type="button" class="upvote-btn" aria-label="Upvote"><i class="fa-solid fa-arrow-up"></i></button>
+      <button
+        type="button"
+        class="upvote-btn"
+        aria-label="Upvote"
+        data-upvote-url="<?= e(route('startup.upvote', $s->slug)) ?>"
+      ><i class="fa-solid fa-arrow-up"></i></button>
       <span class="upvote-count"><?= (int)$s->upvotes ?></span>
     </div>
   </div>

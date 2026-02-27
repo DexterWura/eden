@@ -59,7 +59,7 @@ Route::post('/subscribe', [PageController::class, 'subscribe']);
 Route::get('/launching-today', [StartupController::class, 'launchingToday']);
 Route::get('/startup/{slug}', [StartupController::class, 'show'])->name('startup.show');
 Route::get('/startup/{slug}/out', [StartupController::class, 'out']);
-Route::post('/startup/{slug}/upvote', [StartupController::class, 'upvote'])->name('startup.upvote')->middleware('auth');
+Route::post('/startup/{slug}/upvote', [StartupController::class, 'upvote'])->name('startup.upvote');
 Route::get('/startup/{slug}/claim', [ClaimController::class, 'show'])->name('startup.claim');
 Route::post('/startup/{slug}/claim/confirm', [ClaimController::class, 'confirm'])->name('startup.claim.confirm')->middleware('auth');
 Route::post('/startup/{slug}/claim/start', [ClaimController::class, 'startVerification'])->name('startup.claim.start')->middleware('auth');
