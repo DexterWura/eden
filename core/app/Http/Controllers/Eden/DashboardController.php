@@ -134,7 +134,7 @@ class DashboardController extends EdenController
         $launchingToday = Startup::active()->launchingToday()->count();
         $recentStartups = Startup::query()->orderByDesc('created_at')->limit(5)->get();
         $recentContactMessages = ContactSubmission::query()->orderByDesc('created_at')->limit(10)->get();
-        $heroRequests = Startup::where('hero_request_status', 'pending')->orderBy('updated_at')->get();
+        $heroRequests = Startup::where('hero_request_status', 'pending')->where('featured_on_hero', false)->orderBy('updated_at')->get();
         $siteName = $this->siteName();
 
         return response()->view('eden.layout-dashboard', [
