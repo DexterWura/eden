@@ -53,8 +53,6 @@ $sortLabel = $sortLabels[$sortBy] ?? 'Upvotes';
           $logoLetters = $s->logo_letters ?? strtoupper(mb_substr($s->name, 0, 2));
           $foundersDisplay = $s->founders_display ?? [];
           $founderName = count($foundersDisplay) > 0 ? implode(', ', array_column($foundersDisplay, 'name')) : ($s->founder_name ?? '—');
-          $founderPhoto = count($foundersDisplay) > 0 && !empty($foundersDisplay[0]['photo_url']) ? $foundersDisplay[0]['photo_url'] : null;
-          $founderInitials = count($foundersDisplay) > 0 ? \App\Models\Startup::founderInitials($foundersDisplay[0]['name']) : '?';
           if ($sortBy === 'mrr') { $metricVal = $s->mrr !== null && $s->mrr !== '' ? number_format((float)$s->mrr, 0) : '—'; }
           elseif ($sortBy === 'revenue') { $metricVal = $s->revenue !== null && $s->revenue !== '' ? number_format((float)$s->revenue, 0) : '—'; }
           elseif ($sortBy === 'views') { $metricVal = (int)($s->views ?? 0); }
@@ -79,11 +77,23 @@ $sortLabel = $sortLabels[$sortBy] ?? 'Upvotes';
           </td>
           <td class="col-founder">
             <div class="leaderboard-founder">
-              <?php if ($founderPhoto): ?>
-              <div class="leaderboard-founder-avatar"><img src="<?= e(asset($founderPhoto)) ?>" alt=""></div>
-              <?php else: ?>
-              <div class="leaderboard-founder-avatar"><span class="leaderboard-founder-initials"><?= e($founderInitials) ?></span></div>
-              <?php endif; ?>
+              <div class="leaderboard-founder-avatars">
+              <?php foreach (array_slice($foundersDisplay, 0, 4) as $fi => $fd):
+                $fdPhoto = !empty($fd['photo_url']) ? $fd['photo_url'] : null;
+                $fdInitials = \App\Models\Startup::founderInitials($fd['name'] ?? 'Founder');
+                $fdIsExternal = $fdPhoto && (str_starts_with($fdPhoto, 'http://') || str_starts_with($fdPhoto, 'https://'));
+                $fdSrc = $fdPhoto ? ($fdIsExternal ? $fdPhoto : asset($fdPhoto)) : null;
+              ?>
+                <div class="leaderboard-founder-avatar<?= $fi > 0 ? ' leaderboard-founder-avatar--overlap' : '' ?>" title="<?= e($fd['name'] ?? '') ?>">
+                  <?php if ($fdSrc): ?>
+                  <img src="<?= e($fdSrc) ?>" alt="<?= e($fd['name'] ?? '') ?>" onerror="this.style.display='none';this.nextElementSibling.style.display=''">
+                  <span class="leaderboard-founder-initials" style="display:none"><?= e($fdInitials) ?></span>
+                  <?php else: ?>
+                  <span class="leaderboard-founder-initials"><?= e($fdInitials) ?></span>
+                  <?php endif; ?>
+                </div>
+              <?php endforeach; ?>
+              </div>
               <span class="leaderboard-founder-name"><?= e($founderName) ?></span>
             </div>
           </td>
