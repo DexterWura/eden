@@ -20,8 +20,8 @@
     $featuredFounders = $featuredFounders ?? collect();
     if ($showTrustedByBlock && $featuredFounders->isNotEmpty()):
     ?>
-    <div class="hero-trusted-by" aria-label="Trusted by founders">
-      <div class="hero-trusted-by-avatars">
+    <div class="hero-trusted-by" style="display:flex;flex-direction:row;align-items:center;justify-content:center;gap:12px;margin-top:24px" aria-label="Trusted by founders">
+      <div class="hero-trusted-by-avatars" style="display:flex;align-items:center">
         <?php foreach ($featuredFounders as $founder):
           $photoUrl = !empty(trim($founder->hero_photo_url ?? '')) ? $founder->hero_photo_url : null;
           $linkedinUrl = !empty(trim($founder->hero_linkedin_url ?? '')) ? $founder->hero_linkedin_url : null;
