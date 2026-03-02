@@ -35,7 +35,7 @@ class StartupController extends Controller
                     ->orWhere('category', 'like', '%' . $search . '%');
             });
         }
-        $startups = $query->paginate(20)->withQueryString();
+        $startups = $query->with('user')->paginate(20)->withQueryString();
 
         $content = view('eden.startups.index', [
             'startups' => $startups,

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Constants\Status;
 use App\Http\Controllers\Controller;
+use App\Models\Startup;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -70,7 +71,20 @@ class UserController extends Controller
 
     public function startups(User $user)
     {
-        $startups = $user->startups()->orderBy('name')->get();
+        $startups = Startup::query()
+            ->where(function ($q) use ($user) {
+                $q->where('user_id', $user->id)
+                    ->orWhere('founder_email', $user->email);
+                if (! empty(trim((string) ($user->email ?? '')))) {
+                    $q->orWhereRaw(
+                        "founders IS NOT NULL AND JSON_SEARCH(founders, 'one', ?, NULL, '$[*].email') IS NOT NULL",
+                        [$user->email]
+                    );
+                }
+            })
+            ->orderBy('name')
+            ->get();
+
         $content = view('eden.users.startups', [
             'user' => $user,
             'startups' => $startups,
