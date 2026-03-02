@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Startup;
+use App\Models\StartupUpvote;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -274,6 +276,16 @@ class StartupController extends Controller
         $startup->update(['is_featured' => !$startup->is_featured]);
         $label = $startup->is_featured ? 'Featured' : 'Unfeatured';
         return response()->json(['status' => 'success', 'message' => "Startup {$label}.", 'is_featured' => $startup->is_featured]);
+    }
+
+    public function destroy(Startup $startup): JsonResponse
+    {
+        if (!$startup->isDisabled()) {
+            return response()->json(['status' => 'error', 'message' => 'Only disabled startups can be deleted.'], 422);
+        }
+        StartupUpvote::where('startup_id', $startup->id)->delete();
+        $startup->delete();
+        return response()->json(['status' => 'success', 'message' => 'Startup deleted.']);
     }
 
     private function formResponse(string $title, Startup $startup)

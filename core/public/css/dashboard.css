@@ -340,6 +340,90 @@ body.dashboard {
 }
 .dash-card-footer a:hover { text-decoration: underline; }
 
+/* Pagination (Bootstrap 5 markup, dashboard styling) */
+.dash-card-footer > nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+}
+.dash-card-footer > nav .d-none.d-sm-flex {
+  display: none;
+}
+@media (min-width: 576px) {
+  .dash-card-footer > nav .d-none.d-sm-flex {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1 1 100%;
+    gap: 16px;
+  }
+}
+.dash-card-footer > nav .small.text-muted,
+.dash-card-footer > nav p.small {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--d-text-secondary);
+}
+.dash-card-footer > nav .fw-semibold {
+  font-weight: 600;
+  color: var(--d-text);
+}
+.dash-card-footer .pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.dash-card-footer .page-item {
+  display: inline-block;
+}
+.dash-card-footer .page-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--d-text);
+  background: var(--d-surface);
+  border: 1px solid var(--d-border);
+  border-radius: var(--d-radius);
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.dash-card-footer .page-item a.page-link:hover {
+  background: var(--d-bg);
+  border-color: var(--d-text-secondary);
+  color: var(--d-text);
+}
+.dash-card-footer .page-item.active .page-link {
+  background: var(--d-primary);
+  border-color: var(--d-primary);
+  color: #fff;
+  cursor: default;
+}
+.dash-card-footer .page-item.disabled .page-link {
+  opacity: 0.5;
+  cursor: not-allowed;
+  color: var(--d-text-secondary);
+  background: var(--d-bg);
+}
+.dash-card-footer > nav .d-flex.d-sm-none {
+  width: 100%;
+}
+.dash-card-footer > nav .d-flex.d-sm-none .pagination {
+  justify-content: center;
+}
+
 /* Table */
 .dash-table-wrap { overflow-x: auto; }
 .dash-table {

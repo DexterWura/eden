@@ -19,27 +19,58 @@
             <th>Name</th>
             <th>Email</th>
             <th>Joined</th>
+            <th>Status</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           @forelse($users as $user)
+          @php
+            $isActive = (int)($user->status ?? 1) === 1;
+          @endphp
           <tr>
             <td>{{ $user->name }}</td>
             <td>{{ $user->email }}</td>
             <td>{{ $user->created_at?->format('M j, Y') ?? '—' }}</td>
+            <td>
+              @if($isActive)
+                <span class="dash-badge dash-badge-success">Enabled</span>
+              @else
+                <span class="dash-badge dash-badge-danger">Disabled</span>
+              @endif
+            </td>
+            <td>
+              <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
+                <form action="{{ route('admin.users.toggle-status', $user) }}" method="post" style="display: inline;">
+                  @csrf
+                  @if($isActive)
+                    <button type="submit" class="dash-btn" style="padding: 4px 10px; font-size: 0.8rem; background: #dc2626; color: #fff; border: none;">Disable</button>
+                  @else
+                    <button type="submit" class="dash-btn dash-btn-primary" style="padding: 4px 10px; font-size: 0.8rem;">Enable</button>
+                  @endif
+                </form>
+                <a href="{{ route('admin.users.startups', $user) }}" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; text-decoration: none;"><i class="fa-solid fa-rocket"></i> Startups</a>
+              </div>
+            </td>
           </tr>
           @empty
           <tr>
-            <td colspan="3" class="dash-placeholder">No users found.</td>
+            <td colspan="5" class="dash-placeholder">No users found.</td>
           </tr>
           @endforelse
         </tbody>
       </table>
     </div>
     @if($users->hasPages())
-      <div class="dash-card-footer" style="padding: 12px 16px; border-top: 1px solid var(--d-border);">
+      <div class="dash-card-footer">
         {{ $users->links() }}
       </div>
     @endif
   </div>
 </div>
+
+<style>
+.dash-badge { display: inline-block; padding: 2px 8px; font-size: 0.75rem; border-radius: 4px; }
+.dash-badge-success { background: #d1fae5; color: #065f46; }
+.dash-badge-danger { background: #fee2e2; color: #991b1b; }
+</style>

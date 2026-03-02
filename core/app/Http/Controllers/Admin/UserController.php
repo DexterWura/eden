@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Constants\Status;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -28,6 +30,35 @@ class UserController extends Controller
         return response()->view('eden.layout-dashboard', $this->dashboardVars('Users', 'users', $content));
     }
 
+    public function toggleStatus(User $user): RedirectResponse
+    {
+        $isActive = (int) ($user->status ?? Status::USER_ACTIVE) === Status::USER_ACTIVE;
+        $user->status = $isActive ? Status::USER_BAN : Status::USER_ACTIVE;
+        if ($user->status === Status::USER_ACTIVE && isset($user->ban_reason)) {
+            $user->ban_reason = null;
+        }
+        $user->save();
+
+        $message = $user->status === Status::USER_ACTIVE ? 'User enabled.' : 'User disabled.';
+        return redirect()->route('admin.users.index')
+            ->with('notify', [['success', $message]]);
+    }
+
+    public function startups(User $user)
+    {
+        $startups = $user->startups()->orderBy('name')->get();
+        $content = view('eden.users.startups', [
+            'user' => $user,
+            'startups' => $startups,
+        ])->render();
+
+        return response()->view('eden.layout-dashboard', $this->dashboardVars(
+            'Startups: ' . $user->name,
+            'users',
+            $content
+        ));
+    }
+
     private function dashboardVars(string $title, string $activeNav, string $content): array
     {
         return [
@@ -40,6 +71,7 @@ class UserController extends Controller
             'avatarTitle' => 'Admin',
             'avatarLetter' => 'A',
             'content' => $content,
+            'notifyPartial' => view('partials.notify')->render(),
         ];
     }
 }

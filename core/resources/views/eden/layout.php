@@ -224,6 +224,7 @@
   <footer class="site-footer">
     <div class="wrap">
       <p><a href="<?= e(url('/')) ?>"><?= e(function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden') ?></a> — Startup directory. <a href="<?= e(url('/about')) ?>">About</a> · <a href="<?= e(url('/contact')) ?>">Contact</a></p>
+      <p class="site-footer__credit">Developed with love by <a href="https://www.linkedin.com/in/dexterity-wurayayi-967a64230/" target="_blank" rel="noopener noreferrer">Dexter Wurayayi</a>. <a href="https://dextersoft.com" target="_blank" rel="noopener noreferrer">dextersoft.com</a> · <a href="https://flipit.co.zw" target="_blank" rel="noopener noreferrer">flipit.co.zw</a> · <a href="https://zimadsense.com" target="_blank" rel="noopener noreferrer">zimadsense.com</a></p>
     </div>
   </footer>
 

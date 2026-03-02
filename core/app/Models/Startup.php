@@ -19,6 +19,9 @@ class Startup extends Model
         'description',
         'category',
         'website',
+        'website_last_checked_at',
+        'website_is_reachable',
+        'website_consecutive_failures',
         'location',
         'founder_name',
         'founder_email',
@@ -49,6 +52,8 @@ class Startup extends Model
     protected $casts = [
         'launch_date' => 'date',
         'dormant_at' => 'datetime',
+        'website_last_checked_at' => 'datetime',
+        'website_is_reachable' => 'boolean',
         'sold_at' => 'datetime',
         'is_featured' => 'boolean',
         'for_sale' => 'boolean',

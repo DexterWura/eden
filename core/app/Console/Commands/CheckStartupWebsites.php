@@ -9,20 +9,25 @@ use Illuminate\Support\Facades\Log;
 
 class CheckStartupWebsites extends Command
 {
-    protected $signature = 'startups:check-websites';
+    protected $signature = 'startups:check-websites
+                            {--force : Check all startups with a website, ignoring the 3-day interval}';
 
-    protected $description = 'Ping active startup websites weekly; mark failing as dormant, delete after 1 week dormant';
+    protected $description = 'Ping startup websites (every 3 days per startup); mark dormant after 3 consecutive failures; delete if dormant too long';
 
     private const PING_TIMEOUT_SECONDS = 10;
 
-    private const DORMANT_DAYS_BEFORE_DELETE = 7;
+    private const CHECK_INTERVAL_DAYS = 3;
+
+    private const CONSECUTIVE_FAILURES_BEFORE_DORMANT = 3;
+
+    private const DORMANT_DAYS_BEFORE_DELETE = 30;
 
     public function handle(): int
     {
-        $logFile = storage_path('logs/startup-website-check.log');
-        $this->info('Startup website check started.');
+        $force = $this->option('force');
+        $this->info('Startup website check started (interval: ' . self::CHECK_INTERVAL_DAYS . ' days, dormant after ' . self::CONSECUTIVE_FAILURES_BEFORE_DORMANT . ' failures).');
 
-        $markedDormant = $this->markFailingStartupsDormant();
+        $markedDormant = $this->checkAndUpdateStartups($force);
         $deleted = $this->deleteDormantStartups();
 
         $message = sprintf(
@@ -32,34 +37,62 @@ class CheckStartupWebsites extends Command
             $deleted
         );
         Log::channel('stack')->info($message);
+        $logFile = storage_path('logs/startup-website-check.log');
         file_put_contents($logFile, $message . "\n", FILE_APPEND | LOCK_EX);
 
         $this->info("Done. Marked dormant: {$markedDormant}, deleted: {$deleted}.");
         return 0;
     }
 
-    private function markFailingStartupsDormant(): int
+    private function checkAndUpdateStartups(bool $force): int
     {
-        $startups = Startup::query()
+        $query = Startup::query()
             ->where('status', Startup::STATUS_ACTIVE)
             ->whereNotNull('website')
-            ->where('website', '!=', '')
-            ->get();
+            ->where('website', '!=', '');
 
-        $count = 0;
-        foreach ($startups as $startup) {
-            $url = $this->normalizeUrl($startup->website);
-            if (!$url || !$this->pingUrl($url)) {
-                $startup->update([
-                    'status' => Startup::STATUS_DORMANT,
-                    'dormant_at' => now(),
-                ]);
-                $count++;
-                $this->line("  Marked dormant (ping failed): {$startup->name} ({$url})");
-            }
+        if (!$force) {
+            $cutoff = now()->subDays(self::CHECK_INTERVAL_DAYS);
+            $query->where(function ($q) use ($cutoff) {
+                $q->whereNull('website_last_checked_at')
+                    ->orWhere('website_last_checked_at', '<=', $cutoff);
+            });
         }
 
-        return $count;
+        $startups = $query->get();
+        $markedDormant = 0;
+
+        foreach ($startups as $startup) {
+            $url = $this->normalizeUrl($startup->website);
+            if (!$url) {
+                continue;
+            }
+
+            $reachable = $this->pingUrl($url);
+            $failures = $reachable ? 0 : (int) $startup->website_consecutive_failures + 1;
+
+            $updates = [
+                'website_last_checked_at' => now(),
+                'website_is_reachable' => $reachable,
+                'website_consecutive_failures' => $failures,
+            ];
+
+            if ($reachable) {
+                $this->line("  OK: {$startup->name}");
+            } else {
+                $this->line("  Fail ({$failures}): {$startup->name} ({$url})");
+                if ($failures >= self::CONSECUTIVE_FAILURES_BEFORE_DORMANT) {
+                    $updates['status'] = Startup::STATUS_DORMANT;
+                    $updates['dormant_at'] = now();
+                    $markedDormant++;
+                    $this->line("    -> Marked dormant (3 consecutive failures).");
+                }
+            }
+
+            $startup->update($updates);
+        }
+
+        return $markedDormant;
     }
 
     private function deleteDormantStartups(): int

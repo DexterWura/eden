@@ -73,9 +73,9 @@ Schedule::command('monthly:revenue-report')
     ->onOneServer()
     ->appendOutputTo(storage_path('logs/monthly-revenue-report.log'));
 
-// Startup website check - ping active startups weekly; mark failing as dormant, delete after 1 week dormant
+// Startup website check - ping each startup every 3 days; mark dormant after 3 consecutive failures; delete after 30 days dormant
 Schedule::command('startups:check-websites')
-    ->weekly()
-    ->withoutOverlapping()
+    ->daily()
+    ->withoutOverlapping(5)
     ->onOneServer()
     ->appendOutputTo(storage_path('logs/startup-website-check.log'));

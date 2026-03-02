@@ -103,6 +103,11 @@
                 <button type="button" class="dash-btn dash-btn-secondary startup-action startup-featured" style="padding: 4px 10px; font-size: 0.8rem;" data-url="{{ route('admin.startups.toggle-featured', $startup) }}" data-featured="{{ $startup->is_featured ? '1' : '0' }}">
                   {{ $startup->is_featured ? 'Unfeature' : 'Feature' }}
                 </button>
+                @if($startup->status === 'disabled')
+                  <button type="button" class="dash-btn startup-delete" style="padding: 4px 10px; font-size: 0.8rem; background: #991b1b; color: #fff; border: none;" data-url="{{ route('admin.startups.destroy', $startup) }}" data-name="{{ e($startup->name) }}">
+                    <i class="fa-solid fa-trash"></i> Delete
+                  </button>
+                @endif
               </div>
             </td>
           </tr>
@@ -115,14 +120,32 @@
       </table>
     </div>
     @if($startups->hasPages())
-      <div class="dash-card-footer" style="padding: 12px 16px; border-top: 1px solid var(--d-border);">
+      <div class="dash-card-footer">
         {{ $startups->links() }}
       </div>
     @endif
   </div>
 </div>
 
+<div id="deleteStartupDialog" class="dash-dialog" role="dialog" aria-modal="true" aria-labelledby="deleteStartupDialogTitle" hidden>
+  <div class="dash-dialog-backdrop"></div>
+  <div class="dash-dialog-box" style="max-width: 400px;">
+    <h2 id="deleteStartupDialogTitle" class="dash-dialog-title">Delete startup</h2>
+    <p class="dash-dialog-body" id="deleteStartupDialogMessage">Are you sure you want to delete this startup? This cannot be undone.</p>
+    <div class="dash-dialog-actions" style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px;">
+      <button type="button" class="dash-btn dash-btn-secondary" id="deleteStartupDialogCancel">Cancel</button>
+      <button type="button" class="dash-btn" id="deleteStartupDialogConfirm" style="background: #991b1b; color: #fff; border: none;">Delete</button>
+    </div>
+  </div>
+</div>
+
 <style>
+.dash-dialog { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.dash-dialog[hidden] { display: none; }
+.dash-dialog-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.5); }
+.dash-dialog-box { position: relative; background: var(--d-bg, #fff); border-radius: 8px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+.dash-dialog-title { margin: 0 0 8px; font-size: 1.125rem; }
+.dash-dialog-body { margin: 0; color: var(--d-text-secondary, #64748b); font-size: 0.9375rem; }
 .dash-badge { display: inline-block; padding: 2px 8px; font-size: 0.75rem; border-radius: 4px; }
 .dash-badge-success { background: #d1fae5; color: #065f46; }
 .dash-badge-warning { background: #fef3c7; color: #92400e; }
@@ -159,5 +182,56 @@
       });
     });
   });
+
+  var deleteDialog = document.getElementById('deleteStartupDialog');
+  var deleteDialogMessage = document.getElementById('deleteStartupDialogMessage');
+  var deleteDialogCancel = document.getElementById('deleteStartupDialogCancel');
+  var deleteDialogConfirm = document.getElementById('deleteStartupDialogConfirm');
+  var deleteDialogBackdrop = deleteDialog && deleteDialog.querySelector('.dash-dialog-backdrop');
+  var pendingDeleteUrl = null;
+
+  function openDeleteDialog(url, name) {
+    pendingDeleteUrl = url;
+    if (deleteDialogMessage) deleteDialogMessage.textContent = 'Are you sure you want to delete “' + (name || 'this startup') + '”? This cannot be undone.';
+    if (deleteDialog) { deleteDialog.removeAttribute('hidden'); }
+  }
+  function closeDeleteDialog() {
+    pendingDeleteUrl = null;
+    if (deleteDialog) { deleteDialog.setAttribute('hidden', ''); }
+  }
+
+  document.querySelectorAll('.startup-delete').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var url = this.getAttribute('data-url');
+      var name = this.getAttribute('data-name');
+      if (url) openDeleteDialog(url, name);
+    });
+  });
+  if (deleteDialogCancel) deleteDialogCancel.addEventListener('click', closeDeleteDialog);
+  if (deleteDialogBackdrop) deleteDialogBackdrop.addEventListener('click', closeDeleteDialog);
+  if (deleteDialogConfirm) {
+    deleteDialogConfirm.addEventListener('click', function() {
+      if (!pendingDeleteUrl) return;
+      var self = this;
+      self.disabled = true;
+      fetch(pendingDeleteUrl, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify({ _token: csrf })
+      }).then(function(r) { return r.json(); }).then(function(data) {
+        closeDeleteDialog();
+        if (data.status === 'success') {
+          if (typeof notify === 'function') notify('success', data.message);
+          window.location.reload();
+        } else {
+          if (typeof notify === 'function') notify('error', data.message || 'Delete failed');
+          self.disabled = false;
+        }
+      }).catch(function() {
+        if (typeof notify === 'function') notify('error', 'Request failed');
+        self.disabled = false;
+      });
+    });
+  }
 })();
 </script>
