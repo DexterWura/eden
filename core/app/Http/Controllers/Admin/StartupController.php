@@ -328,6 +328,41 @@ class StartupController extends Controller
 
     public function toggleFeaturedOnHero(Startup $startup): RedirectResponse
     {
+        if (! $startup->featured_on_hero) {
+            $linkedinUrls = collect($startup->founders_display)
+                ->pluck('linkedin_url')
+                ->filter(fn ($url) => trim($url ?? '') !== '')
+                ->map(fn ($url) => rtrim(trim($url), '/'))
+                ->unique();
+
+            if ($linkedinUrls->isNotEmpty()) {
+                $alreadyFeatured = Startup::where('featured_on_hero', true)
+                    ->where('id', '!=', $startup->id)
+                    ->get();
+
+                $taken = collect();
+                foreach ($alreadyFeatured as $other) {
+                    foreach ($other->founders_display as $f) {
+                        $li = rtrim(trim($f['linkedin_url'] ?? ''), '/');
+                        if ($li !== '') {
+                            $taken->push($li);
+                        }
+                    }
+                }
+
+                $duplicates = $linkedinUrls->intersect($taken);
+                if ($duplicates->isNotEmpty()) {
+                    $names = collect($startup->founders_display)
+                        ->filter(fn ($f) => $duplicates->contains(rtrim(trim($f['linkedin_url'] ?? ''), '/')))
+                        ->pluck('name')
+                        ->implode(', ');
+
+                    return redirect()->route('admin.startups.index')
+                        ->with('notify', [['error', ($names ?: 'A founder') . ' is already featured on hero via another startup.']]);
+                }
+            }
+        }
+
         $startup->update(['featured_on_hero' => ! $startup->featured_on_hero]);
         $label = $startup->featured_on_hero ? 'featured on hero' : 'removed from hero';
         return redirect()->route('admin.startups.index')
