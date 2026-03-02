@@ -14,7 +14,7 @@
   ?>
   <title><?= e($pageTitleFinal) ?></title>
   <script>
-    (function(){var t=localStorage.getItem('eden_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+    (function(){var t=localStorage.getItem('eden_theme')||'light';document.documentElement.setAttribute('data-theme',t);})();
   </script>
   <link rel="canonical" href="<?= e($canonicalUrl) ?>">
   <?php if ($metaKeywordsFinal !== ''): ?><meta name="keywords" content="<?= e($metaKeywordsFinal) ?>"><?php endif; ?>
@@ -112,7 +112,7 @@
         <button type="button" class="theme-toggle theme-toggle-drawer" id="themeToggleDrawer" aria-label="Toggle light or dark mode" aria-pressed="false" title="Toggle theme" style="width: 100%; justify-content: flex-start; gap: 10px; padding-left: 12px;">
           <span class="theme-icon-dark" aria-hidden="true"><i class="fa-solid fa-moon"></i></span>
           <span class="theme-icon-light" aria-hidden="true"><i class="fa-solid fa-sun"></i></span>
-          <span class="theme-toggle-label" id="themeToggleLabel">Switch to light mode</span>
+          <span class="theme-toggle-label" id="themeToggleLabel">Switch to dark mode</span>
         </button>
       </div>
       <a href="<?= e(url('/launching-today')) ?>">Launching today</a>
@@ -237,45 +237,50 @@
 
   <footer class="site-footer">
     <div class="wrap site-footer__wrap">
-      <div class="site-footer__col">
-        <p class="site-footer__brand"><a href="<?= e(url('/')) ?>"><?= e(function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden') ?></a> — Startup directory.</p>
-        <p class="site-footer__links">
-          <a href="<?= e(url('/about')) ?>">About</a>
-          <a href="<?= e(url('/contact')) ?>">Contact</a>
-        </p>
+      <div class="site-footer__row">
+        <div class="site-footer__col">
+          <p class="site-footer__brand"><a href="<?= e(url('/')) ?>"><?= e(function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden') ?></a> — Startup directory.</p>
+          <p class="site-footer__links">
+            <a href="<?= e(url('/about')) ?>">About</a>
+            <a href="<?= e(url('/contact')) ?>">Contact</a>
+          </p>
+        </div>
+        <div class="site-footer__col">
+          <p class="site-footer__heading">Our other sites</p>
+          <ul class="site-footer__sites">
+            <li><a href="https://dextersoft.com" target="_blank" rel="noopener noreferrer">dextersoft.com</a></li>
+            <li><a href="https://flipit.co.zw" target="_blank" rel="noopener noreferrer">flipit.co.zw</a></li>
+            <li><a href="https://zimadsense.com" target="_blank" rel="noopener noreferrer">zimadsense.com</a></li>
+          </ul>
+        </div>
       </div>
-      <div class="site-footer__col">
-        <p class="site-footer__credit">Developed with love by <a href="https://www.linkedin.com/in/dexterity-wurayayi-967a64230/" target="_blank" rel="noopener noreferrer">Dexter Wurayayi</a>.</p>
-        <p class="site-footer__label">Our other sites</p>
-        <ul class="site-footer__sites">
-          <li><a href="https://dextersoft.com" target="_blank" rel="noopener noreferrer">dextersoft.com</a></li>
-          <li><a href="https://flipit.co.zw" target="_blank" rel="noopener noreferrer">flipit.co.zw</a></li>
-          <li><a href="https://zimadsense.com" target="_blank" rel="noopener noreferrer">zimadsense.com</a></li>
-        </ul>
-      </div>
+      <p class="site-footer__credit">Developed with love by <a href="https://www.linkedin.com/in/dexterity-wurayayi-967a64230/" target="_blank" rel="noopener noreferrer">Dexter Wurayayi</a>.</p>
     </div>
   </footer>
   <style>
-  .site-footer__wrap { display: flex; flex-wrap: wrap; gap: 2rem; align-items: flex-start; }
+  .site-footer__wrap { display: flex; flex-direction: column; gap: 1.5rem; }
+  .site-footer__row { display: flex; flex-wrap: wrap; gap: 2rem; align-items: flex-start; }
   .site-footer__col { flex: 1 1 200px; }
   .site-footer__brand { margin: 0 0 0.25rem; }
   .site-footer__links { margin: 0; }
   .site-footer__links a + a { margin-left: 0.5rem; }
-  .site-footer__credit { margin: 0 0 0.5rem; }
-  .site-footer__label { margin: 0 0 0.25rem; font-size: 0.875em; opacity: 0.9; }
+  .site-footer__heading { font-weight: 700; font-size: 0.9375rem; margin: 0 0 0.5rem; color: var(--text); }
   .site-footer__sites { list-style: none; margin: 0; padding: 0; }
-  .site-footer__sites li { margin: 0.15rem 0; }
+  .site-footer__sites li { margin: 0.25rem 0; }
   .site-footer__sites a { text-decoration: none; }
   .site-footer__sites a:hover { text-decoration: underline; }
+  .site-footer__credit { margin: 0; padding-top: 1rem; border-top: 1px solid var(--border); text-align: center; font-size: 0.875rem; color: var(--text-muted); }
+  .site-footer__credit a { color: var(--link); }
+  .site-footer__credit a:hover { color: var(--link-hover); }
   </style>
 
   <script>
     (function() {
       function getTheme() {
-        return document.documentElement.getAttribute('data-theme') || 'dark';
+        return document.documentElement.getAttribute('data-theme') || 'light';
       }
       function setTheme(theme) {
-        theme = theme || 'dark';
+        theme = theme || 'light';
         document.documentElement.setAttribute('data-theme', theme);
         try { localStorage.setItem('eden_theme', theme); } catch (e) {}
         var isDark = theme === 'dark';

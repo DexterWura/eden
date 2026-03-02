@@ -235,6 +235,14 @@ nav a:hover { color: var(--accent); }
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+[data-theme="light"] .hero h1 {
+  background: linear-gradient(135deg, #202124 0%, #5f6368 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 .hero p {
   color: var(--text-muted);
   font-size: 1.05rem;
