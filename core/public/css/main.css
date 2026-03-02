@@ -433,6 +433,33 @@ nav a:hover { color: var(--accent); }
   box-shadow: 0 0 0 3px var(--accent-dim);
 }
 
+/* Hero search: center icon and placeholder in the bar */
+.hero-actions .search-wrap.hero-search {
+  display: flex;
+  align-items: center;
+}
+.hero-actions .search-wrap.hero-search::before,
+.hero-actions .search-wrap.hero-search::after {
+  content: '';
+  flex: 1;
+  min-width: 0;
+}
+.hero-actions .search-wrap.hero-search .fa-magnifying-glass {
+  position: static;
+  left: auto;
+  top: auto;
+  transform: none;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+.hero-actions .search-wrap.hero-search .search-input {
+  flex: 1;
+  min-width: 0;
+  max-width: 340px;
+  padding-left: 12px;
+  text-align: center;
+}
+
 /* Section blocks (inspiration: Recently listed / Best deals) */
 .section-block {
   margin-bottom: 48px;
