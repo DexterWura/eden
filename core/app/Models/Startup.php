@@ -44,6 +44,7 @@ class Startup extends Model
         'for_sale',
         'flipit_listing_id',
         'sold_at',
+        'featured_on_hero',
     ];
 
     /** FLIPit listing URL pattern: https://flipit.co.zw/marketplace/listing/{id} */
@@ -56,6 +57,7 @@ class Startup extends Model
         'website_is_reachable' => 'boolean',
         'sold_at' => 'datetime',
         'is_featured' => 'boolean',
+        'featured_on_hero' => 'boolean',
         'for_sale' => 'boolean',
         'founders' => 'array',
         'product_images' => 'array',

@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Startup;
 use App\Models\StartupUpvote;
-use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -36,47 +35,10 @@ class StartupController extends Controller
                     ->orWhere('category', 'like', '%' . $search . '%');
             });
         }
-        $startups = $query->with('user')->paginate(20)->withQueryString();
-
-        $allFounderEmails = collect();
-        foreach ($startups as $s) {
-            foreach ($this->getFoundersWithLinkedIn($s) as $f) {
-                if (! empty($f['email'])) {
-                    $allFounderEmails->push(strtolower(trim($f['email'])));
-                }
-            }
-            if ($s->founder_email) {
-                $allFounderEmails->push(strtolower(trim($s->founder_email)));
-            }
-        }
-        $allFounderEmails = $allFounderEmails->unique()->values()->all();
-        $usersByEmail = ! empty($allFounderEmails) ? User::whereIn('email', $allFounderEmails)->get()->keyBy(fn ($u) => strtolower($u->email)) : collect();
+        $startups = $query->paginate(20)->withQueryString();
 
         foreach ($startups as $s) {
-            $heroFounders = [];
-            $seenUserIds = [];
-            $linkedInFounders = $this->getFoundersWithLinkedIn($s);
-
-            foreach ($linkedInFounders as $f) {
-                $email = strtolower(trim($f['email'] ?? ''));
-                $user = $email !== '' ? $usersByEmail->get($email) : null;
-                if ($user && ! in_array($user->id, $seenUserIds)) {
-                    $heroFounders[] = $user;
-                    $seenUserIds[] = $user->id;
-                }
-            }
-
-            if (empty($heroFounders) && ! empty($linkedInFounders)) {
-                $owner = $s->user;
-                if (! $owner && $s->founder_email) {
-                    $owner = $usersByEmail->get(strtolower(trim($s->founder_email)));
-                }
-                if ($owner && ! in_array($owner->id, $seenUserIds)) {
-                    $heroFounders[] = $owner;
-                }
-            }
-
-            $s->heroFounders = $heroFounders;
+            $s->hasLinkedInFounders = ! empty($this->getFoundersWithLinkedIn($s));
         }
 
         $content = view('eden.startups.index', [
@@ -318,6 +280,14 @@ class StartupController extends Controller
         $startup->update(['is_featured' => !$startup->is_featured]);
         $label = $startup->is_featured ? 'Featured' : 'Unfeatured';
         return response()->json(['status' => 'success', 'message' => "Startup {$label}.", 'is_featured' => $startup->is_featured]);
+    }
+
+    public function toggleFeaturedOnHero(Startup $startup): RedirectResponse
+    {
+        $startup->update(['featured_on_hero' => ! $startup->featured_on_hero]);
+        $label = $startup->featured_on_hero ? 'featured on hero' : 'removed from hero';
+        return redirect()->route('admin.startups.index')
+            ->with('notify', [['success', $startup->name . ' ' . $label . '.']]);
     }
 
     public function destroy(Startup $startup): JsonResponse

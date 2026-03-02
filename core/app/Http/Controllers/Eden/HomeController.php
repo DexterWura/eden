@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Eden;
 
 use App\Models\Startup;
-use App\Models\User;
 use App\Services\StartupService;
 use Illuminate\Http\Request;
 
@@ -41,10 +40,20 @@ class HomeController extends EdenController
         }
         $leaderboardPreview = $this->startupService->getLeaderboard($leaderboardSort, 10, $categoryFilter, $featuredOnly);
 
-        $featuredFounders = User::where('featured_on_hero', true)->orderBy('name')->limit(10)->get();
-        if ($featuredFounders->isNotEmpty()) {
-            $this->resolveFounderPhotosAndLinkedIn($featuredFounders);
+        $heroStartups = Startup::where('featured_on_hero', true)->orderBy('name')->limit(20)->get();
+        $featuredFounders = collect();
+        foreach ($heroStartups as $hs) {
+            foreach ($hs->founders_display as $f) {
+                if (! empty(trim($f['linkedin_url'] ?? ''))) {
+                    $featuredFounders->push((object) [
+                        'name' => $f['name'] ?? 'Founder',
+                        'hero_photo_url' => $f['photo_url'] ?? null,
+                        'hero_linkedin_url' => $f['linkedin_url'],
+                    ]);
+                }
+            }
         }
+        $featuredFounders = $featuredFounders->take(10);
         $showTrustedByBlock = $featuredFounders->isNotEmpty();
 
         return $this->page('home', null, 'scripts-home', [
@@ -63,61 +72,6 @@ class HomeController extends EdenController
             'showTrustedByBlock' => $showTrustedByBlock,
             'featuredFounders' => $featuredFounders,
         ]);
-    }
-
-    private function resolveFounderPhotosAndLinkedIn($founders): void
-    {
-        $userIds = $founders->pluck('id')->all();
-        $emails = $founders->pluck('email')->filter()->unique()->all();
-
-        $startups = Startup::query()
-            ->where(function ($q) use ($userIds, $emails) {
-                $q->whereIn('user_id', $userIds);
-                if (! empty($emails)) {
-                    $q->orWhereIn('founder_email', $emails);
-                }
-            })
-            ->get();
-
-        $startupsByUserId = $startups->whereNotNull('user_id')->groupBy('user_id');
-        $startupsByEmail = $startups->whereNotNull('founder_email')->groupBy('founder_email');
-
-        foreach ($founders as $founder) {
-            $photoUrl = ! empty(trim((string) ($founder->hero_photo_url ?? ''))) ? $founder->hero_photo_url : null;
-            $linkedinUrl = ! empty(trim((string) ($founder->linkedin_url ?? ''))) ? $founder->linkedin_url : null;
-
-            $userStartups = collect()
-                ->merge($startupsByUserId->get($founder->id, collect()))
-                ->merge($startupsByEmail->get($founder->email, collect()))
-                ->unique('id');
-
-            foreach ($userStartups as $startup) {
-                if ($photoUrl && $linkedinUrl) {
-                    break;
-                }
-                $foundersList = $startup->founders_display;
-                foreach ($foundersList as $f) {
-                    $fEmail = $f['email'] ?? null;
-                    $isMatch = ($fEmail && strcasecmp($fEmail, $founder->email) === 0)
-                        || (strcasecmp($f['name'] ?? '', $founder->name) === 0);
-                    if ($isMatch) {
-                        if (! $photoUrl && ! empty($f['photo_url'])) {
-                            $photoUrl = $f['photo_url'];
-                        }
-                        if (! $linkedinUrl && ! empty($f['linkedin_url'])) {
-                            $linkedinUrl = $f['linkedin_url'];
-                        }
-                        break;
-                    }
-                }
-                if (! $linkedinUrl && ! empty($startup->founder_linkedin_url)) {
-                    $linkedinUrl = $startup->founder_linkedin_url;
-                }
-            }
-
-            $founder->hero_photo_url = $photoUrl;
-            $founder->hero_linkedin_url = $linkedinUrl;
-        }
     }
 
     public function leaderboard(Request $request)

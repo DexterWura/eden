@@ -103,17 +103,16 @@
                 <button type="button" class="dash-btn dash-btn-secondary startup-action startup-featured" style="padding: 4px 10px; font-size: 0.8rem;" data-url="{{ route('admin.startups.toggle-featured', $startup) }}" data-featured="{{ $startup->is_featured ? '1' : '0' }}">
                   {{ $startup->is_featured ? 'Unfeature' : 'Feature' }}
                 </button>
-                @foreach($startup->heroFounders ?? [] as $hf)
-                  <form action="{{ route('admin.users.feature-on-hero', $hf) }}" method="post" style="display: inline;">
+                @if($startup->hasLinkedInFounders ?? false)
+                  <form action="{{ route('admin.startups.toggle-hero', $startup) }}" method="post" style="display: inline;">
                     @csrf
-                    <input type="hidden" name="_redirect" value="startups">
-                    @if($hf->featured_on_hero)
-                      <button type="submit" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;" title="{{ $hf->name }}">Unfeature {{ Str::limit($hf->name, 15) }}</button>
+                    @if($startup->featured_on_hero)
+                      <button type="submit" class="dash-btn" style="padding: 4px 10px; font-size: 0.8rem; background: #7c3aed; color: #fff; border: none;">Unfeature from hero</button>
                     @else
-                      <button type="submit" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;" title="{{ $hf->name }}">Feature {{ Str::limit($hf->name, 15) }}</button>
+                      <button type="submit" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;">Feature on hero</button>
                     @endif
                   </form>
-                @endforeach
+                @endif
                 @if($startup->status === 'disabled')
                   <button type="button" class="dash-btn startup-delete" style="padding: 4px 10px; font-size: 0.8rem; background: #991b1b; color: #fff; border: none;" data-url="{{ route('admin.startups.destroy', $startup) }}" data-name="{{ e($startup->name) }}">
                     <i class="fa-solid fa-trash"></i> Delete

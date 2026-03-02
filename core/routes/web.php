@@ -111,12 +111,12 @@ Route::middleware('admin')->prefix('backoffice')->name('admin.')->group(function
     Route::post('startups/{startup}/ban', [AdminStartupController::class, 'ban'])->name('startups.ban');
     Route::post('startups/{startup}/unban', [AdminStartupController::class, 'unban'])->name('startups.unban');
     Route::post('startups/{startup}/featured', [AdminStartupController::class, 'toggleFeatured'])->name('startups.toggle-featured');
+    Route::post('startups/{startup}/feature-on-hero', [AdminStartupController::class, 'toggleFeaturedOnHero'])->name('startups.toggle-hero');
     Route::delete('startups/{startup}', [AdminStartupController::class, 'destroy'])->name('startups.destroy');
     Route::get('startup-websites', [StartupWebsiteHealthController::class, 'index'])->name('startup-websites.index');
     Route::post('startup-websites/run-check', [StartupWebsiteHealthController::class, 'runCheck'])->name('startup-websites.run-check');
     Route::get('users', [UserController::class, 'index'])->name('users.index');
     Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
-    Route::post('users/{user}/feature-on-hero', [UserController::class, 'toggleFeaturedOnHero'])->name('users.feature-on-hero');
     Route::get('users/{user}/startups', [UserController::class, 'startups'])->name('users.startups');
     Route::get('categories', [CategoryController::class, 'index'])->name('categories.index');
     Route::get('categories/create', [CategoryController::class, 'create'])->name('categories.create');
