@@ -60,10 +60,6 @@ class UserController extends Controller
 
     public function toggleFeaturedOnHero(User $user): RedirectResponse
     {
-        if (! $this->isLinkedInConfigured()) {
-            return redirect()->route('admin.users.index')
-                ->with('notify', [['error', 'LinkedIn API credentials are not set. Configure them in Settings.']]);
-        }
         $current = (bool) ($user->featured_on_hero ?? false);
         $user->featured_on_hero = ! $current;
         $user->save();
