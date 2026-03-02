@@ -45,19 +45,37 @@ class StartupController extends Controller
                     $allFounderEmails->push(strtolower(trim($f['email'])));
                 }
             }
+            if ($s->founder_email) {
+                $allFounderEmails->push(strtolower(trim($s->founder_email)));
+            }
         }
         $allFounderEmails = $allFounderEmails->unique()->values()->all();
         $usersByEmail = ! empty($allFounderEmails) ? User::whereIn('email', $allFounderEmails)->get()->keyBy(fn ($u) => strtolower($u->email)) : collect();
 
         foreach ($startups as $s) {
             $heroFounders = [];
-            foreach ($this->getFoundersWithLinkedIn($s) as $f) {
+            $seenUserIds = [];
+            $linkedInFounders = $this->getFoundersWithLinkedIn($s);
+
+            foreach ($linkedInFounders as $f) {
                 $email = strtolower(trim($f['email'] ?? ''));
-                $user = $email !== '' ? $usersByEmail->get($email) : ($s->user ?? null);
-                if ($user) {
+                $user = $email !== '' ? $usersByEmail->get($email) : null;
+                if ($user && ! in_array($user->id, $seenUserIds)) {
                     $heroFounders[] = $user;
+                    $seenUserIds[] = $user->id;
                 }
             }
+
+            if (empty($heroFounders) && ! empty($linkedInFounders)) {
+                $owner = $s->user;
+                if (! $owner && $s->founder_email) {
+                    $owner = $usersByEmail->get(strtolower(trim($s->founder_email)));
+                }
+                if ($owner && ! in_array($owner->id, $seenUserIds)) {
+                    $heroFounders[] = $owner;
+                }
+            }
+
             $s->heroFounders = $heroFounders;
         }
 
