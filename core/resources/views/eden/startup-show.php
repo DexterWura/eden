@@ -8,6 +8,12 @@ $productImages = $s->product_images ?? [];
 ?>
 <section class="page-head">
   <div class="wrap">
+    <?php if (($s->status ?? '') === 'pending'): ?>
+    <div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:14px 18px;margin-bottom:16px;font-size:0.92rem;color:#92400e;text-align:center">
+      <i class="fa-solid fa-clock" style="margin-right:6px"></i>
+      This startup is pending review and is not yet visible to the public.
+    </div>
+    <?php endif; ?>
     <a href="<?= e(url('/')) ?>" class="back-link">&larr; All startups</a>
     <div class="startup-hero">
       <div class="startup-hero-logo" role="img" aria-label="<?= e($s->name) ?> logo">
@@ -42,9 +48,7 @@ $productImages = $s->product_images ?? [];
           <?php if (!empty($s->website)): ?>
           <a href="<?= e(url('/startup/' . $s->slug . '/out')) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="margin-left: 4px;"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Visit website</a>
           <?php endif; ?>
-          <?php if ($s->user_id === null): ?>
           <a href="<?= e(route('startup.claim', $s->slug)) ?>" class="btn btn-ghost" style="margin-left: 4px;"><i class="fa-solid fa-hand-holding-hand" aria-hidden="true"></i> Claim this startup</a>
-          <?php endif; ?>
         </div>
       </div>
     </div>
@@ -106,9 +110,7 @@ $productImages = $s->product_images ?? [];
   </section>
 
   <div class="cta-strip">
-    <?php if ($s->user_id === null): ?>
     <a href="<?= e(route('startup.claim', $s->slug)) ?>" class="btn btn-primary"><i class="fa-solid fa-hand-holding-hand" aria-hidden="true"></i> Claim this startup</a>
-    <?php endif; ?>
     <a href="<?= e(url('/')) ?>" class="btn btn-ghost">Browse more startups</a>
     <a href="<?= e(url('/submit')) ?>" class="btn btn-primary">Submit your startup</a>
   </div>

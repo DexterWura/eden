@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Startup extends Model
 {
+    public const STATUS_PENDING = 'pending';
     public const STATUS_ACTIVE = 'active';
     public const STATUS_DISABLED = 'disabled';
     public const STATUS_BANNED = 'banned';
@@ -168,6 +169,11 @@ class Startup extends Model
         return $query->where('category', $category);
     }
 
+    public function scopePending($query)
+    {
+        return $query->where('status', self::STATUS_PENDING);
+    }
+
     public function scopeActive($query)
     {
         return $query->where('status', self::STATUS_ACTIVE);
@@ -186,6 +192,11 @@ class Startup extends Model
     public function scopeDormant($query)
     {
         return $query->where('status', self::STATUS_DORMANT);
+    }
+
+    public function isPending(): bool
+    {
+        return $this->status === self::STATUS_PENDING;
     }
 
     public function isActive(): bool
@@ -260,5 +271,34 @@ class Startup extends Model
     public function upvoteRecords()
     {
         return $this->hasMany(StartupUpvote::class);
+    }
+
+    public static function normalizeUrl(?string $url): ?string
+    {
+        if ($url === null || trim($url) === '') {
+            return null;
+        }
+        $url = trim($url);
+        $url = preg_replace('#^https?://#i', '', $url);
+        $url = preg_replace('#^www\.#i', '', $url);
+        $url = rtrim($url, '/');
+        return strtolower($url);
+    }
+
+    public static function websiteExistsForAnother(?string $website, ?int $excludeId = null): bool
+    {
+        if ($website === null || trim($website) === '') {
+            return false;
+        }
+        $normalized = self::normalizeUrl($website);
+        if ($normalized === null || $normalized === '') {
+            return false;
+        }
+        return self::query()
+            ->whereNotNull('website')
+            ->where('website', '!=', '')
+            ->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))
+            ->get(['id', 'website'])
+            ->contains(fn ($s) => self::normalizeUrl($s->website) === $normalized);
     }
 }

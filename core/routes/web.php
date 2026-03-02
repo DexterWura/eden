@@ -88,6 +88,13 @@ Route::middleware('auth')->prefix('founder')->name('founder.')->group(function (
     Route::post('revenue-api/startups/{startup}/regenerate-key', [FounderRevenueApiController::class, 'regenerateKey'])->name('revenue-api.regenerate-key');
     Route::get('settings', [FounderSettingsController::class, 'index'])->name('settings');
     Route::put('settings', [FounderSettingsController::class, 'update'])->name('settings.update');
+    Route::post('notifications/{notification}/dismiss', function (string $notification) {
+        $n = auth()->user()->notifications()->where('id', $notification)->first();
+        if ($n) {
+            $n->markAsRead();
+        }
+        return redirect()->route('founder.dashboard');
+    })->name('notifications.dismiss');
 });
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login')->middleware('guest');

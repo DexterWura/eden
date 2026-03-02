@@ -22,6 +22,7 @@ class DashboardController extends EdenController
         $totalUpvotes = $myStartups->sum('upvotes');
         $primaryStartup = $myStartups->first();
         $siteName = $this->siteName();
+        $unreadNotifications = $user->unreadNotifications;
 
         return response()->view('eden.layout-dashboard', [
             'title' => 'Startup dashboard',
@@ -36,6 +37,7 @@ class DashboardController extends EdenController
             'content' => view('eden.founder-dashboard', [
                 'myStartups' => $myStartups,
                 'totalUpvotes' => $totalUpvotes,
+                'unreadNotifications' => $unreadNotifications,
             ])->render(),
         ]);
     }

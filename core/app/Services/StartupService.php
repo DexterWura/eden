@@ -129,6 +129,20 @@ class StartupService
 
     public function getBySlug(string $slug): Startup
     {
-        return Startup::active()->where('slug', $slug)->firstOrFail();
+        $startup = Startup::where('slug', $slug)->firstOrFail();
+
+        if ($startup->isActive()) {
+            return $startup;
+        }
+
+        if ($startup->isPending() && $startup->userCanManage(auth()->user())) {
+            return $startup;
+        }
+
+        if (session('is_admin')) {
+            return $startup;
+        }
+
+        abort(404);
     }
 }

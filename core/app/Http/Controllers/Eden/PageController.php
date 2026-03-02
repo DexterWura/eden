@@ -7,10 +7,14 @@ use App\Models\Category;
 use App\Models\ContactSubmission;
 use App\Models\Startup;
 use App\Models\Subscriber;
+use App\Models\User;
 use App\Services\StartupService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Password;
 
 class PageController extends EdenController
 {
@@ -53,12 +57,16 @@ class PageController extends EdenController
 
     public function submitStore(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
+        $startupRules = [
             'name' => 'required|string|max:255',
             'tagline' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:10000',
             'category' => 'nullable|string|exists:categories,name',
-            'website' => 'nullable|url|max:500',
+            'website' => ['nullable', 'url', 'max:500', function ($attr, $value, $fail) {
+                if ($value && Startup::websiteExistsForAnother($value)) {
+                    $fail('A startup with this website link already exists.');
+                }
+            }],
             'location' => 'nullable|string|max:255',
             'founder_names' => 'nullable|array',
             'founder_names.*' => 'nullable|string|max:255',
@@ -66,7 +74,43 @@ class PageController extends EdenController
             'logo' => 'nullable|image|mimes:jpeg,png,gif,webp|max:2048',
             'product_images' => 'nullable|array',
             'product_images.*' => 'nullable|image|mimes:jpeg,png,gif,webp|max:2048',
-        ]);
+        ];
+
+        if (!auth()->check()) {
+            $authMode = $request->input('auth_mode', 'register');
+
+            if ($authMode === 'login') {
+                $startupRules['login_email'] = 'required|email';
+                $startupRules['login_password'] = 'required|string';
+            } else {
+                $startupRules['auth_name'] = 'required|string|min:2|max:255';
+                $startupRules['auth_email'] = 'required|string|email|max:255|unique:users,email';
+                $startupRules['auth_password'] = ['required', 'confirmed', Password::min(8)];
+            }
+        }
+
+        $validated = $request->validate($startupRules);
+
+        if (!auth()->check()) {
+            $authMode = $request->input('auth_mode', 'register');
+
+            if ($authMode === 'login') {
+                if (!Auth::guard('web')->attempt(['email' => $validated['login_email'], 'password' => $validated['login_password']])) {
+                    return redirect()->back()
+                        ->withInput()
+                        ->withErrors(['login_email' => __('The provided credentials do not match our records.')]);
+                }
+                $request->session()->regenerate();
+            } else {
+                $user = new User();
+                $user->name = $validated['auth_name'];
+                $user->email = $validated['auth_email'];
+                $user->password = Hash::make($validated['auth_password']);
+                $user->save();
+                Auth::guard('web')->login($user);
+                $request->session()->regenerate();
+            }
+        }
 
         $baseSlug = Str::slug($validated['name']);
         $slug = $baseSlug;
@@ -99,8 +143,8 @@ class PageController extends EdenController
         $startup->launch_date = (!empty($validated['launch_today'])) ? now() : null;
         $startup->is_featured = false;
         $startup->upvotes = 0;
-        $startup->status = Startup::STATUS_ACTIVE;
-        $startup->user_id = auth()->check() ? auth()->id() : null;
+        $startup->status = Startup::STATUS_PENDING;
+        $startup->user_id = auth()->id();
         $startup->save();
 
         $baseDir = public_path('images/startups/' . $startup->id);
@@ -128,7 +172,7 @@ class PageController extends EdenController
             }
         }
 
-        return redirect()->to(url('/startup/' . $startup->slug))->with('success', __('Your startup has been submitted.'));
+        return redirect()->to(url('/startup/' . $startup->slug))->with('success', __('Your startup has been submitted and is pending review by our team. It will go live once approved.'));
     }
 
     public function categories()

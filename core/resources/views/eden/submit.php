@@ -101,6 +101,59 @@
         </div>
       </div>
 
+      <?php if (!auth()->check()): ?>
+      <div class="submit-form-section">
+        <h2 class="submit-form-section-title">Your account</h2>
+        <p class="form-hint" style="margin-bottom: 14px;">Create an account to manage your startup, or log in if you already have one.</p>
+
+        <div style="display:flex;gap:0;margin-bottom:18px;border:1px solid var(--border,#e2e8f0);border-radius:8px;overflow:hidden">
+          <button type="button" id="auth-tab-register" class="btn" style="flex:1;border:none;border-radius:0;padding:10px;font-size:0.9rem;font-weight:600;background:var(--accent,#00d4aa);color:#fff;cursor:pointer" onclick="toggleAuthTab('register')">
+            <i class="fa-solid fa-user-plus"></i> Create account
+          </button>
+          <button type="button" id="auth-tab-login" class="btn" style="flex:1;border:none;border-radius:0;padding:10px;font-size:0.9rem;font-weight:500;background:var(--surface-hover,#f8fafc);color:var(--text-muted,#64748b);cursor:pointer" onclick="toggleAuthTab('login')">
+            <i class="fa-solid fa-right-to-bracket"></i> I have an account
+          </button>
+        </div>
+        <input type="hidden" name="auth_mode" id="auth-mode-input" value="<?= e(old('auth_mode', 'register')) ?>">
+
+        <div id="auth-register-fields">
+          <div class="form-group">
+            <label class="form-label" for="auth-name">Full name</label>
+            <input type="text" id="auth-name" name="auth_name" class="form-input" placeholder="Your full name" value="<?= e(old('auth_name')) ?>">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="auth-email-register">Email address</label>
+            <input type="email" id="auth-email-register" name="auth_email" class="form-input" placeholder="you@example.com" value="<?= e(old('auth_email')) ?>">
+          </div>
+          <div class="form-row form-row--2">
+            <div class="form-group">
+              <label class="form-label" for="auth-password">Password</label>
+              <input type="password" id="auth-password" name="auth_password" class="form-input" placeholder="Min 8 characters">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="auth-password-confirm">Confirm password</label>
+              <input type="password" id="auth-password-confirm" name="auth_password_confirmation" class="form-input" placeholder="Repeat password">
+            </div>
+          </div>
+        </div>
+
+        <div id="auth-login-fields" style="display:none">
+          <div class="form-group">
+            <label class="form-label" for="auth-email-login">Email address</label>
+            <input type="email" id="auth-email-login" name="login_email" class="form-input" placeholder="you@example.com" value="<?= e(old('login_email')) ?>">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="auth-login-password">Password</label>
+            <input type="password" id="auth-login-password" name="login_password" class="form-input" placeholder="Your password">
+          </div>
+        </div>
+      </div>
+      <?php endif; ?>
+
+      <div style="background:var(--surface-hover,#f8fafc);border:1px solid var(--border,#e2e8f0);border-left:4px solid var(--accent,#00d4aa);border-radius:8px;padding:14px 18px;margin-bottom:16px;font-size:0.92rem;color:var(--text-muted,#64748b)">
+        <i class="fa-solid fa-info-circle" style="color:var(--accent,#00d4aa);margin-right:6px"></i>
+        Your startup will be reviewed by our team before going live. This usually takes less than 24 hours.
+      </div>
       <div class="submit-form-actions">
         <button type="submit" class="btn btn-primary btn--submit"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Submit startup</button>
         <a href="<?= e(url('/')) ?>" class="btn btn-ghost">Cancel</a>
@@ -109,6 +162,36 @@
   </div>
 </div>
 <script>
+function toggleAuthTab(mode) {
+  var regFields = document.getElementById('auth-register-fields');
+  var loginFields = document.getElementById('auth-login-fields');
+  var regTab = document.getElementById('auth-tab-register');
+  var loginTab = document.getElementById('auth-tab-login');
+  var modeInput = document.getElementById('auth-mode-input');
+  if (!regFields) return;
+
+  var activeStyle = 'flex:1;border:none;border-radius:0;padding:10px;font-size:0.9rem;font-weight:600;background:var(--accent,#00d4aa);color:#fff;cursor:pointer';
+  var inactiveStyle = 'flex:1;border:none;border-radius:0;padding:10px;font-size:0.9rem;font-weight:500;background:var(--surface-hover,#f8fafc);color:var(--text-muted,#64748b);cursor:pointer';
+
+  if (mode === 'login') {
+    regFields.style.display = 'none';
+    loginFields.style.display = 'block';
+    loginTab.style.cssText = activeStyle;
+    regTab.style.cssText = inactiveStyle;
+    modeInput.value = 'login';
+  } else {
+    regFields.style.display = 'block';
+    loginFields.style.display = 'none';
+    regTab.style.cssText = activeStyle;
+    loginTab.style.cssText = inactiveStyle;
+    modeInput.value = 'register';
+  }
+}
+(function() {
+  var initialMode = document.getElementById('auth-mode-input');
+  if (initialMode && initialMode.value === 'login') toggleAuthTab('login');
+})();
+
 (function() {
   var container = document.getElementById('product-images-container');
   var addBtn = document.getElementById('add-more-product-images');

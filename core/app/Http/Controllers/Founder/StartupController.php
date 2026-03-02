@@ -31,7 +31,7 @@ class StartupController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $validator = Validator::make($request->all(), $this->rules(), []);
+        $validator = Validator::make($request->all(), $this->rules(), $this->messages());
         if ($validator->fails()) {
             return redirect()->route('founder.startups.create')->withErrors($validator)->withInput();
         }
@@ -42,7 +42,7 @@ class StartupController extends Controller
         if (Startup::where('slug', $data['slug'])->exists()) {
             $data['slug'] = $data['slug'] . '-' . Str::random(4);
         }
-        $data['status'] = Startup::STATUS_ACTIVE;
+        $data['status'] = Startup::STATUS_PENDING;
         $data['founders'] = $this->buildFoundersFromRequest($request);
         $first = $this->firstFounderData($data['founders']);
         $data['founder_name'] = $first['name'] ?? auth()->user()->name;
@@ -53,7 +53,7 @@ class StartupController extends Controller
         $this->applyFlipitForSaleFromRequest($request, $data);
         $startup = Startup::create($data);
         $this->processStartupFiles($request, $startup);
-        return redirect()->route('founder.startups.index')->with('notify', [['success', 'Startup added.']]);
+        return redirect()->route('founder.startups.index')->with('notify', [['success', 'Startup submitted! It will go live once reviewed by our team.']]);
     }
 
     public function edit(Startup $startup)
@@ -67,7 +67,7 @@ class StartupController extends Controller
     public function update(Request $request, Startup $startup): RedirectResponse
     {
         $this->authorizeStartup($startup);
-        $validator = Validator::make($request->all(), $this->rules(), []);
+        $validator = Validator::make($request->all(), $this->rules($startup->id), $this->messages());
         if ($validator->fails()) {
             return redirect()->route('founder.startups.edit', $startup)->withErrors($validator)->withInput();
         }
@@ -226,14 +226,18 @@ class StartupController extends Controller
         return response()->view('eden.layout-dashboard', $vars);
     }
 
-    private function rules(): array
+    private function rules(?int $excludeId = null): array
     {
         return [
             'name' => ['required', 'string', 'max:255'],
             'tagline' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'category' => ['nullable', 'string', 'exists:categories,name'],
-            'website' => ['nullable', 'string', 'max:500', 'url'],
+            'website' => ['nullable', 'string', 'max:500', 'url', function ($attr, $value, $fail) use ($excludeId) {
+                if ($value && Startup::websiteExistsForAnother($value, $excludeId)) {
+                    $fail('A startup with this website link already exists.');
+                }
+            }],
             'location' => ['nullable', 'string', 'max:255'],
             'founder_email' => ['nullable', 'email', 'max:255'],
             'founder_twitter_url' => ['nullable', 'string', 'max:255'],
@@ -264,6 +268,11 @@ class StartupController extends Controller
                 'regex:/^https?:\/\/(?:www\.)?flipit\.co\.zw\/marketplace\/listing\/[a-zA-Z0-9_-]+\/?$/i',
             ],
         ];
+    }
+
+    private function messages(): array
+    {
+        return [];
     }
 
     private function applyFlipitForSaleFromRequest(Request $request, array &$data): void

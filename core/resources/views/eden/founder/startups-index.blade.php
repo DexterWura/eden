@@ -33,7 +33,13 @@
             </td>
             <td>{{ $s->category ?? '—' }}</td>
             <td>{{ $s->upvotes }}</td>
-            <td>{{ $s->status ?? 'active' }}</td>
+            <td>
+              @if($s->status === 'pending')
+                <span style="display:inline-block;padding:2px 8px;font-size:0.75rem;border-radius:4px;background:#fef3c7;color:#92400e;font-weight:600">Pending review</span>
+              @else
+                {{ $s->status ?? 'active' }}
+              @endif
+            </td>
             <td>
               <a href="{{ route('founder.startups.edit', $s) }}" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; text-decoration: none;"><i class="fa-solid fa-pen"></i> Edit</a>
             </td>

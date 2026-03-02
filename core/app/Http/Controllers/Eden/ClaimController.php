@@ -26,13 +26,6 @@ class ClaimController extends EdenController
         return $startup;
     }
 
-    private function ensureCanClaim(Startup $startup): void
-    {
-        if ($startup->user_id !== null) {
-            abort(403, 'This startup has already been claimed.');
-        }
-    }
-
     public function show(Request $request, string $slug)
     {
         if (! auth()->check()) {
@@ -41,7 +34,6 @@ class ClaimController extends EdenController
         }
 
         $startup = $this->getStartup($slug);
-        $this->ensureCanClaim($startup);
 
         $step = $request->query('step', 'confirm');
         $pending = StartupClaimVerification::where('startup_id', $startup->id)
@@ -85,7 +77,6 @@ class ClaimController extends EdenController
         }
 
         $startup = $this->getStartup($slug);
-        $this->ensureCanClaim($startup);
 
         $request->validate(['confirm' => 'required|in:yes']);
 
@@ -99,7 +90,6 @@ class ClaimController extends EdenController
         }
 
         $startup = $this->getStartup($slug);
-        $this->ensureCanClaim($startup);
 
         $request->validate([
             'method' => 'required|in:dns,file',
@@ -129,7 +119,6 @@ class ClaimController extends EdenController
         }
 
         $startup = $this->getStartup($slug);
-        $this->ensureCanClaim($startup);
 
         $pending = StartupClaimVerification::where('startup_id', $startup->id)
             ->where('user_id', auth()->id())

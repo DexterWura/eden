@@ -269,9 +269,15 @@
   </div>
   --}}
 
+  @if(!$isEdit)
+  <div style="background:var(--surface-hover,#1a1d28);border:1px solid var(--border,#2a2e3d);border-left:4px solid var(--accent,#00d4aa);border-radius:8px;padding:14px 18px;margin-bottom:16px;font-size:0.92rem;color:var(--text-muted,#8b90a0)">
+    <i class="fa-solid fa-info-circle" style="color:var(--accent,#00d4aa);margin-right:6px"></i>
+    Your startup will be reviewed by our team before going live. This usually takes less than 24 hours.
+  </div>
+  @endif
   <div style="display: flex; gap: 12px; flex-wrap: wrap;">
     <button type="submit" class="dash-btn dash-btn-primary">
-      <i class="fa-solid fa-check"></i> {{ $isEdit ? 'Save changes' : 'Add startup' }}
+      <i class="fa-solid fa-check"></i> {{ $isEdit ? 'Save changes' : 'Submit startup' }}
     </button>
     <a href="{{ route('founder.startups.index') }}" class="dash-btn dash-btn-secondary" style="text-decoration: none;">Cancel</a>
   </div>

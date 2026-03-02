@@ -4,6 +4,10 @@
 </div>
 
 <div class="dash-kpi-row">
+  <div class="dash-kpi-card" style="{{ ($countPending ?? 0) > 0 ? 'border-left:3px solid #f59e0b' : '' }}">
+    <div class="dash-kpi-label">Pending review</div>
+    <div class="dash-kpi-value">{{ $countPending ?? 0 }}</div>
+  </div>
   <div class="dash-kpi-card">
     <div class="dash-kpi-label">Active</div>
     <div class="dash-kpi-value">{{ $countActive }}</div>
@@ -38,6 +42,7 @@
       <input type="text" name="q" value="{{ $search }}" placeholder="Search name, founder, category…" class="dash-search" style="max-width: 260px;">
       <select name="status" class="dash-search" style="max-width: 160px;">
         <option value="">All statuses</option>
+        <option value="pending" {{ $statusFilter === 'pending' ? 'selected' : '' }}>Pending</option>
         <option value="active" {{ $statusFilter === 'active' ? 'selected' : '' }}>Active</option>
         <option value="disabled" {{ $statusFilter === 'disabled' ? 'selected' : '' }}>Disabled</option>
         <option value="banned" {{ $statusFilter === 'banned' ? 'selected' : '' }}>Banned</option>
@@ -75,7 +80,9 @@
             </td>
             <td>{{ $startup->category ?? '—' }}</td>
             <td>
-              @if($startup->status === 'active')
+              @if($startup->status === 'pending')
+                <span class="dash-badge dash-badge-pending">Pending</span>
+              @elseif($startup->status === 'active')
                 <span class="dash-badge dash-badge-success">Active</span>
               @elseif($startup->status === 'disabled')
                 <span class="dash-badge dash-badge-warning">Disabled</span>
@@ -90,7 +97,9 @@
             <td>
               <div style="display: flex; flex-wrap: wrap; gap: 6px;">
                 <a href="{{ route('admin.startups.edit', $startup) }}" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;"><i class="fa-solid fa-pen"></i> Edit</a>
-                @if($startup->isActive())
+                @if($startup->isPending())
+                  <button type="button" class="dash-btn startup-action" style="padding: 4px 10px; font-size: 0.8rem; background: #059669; color: #fff; border: none;" data-action="activate" data-url="{{ route('admin.startups.activate', $startup) }}"><i class="fa-solid fa-check"></i> Approve</button>
+                @elseif($startup->isActive())
                   <button type="button" class="dash-btn dash-btn-secondary startup-action" style="padding: 4px 10px; font-size: 0.8rem;" data-action="disable" data-url="{{ route('admin.startups.disable', $startup) }}">Disable</button>
                 @else
                   <button type="button" class="dash-btn dash-btn-primary startup-action" style="padding: 4px 10px; font-size: 0.8rem;" data-action="activate" data-url="{{ route('admin.startups.activate', $startup) }}">Set active</button>
@@ -161,6 +170,7 @@
 .dash-badge-warning { background: #fef3c7; color: #92400e; }
 .dash-badge-danger { background: #fee2e2; color: #991b1b; }
 .dash-badge-info { background: #dbeafe; color: #1e40af; }
+.dash-badge-pending { background: #fef3c7; color: #92400e; font-weight: 600; }
 </style>
 
 <script>

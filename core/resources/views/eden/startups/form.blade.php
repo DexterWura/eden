@@ -127,9 +127,19 @@
                 <input type="text" name="founders_names[]" value="{{ $fn['name'] ?? '' }}" class="dash-input" placeholder="Full name">
               </div>
               <div class="founder-field founder-field-photo">
-                <label class="dash-label">Photo</label>
+                <label class="dash-label">Photo upload</label>
                 <input type="file" name="founders_photos[]" accept="image/jpeg,image/png,image/gif,image/webp" class="dash-input">
+                @if(!empty($fn['photo_url']))
+                <div style="margin-top:4px;display:flex;align-items:center;gap:6px">
+                  <img src="{{ asset($fn['photo_url']) }}" style="width:28px;height:28px;border-radius:50%;object-fit:cover" alt="">
+                  <span style="font-size:0.75rem;color:var(--text-muted)">Current photo</span>
+                </div>
+                @endif
               </div>
+            </div>
+            <div class="founder-field">
+              <label class="dash-label">Photo URL <span style="font-weight:normal;color:var(--text-muted)">(or paste an image link)</span></label>
+              <input type="url" name="founders_photo_urls[]" value="{{ $fn['photo_url'] ?? '' }}" class="dash-input" placeholder="https://example.com/photo.jpg">
             </div>
             <div class="founder-field">
               <label class="dash-label">Email</label>
@@ -162,9 +172,13 @@
                 <input type="text" name="founders_names[]" class="dash-input" placeholder="Full name">
               </div>
               <div class="founder-field founder-field-photo">
-                <label class="dash-label">Photo</label>
+                <label class="dash-label">Photo upload</label>
                 <input type="file" name="founders_photos[]" accept="image/jpeg,image/png,image/gif,image/webp" class="dash-input">
               </div>
+            </div>
+            <div class="founder-field">
+              <label class="dash-label">Photo URL <span style="font-weight:normal;color:var(--text-muted)">(or paste an image link)</span></label>
+              <input type="url" name="founders_photo_urls[]" value="" class="dash-input" placeholder="https://example.com/photo.jpg">
             </div>
             <div class="founder-field">
               <label class="dash-label">Email</label>
@@ -288,7 +302,7 @@ document.addEventListener('DOMContentLoaded', function() {
       var n = t.querySelectorAll('.founder-row').length + 1;
       var row = document.createElement('div');
       row.className = 'founder-row founder-card';
-      row.innerHTML = '<div class="founder-card-head"><span class="founder-card-num">Founder ' + n + '</span><button type="button" class="dash-btn dash-btn-secondary founder-remove" aria-label="Remove founder"><i class="fa-solid fa-trash-can"></i> Remove</button></div><div class="founder-card-fields"><div class="founder-card-row"><div class="founder-field"><label class="dash-label">Name</label><input type="text" name="founders_names[]" class="dash-input" placeholder="Full name"></div><div class="founder-field founder-field-photo"><label class="dash-label">Photo</label><input type="file" name="founders_photos[]" accept="image/jpeg,image/png,image/gif,image/webp" class="dash-input"></div></div><div class="founder-field"><label class="dash-label">Email</label><input type="email" name="founders_emails[]" class="dash-input" placeholder="email@example.com"></div><div class="founder-card-row founder-card-row-2"><div class="founder-field"><label class="dash-label">X (Twitter) handle</label><input type="text" name="founders_twitter_urls[]" class="dash-input" placeholder="e.g. @dxtwura"></div><div class="founder-field"><label class="dash-label">LinkedIn profile</label><input type="url" name="founders_linkedin_urls[]" class="dash-input" placeholder="https://linkedin.com/in/..."></div></div></div></div>';
+      row.innerHTML = '<div class="founder-card-head"><span class="founder-card-num">Founder ' + n + '</span><button type="button" class="dash-btn dash-btn-secondary founder-remove" aria-label="Remove founder"><i class="fa-solid fa-trash-can"></i> Remove</button></div><div class="founder-card-fields"><div class="founder-card-row"><div class="founder-field"><label class="dash-label">Name</label><input type="text" name="founders_names[]" class="dash-input" placeholder="Full name"></div><div class="founder-field founder-field-photo"><label class="dash-label">Photo upload</label><input type="file" name="founders_photos[]" accept="image/jpeg,image/png,image/gif,image/webp" class="dash-input"></div></div><div class="founder-field"><label class="dash-label">Photo URL <span style="font-weight:normal;color:var(--text-muted)">(or paste an image link)</span></label><input type="url" name="founders_photo_urls[]" value="" class="dash-input" placeholder="https://example.com/photo.jpg"></div><div class="founder-field"><label class="dash-label">Email</label><input type="email" name="founders_emails[]" class="dash-input" placeholder="email@example.com"></div><div class="founder-card-row founder-card-row-2"><div class="founder-field"><label class="dash-label">X (Twitter) handle</label><input type="text" name="founders_twitter_urls[]" class="dash-input" placeholder="e.g. @dxtwura"></div><div class="founder-field"><label class="dash-label">LinkedIn profile</label><input type="url" name="founders_linkedin_urls[]" class="dash-input" placeholder="https://linkedin.com/in/..."></div></div></div></div>';
       t.appendChild(row);
       row.querySelector('.founder-remove').addEventListener('click', function() { row.remove(); updateFounderNumbers(); });
       updateFounderNumbers();

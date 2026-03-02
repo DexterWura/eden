@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Startup;
 use App\Models\StartupUpvote;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -18,7 +20,9 @@ class StartupController extends Controller
     {
         $query = Startup::query()->orderByDesc('updated_at');
         $statusFilter = $request->get('status', '');
-        if ($statusFilter === 'active') {
+        if ($statusFilter === 'pending') {
+            $query->pending();
+        } elseif ($statusFilter === 'active') {
             $query->active();
         } elseif ($statusFilter === 'disabled') {
             $query->disabled();
@@ -45,6 +49,7 @@ class StartupController extends Controller
             'startups' => $startups,
             'statusFilter' => $statusFilter,
             'search' => $search,
+            'countPending' => Startup::pending()->count(),
             'countActive' => Startup::active()->count(),
             'countDisabled' => Startup::disabled()->count(),
             'countBanned' => Startup::banned()->count(),
@@ -75,14 +80,14 @@ class StartupController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $validator = Validator::make($request->all(), $this->validationRules(), $this->validationMessages());
+        $validator = Validator::make($request->all(), $this->validationRules(null), $this->validationMessages());
         if ($validator->fails()) {
             return redirect()->route('admin.startups.create')
                 ->withErrors($validator)
                 ->withInput();
         }
         $data = $validator->validated();
-        unset($data['logo'], $data['founders_names'], $data['founders_emails'], $data['founders_twitter_urls'], $data['founders_linkedin_urls'], $data['founders_photos'], $data['product_images']);
+        unset($data['logo'], $data['founders_names'], $data['founders_emails'], $data['founders_twitter_urls'], $data['founders_linkedin_urls'], $data['founders_photo_urls'], $data['founders_photos'], $data['product_images']);
         $data['slug'] = Str::slug($data['name']);
         if (Startup::where('slug', $data['slug'])->exists()) {
             $data['slug'] = $data['slug'] . '-' . Str::random(4);
@@ -109,14 +114,14 @@ class StartupController extends Controller
 
     public function update(Request $request, Startup $startup): RedirectResponse
     {
-        $validator = Validator::make($request->all(), $this->validationRules(), $this->validationMessages());
+        $validator = Validator::make($request->all(), $this->validationRules($startup->id), $this->validationMessages());
         if ($validator->fails()) {
             return redirect()->route('admin.startups.edit', $startup)
                 ->withErrors($validator)
                 ->withInput();
         }
         $data = $validator->validated();
-        unset($data['logo'], $data['founders_names'], $data['founders_emails'], $data['founders_twitter_urls'], $data['founders_linkedin_urls'], $data['founders_photos'], $data['product_images']);
+        unset($data['logo'], $data['founders_names'], $data['founders_emails'], $data['founders_twitter_urls'], $data['founders_linkedin_urls'], $data['founders_photo_urls'], $data['founders_photos'], $data['product_images']);
         $data['slug'] = Str::slug($data['name']);
         $existing = Startup::where('slug', $data['slug'])->where('id', '!=', $startup->id)->exists();
         if ($existing) {
@@ -146,6 +151,7 @@ class StartupController extends Controller
         $twitterUrls = $request->input('founders_twitter_urls', []);
         $linkedinUrls = $request->input('founders_linkedin_urls', []);
         $photos = $request->file('founders_photos', []);
+        $photoUrls = $request->input('founders_photo_urls', []);
         $existing = $startup ? ($startup->founders ?? []) : [];
         $founders = [];
         foreach ($names as $i => $name) {
@@ -162,6 +168,8 @@ class StartupController extends Controller
                 $filename = 'f-' . uniqid() . '-' . $i . '.' . $photos[$i]->getClientOriginalExtension();
                 $photos[$i]->move($dir, $filename);
                 $photoUrl = 'images/startups/founders/' . $filename;
+            } elseif (! empty(trim($photoUrls[$i] ?? ''))) {
+                $photoUrl = trim($photoUrls[$i]);
             } elseif (isset($existing[$i]) && is_array($existing[$i]) && ! empty($existing[$i]['photo_url'])) {
                 $photoUrl = $existing[$i]['photo_url'];
             }
@@ -256,11 +264,15 @@ class StartupController extends Controller
 
     public function activate(Startup $startup)
     {
+        $wasPending = $startup->isPending();
         $startup->update([
             'status' => Startup::STATUS_ACTIVE,
             'dormant_at' => null,
         ]);
-        return response()->json(['status' => 'success', 'message' => 'Startup activated.']);
+        if ($wasPending) {
+            $this->notifyFounderApproved($startup);
+        }
+        return response()->json(['status' => 'success', 'message' => $wasPending ? 'Startup approved and is now live.' : 'Startup activated.']);
     }
 
     public function ban(Startup $startup)
@@ -282,75 +294,44 @@ class StartupController extends Controller
         return response()->json(['status' => 'success', 'message' => "Startup {$label}.", 'is_featured' => $startup->is_featured]);
     }
 
+    private function notifyFounderApproved(Startup $startup): void
+    {
+        $userIds = [];
+        if ($startup->user_id) {
+            $userIds[] = $startup->user_id;
+        }
+        foreach ($startup->founders ?? [] as $f) {
+            $email = is_array($f) ? ($f['email'] ?? null) : ($f->email ?? null);
+            if ($email && trim($email) !== '') {
+                $user = User::where('email', strtolower(trim($email)))->first();
+                if ($user) {
+                    $userIds[] = $user->id;
+                }
+            }
+        }
+        foreach (array_unique($userIds) as $uid) {
+            DB::table('notifications')->insert([
+                'id' => Str::uuid()->toString(),
+                'type' => 'App\\Notifications\\StartupApproved',
+                'notifiable_type' => 'App\\Models\\User',
+                'notifiable_id' => $uid,
+                'data' => json_encode([
+                    'title' => 'Startup approved!',
+                    'message' => "Your startup \"{$startup->name}\" has been reviewed and is now live on the directory.",
+                ]),
+                'read_at' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+    }
+
     public function toggleFeaturedOnHero(Startup $startup): RedirectResponse
     {
         $startup->update(['featured_on_hero' => ! $startup->featured_on_hero]);
-
-        if ($startup->featured_on_hero) {
-            $this->scrapeLinkedInPhotos($startup);
-        }
-
         $label = $startup->featured_on_hero ? 'featured on hero' : 'removed from hero';
         return redirect()->route('admin.startups.index')
             ->with('notify', [['success', $startup->name . ' ' . $label . '.']]);
-    }
-
-    private function scrapeLinkedInPhotos(Startup $startup): void
-    {
-        $founders = $startup->founders ?? [];
-        $changed = false;
-
-        foreach ($founders as &$f) {
-            if (! is_array($f)) {
-                continue;
-            }
-            $linkedinUrl = trim($f['linkedin_url'] ?? '');
-            if ($linkedinUrl === '' || ! empty($f['photo_url'] ?? '')) {
-                continue;
-            }
-
-            $ogImage = $this->fetchLinkedInOgImage($linkedinUrl);
-            if ($ogImage) {
-                $f['photo_url'] = $ogImage;
-                $changed = true;
-            }
-        }
-        unset($f);
-
-        if ($changed) {
-            $startup->update(['founders' => $founders]);
-        }
-    }
-
-    private function fetchLinkedInOgImage(string $url): ?string
-    {
-        try {
-            $ctx = stream_context_create([
-                'http' => [
-                    'method' => 'GET',
-                    'header' => "User-Agent: Mozilla/5.0 (compatible; EdenBot/1.0)\r\nAccept: text/html\r\n",
-                    'timeout' => 8,
-                    'follow_location' => true,
-                ],
-                'ssl' => ['verify_peer' => false, 'verify_peer_name' => false],
-            ]);
-
-            $html = @file_get_contents($url, false, $ctx);
-            if (! $html) {
-                return null;
-            }
-
-            if (preg_match('/<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)["\']/i', $html, $m)) {
-                return $m[1];
-            }
-            if (preg_match('/<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:image["\']/i', $html, $m)) {
-                return $m[1];
-            }
-
-            return null;
-        } catch (\Throwable $e) {
-            return null;
-        }
     }
 
     public function destroy(Startup $startup): JsonResponse
@@ -406,14 +387,18 @@ class StartupController extends Controller
         return $result;
     }
 
-    private function validationRules(): array
+    private function validationRules(?int $excludeId = null): array
     {
         return [
             'name' => ['required', 'string', 'max:255'],
             'tagline' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'category' => ['nullable', 'string', 'exists:categories,name'],
-            'website' => ['nullable', 'string', 'max:500', 'url'],
+            'website' => ['nullable', 'string', 'max:500', 'url', function ($attr, $value, $fail) use ($excludeId) {
+                if ($value && Startup::websiteExistsForAnother($value, $excludeId)) {
+                    $fail('A startup with this website link already exists.');
+                }
+            }],
             'location' => ['nullable', 'string', 'max:255'],
             'founder_email' => ['nullable', 'email', 'max:255'],
             'founder_twitter_url' => ['nullable', 'string', 'max:255'],
@@ -421,7 +406,7 @@ class StartupController extends Controller
             'launch_date' => ['nullable', 'date'],
             'twitter_url' => ['nullable', 'string', 'max:255'],
             'linkedin_url' => ['nullable', 'string', 'max:500', 'url'],
-            'status' => ['nullable', 'in:active,disabled,banned,dormant'],
+            'status' => ['nullable', 'in:pending,active,disabled,banned,dormant'],
             'logo' => ['nullable', 'image', 'mimes:jpeg,png,gif,webp', 'max:2048'],
             'founders_names' => ['nullable', 'array'],
             'founders_names.*' => ['nullable', 'string', 'max:255'],
@@ -431,6 +416,8 @@ class StartupController extends Controller
             'founders_twitter_urls.*' => ['nullable', 'string', 'max:255'],
             'founders_linkedin_urls' => ['nullable', 'array'],
             'founders_linkedin_urls.*' => ['nullable', 'string', 'max:500', 'url'],
+            'founders_photo_urls' => ['nullable', 'array'],
+            'founders_photo_urls.*' => ['nullable', 'string', 'max:500'],
             'founders_photos' => ['nullable', 'array'],
             'founders_photos.*' => ['nullable', 'image', 'mimes:jpeg,png,gif,webp', 'max:2048'],
             'product_images' => ['nullable', 'array'],
