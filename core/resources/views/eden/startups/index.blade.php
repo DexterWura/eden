@@ -103,8 +103,17 @@
                 <button type="button" class="dash-btn dash-btn-secondary startup-action startup-featured" style="padding: 4px 10px; font-size: 0.8rem;" data-url="{{ route('admin.startups.toggle-featured', $startup) }}" data-featured="{{ $startup->is_featured ? '1' : '0' }}">
                   {{ $startup->is_featured ? 'Unfeature' : 'Feature' }}
                 </button>
-                @php $featureUser = $startup->user ?? $startup->heroUser ?? null; @endphp
-                @if($featureUser)
+                @php
+                  $featureUser = $startup->user ?? $startup->heroUser ?? null;
+                  $hasFounderLinkedIn = !empty(trim($startup->founder_linkedin_url ?? ''));
+                  if (!$hasFounderLinkedIn) {
+                    foreach ($startup->founders ?? [] as $_f) {
+                      $fLi = is_array($_f) ? ($_f['linkedin_url'] ?? null) : ($_f->linkedin_url ?? null);
+                      if (!empty(trim((string)($fLi ?? '')))) { $hasFounderLinkedIn = true; break; }
+                    }
+                  }
+                @endphp
+                @if($featureUser && $hasFounderLinkedIn)
                   <form action="{{ route('admin.users.feature-on-hero', $featureUser) }}" method="post" style="display: inline;">
                     @csrf
                     @if($featureUser->featured_on_hero)
