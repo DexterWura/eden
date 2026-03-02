@@ -43,6 +43,7 @@
       <?php else: ?>
         <a href="<?= e(url('/founder')) ?>" class="<?= ($activeNav ?? '') === 'home' ? 'active' : '' ?>" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i><span class="dash-sidebar-label">Home</span></a>
         <a href="<?= e(url('/founder/startups')) ?>" class="<?= ($activeNav ?? '') === 'startups' ? 'active' : '' ?>" aria-label="My startup" title="My startups"><i class="fa-solid fa-building-user"></i><span class="dash-sidebar-label">Startups</span></a>
+        <a href="<?= e(url('/founder/badges')) ?>" class="<?= ($activeNav ?? '') === 'badges' ? 'active' : '' ?>" aria-label="Badges" title="Embed badges"><i class="fa-solid fa-certificate"></i><span class="dash-sidebar-label">Badges</span></a>
         <a href="<?= e(url('/founder/upvotes')) ?>" class="<?= ($activeNav ?? '') === 'upvotes' ? 'active' : '' ?>" aria-label="Upvotes" title="Upvotes"><i class="fa-solid fa-arrow-up"></i><span class="dash-sidebar-label">Upvotes</span></a>
         <a href="<?= e(url('/founder/revenue-api')) ?>" class="<?= ($activeNav ?? '') === 'revenue-api' ? 'active' : '' ?>" aria-label="Revenue API" title="Revenue API"><i class="fa-solid fa-code"></i><span class="dash-sidebar-label">Revenue API</span></a>
         <a href="<?= e(url('/founder/settings')) ?>" class="<?= ($activeNav ?? '') === 'settings' ? 'active' : '' ?>" aria-label="Settings" title="Settings"><i class="fa-solid fa-gear"></i><span class="dash-sidebar-label">Settings</span></a>

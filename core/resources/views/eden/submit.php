@@ -72,6 +72,7 @@
         <div class="form-row form-row--2">
           <div class="form-group">
             <label class="form-label" for="logo">Startup logo</label>
+            <p class="form-hint" style="margin-top: 0; margin-bottom: 8px;">80×80 px or smaller, square.</p>
             <input type="file" id="logo" name="logo" accept="image/jpeg,image/png,image/gif,image/webp" class="form-input form-input--file">
           </div>
           <div class="form-group">

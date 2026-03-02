@@ -21,7 +21,9 @@ use App\Http\Controllers\Eden\HomeController;
 use App\Http\Controllers\Eden\PageController;
 use App\Http\Controllers\Eden\BlogController;
 use App\Http\Controllers\Eden\StartupController;
+use App\Http\Controllers\Eden\BadgeController;
 use App\Http\Controllers\User\Auth\SocialiteController;
+use App\Http\Controllers\Founder\BadgesController as FounderBadgesController;
 use App\Http\Controllers\Founder\RevenueApiController as FounderRevenueApiController;
 use App\Http\Controllers\Founder\SettingsController as FounderSettingsController;
 use App\Http\Controllers\Founder\StartupController as FounderStartupController;
@@ -47,6 +49,11 @@ Route::redirect('/admin-dashboard', '/backoffice/dashboard', 301);
 Route::redirect('/founder-dashboard', '/founder', 301);
 Route::redirect('/startup', '/founder', 301);
 
+Route::get('/cron', function () {
+    \Illuminate\Support\Facades\Artisan::call('schedule:run');
+    return response('', 204);
+})->name('cron');
+
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/leaderboard', [HomeController::class, 'leaderboard'])->name('leaderboard');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
@@ -59,6 +66,7 @@ Route::post('/submit', [PageController::class, 'submitStore']);
 Route::get('/categories', [PageController::class, 'categories']);
 Route::post('/subscribe', [PageController::class, 'subscribe']);
 Route::get('/launching-today', [StartupController::class, 'launchingToday']);
+Route::get('/badge/{type}', [BadgeController::class, 'show'])->name('badge.show')->where('type', 'listed|featured|product-of-day');
 Route::get('/startup/{slug}', [StartupController::class, 'show'])->name('startup.show');
 Route::get('/startup/{slug}/out', [StartupController::class, 'out']);
 Route::post('/startup/{slug}/upvote', [StartupController::class, 'upvote'])->name('startup.upvote');
@@ -74,6 +82,7 @@ Route::middleware('auth')->prefix('founder')->name('founder.')->group(function (
     Route::get('startups/{startup}/edit', [FounderStartupController::class, 'edit'])->name('startups.edit');
     Route::put('startups/{startup}', [FounderStartupController::class, 'update'])->name('startups.update');
     Route::get('upvotes', [UpvotesController::class, 'index'])->name('upvotes');
+    Route::get('badges', [FounderBadgesController::class, 'index'])->name('badges');
     Route::get('revenue-api', [FounderRevenueApiController::class, 'index'])->name('revenue-api');
     Route::post('revenue-api/startups/{startup}/create-key', [FounderRevenueApiController::class, 'createKey'])->name('revenue-api.create-key');
     Route::post('revenue-api/startups/{startup}/regenerate-key', [FounderRevenueApiController::class, 'regenerateKey'])->name('revenue-api.regenerate-key');

@@ -59,6 +59,7 @@
   <div class="dash-card-body" style="display: flex; flex-wrap: wrap; gap: 12px;">
     <a href="<?= e(url('/founder/startups/create')) ?>" class="dash-btn dash-btn-primary" style="text-decoration: none;"><i class="fa-solid fa-plus"></i> Add startup</a>
     <a href="<?= e(url('/founder/startups')) ?>" class="dash-btn dash-btn-secondary" style="text-decoration: none;"><i class="fa-solid fa-building-user"></i> My startups</a>
+    <a href="<?= e(url('/founder/badges')) ?>" class="dash-btn dash-btn-secondary" style="text-decoration: none;"><i class="fa-solid fa-certificate"></i> Badges</a>
     <a href="<?= e(url('/founder/upvotes')) ?>" class="dash-btn dash-btn-secondary" style="text-decoration: none;"><i class="fa-solid fa-arrow-up"></i> Upvotes</a>
     <a href="<?= e(url('/founder/settings')) ?>" class="dash-btn dash-btn-secondary" style="text-decoration: none;"><i class="fa-solid fa-gear"></i> Settings</a>
   </div>

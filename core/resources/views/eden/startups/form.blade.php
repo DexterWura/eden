@@ -55,6 +55,7 @@
       </div>
       <div>
         <label for="logo_path" class="dash-label">Startup logo</label>
+        <p class="dash-hint" style="margin-top: 0;">80×80 px or smaller, square.</p>
         <input type="file" id="logo_path" name="logo" accept="image/jpeg,image/png,image/gif,image/webp" class="dash-input">
         @error('logo') <span class="dash-error">{{ $message }}</span> @enderror
         @if($startup->logo_path)

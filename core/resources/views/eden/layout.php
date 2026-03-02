@@ -13,6 +13,9 @@
     $canonicalUrl = isset($canonicalUrl) ? $canonicalUrl : url()->current();
   ?>
   <title><?= e($pageTitleFinal) ?></title>
+  <script>
+    (function(){var t=localStorage.getItem('eden_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+  </script>
   <link rel="canonical" href="<?= e($canonicalUrl) ?>">
   <?php if ($metaKeywordsFinal !== ''): ?><meta name="keywords" content="<?= e($metaKeywordsFinal) ?>"><?php endif; ?>
   <meta name="description" content="<?= e($metaDesc) ?>">
@@ -48,6 +51,10 @@
     <div class="wrap header-inner">
       <a href="<?= e(url('/')) ?>" class="logo"><?= e(function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden') ?></a>
       <nav class="nav-main">
+        <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle light or dark mode" aria-pressed="false" title="Toggle theme">
+          <span class="theme-icon-dark" aria-hidden="true"><i class="fa-solid fa-moon"></i></span>
+          <span class="theme-icon-light" aria-hidden="true"><i class="fa-solid fa-sun"></i></span>
+        </button>
         <a href="<?= e(url('/launching-today')) ?>">Launching today</a>
         <a href="<?= e(url('/leaderboard')) ?>">Leaderboard</a>
         <a href="<?= e(url('/categories')) ?>">Categories</a>
@@ -101,6 +108,13 @@
       <button type="button" class="nav-drawer-close" id="navDrawerClose" aria-label="Close menu"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <nav class="nav-drawer-links">
+      <div style="padding: 8px 0; margin-bottom: 8px; border-bottom: 1px solid var(--border);">
+        <button type="button" class="theme-toggle theme-toggle-drawer" id="themeToggleDrawer" aria-label="Toggle light or dark mode" aria-pressed="false" title="Toggle theme" style="width: 100%; justify-content: flex-start; gap: 10px; padding-left: 12px;">
+          <span class="theme-icon-dark" aria-hidden="true"><i class="fa-solid fa-moon"></i></span>
+          <span class="theme-icon-light" aria-hidden="true"><i class="fa-solid fa-sun"></i></span>
+          <span class="theme-toggle-label" id="themeToggleLabel">Switch to light mode</span>
+        </button>
+      </div>
       <a href="<?= e(url('/launching-today')) ?>">Launching today</a>
       <a href="<?= e(url('/leaderboard')) ?>">Leaderboard</a>
       <a href="<?= e(url('/categories')) ?>">Categories</a>
@@ -222,13 +236,67 @@
   </div>
 
   <footer class="site-footer">
-    <div class="wrap">
-      <p><a href="<?= e(url('/')) ?>"><?= e(function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden') ?></a> — Startup directory. <a href="<?= e(url('/about')) ?>">About</a> · <a href="<?= e(url('/contact')) ?>">Contact</a></p>
-      <p class="site-footer__credit">Developed with love by <a href="https://www.linkedin.com/in/dexterity-wurayayi-967a64230/" target="_blank" rel="noopener noreferrer">Dexter Wurayayi</a>. <a href="https://dextersoft.com" target="_blank" rel="noopener noreferrer">dextersoft.com</a> · <a href="https://flipit.co.zw" target="_blank" rel="noopener noreferrer">flipit.co.zw</a> · <a href="https://zimadsense.com" target="_blank" rel="noopener noreferrer">zimadsense.com</a></p>
+    <div class="wrap site-footer__wrap">
+      <div class="site-footer__col">
+        <p class="site-footer__brand"><a href="<?= e(url('/')) ?>"><?= e(function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden') ?></a> — Startup directory.</p>
+        <p class="site-footer__links">
+          <a href="<?= e(url('/about')) ?>">About</a>
+          <a href="<?= e(url('/contact')) ?>">Contact</a>
+        </p>
+      </div>
+      <div class="site-footer__col">
+        <p class="site-footer__credit">Developed with love by <a href="https://www.linkedin.com/in/dexterity-wurayayi-967a64230/" target="_blank" rel="noopener noreferrer">Dexter Wurayayi</a>.</p>
+        <p class="site-footer__label">Our other sites</p>
+        <ul class="site-footer__sites">
+          <li><a href="https://dextersoft.com" target="_blank" rel="noopener noreferrer">dextersoft.com</a></li>
+          <li><a href="https://flipit.co.zw" target="_blank" rel="noopener noreferrer">flipit.co.zw</a></li>
+          <li><a href="https://zimadsense.com" target="_blank" rel="noopener noreferrer">zimadsense.com</a></li>
+        </ul>
+      </div>
     </div>
   </footer>
+  <style>
+  .site-footer__wrap { display: flex; flex-wrap: wrap; gap: 2rem; align-items: flex-start; }
+  .site-footer__col { flex: 1 1 200px; }
+  .site-footer__brand { margin: 0 0 0.25rem; }
+  .site-footer__links { margin: 0; }
+  .site-footer__links a + a { margin-left: 0.5rem; }
+  .site-footer__credit { margin: 0 0 0.5rem; }
+  .site-footer__label { margin: 0 0 0.25rem; font-size: 0.875em; opacity: 0.9; }
+  .site-footer__sites { list-style: none; margin: 0; padding: 0; }
+  .site-footer__sites li { margin: 0.15rem 0; }
+  .site-footer__sites a { text-decoration: none; }
+  .site-footer__sites a:hover { text-decoration: underline; }
+  </style>
 
   <script>
+    (function() {
+      function getTheme() {
+        return document.documentElement.getAttribute('data-theme') || 'dark';
+      }
+      function setTheme(theme) {
+        theme = theme || 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+        try { localStorage.setItem('eden_theme', theme); } catch (e) {}
+        var isDark = theme === 'dark';
+        document.querySelectorAll('.theme-toggle').forEach(function(btn) {
+          if (btn) btn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+        });
+        var label = document.getElementById('themeToggleLabel');
+        if (label) label.textContent = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+      }
+      function toggleTheme() {
+        setTheme(getTheme() === 'dark' ? 'light' : 'dark');
+      }
+      document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
+      document.getElementById('themeToggleDrawer')?.addEventListener('click', toggleTheme);
+      var t = getTheme();
+      document.querySelectorAll('.theme-toggle').forEach(function(btn) {
+        if (btn) btn.setAttribute('aria-pressed', t === 'dark' ? 'true' : 'false');
+      });
+      var lbl = document.getElementById('themeToggleLabel');
+      if (lbl) lbl.textContent = t === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+    })();
     (function() {
       var navToggle = document.getElementById('navToggle');
       var navDrawer = document.getElementById('navDrawer');

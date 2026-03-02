@@ -1,7 +1,6 @@
 <h1 class="dash-page-title">Scheduled tasks</h1>
 <div class="dash-welcome">
-  Configure how often tasks (e.g. sitemap) run automatically. To run them in production you must configure a cron job to execute
-  <code>php artisan schedule:run</code> every minute. Once cron is correctly configured, each enabled task on this page will run at its interval
+  Configure how often tasks (e.g. sitemap) run automatically. To run them in production you must add a cron job that calls your site&rsquo;s <code>/cron</code> URL every minute. Once cron is correctly configured, each enabled task on this page will run at its interval
   and the <strong>Scheduler</strong> column will show whether it has run recently.
 </div>
 
@@ -13,16 +12,20 @@
         On your server, open the crontab for the web user (for example: <code>crontab -e</code>).
       </li>
       <li>
-        Add this line so Laravel&rsquo;s scheduler runs every minute:
-        <div style="margin-top: 4px;">
-          <code>* * * * * cd {{ base_path() }} &amp;&amp; php artisan schedule:run &gt;&gt; /dev/null 2&gt;&amp;1</code>
+        Add this line so the scheduler runs every minute (replace the URL with your site&rsquo;s URL if different):
+        <div class="cron-command-row" style="margin-top: 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+          <code id="cronCommandCode">* * * * * curl -s {{ url('/cron') }} &gt; /dev/null 2&gt;&amp;1</code>
+          <button type="button" class="dash-btn dash-btn-secondary cron-copy-btn" style="padding: 4px 12px; font-size: 0.8125rem;" data-cron-command="* * * * * curl -s {{ url('/cron') }} > /dev/null 2>&1" title="Copy to clipboard">
+            <i class="fa-solid fa-copy" aria-hidden="true"></i> Copy
+          </button>
+          <span class="cron-copy-feedback" style="font-size: 0.8125rem; color: var(--d-primary); display: none;">Copied!</span>
         </div>
       </li>
       <li>
         Save the crontab. After a few minutes, enabled tasks should show <strong>On · recent run</strong> in the Scheduler column below.
       </li>
       <li>
-        If a task stays on <strong>No recent runs</strong>, check that cron is active and that the PHP path in your cron entry is correct (for example <code>/usr/bin/php</code>).
+        If a task stays on <strong>No recent runs</strong>, check that cron is active and that <code>curl</code> can reach your site URL.
       </li>
     </ol>
   </div>
@@ -157,3 +160,34 @@
 .dash-badge-warning { background: #fef3c7; color: #92400e; }
 .dash-badge-muted { background: #e5e7eb; color: #374151; }
 </style>
+
+<script>
+(function() {
+  var btn = document.querySelector('.cron-copy-btn');
+  var feedback = document.querySelector('.cron-copy-feedback');
+  if (!btn) return;
+  btn.addEventListener('click', function() {
+    var cmd = this.getAttribute('data-cron-command');
+    if (!cmd) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(cmd).then(function() {
+        if (feedback) { feedback.style.display = 'inline'; setTimeout(function() { feedback.style.display = 'none'; }, 2000); }
+      }).catch(function() { fallbackCopy(cmd); });
+    } else {
+      fallbackCopy(cmd);
+    }
+  });
+  function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed'; ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      if (feedback) { feedback.style.display = 'inline'; setTimeout(function() { feedback.style.display = 'none'; }, 2000); }
+    } catch (e) {}
+    document.body.removeChild(ta);
+  }
+})();
+</script>
