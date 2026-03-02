@@ -294,12 +294,13 @@ nav a:hover { color: var(--accent); }
   margin: 0 2px;
 }
 
-/* Hero: Trusted by founders (overlapping avatars, stacked & centered) */
+/* Hero: Trusted by founders (inline avatars + text) */
 .hero-trusted-by {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  gap: 12px;
   margin-top: 24px;
 }
 .hero-trusted-by-avatars {
