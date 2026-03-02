@@ -59,13 +59,15 @@ class UserController extends Controller
             ->with('notify', [['success', $message]]);
     }
 
-    public function toggleFeaturedOnHero(User $user): RedirectResponse
+    public function toggleFeaturedOnHero(Request $request, User $user): RedirectResponse
     {
         $current = (bool) ($user->featured_on_hero ?? false);
         $user->featured_on_hero = ! $current;
         $user->save();
-        $message = $user->featured_on_hero ? 'Founder featured on hero.' : 'Founder removed from hero.';
-        return redirect()->route('admin.users.index')
+        $message = $user->featured_on_hero ? ($user->name . ' featured on hero.') : ($user->name . ' removed from hero.');
+        $back = $request->input('_redirect', 'startups');
+        $route = $back === 'users' ? 'admin.users.index' : 'admin.startups.index';
+        return redirect()->route($route)
             ->with('notify', [['success', $message]]);
     }
 

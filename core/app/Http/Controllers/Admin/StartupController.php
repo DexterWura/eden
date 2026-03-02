@@ -38,27 +38,27 @@ class StartupController extends Controller
         }
         $startups = $query->with('user')->paginate(20)->withQueryString();
 
-        $needHeroUser = $startups->getCollection()->filter(fn ($s) => ! $s->user)->all();
-        if (! empty($needHeroUser)) {
-            $emails = collect($needHeroUser)->map(function ($s) {
-                $email = $s->founder_email ? trim((string) $s->founder_email) : null;
-                if ($email) {
-                    return $email;
+        $allFounderEmails = collect();
+        foreach ($startups as $s) {
+            foreach ($this->getFoundersWithLinkedIn($s) as $f) {
+                if (! empty($f['email'])) {
+                    $allFounderEmails->push(strtolower(trim($f['email'])));
                 }
-                $founders = $s->founders ?? [];
-                $first = is_array($founders) ? ($founders[0] ?? null) : null;
-                $email = $first && is_array($first) ? trim((string) ($first['email'] ?? '')) : (is_object($first) ? trim((string) ($first->email ?? '')) : '');
-                return $email !== '' ? $email : null;
-            })->filter()->unique()->values()->all();
-            $usersByEmail = $emails ? User::whereIn('email', $emails)->get()->keyBy('email') : collect();
-            foreach ($needHeroUser as $s) {
-                $email = $s->founder_email ? trim((string) $s->founder_email) : null;
-                if (! $email && ! empty($s->founders)) {
-                    $first = is_array($s->founders[0]) ? $s->founders[0] : (array) $s->founders[0];
-                    $email = trim((string) ($first['email'] ?? ''));
-                }
-                $s->heroUser = $email ? $usersByEmail->get($email) : null;
             }
+        }
+        $allFounderEmails = $allFounderEmails->unique()->values()->all();
+        $usersByEmail = ! empty($allFounderEmails) ? User::whereIn('email', $allFounderEmails)->get()->keyBy(fn ($u) => strtolower($u->email)) : collect();
+
+        foreach ($startups as $s) {
+            $heroFounders = [];
+            foreach ($this->getFoundersWithLinkedIn($s) as $f) {
+                $email = strtolower(trim($f['email'] ?? ''));
+                $user = $email !== '' ? $usersByEmail->get($email) : ($s->user ?? null);
+                if ($user) {
+                    $heroFounders[] = $user;
+                }
+            }
+            $s->heroFounders = $heroFounders;
         }
 
         $content = view('eden.startups.index', [
@@ -329,6 +329,30 @@ class StartupController extends Controller
             'scriptDeps' => '<script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>',
             'notifyPartial' => view('partials.notify')->render(),
         ]);
+    }
+
+    private function getFoundersWithLinkedIn(Startup $startup): array
+    {
+        $result = [];
+        $founders = $startup->founders ?? [];
+        foreach ($founders as $f) {
+            $li = is_array($f) ? ($f['linkedin_url'] ?? null) : ($f->linkedin_url ?? null);
+            if (! empty(trim((string) ($li ?? '')))) {
+                $result[] = [
+                    'name' => is_array($f) ? ($f['name'] ?? '') : ($f->name ?? ''),
+                    'email' => is_array($f) ? ($f['email'] ?? null) : ($f->email ?? null),
+                    'linkedin_url' => trim((string) $li),
+                ];
+            }
+        }
+        if (empty($result) && ! empty(trim((string) ($startup->founder_linkedin_url ?? '')))) {
+            $result[] = [
+                'name' => $startup->founder_name ?? '',
+                'email' => $startup->founder_email ?? null,
+                'linkedin_url' => trim((string) $startup->founder_linkedin_url),
+            ];
+        }
+        return $result;
     }
 
     private function validationRules(): array

@@ -103,26 +103,17 @@
                 <button type="button" class="dash-btn dash-btn-secondary startup-action startup-featured" style="padding: 4px 10px; font-size: 0.8rem;" data-url="{{ route('admin.startups.toggle-featured', $startup) }}" data-featured="{{ $startup->is_featured ? '1' : '0' }}">
                   {{ $startup->is_featured ? 'Unfeature' : 'Feature' }}
                 </button>
-                @php
-                  $featureUser = $startup->user ?? $startup->heroUser ?? null;
-                  $hasFounderLinkedIn = !empty(trim($startup->founder_linkedin_url ?? ''));
-                  if (!$hasFounderLinkedIn) {
-                    foreach ($startup->founders ?? [] as $_f) {
-                      $fLi = is_array($_f) ? ($_f['linkedin_url'] ?? null) : ($_f->linkedin_url ?? null);
-                      if (!empty(trim((string)($fLi ?? '')))) { $hasFounderLinkedIn = true; break; }
-                    }
-                  }
-                @endphp
-                @if($featureUser && $hasFounderLinkedIn)
-                  <form action="{{ route('admin.users.feature-on-hero', $featureUser) }}" method="post" style="display: inline;">
+                @foreach($startup->heroFounders ?? [] as $hf)
+                  <form action="{{ route('admin.users.feature-on-hero', $hf) }}" method="post" style="display: inline;">
                     @csrf
-                    @if($featureUser->featured_on_hero)
-                      <button type="submit" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;">Unfeature on hero</button>
+                    <input type="hidden" name="_redirect" value="startups">
+                    @if($hf->featured_on_hero)
+                      <button type="submit" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;" title="{{ $hf->name }}">Unfeature {{ Str::limit($hf->name, 15) }}</button>
                     @else
-                      <button type="submit" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;">Feature on hero</button>
+                      <button type="submit" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;" title="{{ $hf->name }}">Feature {{ Str::limit($hf->name, 15) }}</button>
                     @endif
                   </form>
-                @endif
+                @endforeach
                 @if($startup->status === 'disabled')
                   <button type="button" class="dash-btn startup-delete" style="padding: 4px 10px; font-size: 0.8rem; background: #991b1b; color: #fff; border: none;" data-url="{{ route('admin.startups.destroy', $startup) }}" data-name="{{ e($startup->name) }}">
                     <i class="fa-solid fa-trash"></i> Delete
