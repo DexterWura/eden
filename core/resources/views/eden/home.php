@@ -200,11 +200,23 @@
             </td>
             <td class="col-founder">
               <div class="leaderboard-founder">
-                <?php if ($founderPhoto): ?>
-                <div class="leaderboard-founder-avatar"><img src="<?= e(asset($founderPhoto)) ?>" alt=""></div>
-                <?php else: ?>
-                <div class="leaderboard-founder-avatar"><span class="leaderboard-founder-initials"><?= e($founderInitials) ?></span></div>
-                <?php endif; ?>
+                <div class="leaderboard-founder-avatars">
+                <?php foreach (array_slice($foundersDisplay, 0, 4) as $fi => $fd):
+                  $fdPhoto = !empty($fd['photo_url']) ? $fd['photo_url'] : null;
+                  $fdInitials = \App\Models\Startup::founderInitials($fd['name'] ?? 'Founder');
+                  $fdIsExternal = $fdPhoto && (str_starts_with($fdPhoto, 'http://') || str_starts_with($fdPhoto, 'https://'));
+                  $fdSrc = $fdPhoto ? ($fdIsExternal ? $fdPhoto : asset($fdPhoto)) : null;
+                ?>
+                  <div class="leaderboard-founder-avatar<?= $fi > 0 ? ' leaderboard-founder-avatar--overlap' : '' ?>" title="<?= e($fd['name'] ?? '') ?>">
+                    <?php if ($fdSrc): ?>
+                    <img src="<?= e($fdSrc) ?>" alt="<?= e($fd['name'] ?? '') ?>" onerror="this.style.display='none';this.nextElementSibling.style.display=''">
+                    <span class="leaderboard-founder-initials" style="display:none"><?= e($fdInitials) ?></span>
+                    <?php else: ?>
+                    <span class="leaderboard-founder-initials"><?= e($fdInitials) ?></span>
+                    <?php endif; ?>
+                  </div>
+                <?php endforeach; ?>
+                </div>
                 <span class="leaderboard-founder-name"><?= e($founderName) ?></span>
               </div>
             </td>
