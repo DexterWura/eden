@@ -116,6 +116,7 @@ Route::middleware('admin')->prefix('backoffice')->name('admin.')->group(function
     Route::post('startup-websites/run-check', [StartupWebsiteHealthController::class, 'runCheck'])->name('startup-websites.run-check');
     Route::get('users', [UserController::class, 'index'])->name('users.index');
     Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
+    Route::post('users/{user}/feature-on-hero', [UserController::class, 'toggleFeaturedOnHero'])->name('users.feature-on-hero');
     Route::get('users/{user}/startups', [UserController::class, 'startups'])->name('users.startups');
     Route::get('categories', [CategoryController::class, 'index'])->name('categories.index');
     Route::get('categories/create', [CategoryController::class, 'create'])->name('categories.create');
@@ -150,6 +151,7 @@ Route::middleware('admin')->prefix('backoffice')->name('admin.')->group(function
     Route::post('settings/seo', [SettingsController::class, 'updateSeo'])->name('settings.seo');
     Route::post('settings/about', [SettingsController::class, 'updateAbout'])->name('settings.about');
     Route::post('settings/adsense', [SettingsController::class, 'updateAdsense'])->name('settings.adsense');
+    Route::post('settings/linkedin', [SettingsController::class, 'updateLinkedIn'])->name('settings.linkedin');
     Route::post('settings/robots', [SettingsController::class, 'updateRobots'])->name('settings.robots');
     Route::post('settings/email', [SettingsController::class, 'updateEmail'])->name('settings.email.update');
     Route::post('migrations/run', [MigrationController::class, 'run'])->name('migration.run');

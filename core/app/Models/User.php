@@ -35,6 +35,7 @@ class User extends Authenticatable
         'ver_code_send_at' => 'datetime',
         'is_test_user' => 'boolean',
         'notification_preferences' => 'array',
+        'featured_on_hero' => 'boolean',
     ];
 
 

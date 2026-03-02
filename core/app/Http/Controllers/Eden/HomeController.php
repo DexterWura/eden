@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Eden;
 
+use App\Models\User;
 use App\Services\StartupService;
 use Illuminate\Http\Request;
 
@@ -39,6 +40,12 @@ class HomeController extends EdenController
         }
         $leaderboardPreview = $this->startupService->getLeaderboard($leaderboardSort, 10, $categoryFilter, $featuredOnly);
 
+        $linkedinConfigured = $this->isLinkedInConfigured();
+        $featuredFounders = $linkedinConfigured
+            ? User::where('featured_on_hero', true)->orderBy('name')->limit(10)->get()
+            : collect();
+        $showTrustedByBlock = $linkedinConfigured && $featuredFounders->isNotEmpty();
+
         return $this->page('home', null, 'scripts-home', [
             'launchingToday' => $launchingToday,
             'featuredProducts' => $featuredProducts,
@@ -52,7 +59,20 @@ class HomeController extends EdenController
             'featuredOnly' => $featuredOnly,
             'sortNewest' => $sortNewest,
             'productOfDayId' => $this->startupService->getProductOfDayId(),
+            'showTrustedByBlock' => $showTrustedByBlock,
+            'featuredFounders' => $featuredFounders,
         ]);
+    }
+
+    private function isLinkedInConfigured(): bool
+    {
+        $general = function_exists('gs') ? gs() : null;
+        if (! $general) {
+            return false;
+        }
+        $id = trim((string) ($general->linkedin_client_id ?? ''));
+        $secret = trim((string) ($general->linkedin_client_secret ?? ''));
+        return $id !== '' && $secret !== '';
     }
 
     public function leaderboard(Request $request)

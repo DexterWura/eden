@@ -49,6 +49,16 @@
                     <button type="submit" class="dash-btn dash-btn-primary" style="padding: 4px 10px; font-size: 0.8rem;">Enable</button>
                   @endif
                 </form>
+                @if($linkedinConfigured && !empty(trim($user->linkedin_url ?? '')))
+                  <form action="{{ route('admin.users.feature-on-hero', $user) }}" method="post" style="display: inline;">
+                    @csrf
+                    @if($user->featured_on_hero)
+                      <button type="submit" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;">Unfeature</button>
+                    @else
+                      <button type="submit" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;">Feature on hero</button>
+                    @endif
+                  </form>
+                @endif
                 <a href="{{ route('admin.users.startups', $user) }}" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; text-decoration: none;"><i class="fa-solid fa-rocket"></i> Startups</a>
               </div>
             </td>

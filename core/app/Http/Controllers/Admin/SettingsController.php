@@ -61,7 +61,9 @@ class SettingsController extends Controller
         $adsenseScript = $general ? (string) ($general->adsense_script ?? '') : '';
         $robotsTxt = $general && isset($general->robots_txt) ? (string) $general->robots_txt : '';
         $recommendedRobotsTxt = RobotsTxtService::recommendedContent();
-        $content = view('eden.settings.index', compact('adsenseEnabled', 'adsenseScript', 'robotsTxt', 'recommendedRobotsTxt'))->render();
+        $linkedinClientId = $general ? (string) ($general->linkedin_client_id ?? '') : '';
+        $linkedinClientSecretSet = $general && ! empty(trim((string) ($general->linkedin_client_secret ?? '')));
+        $content = view('eden.settings.index', compact('adsenseEnabled', 'adsenseScript', 'robotsTxt', 'recommendedRobotsTxt', 'linkedinClientId', 'linkedinClientSecretSet'))->render();
 
         return response()->view('eden.layout-dashboard', [
             'title' => 'Settings',
@@ -223,6 +225,28 @@ class SettingsController extends Controller
         Cache::forget('GeneralSetting');
 
         return redirect()->route('admin.settings.index')->with('notify', [['success', 'AdSense settings saved.']]);
+    }
+
+    public function updateLinkedIn(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'linkedin_client_id' => 'nullable|string|max:255',
+            'linkedin_client_secret' => 'nullable|string|max:255',
+        ]);
+
+        $general = $this->getOrCreateGeneral();
+        if (! $general) {
+            return redirect()->route('admin.settings.index')->with('notify', [['error', 'General settings not found.']]);
+        }
+
+        $general->linkedin_client_id = $request->filled('linkedin_client_id') ? trim($request->linkedin_client_id) : null;
+        if ($request->filled('linkedin_client_secret')) {
+            $general->linkedin_client_secret = trim($request->linkedin_client_secret);
+        }
+        $general->save();
+        Cache::forget('GeneralSetting');
+
+        return redirect()->route('admin.settings.index')->with('notify', [['success', 'LinkedIn API credentials saved.']]);
     }
 
     public function updateRobots(Request $request): RedirectResponse

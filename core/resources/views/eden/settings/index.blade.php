@@ -47,6 +47,34 @@
 
 <div class="dash-card" style="margin-top: 20px;">
   <div class="dash-card-header">
+    <span class="dash-card-title">LinkedIn API</span>
+  </div>
+  <div class="dash-card-body">
+    <p style="margin-bottom: 16px; color: #5f6368;">Optional. When set, admins can feature founders on the hero section (Users list). Featured founders appear in the &ldquo;Trusted by 100+ founders&rdquo; block on the homepage. Create an app at <a href="https://www.linkedin.com/developers/apps" target="_blank" rel="noopener">LinkedIn Developers</a> and paste the Client ID and Client Secret below.</p>
+    <form action="{{ route('admin.settings.linkedin') }}" method="post" class="dash-form">
+      @csrf
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <div>
+          <label for="linkedin_client_id" class="dash-label">Client ID</label>
+          <input type="text" id="linkedin_client_id" name="linkedin_client_id" class="dash-input" value="{{ old('linkedin_client_id', $linkedinClientId ?? '') }}" placeholder="Your LinkedIn app client ID" autocomplete="off">
+          @error('linkedin_client_id') <span class="dash-error">{{ $message }}</span> @enderror
+        </div>
+        <div>
+          <label for="linkedin_client_secret" class="dash-label">Client Secret</label>
+          <input type="password" id="linkedin_client_secret" name="linkedin_client_secret" class="dash-input" value="" placeholder="{{ $linkedinClientSecretSet ?? false ? 'Leave blank to keep current' : 'Your LinkedIn app client secret' }}" autocomplete="new-password">
+          @error('linkedin_client_secret') <span class="dash-error">{{ $message }}</span> @enderror
+          <p class="dash-hint" style="margin-top: 8px;">When credentials are not set, the featured-founders hero block and &ldquo;Feature on hero&rdquo; button are hidden.</p>
+        </div>
+        <div>
+          <button type="submit" class="dash-btn dash-btn-primary"><i class="fa-solid fa-check"></i> Save LinkedIn credentials</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="dash-card" style="margin-top: 20px;">
+  <div class="dash-card-header">
     <span class="dash-card-title">Robots.txt</span>
   </div>
   <div class="dash-card-body">

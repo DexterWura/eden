@@ -21,10 +21,12 @@ class UserController extends Controller
             });
         }
         $users = $query->paginate(20)->withQueryString();
+        $linkedinConfigured = $this->isLinkedInConfigured();
 
         $content = view('eden.users.index', [
             'users' => $users,
             'search' => $search,
+            'linkedinConfigured' => $linkedinConfigured,
         ])->render();
 
         return response()->view('eden.layout-dashboard', $this->dashboardVars('Users', 'users', $content));
@@ -44,6 +46,20 @@ class UserController extends Controller
             ->with('notify', [['success', $message]]);
     }
 
+    public function toggleFeaturedOnHero(User $user): RedirectResponse
+    {
+        if (! $this->isLinkedInConfigured()) {
+            return redirect()->route('admin.users.index')
+                ->with('notify', [['error', 'LinkedIn API credentials are not set. Configure them in Settings.']]);
+        }
+        $current = (bool) ($user->featured_on_hero ?? false);
+        $user->featured_on_hero = ! $current;
+        $user->save();
+        $message = $user->featured_on_hero ? 'Founder featured on hero.' : 'Founder removed from hero.';
+        return redirect()->route('admin.users.index')
+            ->with('notify', [['success', $message]]);
+    }
+
     public function startups(User $user)
     {
         $startups = $user->startups()->orderBy('name')->get();
@@ -57,6 +73,17 @@ class UserController extends Controller
             'users',
             $content
         ));
+    }
+
+    private function isLinkedInConfigured(): bool
+    {
+        $general = function_exists('gs') ? gs() : null;
+        if (! $general) {
+            return false;
+        }
+        $id = trim((string) ($general->linkedin_client_id ?? ''));
+        $secret = trim((string) ($general->linkedin_client_secret ?? ''));
+        return $id !== '' && $secret !== '';
     }
 
     private function dashboardVars(string $title, string $activeNav, string $content): array

@@ -24,6 +24,33 @@
       <span class="hero-quick-nav-sep" aria-hidden="true">·</span>
       <a href="<?= e(url('/submit')) ?>">Submit</a>
     </nav>
+    <?php
+    $showTrustedByBlock = $showTrustedByBlock ?? false;
+    $featuredFounders = $featuredFounders ?? collect();
+    if ($showTrustedByBlock && $featuredFounders->isNotEmpty()):
+      $avatarSize = 40;
+      $overlap = 8;
+    ?>
+    <div class="hero-trusted-by" aria-label="Trusted by founders">
+      <div class="hero-trusted-by-avatars">
+        <?php foreach ($featuredFounders as $founder):
+          $photoUrl = !empty(trim($founder->hero_photo_url ?? '')) ? $founder->hero_photo_url : null;
+          $name = $founder->name ?? 'Founder';
+          $initials = preg_match('/\S+\s+(\S)/', $name, $m) ? strtoupper(mb_substr($name, 0, 1) . $m[1]) : strtoupper(mb_substr($name, 0, 2));
+          if ($initials === '') $initials = '?';
+        ?>
+        <div class="hero-trusted-by-avatar" title="<?= e($name) ?>">
+          <?php if ($photoUrl): ?>
+          <img src="<?= e(asset($photoUrl)) ?>" alt="" width="<?= $avatarSize ?>" height="<?= $avatarSize ?>">
+          <?php else: ?>
+          <span class="hero-trusted-by-initials"><?= e($initials) ?></span>
+          <?php endif; ?>
+        </div>
+        <?php endforeach; ?>
+      </div>
+      <p class="hero-trusted-by-text">Trusted by 100+ founders</p>
+    </div>
+    <?php endif; ?>
     <?php $browseCategories = $browseCategories ?? []; ?>
     <?php if (count($browseCategories) > 0): ?>
     <div class="hero-categories" id="heroCategories">

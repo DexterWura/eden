@@ -13,6 +13,7 @@
     $canonicalUrl = isset($canonicalUrl) ? $canonicalUrl : url()->current();
   ?>
   <title><?= e($pageTitleFinal) ?></title>
+  <link rel="icon" type="image/png" href="<?= e(asset('images/favicon.png')) ?>">
   <script>
     (function(){var t=localStorage.getItem('eden_theme')||'light';document.documentElement.setAttribute('data-theme',t);})();
   </script>
