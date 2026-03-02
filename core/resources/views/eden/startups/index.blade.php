@@ -103,10 +103,11 @@
                 <button type="button" class="dash-btn dash-btn-secondary startup-action startup-featured" style="padding: 4px 10px; font-size: 0.8rem;" data-url="{{ route('admin.startups.toggle-featured', $startup) }}" data-featured="{{ $startup->is_featured ? '1' : '0' }}">
                   {{ $startup->is_featured ? 'Unfeature' : 'Feature' }}
                 </button>
-                @if($startup->user)
-                  <form action="{{ route('admin.users.feature-on-hero', $startup->user) }}" method="post" style="display: inline;">
+                @php $featureUser = $startup->user ?? $startup->heroUser ?? null; @endphp
+                @if($featureUser)
+                  <form action="{{ route('admin.users.feature-on-hero', $featureUser) }}" method="post" style="display: inline;">
                     @csrf
-                    @if($startup->user->featured_on_hero)
+                    @if($featureUser->featured_on_hero)
                       <button type="submit" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;">Unfeature on hero</button>
                     @else
                       <button type="submit" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;">Feature on hero</button>

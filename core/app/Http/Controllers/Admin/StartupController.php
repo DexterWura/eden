@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Startup;
 use App\Models\StartupUpvote;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -36,6 +37,29 @@ class StartupController extends Controller
             });
         }
         $startups = $query->with('user')->paginate(20)->withQueryString();
+
+        $needHeroUser = $startups->getCollection()->filter(fn ($s) => ! $s->user)->all();
+        if (! empty($needHeroUser)) {
+            $emails = collect($needHeroUser)->map(function ($s) {
+                $email = $s->founder_email ? trim((string) $s->founder_email) : null;
+                if ($email) {
+                    return $email;
+                }
+                $founders = $s->founders ?? [];
+                $first = is_array($founders) ? ($founders[0] ?? null) : null;
+                $email = $first && is_array($first) ? trim((string) ($first['email'] ?? '')) : (is_object($first) ? trim((string) ($first->email ?? '')) : '');
+                return $email !== '' ? $email : null;
+            })->filter()->unique()->values()->all();
+            $usersByEmail = $emails ? User::whereIn('email', $emails)->get()->keyBy('email') : collect();
+            foreach ($needHeroUser as $s) {
+                $email = $s->founder_email ? trim((string) $s->founder_email) : null;
+                if (! $email && ! empty($s->founders)) {
+                    $first = is_array($s->founders[0]) ? $s->founders[0] : (array) $s->founders[0];
+                    $email = trim((string) ($first['email'] ?? ''));
+                }
+                $s->heroUser = $email ? $usersByEmail->get($email) : null;
+            }
+        }
 
         $content = view('eden.startups.index', [
             'startups' => $startups,
