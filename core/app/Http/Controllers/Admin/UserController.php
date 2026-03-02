@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Constants\Status;
 use App\Http\Controllers\Controller;
-use App\Models\GeneralSetting;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class UserController extends Controller
 {
@@ -88,12 +89,18 @@ class UserController extends Controller
 
     private function isLinkedInConfigured(): bool
     {
-        $general = GeneralSetting::first();
-        if (! $general) {
+        if (! Schema::hasTable('general_settings')) {
             return false;
         }
-        $id = trim((string) ($general->linkedin_client_id ?? ''));
-        $secret = trim((string) ($general->linkedin_client_secret ?? ''));
+        if (! Schema::hasColumn('general_settings', 'linkedin_client_id') || ! Schema::hasColumn('general_settings', 'linkedin_client_secret')) {
+            return false;
+        }
+        $row = DB::table('general_settings')->first();
+        if (! $row) {
+            return false;
+        }
+        $id = trim((string) ($row->linkedin_client_id ?? ''));
+        $secret = trim((string) ($row->linkedin_client_secret ?? ''));
         return $id !== '' && $secret !== '';
     }
 

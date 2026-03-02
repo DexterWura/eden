@@ -1,6 +1,9 @@
 <h1 class="dash-page-title">Users</h1>
 <div class="dash-welcome">
   Registered users (founders and visitors with accounts).
+  @if(isset($linkedinConfigured))
+    <span style="margin-left: 12px; font-size: 0.85rem; color: #64748b;">LinkedIn hero: {{ $linkedinConfigured ? 'on' : 'off' }}</span>
+  @endif
 </div>
 
 <div class="dash-card">
@@ -61,6 +64,16 @@
                     <button type="submit" class="dash-btn dash-btn-primary" style="padding: 4px 10px; font-size: 0.8rem;">Enable</button>
                   @endif
                 </form>
+                @if($linkedinConfigured)
+                  <form action="{{ route('admin.users.feature-on-hero', $user) }}" method="post" style="display: inline;">
+                    @csrf
+                    @if($user->featured_on_hero)
+                      <button type="submit" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;">Unfeature</button>
+                    @else
+                      <button type="submit" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;">Feature on hero</button>
+                    @endif
+                  </form>
+                @endif
                 <a href="{{ route('admin.users.startups', $user) }}" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; text-decoration: none;"><i class="fa-solid fa-rocket"></i> Startups</a>
               </div>
             </td>
