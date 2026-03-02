@@ -254,13 +254,13 @@ nav a:hover { color: var(--accent); }
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  max-width: 640px;
+  max-width: 720px;
   margin: 0 auto;
 }
 .hero-search {
   flex: 1;
   width: 100%;
-  min-width: 260px;
+  min-width: 280px;
   margin: 0;
 }
 .btn-add {
@@ -433,31 +433,28 @@ nav a:hover { color: var(--accent); }
   box-shadow: 0 0 0 3px var(--accent-dim);
 }
 
-/* Hero search: center icon and placeholder in the bar */
+/* Hero search: wider bar, icon inside, refined styling */
 .hero-actions .search-wrap.hero-search {
-  display: flex;
-  align-items: center;
-}
-.hero-actions .search-wrap.hero-search::before,
-.hero-actions .search-wrap.hero-search::after {
-  content: '';
-  flex: 1;
-  min-width: 0;
+  max-width: 680px;
+  width: 100%;
+  margin: 0 auto;
 }
 .hero-actions .search-wrap.hero-search .fa-magnifying-glass {
-  position: static;
-  left: auto;
-  top: auto;
-  transform: none;
-  margin-right: 10px;
-  flex-shrink: 0;
+  left: 20px;
+  font-size: 1.05rem;
+  color: var(--text-muted);
 }
 .hero-actions .search-wrap.hero-search .search-input {
-  flex: 1;
-  min-width: 0;
-  max-width: 340px;
-  padding-left: 12px;
-  text-align: center;
+  padding: 16px 24px 16px 52px;
+  font-size: 1rem;
+  border-radius: 12px;
+  min-height: 52px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+.hero-actions .search-wrap.hero-search .search-input:focus {
+  box-shadow: 0 0 0 3px var(--accent-dim);
 }
 
 /* Section blocks (inspiration: Recently listed / Best deals) */

@@ -240,7 +240,7 @@
     <div class="wrap site-footer__wrap">
       <div class="site-footer__row">
         <div class="site-footer__col">
-          <p class="site-footer__brand"><a href="<?= e(url('/')) ?>"><?= e(function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden') ?></a> — Startup directory.</p>
+          <p class="site-footer__brand"><a href="<?= e(url('/')) ?>"><?= e(function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden') ?></a>: The place to launch and discover new tech products.</p>
           <p class="site-footer__links">
             <a href="<?= e(url('/about')) ?>">About</a>
             <a href="<?= e(url('/contact')) ?>">Contact</a>
@@ -255,7 +255,7 @@
           </ul>
         </div>
       </div>
-      <p class="site-footer__credit">Developed with love by <a href="https://www.linkedin.com/in/dexterity-wurayayi-967a64230/" target="_blank" rel="noopener noreferrer">Dexter Wurayayi</a>.</p>
+      <p class="site-footer__credit">Developed with <i class="fa-solid fa-heart" aria-hidden="true" style="color: var(--accent); vertical-align: middle;"></i> by <a href="https://www.linkedin.com/in/dexterity-wurayayi-967a64230/" target="_blank" rel="noopener noreferrer">Dexter Wurayayi</a>.</p>
     </div>
   </footer>
   <style>
