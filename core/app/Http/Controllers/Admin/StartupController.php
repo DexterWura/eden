@@ -285,9 +285,72 @@ class StartupController extends Controller
     public function toggleFeaturedOnHero(Startup $startup): RedirectResponse
     {
         $startup->update(['featured_on_hero' => ! $startup->featured_on_hero]);
+
+        if ($startup->featured_on_hero) {
+            $this->scrapeLinkedInPhotos($startup);
+        }
+
         $label = $startup->featured_on_hero ? 'featured on hero' : 'removed from hero';
         return redirect()->route('admin.startups.index')
             ->with('notify', [['success', $startup->name . ' ' . $label . '.']]);
+    }
+
+    private function scrapeLinkedInPhotos(Startup $startup): void
+    {
+        $founders = $startup->founders ?? [];
+        $changed = false;
+
+        foreach ($founders as &$f) {
+            if (! is_array($f)) {
+                continue;
+            }
+            $linkedinUrl = trim($f['linkedin_url'] ?? '');
+            if ($linkedinUrl === '' || ! empty($f['photo_url'] ?? '')) {
+                continue;
+            }
+
+            $ogImage = $this->fetchLinkedInOgImage($linkedinUrl);
+            if ($ogImage) {
+                $f['photo_url'] = $ogImage;
+                $changed = true;
+            }
+        }
+        unset($f);
+
+        if ($changed) {
+            $startup->update(['founders' => $founders]);
+        }
+    }
+
+    private function fetchLinkedInOgImage(string $url): ?string
+    {
+        try {
+            $ctx = stream_context_create([
+                'http' => [
+                    'method' => 'GET',
+                    'header' => "User-Agent: Mozilla/5.0 (compatible; EdenBot/1.0)\r\nAccept: text/html\r\n",
+                    'timeout' => 8,
+                    'follow_location' => true,
+                ],
+                'ssl' => ['verify_peer' => false, 'verify_peer_name' => false],
+            ]);
+
+            $html = @file_get_contents($url, false, $ctx);
+            if (! $html) {
+                return null;
+            }
+
+            if (preg_match('/<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)["\']/i', $html, $m)) {
+                return $m[1];
+            }
+            if (preg_match('/<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:image["\']/i', $html, $m)) {
+                return $m[1];
+            }
+
+            return null;
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 
     public function destroy(Startup $startup): JsonResponse

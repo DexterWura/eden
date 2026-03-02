@@ -48,13 +48,9 @@ class HomeController extends EdenController
                 if ($linkedinUrl === '') {
                     continue;
                 }
-                $photoUrl = $f['photo_url'] ?? null;
-                if (empty($photoUrl) && preg_match('#linkedin\.com/in/([^/?]+)#i', $linkedinUrl, $m)) {
-                    $photoUrl = 'https://unavatar.io/linkedin/' . urlencode($m[1]);
-                }
                 $featuredFounders->push((object) [
                     'name' => $f['name'] ?? 'Founder',
-                    'hero_photo_url' => $photoUrl,
+                    'hero_photo_url' => $f['photo_url'] ?? null,
                     'hero_linkedin_url' => $linkedinUrl,
                 ]);
             }
