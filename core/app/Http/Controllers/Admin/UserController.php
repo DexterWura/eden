@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Constants\Status;
 use App\Http\Controllers\Controller;
+use App\Models\GeneralSetting;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -26,6 +27,10 @@ class UserController extends Controller
             $users->load('startups');
             foreach ($users as $user) {
                 $user->has_linkedin_link = $this->userHasLinkedInLink($user);
+            }
+        } else {
+            foreach ($users as $user) {
+                $user->has_linkedin_link = false;
             }
         }
 
@@ -83,7 +88,7 @@ class UserController extends Controller
 
     private function isLinkedInConfigured(): bool
     {
-        $general = function_exists('gs') ? gs() : null;
+        $general = GeneralSetting::first();
         if (! $general) {
             return false;
         }
