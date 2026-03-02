@@ -48,7 +48,7 @@
         <?php endif; ?>
         <?php endforeach; ?>
       </div>
-      <p class="hero-trusted-by-text">Trusted by 100+ founders</p>
+      <p class="hero-trusted-by-text" style="margin:0;flex:none">Trusted by 100+ founders</p>
     </div>
     <?php endif; ?>
     <nav class="hero-quick-nav" aria-label="Quick links">
