@@ -88,6 +88,7 @@ Route::middleware('auth')->prefix('founder')->name('founder.')->group(function (
     Route::post('revenue-api/startups/{startup}/regenerate-key', [FounderRevenueApiController::class, 'regenerateKey'])->name('revenue-api.regenerate-key');
     Route::get('settings', [FounderSettingsController::class, 'index'])->name('settings');
     Route::put('settings', [FounderSettingsController::class, 'update'])->name('settings.update');
+    Route::post('hero-request/{startup}', [DashboardController::class, 'requestHeroFeature'])->name('hero-request');
     Route::post('notifications/{notification}/dismiss', function (string $notification) {
         $n = auth()->user()->notifications()->where('id', $notification)->first();
         if ($n) {
@@ -119,6 +120,8 @@ Route::middleware('admin')->prefix('backoffice')->name('admin.')->group(function
     Route::post('startups/{startup}/unban', [AdminStartupController::class, 'unban'])->name('startups.unban');
     Route::post('startups/{startup}/featured', [AdminStartupController::class, 'toggleFeatured'])->name('startups.toggle-featured');
     Route::post('startups/{startup}/feature-on-hero', [AdminStartupController::class, 'toggleFeaturedOnHero'])->name('startups.toggle-hero');
+    Route::post('hero-request/{startup}/approve', [DashboardController::class, 'approveHeroRequest'])->name('hero-request.approve');
+    Route::post('hero-request/{startup}/reject', [DashboardController::class, 'rejectHeroRequest'])->name('hero-request.reject');
     Route::delete('startups/{startup}', [AdminStartupController::class, 'destroy'])->name('startups.destroy');
     Route::get('startup-websites', [StartupWebsiteHealthController::class, 'index'])->name('startup-websites.index');
     Route::post('startup-websites/run-check', [StartupWebsiteHealthController::class, 'runCheck'])->name('startup-websites.run-check');

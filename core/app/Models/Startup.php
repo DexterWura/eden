@@ -46,6 +46,7 @@ class Startup extends Model
         'flipit_listing_id',
         'sold_at',
         'featured_on_hero',
+        'hero_request_status',
     ];
 
     /** FLIPit listing URL pattern: https://flipit.co.zw/marketplace/listing/{id} */
@@ -197,6 +198,16 @@ class Startup extends Model
     public function isPending(): bool
     {
         return $this->status === self::STATUS_PENDING;
+    }
+
+    public function hasFounderWithLinkedin(): bool
+    {
+        foreach ($this->founders_display as $f) {
+            if (trim($f['linkedin_url'] ?? '') !== '') {
+                return true;
+            }
+        }
+        return false;
     }
 
     public function isActive(): bool

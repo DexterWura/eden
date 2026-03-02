@@ -78,6 +78,54 @@
     <a href="<?= e(url('/founder/startups')) ?>">My startups →</a>
   </div>
 </div>
+<?php
+  $heroEligibleStartups = collect($myStartups)->filter(function ($s) {
+      return $s->isActive() && $s->hasFounderWithLinkedin() && !$s->featured_on_hero;
+  });
+?>
+<?php if ($heroEligibleStartups->isNotEmpty() || collect($myStartups)->contains(fn ($s) => $s->hero_request_status)): ?>
+<div class="dash-card">
+  <div class="dash-card-header">
+    <span class="dash-card-title"><i class="fa-solid fa-star" style="color:#f59e0b;margin-right:4px"></i> Featured on hero</span>
+  </div>
+  <div class="dash-card-body">
+    <p style="color:var(--text-muted,#8b90a0);font-size:0.92rem;margin-bottom:14px">Request your startup to be featured on the homepage hero section. Founders must have a LinkedIn link set.</p>
+    <?php foreach ($myStartups as $s): ?>
+      <?php if ($s->featured_on_hero): ?>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border,#2a2e3d)">
+          <span style="flex:1;font-weight:500"><?= e($s->name) ?></span>
+          <span style="display:inline-block;padding:3px 10px;font-size:0.78rem;border-radius:4px;background:#d1fae5;color:#065f46;font-weight:600"><i class="fa-solid fa-check"></i> Featured</span>
+        </div>
+      <?php elseif ($s->hero_request_status === 'pending'): ?>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border,#2a2e3d)">
+          <span style="flex:1;font-weight:500"><?= e($s->name) ?></span>
+          <span style="display:inline-block;padding:3px 10px;font-size:0.78rem;border-radius:4px;background:#fef3c7;color:#92400e;font-weight:600"><i class="fa-solid fa-clock"></i> Pending approval</span>
+        </div>
+      <?php elseif ($s->hero_request_status === 'rejected'): ?>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border,#2a2e3d)">
+          <span style="flex:1;font-weight:500"><?= e($s->name) ?></span>
+          <span style="display:inline-block;padding:3px 10px;font-size:0.78rem;border-radius:4px;background:#fee2e2;color:#991b1b;font-weight:600">Request declined</span>
+          <?php if ($s->isActive() && $s->hasFounderWithLinkedin()): ?>
+          <form action="<?= e(route('founder.hero-request', $s->id)) ?>" method="post" style="flex:none">
+            <?= csrf_field() ?>
+            <button type="submit" class="dash-btn dash-btn-secondary" style="padding:4px 12px;font-size:0.8rem">Request again</button>
+          </form>
+          <?php endif; ?>
+        </div>
+      <?php elseif ($s->isActive() && $s->hasFounderWithLinkedin()): ?>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border,#2a2e3d)">
+          <span style="flex:1;font-weight:500"><?= e($s->name) ?></span>
+          <form action="<?= e(route('founder.hero-request', $s->id)) ?>" method="post" style="flex:none">
+            <?= csrf_field() ?>
+            <button type="submit" class="dash-btn dash-btn-primary" style="padding:5px 14px;font-size:0.85rem"><i class="fa-solid fa-star"></i> Request to be featured</button>
+          </form>
+        </div>
+      <?php endif; ?>
+    <?php endforeach; ?>
+  </div>
+</div>
+<?php endif; ?>
+
 <div class="dash-card">
   <div class="dash-card-header">
     <span class="dash-card-title">Quick links</span>

@@ -6,6 +6,7 @@ use App\Models\ContactSubmission;
 use App\Models\Startup;
 use App\Models\Subscriber;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 
 class DashboardController extends EdenController
@@ -42,6 +43,90 @@ class DashboardController extends EdenController
         ]);
     }
 
+    public function requestHeroFeature(Startup $startup): RedirectResponse
+    {
+        $user = auth()->user();
+
+        if ((int) $startup->user_id !== (int) $user->id) {
+            abort(403);
+        }
+
+        if ($startup->featured_on_hero) {
+            return redirect()->route('founder.dashboard')
+                ->with('notify', [['info', $startup->name . ' is already featured on hero.']]);
+        }
+
+        if ($startup->hero_request_status === 'pending') {
+            return redirect()->route('founder.dashboard')
+                ->with('notify', [['info', 'Your request for ' . $startup->name . ' is already pending.']]);
+        }
+
+        if (! $startup->hasFounderWithLinkedin()) {
+            return redirect()->route('founder.dashboard')
+                ->with('notify', [['error', 'Please add a LinkedIn link to at least one founder on ' . $startup->name . ' before requesting.']]);
+        }
+
+        $startup->update(['hero_request_status' => 'pending']);
+
+        return redirect()->route('founder.dashboard')
+            ->with('notify', [['success', 'Your request to feature ' . $startup->name . ' on the hero section has been submitted.']]);
+    }
+
+    public function approveHeroRequest(Startup $startup): RedirectResponse
+    {
+        $startup->update([
+            'hero_request_status' => 'approved',
+            'featured_on_hero' => true,
+        ]);
+
+        if ($startup->user_id) {
+            $user = User::find($startup->user_id);
+            if ($user) {
+                \DB::table('notifications')->insert([
+                    'id' => \Illuminate\Support\Str::uuid()->toString(),
+                    'type' => 'App\\Notifications\\HeroRequestApproved',
+                    'notifiable_type' => 'App\\Models\\User',
+                    'notifiable_id' => $user->id,
+                    'data' => json_encode([
+                        'title' => 'Featured on hero!',
+                        'message' => $startup->name . ' is now featured on the homepage hero section.',
+                    ]),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
+        return redirect()->route('admin.dashboard')
+            ->with('notify', [['success', $startup->name . ' is now featured on the hero section.']]);
+    }
+
+    public function rejectHeroRequest(Startup $startup): RedirectResponse
+    {
+        $startup->update(['hero_request_status' => 'rejected']);
+
+        if ($startup->user_id) {
+            $user = User::find($startup->user_id);
+            if ($user) {
+                \DB::table('notifications')->insert([
+                    'id' => \Illuminate\Support\Str::uuid()->toString(),
+                    'type' => 'App\\Notifications\\HeroRequestRejected',
+                    'notifiable_type' => 'App\\Models\\User',
+                    'notifiable_id' => $user->id,
+                    'data' => json_encode([
+                        'title' => 'Hero feature request declined',
+                        'message' => 'Your request to feature ' . $startup->name . ' on the homepage hero section was not approved at this time.',
+                    ]),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
+        return redirect()->route('admin.dashboard')
+            ->with('notify', [['success', 'Hero request for ' . $startup->name . ' has been declined.']]);
+    }
+
     public function adminDashboard(): Response
     {
         $totalStartups = Startup::count();
@@ -49,6 +134,7 @@ class DashboardController extends EdenController
         $launchingToday = Startup::active()->launchingToday()->count();
         $recentStartups = Startup::query()->orderByDesc('created_at')->limit(5)->get();
         $recentContactMessages = ContactSubmission::query()->orderByDesc('created_at')->limit(10)->get();
+        $heroRequests = Startup::where('hero_request_status', 'pending')->orderBy('updated_at')->get();
         $siteName = $this->siteName();
 
         return response()->view('eden.layout-dashboard', [
@@ -67,6 +153,7 @@ class DashboardController extends EdenController
                 'totalSubscribers' => Subscriber::count(),
                 'recentStartups' => $recentStartups,
                 'recentContactMessages' => $recentContactMessages,
+                'heroRequests' => $heroRequests,
             ])->render(),
         ]);
     }
