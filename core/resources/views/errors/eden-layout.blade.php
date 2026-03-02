@@ -8,7 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
-  <link rel="stylesheet" href="{{ asset('css/main.css') }}">
+  @php $cssPath = public_path('css/main.css'); $cssV = file_exists($cssPath) ? substr(md5_file($cssPath), 0, 12) : ''; @endphp
+  <link rel="stylesheet" href="{{ asset('css/main.css') }}{{ $cssV ? '?v=' . $cssV : '' }}">
   <style>
     .error-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; text-align: center; }
     .error-page-inner { max-width: 480px; }

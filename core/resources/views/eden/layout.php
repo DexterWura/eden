@@ -37,7 +37,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
-  <?php $cssPath = public_path('css/main.css'); $cssVersion = file_exists($cssPath) ? filemtime($cssPath) : ''; ?>
+  <?php $cssPath = public_path('css/main.css'); $cssVersion = file_exists($cssPath) ? substr(md5_file($cssPath), 0, 12) : ''; ?>
   <link rel="stylesheet" href="<?= e(asset('css/main.css')) ?><?= $cssVersion ? '?v=' . $cssVersion : '' ?>">
   <?php
   $adsenseScript = (function_exists('gs') && gs('adsense_enabled')) ? trim((string)(gs('adsense_script') ?? '')) : '';

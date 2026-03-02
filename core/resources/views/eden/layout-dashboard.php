@@ -12,9 +12,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
   <?php
     $mainCssPath = public_path('css/main.css');
-    $mainCssVersion = file_exists($mainCssPath) ? filemtime($mainCssPath) : '';
+    $mainCssVersion = file_exists($mainCssPath) ? substr(md5_file($mainCssPath), 0, 12) : '';
     $dashCssPath = public_path('css/dashboard.css');
-    $dashCssVersion = file_exists($dashCssPath) ? filemtime($dashCssPath) : '';
+    $dashCssVersion = file_exists($dashCssPath) ? substr(md5_file($dashCssPath), 0, 12) : '';
   ?>
   <link rel="stylesheet" href="<?= e(asset('css/main.css')) ?><?= $mainCssVersion ? '?v=' . $mainCssVersion : '' ?>">
   <link rel="stylesheet" href="<?= e(asset('css/dashboard.css')) ?><?= $dashCssVersion ? '?v=' . $dashCssVersion : '' ?>">
