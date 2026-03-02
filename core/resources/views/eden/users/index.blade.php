@@ -32,7 +32,7 @@
             <td>{{ $user->name }}</td>
             <td>
               <div>{{ $user->email }}</div>
-              @if($linkedinConfigured && !empty(trim($user->linkedin_url ?? '')))
+              @if($linkedinConfigured && ($user->has_linkedin_link ?? false))
                 <form action="{{ route('admin.users.feature-on-hero', $user) }}" method="post" style="display: inline-block; margin-top: 6px;">
                   @csrf
                   @if($user->featured_on_hero)

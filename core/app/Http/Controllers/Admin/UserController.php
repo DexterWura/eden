@@ -22,6 +22,12 @@ class UserController extends Controller
         }
         $users = $query->paginate(20)->withQueryString();
         $linkedinConfigured = $this->isLinkedInConfigured();
+        if ($linkedinConfigured) {
+            $users->load('startups');
+            foreach ($users as $user) {
+                $user->has_linkedin_link = $this->userHasLinkedInLink($user);
+            }
+        }
 
         $content = view('eden.users.index', [
             'users' => $users,
@@ -84,6 +90,26 @@ class UserController extends Controller
         $id = trim((string) ($general->linkedin_client_id ?? ''));
         $secret = trim((string) ($general->linkedin_client_secret ?? ''));
         return $id !== '' && $secret !== '';
+    }
+
+    private function userHasLinkedInLink(User $user): bool
+    {
+        if (! empty(trim((string) ($user->linkedin_url ?? '')))) {
+            return true;
+        }
+        foreach ($user->startups ?? [] as $startup) {
+            if (! empty(trim((string) ($startup->founder_linkedin_url ?? '')))) {
+                return true;
+            }
+            $founders = $startup->founders ?? [];
+            foreach ($founders as $f) {
+                $url = is_array($f) ? ($f['linkedin_url'] ?? null) : ($f->linkedin_url ?? null);
+                if (! empty(trim((string) ($url ?? '')))) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private function dashboardVars(string $title, string $activeNav, string $content): array
