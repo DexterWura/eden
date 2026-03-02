@@ -29,18 +29,24 @@
           $initials = preg_match('/\S+\s+(\S)/', $name, $m) ? strtoupper(mb_substr($name, 0, 1) . $m[1]) : strtoupper(mb_substr($name, 0, 2));
           if ($initials === '') $initials = '?';
         ?>
+        <?php
+          $isExternal = $photoUrl && (str_starts_with($photoUrl, 'http://') || str_starts_with($photoUrl, 'https://'));
+          $imgSrc = $photoUrl ? ($isExternal ? $photoUrl : asset($photoUrl)) : null;
+        ?>
         <?php if ($linkedinUrl): ?>
         <a href="<?= e($linkedinUrl) ?>" target="_blank" rel="noopener" class="hero-trusted-by-avatar" title="<?= e($name) ?>">
-          <?php if ($photoUrl): ?>
-          <img src="<?= e(asset($photoUrl)) ?>" alt="<?= e($name) ?>">
+          <?php if ($imgSrc): ?>
+          <img src="<?= e($imgSrc) ?>" alt="<?= e($name) ?>" onerror="this.style.display='none';this.nextElementSibling.style.display=''">
+          <span class="hero-trusted-by-initials" style="display:none"><?= e($initials) ?></span>
           <?php else: ?>
           <span class="hero-trusted-by-initials"><?= e($initials) ?></span>
           <?php endif; ?>
         </a>
         <?php else: ?>
         <div class="hero-trusted-by-avatar" title="<?= e($name) ?>">
-          <?php if ($photoUrl): ?>
-          <img src="<?= e(asset($photoUrl)) ?>" alt="<?= e($name) ?>">
+          <?php if ($imgSrc): ?>
+          <img src="<?= e($imgSrc) ?>" alt="<?= e($name) ?>" onerror="this.style.display='none';this.nextElementSibling.style.display=''">
+          <span class="hero-trusted-by-initials" style="display:none"><?= e($initials) ?></span>
           <?php else: ?>
           <span class="hero-trusted-by-initials"><?= e($initials) ?></span>
           <?php endif; ?>
