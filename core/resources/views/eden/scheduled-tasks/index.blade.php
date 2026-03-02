@@ -27,6 +27,11 @@
       <li>
         If a task stays on <strong>No recent runs</strong>, check that cron is active and that <code>curl</code> can reach your site URL.
       </li>
+      <li>
+        <strong>If you see &ldquo;bad command&rdquo; or &ldquo;Invalid crontab file&rdquo;</strong>: paste can add hidden characters. Type the line by hand in crontab, or copy again from the button above. Use this exact line (one line, no line break):
+        <div style="margin-top: 6px; padding: 8px 10px; background: var(--d-bg); border: 1px solid var(--d-border); border-radius: 6px; font-size: 0.8rem; font-family: monospace; word-break: break-all;">* * * * * curl -s {{ url('/cron') }} &gt; /dev/null 2&gt;&amp;1</div>
+        If your server needs the full path to curl, use: <code>* * * * * /usr/bin/curl -s {{ url('/cron') }} &gt; /dev/null 2&gt;&amp;1</code>
+      </li>
     </ol>
   </div>
 </div>
@@ -167,7 +172,7 @@
   var feedback = document.querySelector('.cron-copy-feedback');
   if (!btn) return;
   btn.addEventListener('click', function() {
-    var cmd = this.getAttribute('data-cron-command');
+    var cmd = (this.getAttribute('data-cron-command') || '').replace(/\r\n/g, '\n').replace(/\r/g, '').trim();
     if (!cmd) return;
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(cmd).then(function() {
