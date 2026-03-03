@@ -28,6 +28,9 @@ use App\Http\Controllers\Founder\RevenueApiController as FounderRevenueApiContro
 use App\Http\Controllers\Founder\SettingsController as FounderSettingsController;
 use App\Http\Controllers\Founder\StartupController as FounderStartupController;
 use App\Http\Controllers\Founder\UpvotesController;
+use App\Http\Controllers\Founder\BlogController as FounderBlogController;
+use App\Http\Controllers\Eden\PricingController;
+use App\Http\Controllers\Admin\GatewayController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
@@ -65,6 +68,12 @@ Route::get('/submit', [PageController::class, 'submit']);
 Route::post('/submit', [PageController::class, 'submitStore']);
 Route::get('/categories', [PageController::class, 'categories']);
 Route::post('/subscribe', [PageController::class, 'subscribe']);
+Route::get('/pricing', [PricingController::class, 'index'])->name('pricing');
+Route::post('/checkout', [PricingController::class, 'checkout'])->middleware('auth');
+Route::get('/checkout/paypal/return', [PricingController::class, 'paypalReturn'])->middleware('auth');
+Route::get('/checkout/paypal/cancel', [PricingController::class, 'paypalCancel'])->middleware('auth');
+Route::get('/checkout/paynow/return', [PricingController::class, 'paynowReturn'])->middleware('auth');
+Route::any('/checkout/paynow/callback', [PricingController::class, 'paynowCallback']);
 Route::get('/launching-today', [StartupController::class, 'launchingToday']);
 Route::get('/badge/{type}', [BadgeController::class, 'show'])->name('badge.show')->where('type', 'listed|featured|product-of-day');
 Route::get('/startup/{slug}', [StartupController::class, 'show'])->name('startup.show');
@@ -81,6 +90,14 @@ Route::middleware('auth')->prefix('founder')->name('founder.')->group(function (
     Route::post('startups', [FounderStartupController::class, 'store'])->name('startups.store');
     Route::get('startups/{startup}/edit', [FounderStartupController::class, 'edit'])->name('startups.edit');
     Route::put('startups/{startup}', [FounderStartupController::class, 'update'])->name('startups.update');
+    Route::delete('startups/{startup}', [FounderStartupController::class, 'destroy'])->name('startups.destroy');
+    Route::post('startups/{startup}/toggle-featured', [FounderStartupController::class, 'toggleFeatured'])->name('startups.toggle-featured');
+    Route::get('blog', [FounderBlogController::class, 'index'])->name('blog.index');
+    Route::get('blog/create', [FounderBlogController::class, 'create'])->name('blog.create');
+    Route::post('blog', [FounderBlogController::class, 'store'])->name('blog.store');
+    Route::get('blog/{post}/edit', [FounderBlogController::class, 'edit'])->name('blog.edit');
+    Route::put('blog/{post}', [FounderBlogController::class, 'update'])->name('blog.update');
+    Route::delete('blog/{post}', [FounderBlogController::class, 'destroy'])->name('blog.destroy');
     Route::get('upvotes', [UpvotesController::class, 'index'])->name('upvotes');
     Route::get('badges', [FounderBadgesController::class, 'index'])->name('badges');
     Route::get('revenue-api', [FounderRevenueApiController::class, 'index'])->name('revenue-api');
@@ -169,6 +186,10 @@ Route::middleware('admin')->prefix('backoffice')->name('admin.')->group(function
     Route::post('migrations/rollback', [MigrationController::class, 'rollback'])->name('migration.rollback');
     Route::post('migrations/run/{migration}', [MigrationController::class, 'runSpecific'])->name('migration.run.specific');
     Route::get('migrations/download-sql', [MigrationController::class, 'downloadSql'])->name('migration.download.sql');
+    Route::get('gateways', [GatewayController::class, 'index'])->name('gateways.index');
+    Route::get('gateways/{gateway}/edit', [GatewayController::class, 'edit'])->name('gateways.edit');
+    Route::put('gateways/{gateway}', [GatewayController::class, 'update'])->name('gateways.update');
+    Route::post('gateways/seed', [GatewayController::class, 'seed'])->name('gateways.seed');
     Route::post('cache/clear', function () {
         Artisan::call('cache:clear');
         return redirect()->back()->with('notify', [['success', 'Application cache cleared.']]);

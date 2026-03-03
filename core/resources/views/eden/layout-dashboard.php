@@ -40,12 +40,16 @@
         <a href="<?= e(url('/backoffice/scheduled-tasks')) ?>" class="<?= ($activeNav ?? '') === 'scheduled-tasks' ? 'active' : '' ?>" aria-label="Scheduled tasks" title="Scheduled tasks"><i class="fa-solid fa-clock-rotate-left"></i><span class="dash-sidebar-label">Scheduled</span></a>
         <a href="<?= e(url('/backoffice/seo')) ?>" class="<?= ($activeNav ?? '') === 'seo' ? 'active' : '' ?>" aria-label="SEO" title="SEO"><i class="fa-solid fa-magnifying-glass-chart"></i><span class="dash-sidebar-label">SEO</span></a>
         <a href="<?= e(url('/backoffice/about')) ?>" class="<?= ($activeNav ?? '') === 'about' ? 'active' : '' ?>" aria-label="About page" title="About page"><i class="fa-solid fa-circle-info"></i><span class="dash-sidebar-label">About</span></a>
+        <a href="<?= e(url('/backoffice/gateways')) ?>" class="<?= ($activeNav ?? '') === 'gateways' ? 'active' : '' ?>" aria-label="Payment gateways" title="Payment gateways"><i class="fa-solid fa-credit-card"></i><span class="dash-sidebar-label">Gateways</span></a>
         <a href="<?= e(url('/backoffice/settings')) ?>" class="<?= ($activeNav ?? '') === 'settings' ? 'active' : '' ?>" aria-label="Settings" title="Settings"><i class="fa-solid fa-gear"></i><span class="dash-sidebar-label">Settings</span></a>
       <?php else: ?>
         <a href="<?= e(url('/founder')) ?>" class="<?= ($activeNav ?? '') === 'home' ? 'active' : '' ?>" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i><span class="dash-sidebar-label">Home</span></a>
         <a href="<?= e(url('/founder/startups')) ?>" class="<?= ($activeNav ?? '') === 'startups' ? 'active' : '' ?>" aria-label="My startup" title="My startups"><i class="fa-solid fa-building-user"></i><span class="dash-sidebar-label">Startups</span></a>
         <a href="<?= e(url('/founder/badges')) ?>" class="<?= ($activeNav ?? '') === 'badges' ? 'active' : '' ?>" aria-label="Badges" title="Embed badges"><i class="fa-solid fa-certificate"></i><span class="dash-sidebar-label">Badges</span></a>
         <a href="<?= e(url('/founder/upvotes')) ?>" class="<?= ($activeNav ?? '') === 'upvotes' ? 'active' : '' ?>" aria-label="Upvotes" title="Upvotes"><i class="fa-solid fa-arrow-up"></i><span class="dash-sidebar-label">Upvotes</span></a>
+        <?php if (auth()->check() && auth()->user()->isPro()): ?>
+        <a href="<?= e(url('/founder/blog')) ?>" class="<?= ($activeNav ?? '') === 'blog' ? 'active' : '' ?>" aria-label="Blog" title="Blog"><i class="fa-solid fa-pen-nib"></i><span class="dash-sidebar-label">Blog</span></a>
+        <?php endif; ?>
         <a href="<?= e(url('/founder/revenue-api')) ?>" class="<?= ($activeNav ?? '') === 'revenue-api' ? 'active' : '' ?>" aria-label="Revenue API" title="Revenue API"><i class="fa-solid fa-code"></i><span class="dash-sidebar-label">Revenue API</span></a>
         <a href="<?= e(url('/founder/settings')) ?>" class="<?= ($activeNav ?? '') === 'settings' ? 'active' : '' ?>" aria-label="Settings" title="Settings"><i class="fa-solid fa-gear"></i><span class="dash-sidebar-label">Settings</span></a>
       <?php endif; ?>

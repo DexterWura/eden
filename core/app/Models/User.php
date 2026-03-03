@@ -36,6 +36,8 @@ class User extends Authenticatable
         'is_test_user' => 'boolean',
         'notification_preferences' => 'array',
         'featured_on_hero' => 'boolean',
+        'is_pro' => 'boolean',
+        'pro_since' => 'datetime',
     ];
 
 
@@ -128,6 +130,16 @@ class User extends Authenticatable
     public function startups()
     {
         return $this->hasMany(Startup::class);
+    }
+
+    public function proPayments()
+    {
+        return $this->hasMany(ProPayment::class);
+    }
+
+    public function isPro(): bool
+    {
+        return (bool) $this->is_pro;
     }
 
     public function startupUpvotes()

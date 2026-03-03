@@ -90,6 +90,27 @@ class StartupController extends Controller
         return redirect()->route('founder.startups.index')->with('notify', [['success', 'Startup updated.']]);
     }
 
+    public function destroy(Startup $startup): RedirectResponse
+    {
+        $this->authorizeStartup($startup);
+        if (!auth()->user()->isPro()) {
+            abort(403, 'Pro membership required to delete startups.');
+        }
+        $startup->delete();
+        return redirect()->route('founder.startups.index')->with('notify', [['success', 'Startup deleted.']]);
+    }
+
+    public function toggleFeatured(Startup $startup): RedirectResponse
+    {
+        $this->authorizeStartup($startup);
+        if (!auth()->user()->isPro()) {
+            abort(403, 'Pro membership required to feature startups.');
+        }
+        $startup->update(['is_featured' => !$startup->is_featured]);
+        $label = $startup->is_featured ? 'featured' : 'unfeatured';
+        return redirect()->route('founder.startups.index')->with('notify', [['success', "Startup {$label}."]]);
+    }
+
     private function buildFoundersFromRequest(Request $request, ?Startup $startup = null): array
     {
         $names = $request->input('founders_names', []);

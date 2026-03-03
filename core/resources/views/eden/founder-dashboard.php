@@ -78,6 +78,8 @@
     <a href="<?= e(url('/founder/startups')) ?>">My startups →</a>
   </div>
 </div>
+<?php $isPro = auth()->user()->isPro(); ?>
+<?php if ($isPro): ?>
 <?php
   $heroEligibleStartups = collect($myStartups)->filter(function ($s) {
       return $s->isActive() && $s->hasFounderWithLinkedin() && !$s->featured_on_hero;
@@ -122,6 +124,17 @@
         </div>
       <?php endif; ?>
     <?php endforeach; ?>
+  </div>
+</div>
+<?php endif; ?>
+<?php else: ?>
+<div class="dash-card">
+  <div class="dash-card-header">
+    <span class="dash-card-title"><i class="fa-solid fa-star" style="color:#f59e0b;margin-right:4px"></i> Featured on hero</span>
+  </div>
+  <div class="dash-card-body" style="text-align:center;padding:28px 20px">
+    <p style="color:var(--text-muted,#8b90a0);font-size:0.92rem;margin-bottom:14px">Upgrade to <strong>Pro</strong> to request your startup to be featured on the homepage hero section.</p>
+    <a href="<?= e(url('/pricing')) ?>" class="dash-btn dash-btn-primary" style="text-decoration:none"><i class="fa-solid fa-crown"></i> Upgrade to Pro — $10</a>
   </div>
 </div>
 <?php endif; ?>

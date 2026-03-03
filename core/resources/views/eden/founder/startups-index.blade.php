@@ -40,8 +40,22 @@
                 {{ $s->status ?? 'active' }}
               @endif
             </td>
-            <td>
+            <td style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
               <a href="{{ route('founder.startups.edit', $s) }}" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; text-decoration: none;"><i class="fa-solid fa-pen"></i> Edit</a>
+              @if(auth()->user()->isPro())
+              <form action="{{ route('founder.startups.toggle-featured', $s) }}" method="POST" style="display:inline">
+                @csrf
+                <button type="submit" class="dash-btn {{ $s->is_featured ? 'dash-btn-primary' : 'dash-btn-secondary' }}" style="padding:4px 10px;font-size:0.8rem" title="{{ $s->is_featured ? 'Remove from featured' : 'Feature this startup' }}">
+                  <i class="fa-solid fa-star"></i> {{ $s->is_featured ? 'Featured' : 'Feature' }}
+                </button>
+              </form>
+              <form action="{{ route('founder.startups.destroy', $s) }}" method="POST" style="display:inline" onsubmit="return confirm('Are you sure you want to delete this startup? This cannot be undone.')">
+                @csrf @method('DELETE')
+                <button type="submit" class="dash-btn dash-btn-danger" style="padding:4px 10px;font-size:0.8rem"><i class="fa-solid fa-trash"></i> Delete</button>
+              </form>
+              @else
+              <a href="{{ url('/pricing') }}" class="dash-btn dash-btn-secondary" style="padding:4px 10px;font-size:0.8rem;text-decoration:none;opacity:0.6" title="Pro feature"><i class="fa-solid fa-crown"></i> Pro</a>
+              @endif
             </td>
           </tr>
           @empty

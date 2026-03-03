@@ -47,6 +47,10 @@ class DashboardController extends EdenController
     {
         $user = auth()->user();
 
+        if (!$user->isPro()) {
+            abort(403, 'Pro membership required to request hero featuring.');
+        }
+
         if ((int) $startup->user_id !== (int) $user->id) {
             abort(403);
         }

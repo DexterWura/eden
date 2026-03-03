@@ -61,6 +61,7 @@
         <a href="<?= e(url('/categories')) ?>">Categories</a>
         <a href="<?= e(url('/blog')) ?>">Blog</a>
         <a href="<?= e(url('/submit')) ?>">Submit</a>
+        <a href="<?= e(url('/pricing')) ?>" style="color:var(--accent)"><i class="fa-solid fa-crown" aria-hidden="true"></i> Pro</a>
         <a href="<?= e(url('/about')) ?>">About</a>
         <a href="<?= e(url('/contact')) ?>">Contact</a>
         <?php if (auth()->check()): ?>
@@ -121,6 +122,7 @@
       <a href="<?= e(url('/categories')) ?>">Categories</a>
       <a href="<?= e(url('/blog')) ?>">Blog</a>
       <a href="<?= e(url('/submit')) ?>">Submit</a>
+      <a href="<?= e(url('/pricing')) ?>" style="color:var(--accent)"><i class="fa-solid fa-crown" aria-hidden="true"></i> Pro</a>
       <a href="<?= e(url('/about')) ?>">About</a>
       <a href="<?= e(url('/contact')) ?>">Contact</a>
       <?php if (auth()->check()): ?>
