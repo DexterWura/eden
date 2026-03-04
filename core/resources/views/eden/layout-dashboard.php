@@ -45,7 +45,9 @@
       <?php else: ?>
         <a href="<?= e(url('/founder')) ?>" class="<?= ($activeNav ?? '') === 'home' ? 'active' : '' ?>" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i><span class="dash-sidebar-label">Home</span></a>
         <a href="<?= e(url('/founder/startups')) ?>" class="<?= ($activeNav ?? '') === 'startups' ? 'active' : '' ?>" aria-label="My startup" title="My startups"><i class="fa-solid fa-building-user"></i><span class="dash-sidebar-label">Startups</span></a>
+        <?php if (auth()->check() && auth()->user()->isPro()): ?>
         <a href="<?= e(url('/founder/badges')) ?>" class="<?= ($activeNav ?? '') === 'badges' ? 'active' : '' ?>" aria-label="Badges" title="Embed badges"><i class="fa-solid fa-certificate"></i><span class="dash-sidebar-label">Badges</span></a>
+        <?php endif; ?>
         <a href="<?= e(url('/founder/upvotes')) ?>" class="<?= ($activeNav ?? '') === 'upvotes' ? 'active' : '' ?>" aria-label="Upvotes" title="Upvotes"><i class="fa-solid fa-arrow-up"></i><span class="dash-sidebar-label">Upvotes</span></a>
         <?php if (auth()->check() && auth()->user()->isPro()): ?>
         <a href="<?= e(url('/founder/blog')) ?>" class="<?= ($activeNav ?? '') === 'blog' ? 'active' : '' ?>" aria-label="Blog" title="Blog"><i class="fa-solid fa-pen-nib"></i><span class="dash-sidebar-label">Blog</span></a>

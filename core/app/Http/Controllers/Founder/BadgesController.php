@@ -16,6 +16,22 @@ class BadgesController extends Controller
     public function index(): Response
     {
         $user = auth()->user();
+        if (!$user->isPro()) {
+            return response()->view('eden.layout-dashboard', [
+                'title' => 'Badges',
+                'sidebar' => 'founder',
+                'activeNav' => 'badges',
+                'dashboardLogo' => function_exists('gs') && gs('site_name') ? (string) gs('site_name') : 'Eden',
+                'dashboardTopbar' => '',
+                'searchPlaceholder' => 'Search…',
+                'avatarTitle' => $user->name ?? 'Account',
+                'avatarLetter' => strtoupper(mb_substr($user->name ?? '?', 0, 1)),
+                'notifyPartial' => view('partials.notify')->render(),
+                'content' => view('eden.founder.badges-pro-upsell', [
+                    'siteName' => function_exists('gs') && gs('site_name') ? (string) gs('site_name') : 'Eden',
+                ])->render(),
+            ]);
+        }
         $startups = Startup::visibleToUser($user)->orderBy('name')->get();
         $productOfDayId = $this->startupService->getProductOfDayId();
         $siteName = function_exists('gs') && gs('site_name') ? (string) gs('site_name') : 'Eden';
