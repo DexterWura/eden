@@ -18,9 +18,6 @@ class StartupCommentController extends EdenController
         }
 
         $user = auth()->user();
-        if (! $user->isPro()) {
-            return redirect()->back()->with('error', 'Only Pro members can comment on startups. Visit the pricing page to upgrade.');
-        }
 
         $validator = Validator::make($request->all(), [
             'body' => ['required', 'string', 'min:1', 'max:2000'],

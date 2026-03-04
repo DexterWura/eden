@@ -169,7 +169,7 @@ $productImages = $s->product_images ?? [];
 
   <?php
   $comments = $comments ?? collect();
-  $canComment = auth()->check() && auth()->user()->isPro();
+  $canComment = auth()->check();
   ?>
   <section class="startup-section startup-comments" aria-labelledby="comments-heading">
     <h2 id="comments-heading">Comments <?= $comments->count() > 0 ? '(' . $comments->count() . ')' : '' ?></h2>
@@ -193,13 +193,9 @@ $productImages = $s->product_images ?? [];
       <textarea id="comment-body" name="body" rows="3" maxlength="2000" placeholder="Write a comment..." required><?= e(old('body', '')) ?></textarea>
       <button type="submit" class="btn btn-primary"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Post comment</button>
     </form>
-    <?php elseif (auth()->check()): ?>
-    <p class="startup-comments-pro-only">
-      <i class="fa-solid fa-crown" aria-hidden="true"></i> Only Pro members can comment. <a href="<?= e(route('pricing')) ?>">Upgrade to Pro</a> to join the conversation.
-    </p>
     <?php else: ?>
     <p class="startup-comments-login">
-      <a href="<?= e(route('login')) ?>">Log in</a> to comment. Pro members can post comments on startups.
+      <a href="<?= e(route('login')) ?>">Log in</a> to comment.
     </p>
     <?php endif; ?>
   </section>
