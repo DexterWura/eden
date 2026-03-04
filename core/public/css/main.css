@@ -2042,3 +2042,43 @@ a.hero-trusted-by-avatar:hover {
   transition: background .15s;
 }
 .dash-btn-danger:hover { background: #dc2626; }
+
+/* ── LinkedIn Auth Button + Divider ────────────────────────── */
+.btn-linkedin {
+  border-color: #0a66c2 !important;
+  color: #0a66c2 !important;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 12px 20px;
+  transition: background .15s, color .15s;
+}
+.btn-linkedin:hover {
+  background: #0a66c2 !important;
+  color: #fff !important;
+}
+[data-theme="dark"] .btn-linkedin,
+:root .btn-linkedin {
+  border-color: #4d9de0 !important;
+  color: #4d9de0 !important;
+}
+[data-theme="dark"] .btn-linkedin:hover,
+:root .btn-linkedin:hover {
+  background: #0a66c2 !important;
+  color: #fff !important;
+}
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 20px 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.auth-divider span { white-space: nowrap; }

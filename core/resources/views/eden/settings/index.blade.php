@@ -50,7 +50,16 @@
     <span class="dash-card-title">LinkedIn API</span>
   </div>
   <div class="dash-card-body">
-    <p style="margin-bottom: 16px; color: #5f6368;">Optional. When set, admins can feature founders on the hero section (Users list). Featured founders appear in the &ldquo;Trusted by 100+ founders&rdquo; block on the homepage. Create an app at <a href="https://www.linkedin.com/developers/apps" target="_blank" rel="noopener">LinkedIn Developers</a> and paste the Client ID and Client Secret below.</p>
+    <p style="margin-bottom: 16px; color: #5f6368;">Optional. When set, admins can feature founders on the hero section (Users list) and users can sign in with LinkedIn. Create an app at <a href="https://www.linkedin.com/developers/apps" target="_blank" rel="noopener">LinkedIn Developers</a>, add this callback URL to your app&rsquo;s Authorized redirect URLs, then paste the Client ID and Client Secret below.</p>
+    <div style="margin-bottom: 16px;">
+      <label class="dash-label">Callback URL</label>
+      <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
+        <input type="text" id="linkedin_callback_url" value="{{ url('/auth/linkedin/callback') }}" readonly class="dash-input" style="flex: 1; font-family: ui-monospace, monospace; font-size: 0.88rem;">
+        <button type="button" class="dash-btn dash-btn-secondary" id="linkedin_copy_callback" title="Copy to clipboard">
+          <i class="fa-regular fa-copy"></i> Copy
+        </button>
+      </div>
+    </div>
     <form action="{{ route('admin.settings.linkedin') }}" method="post" class="dash-form">
       @csrf
       <div style="display: flex; flex-direction: column; gap: 16px;">
@@ -70,6 +79,26 @@
         </div>
       </div>
     </form>
+    <script>
+    (function() {
+      var btn = document.getElementById('linkedin_copy_callback');
+      var input = document.getElementById('linkedin_callback_url');
+      if (btn && input) {
+        btn.addEventListener('click', function() {
+          input.select();
+          input.setSelectionRange(0, 99999);
+          try {
+            navigator.clipboard.writeText(input.value);
+          } catch (e) {
+            document.execCommand('copy');
+          }
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+    })();
+    </script>
   </div>
 </div>
 

@@ -5,6 +5,12 @@
   </div>
 </section>
 <div class="wrap content-block form-max">
+  <?php if (\App\Http\Controllers\Eden\LinkedInAuthController::isConfigured()): ?>
+  <a href="<?= e(url('/auth/linkedin')) ?>" class="btn btn-ghost btn-block btn-linkedin" style="margin-bottom: 20px; justify-content: center; gap: 8px;">
+    <i class="fa-brands fa-linkedin" aria-hidden="true"></i> Continue with LinkedIn
+  </a>
+  <div class="auth-divider"><span>or sign in with email</span></div>
+  <?php endif; ?>
   <form action="<?= e(url('/login')) ?>" method="POST">
     <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
     <div class="form-group">

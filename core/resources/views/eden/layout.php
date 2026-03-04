@@ -63,7 +63,6 @@
         <a href="<?= e(url('/submit')) ?>">Submit</a>
         <a href="<?= e(url('/pricing')) ?>" style="color:var(--accent)"><i class="fa-solid fa-crown" aria-hidden="true"></i> Pro</a>
         <a href="<?= e(url('/about')) ?>">About</a>
-        <a href="<?= e(url('/contact')) ?>">Contact</a>
         <?php if (auth()->check()): ?>
         <a href="<?= e(url('/founder')) ?>" class="btn btn-ghost"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i> Dashboard</a>
         <form action="<?= e(route('logout')) ?>" method="POST" class="nav-logout-form">
@@ -124,7 +123,6 @@
       <a href="<?= e(url('/submit')) ?>">Submit</a>
       <a href="<?= e(url('/pricing')) ?>" style="color:var(--accent)"><i class="fa-solid fa-crown" aria-hidden="true"></i> Pro</a>
       <a href="<?= e(url('/about')) ?>">About</a>
-      <a href="<?= e(url('/contact')) ?>">Contact</a>
       <?php if (auth()->check()): ?>
       <a href="<?= e(url('/founder')) ?>" class="nav-drawer-extra"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i> Dashboard</a>
       <form action="<?= e(route('logout')) ?>" method="POST" class="nav-logout-form nav-drawer-logout">
@@ -152,23 +150,31 @@
           $socialCreds = function_exists('gs') ? gs('socialite_credentials') : null;
           $socialProviders = [];
           if ($socialCreds && is_object($socialCreds)) {
-            foreach (['google' => 'Google', 'linkedin' => 'LinkedIn', 'facebook' => 'Facebook', 'twitter' => 'Twitter'] as $key => $label) {
+            foreach (['google' => 'Google', 'facebook' => 'Facebook', 'twitter' => 'Twitter'] as $key => $label) {
               if (isset($socialCreds->$key) && is_object($socialCreds->$key) && !empty($socialCreds->$key->client_id) && !empty($socialCreds->$key->client_secret) && (int)($socialCreds->$key->status ?? 0) === 1) {
                 $socialProviders[$key] = $label;
               }
             }
           }
+          $linkedinConfigured = \App\Http\Controllers\Eden\LinkedInAuthController::isConfigured();
         ?>
+        <?php if ($linkedinConfigured): ?>
+        <a href="<?= e(url('/auth/linkedin')) ?>" class="btn btn-ghost btn-block btn-linkedin" style="margin-bottom: 14px; justify-content: center; gap: 8px;">
+          <i class="fa-brands fa-linkedin" aria-hidden="true"></i> Continue with LinkedIn
+        </a>
+        <?php endif; ?>
         <?php if (!empty($socialProviders)): ?>
         <div class="social-login-wrap" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
           <?php foreach ($socialProviders as $key => $label): ?>
           <a href="<?= e(route('user.social.login', $key)) ?>" class="btn btn-ghost" style="flex: 1; min-width: 100px; justify-content: center;">
-            <i class="fa-brands fa-<?= $key === 'google' ? 'google' : ($key === 'linkedin' ? 'linkedin' : ($key === 'twitter' ? 'x-twitter' : 'facebook')) ?>" aria-hidden="true"></i>
+            <i class="fa-brands fa-<?= $key === 'google' ? 'google' : ($key === 'twitter' ? 'x-twitter' : 'facebook') ?>" aria-hidden="true"></i>
             <?= e($label) ?>
           </a>
           <?php endforeach; ?>
         </div>
-        <p class="form-hint" style="text-align: center; margin-bottom: 16px; font-size: 0.875rem; color: var(--text-muted, #64748b);">Or sign in with email</p>
+        <?php endif; ?>
+        <?php if ($linkedinConfigured || !empty($socialProviders)): ?>
+        <div class="auth-divider"><span>or sign in with email</span></div>
         <?php endif; ?>
         <form action="<?= e(url('/login')) ?>" method="POST">
           <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
@@ -198,16 +204,23 @@
         <button type="button" class="modal-close" aria-label="Close" data-close="modalSignup"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="modal-body">
+        <?php if ($linkedinConfigured): ?>
+        <a href="<?= e(url('/auth/linkedin')) ?>" class="btn btn-ghost btn-block btn-linkedin" style="margin-bottom: 14px; justify-content: center; gap: 8px;">
+          <i class="fa-brands fa-linkedin" aria-hidden="true"></i> Continue with LinkedIn
+        </a>
+        <?php endif; ?>
         <?php if (!empty($socialProviders)): ?>
         <div class="social-login-wrap" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
           <?php foreach ($socialProviders as $key => $label): ?>
           <a href="<?= e(route('user.social.login', $key)) ?>" class="btn btn-ghost" style="flex: 1; min-width: 100px; justify-content: center;">
-            <i class="fa-brands fa-<?= $key === 'google' ? 'google' : ($key === 'linkedin' ? 'linkedin' : ($key === 'twitter' ? 'x-twitter' : 'facebook')) ?>" aria-hidden="true"></i>
+            <i class="fa-brands fa-<?= $key === 'google' ? 'google' : ($key === 'twitter' ? 'x-twitter' : 'facebook') ?>" aria-hidden="true"></i>
             <?= e($label) ?>
           </a>
           <?php endforeach; ?>
         </div>
-        <p class="form-hint" style="text-align: center; margin-bottom: 16px; font-size: 0.875rem; color: var(--text-muted, #64748b);">Or sign up with email</p>
+        <?php endif; ?>
+        <?php if ($linkedinConfigured || !empty($socialProviders)): ?>
+        <div class="auth-divider"><span>or sign up with email</span></div>
         <?php endif; ?>
         <form action="<?= e(url('/register')) ?>" method="POST">
           <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">

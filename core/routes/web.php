@@ -30,6 +30,7 @@ use App\Http\Controllers\Founder\StartupController as FounderStartupController;
 use App\Http\Controllers\Founder\UpvotesController;
 use App\Http\Controllers\Founder\BlogController as FounderBlogController;
 use App\Http\Controllers\Eden\PricingController;
+use App\Http\Controllers\Eden\LinkedInAuthController;
 use App\Http\Controllers\Admin\GatewayController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
@@ -122,6 +123,8 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/auth/social/{provider}', [SocialiteController::class, 'socialLogin'])->name('user.social.login')->where('provider', 'google|facebook|linkedin|twitter');
 Route::get('/auth/social/callback/{provider}', [SocialiteController::class, 'callback'])->name('user.social.login.callback')->where('provider', 'google|facebook|linkedin|twitter');
+Route::get('/auth/linkedin', [LinkedInAuthController::class, 'redirect'])->name('eden.linkedin.redirect')->middleware('guest');
+Route::get('/auth/linkedin/callback', [LinkedInAuthController::class, 'callback'])->name('eden.linkedin.callback');
 
 Route::middleware('admin')->prefix('backoffice')->name('admin.')->group(function () {
     Route::get('dashboard', [DashboardController::class, 'adminDashboard'])->name('dashboard');
