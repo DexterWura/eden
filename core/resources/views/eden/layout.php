@@ -62,7 +62,6 @@
         <a href="<?= e(url('/blog')) ?>">Blog</a>
         <a href="<?= e(url('/submit')) ?>">Submit</a>
         <a href="<?= e(url('/pricing')) ?>" style="color:var(--accent)"><i class="fa-solid fa-crown" aria-hidden="true"></i> Pro</a>
-        <a href="<?= e(url('/about')) ?>">About</a>
         <?php if (auth()->check()): ?>
         <a href="<?= e(url('/founder')) ?>" class="btn btn-ghost"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i> Dashboard</a>
         <form action="<?= e(route('logout')) ?>" method="POST" class="nav-logout-form">
@@ -122,7 +121,6 @@
       <a href="<?= e(url('/blog')) ?>">Blog</a>
       <a href="<?= e(url('/submit')) ?>">Submit</a>
       <a href="<?= e(url('/pricing')) ?>" style="color:var(--accent)"><i class="fa-solid fa-crown" aria-hidden="true"></i> Pro</a>
-      <a href="<?= e(url('/about')) ?>">About</a>
       <?php if (auth()->check()): ?>
       <a href="<?= e(url('/founder')) ?>" class="nav-drawer-extra"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i> Dashboard</a>
       <form action="<?= e(route('logout')) ?>" method="POST" class="nav-logout-form nav-drawer-logout">
