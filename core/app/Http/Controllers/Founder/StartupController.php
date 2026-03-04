@@ -15,15 +15,23 @@ class StartupController extends Controller
 {
     public function index()
     {
-        $startups = Startup::visibleToUser(auth()->user())->orderByDesc('updated_at')->get();
+        $user = auth()->user();
+        $startups = Startup::visibleToUser($user)->orderByDesc('updated_at')->get();
 
-        $content = view('eden.founder.startups-index', ['startups' => $startups])->render();
+        $content = view('eden.founder.startups-index', [
+            'startups' => $startups,
+            'canAddStartup' => $this->canAddStartup($user),
+        ])->render();
 
         return $this->layoutResponse('My startups', 'startups', $content);
     }
 
     public function create()
     {
+        if (! $this->canAddStartup(auth()->user())) {
+            return redirect()->route('founder.startups.index')
+                ->with('notify', [['error', 'Free accounts are limited to one startup. Upgrade to Pro for unlimited startups.']]);
+        }
         $startup = new Startup(['status' => Startup::STATUS_ACTIVE]);
         $categories = Category::orderBy('sort_order')->get();
         $content = view('eden.founder.startups-form', ['startup' => $startup, 'categories' => $categories])->render();
@@ -32,6 +40,10 @@ class StartupController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        if (! $this->canAddStartup(auth()->user())) {
+            return redirect()->route('founder.startups.index')
+                ->with('notify', [['error', 'Free accounts are limited to one startup. Upgrade to Pro for unlimited startups.']]);
+        }
         $validator = Validator::make($request->all(), $this->rules(), $this->messages());
         if ($validator->fails()) {
             return redirect()->route('founder.startups.create')->withErrors($validator)->withInput();
@@ -234,6 +246,14 @@ class StartupController extends Controller
         if (! $startup->userCanManage(auth()->user())) {
             abort(403, 'You do not have permission to manage this startup.');
         }
+    }
+
+    private function canAddStartup(\App\Models\User $user): bool
+    {
+        if ($user->isPro()) {
+            return true;
+        }
+        return $user->startups()->count() < 1;
     }
 
     private function layoutResponse(string $title, string $activeNav, string $content, bool $withFormAssets = false): \Illuminate\Http\Response

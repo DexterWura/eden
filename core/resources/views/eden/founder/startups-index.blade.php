@@ -6,9 +6,15 @@
 <div class="dash-card">
   <div class="dash-card-header" style="flex-wrap: wrap; gap: 12px;">
     <span class="dash-card-title">Your startups</span>
+    @if($canAddStartup ?? true)
     <a href="{{ route('founder.startups.create') }}" class="dash-btn dash-btn-primary" style="margin-left: auto; text-decoration: none;">
       <i class="fa-solid fa-plus"></i> Add startup
     </a>
+    @else
+    <a href="{{ url('/pricing') }}" class="dash-btn dash-btn-primary" style="margin-left: auto; text-decoration: none;">
+      <i class="fa-solid fa-crown"></i> Upgrade to Pro for more startups
+    </a>
+    @endif
   </div>
   <div class="dash-card-body" style="padding: 0;">
     <div class="dash-table-wrap">
@@ -60,7 +66,7 @@
           </tr>
           @empty
           <tr>
-            <td colspan="5" class="dash-placeholder">No startups yet. <a href="{{ route('founder.startups.create') }}">Add your first startup</a>.</td>
+            <td colspan="5" class="dash-placeholder">No startups yet. @if($canAddStartup ?? true)<a href="{{ route('founder.startups.create') }}">Add your first startup</a>@else<a href="{{ url('/pricing') }}">Upgrade to Pro</a> to add startups.@endif</td>
           </tr>
           @endforelse
         </tbody>

@@ -39,11 +39,12 @@ $gateways = $gateways ?? [];
         <p class="pricing-period">forever</p>
       </div>
       <ul class="pricing-features">
-        <li><i class="fa-solid fa-check"></i> Submit your startup</li>
-        <li><i class="fa-solid fa-check"></i> Appear in search &amp; categories</li>
+        <li><i class="fa-solid fa-check"></i> 1 startup</li>
+        <li><i class="fa-solid fa-check"></i> Submit &amp; appear in search &amp; categories</li>
         <li><i class="fa-solid fa-check"></i> Upvote other startups</li>
         <li><i class="fa-solid fa-check"></i> Basic founder profile</li>
         
+        <li class="pricing-feature--disabled"><i class="fa-solid fa-xmark"></i> Unlimited startups</li>
         <li class="pricing-feature--disabled"><i class="fa-solid fa-xmark"></i> Featured placement</li>
         <li class="pricing-feature--disabled"><i class="fa-solid fa-xmark"></i> Embed listing badge</li>
         <li class="pricing-feature--disabled"><i class="fa-solid fa-xmark"></i> Publish blog posts</li>
@@ -64,6 +65,7 @@ $gateways = $gateways ?? [];
       </div>
       <ul class="pricing-features">
         <li><i class="fa-solid fa-check"></i> Everything in Free</li>
+        <li class="pricing-feature--highlight"><i class="fa-solid fa-layer-group"></i> Unlimited startups</li>
         <li class="pricing-feature--highlight"><i class="fa-solid fa-star"></i> Feature your startup on homepage</li>
         <li class="pricing-feature--highlight"><i class="fa-solid fa-pen-nib"></i> Publish blog posts</li>
         <li class="pricing-feature--highlight"><i class="fa-solid fa-chart-line"></i> Analytics dashboard (views, clicks)</li>
