@@ -22,6 +22,7 @@ $isRow = $cardVariant === 'row';
       <?php if ($productOfDayId && (int)$s->id === (int)$productOfDayId): ?><span class="badge badge-product-of-day">Product of the day</span><?php endif; ?>
       <?php if ($s->is_featured): ?><span class="badge">Featured</span><?php endif; ?>
       <?php if ($s->launch_date && $s->launch_date->isToday()): ?><span class="badge launch">Launch</span><?php endif; ?>
+      <?php if ($s->activeFundingRound): ?><span class="badge badge-funding"><i class="fa-solid fa-hand-holding-dollar"></i> Raising</span><?php endif; ?>
     </div>
     <div class="upvote-ui">
       <button

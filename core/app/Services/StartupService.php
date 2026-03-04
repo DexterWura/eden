@@ -20,9 +20,14 @@ class StartupService
         );
     }
 
+    private function withFunding(): \Illuminate\Database\Eloquent\Builder
+    {
+        return Startup::query()->with('activeFundingRound');
+    }
+
     public function getProductOfDay(?string $category = null, int $limit = 5): Collection
     {
-        $query = Startup::active()->orderByDesc('upvotes');
+        $query = $this->withFunding()->active()->orderByDesc('upvotes');
         if ($category !== null && $category !== '') {
             $query->byCategory($category);
         }
@@ -31,7 +36,7 @@ class StartupService
 
     public function getAllStartups(?string $category = null): Collection
     {
-        $query = Startup::active()->orderByDesc('upvotes');
+        $query = $this->withFunding()->active()->orderByDesc('upvotes');
         if ($category !== null && $category !== '') {
             $query->byCategory($category);
         }
@@ -51,7 +56,7 @@ class StartupService
 
     public function getLaunchingToday(?string $category = null, bool $featuredOnly = false, int $limit = 0): Collection
     {
-        $query = Startup::active()->launchingToday()->orderByDesc('upvotes');
+        $query = $this->withFunding()->active()->launchingToday()->orderByDesc('upvotes');
         if ($category !== null && $category !== '') {
             $query->byCategory($category);
         }
@@ -63,7 +68,7 @@ class StartupService
 
     public function getFeatured(?string $category = null, int $limit = 10): Collection
     {
-        $query = Startup::active()->featured()->orderByDesc('upvotes');
+        $query = $this->withFunding()->active()->featured()->orderByDesc('upvotes');
         if ($category !== null && $category !== '') {
             $query->byCategory($category);
         }
@@ -77,7 +82,7 @@ class StartupService
     {
         $startOfWeek = now()->copy()->startOfWeek();
 
-        $query = Startup::active()
+        $query = $this->withFunding()->active()
             ->selectRaw('startups.*, (SELECT COUNT(*) FROM startup_upvotes WHERE startup_upvotes.startup_id = startups.id AND startup_upvotes.created_at >= ?) AS upvotes_this_week', [$startOfWeek])
             ->orderByDesc('upvotes_this_week')
             ->orderByDesc('upvotes');
@@ -93,7 +98,7 @@ class StartupService
 
     public function getJustListed(?string $category = null, bool $featuredOnly = false, int $limit = 10): Collection
     {
-        $query = Startup::active()->orderByDesc('created_at');
+        $query = $this->withFunding()->active()->orderByDesc('created_at');
         if ($category !== null && $category !== '') {
             $query->byCategory($category);
         }
@@ -105,7 +110,7 @@ class StartupService
 
     public function getLeaderboard(string $sortBy = 'upvotes', int $perPage = 20, ?string $category = null, bool $featuredOnly = false)
     {
-        $query = Startup::active();
+        $query = $this->withFunding()->active();
         if ($category !== null && $category !== '') {
             $query->byCategory($category);
         }
