@@ -243,6 +243,56 @@
     </div>
   </div>
 
+  @if($isEdit && auth()->user()->isPro())
+  @php
+    $fundingRound = $startup->activeFundingRound;
+  @endphp
+  <div class="dash-card" style="margin-bottom: 20px; border-left: 4px solid #6366f1;">
+    <div class="dash-card-header">
+      <span class="dash-card-title"><i class="fa-solid fa-hand-holding-dollar"></i> Funding / Investors</span>
+      <span class="dash-card-subtitle">Pro feature</span>
+    </div>
+    <div class="dash-card-body" style="display: flex; flex-direction: column; gap: 16px;">
+      <p style="font-size: 0.875rem; color: var(--d-text-secondary);">Open a funding round or mark that you're looking for investors. This will be shown on your startup page.</p>
+      <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+        <input type="hidden" name="seeking_investors" value="0">
+        <input type="checkbox" name="seeking_investors" value="1" id="seeking_investors" {{ (old('seeking_investors', $fundingRound ? '1' : '0')) === '1' ? 'checked' : '' }}>
+        <span class="dash-label">We are raising funding / looking for investors</span>
+      </label>
+      <div id="funding-round-fields" style="{{ (old('seeking_investors', $fundingRound ? '1' : '0') === '1' ? '' : 'display:none;' }}">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div>
+            <label for="funding_round_type" class="dash-label">Round type</label>
+            <select id="funding_round_type" name="funding_round_type" class="dash-input">
+              @foreach(\App\Models\StartupFundingRound::ROUND_TYPES as $val => $label)
+              <option value="{{ $val }}" {{ old('funding_round_type', $fundingRound?->round_type ?? 'seed') === $val ? 'selected' : '' }}>{{ $label }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div>
+            <label for="funding_amount_seeking" class="dash-label">Amount seeking (optional)</label>
+            <input type="number" id="funding_amount_seeking" name="funding_amount_seeking" value="{{ old('funding_amount_seeking', $fundingRound?->amount_seeking ?? '') }}" class="dash-input" placeholder="e.g. 500000" min="0" step="0.01">
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div>
+            <label for="funding_currency" class="dash-label">Currency</label>
+            <input type="text" id="funding_currency" name="funding_currency" value="{{ old('funding_currency', $fundingRound?->currency ?? 'USD') }}" class="dash-input" placeholder="USD" maxlength="3">
+          </div>
+          <div>
+            <label for="funding_contact_email" class="dash-label">Contact email for investors</label>
+            <input type="email" id="funding_contact_email" name="funding_contact_email" value="{{ old('funding_contact_email', $fundingRound?->contact_email ?? $startup->founder_email ?? '') }}" class="dash-input" placeholder="investors@example.com">
+          </div>
+        </div>
+        <div>
+          <label for="funding_description" class="dash-label">Description (optional)</label>
+          <textarea id="funding_description" name="funding_description" rows="3" class="dash-input" placeholder="Brief pitch, use of funds, etc.">{{ old('funding_description', $fundingRound?->description ?? '') }}</textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+  @endif
+
   {{-- List for sale (FLIPit) – uncomment to show to founders
   <div class="founder-card-block" style="margin-top: 24px;">
     <div class="founder-card">
@@ -298,6 +348,11 @@ document.addEventListener('DOMContentLoaded', function() {
     row.querySelector('.founder-remove').addEventListener('click', function() { row.remove(); updateFounderNumbers(); });
     updateFounderNumbers();
   });
+  var seekingCheck = document.getElementById('seeking_investors');
+  var fundingFields = document.getElementById('funding-round-fields');
+  if (seekingCheck && fundingFields) {
+    seekingCheck.addEventListener('change', function() { fundingFields.style.display = seekingCheck.checked ? '' : 'none'; });
+  }
   document.querySelectorAll('#founders-list .founder-remove').forEach(function(btn) {
     btn.addEventListener('click', function() { btn.closest('.founder-row').remove(); updateFounderNumbers(); });
   });

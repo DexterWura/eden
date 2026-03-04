@@ -1050,6 +1050,7 @@ a.hero-trusted-by-avatar:hover {
 .badge.sponsored { background: rgba(255,71,103,0.15); color: var(--danger); }
 .badge.launch { background: rgba(0,212,170,0.25); color: var(--accent); }
 .badge.badge-product-of-day { background: rgba(251,191,36,0.25); color: #b45309; }
+.badge.badge-funding { background: rgba(99,102,241,0.2); color: #6366f1; }
 .card-title { font-size: 1.1rem; font-weight: 600; overflow-wrap: break-word; word-break: break-word; margin: 0; }
 .card-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; overflow-wrap: break-word; word-break: break-word; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .card-meta { display: flex; flex-wrap: wrap; gap: 12px; font-size: 0.85rem; color: var(--text-muted); margin: 0; }
@@ -1368,6 +1369,29 @@ a.hero-trusted-by-avatar:hover {
 .startup-section .card-links { display: flex; flex-wrap: wrap; gap: 16px; }
 .startup-section .card-links a { color: var(--link); text-decoration: none; }
 .startup-section .card-links a:hover { text-decoration: underline; }
+
+/* Startup funding */
+.startup-funding-card {
+  padding: 20px 24px;
+  background: linear-gradient(135deg, var(--surface) 0%, rgba(99, 102, 241, 0.08) 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  border-left: 4px solid #6366f1;
+}
+.startup-funding-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: rgba(99, 102, 241, 0.2);
+  color: #6366f1;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+.startup-funding-amount { font-size: 1.25rem; font-weight: 600; margin: 0 0 12px; color: var(--text); }
+.startup-funding-desc { margin: 0 0 16px; color: var(--text-muted); line-height: 1.5; font-size: 0.95rem; }
 
 /* Startup comments */
 .startup-comments-list { list-style: none; padding: 0; margin: 0 0 20px; }

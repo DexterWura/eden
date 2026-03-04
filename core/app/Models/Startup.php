@@ -289,6 +289,16 @@ class Startup extends Model
         return $this->hasMany(StartupComment::class)->orderBy('created_at', 'asc');
     }
 
+    public function fundingRounds()
+    {
+        return $this->hasMany(StartupFundingRound::class)->orderByDesc('created_at');
+    }
+
+    public function activeFundingRound()
+    {
+        return $this->hasOne(StartupFundingRound::class)->where('status', StartupFundingRound::STATUS_OPEN)->latest();
+    }
+
     public static function normalizeUrl(?string $url): ?string
     {
         if ($url === null || trim($url) === '') {

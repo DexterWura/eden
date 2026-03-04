@@ -2,6 +2,7 @@
 $s = $startup ?? null;
 if (!$s) return;
 $logoPath = $s->logo_path ?? null;
+$fundingRound = $s->activeFundingRound;
 $logoLetters = $s->logo_letters ?? strtoupper(mb_substr($s->name, 0, 2));
 $foundersDisplay = $s->founders_display ?? [];
 $productImages = $s->product_images ?? [];
@@ -23,6 +24,7 @@ $productImages = $s->product_images ?? [];
         <h1><?= e($s->name) ?></h1>
         <?php $isProductOfDay = $isProductOfDay ?? false; ?>
         <?php if ($isProductOfDay): ?><span class="badge badge-product-of-day" style="display: inline-block; margin-bottom: 8px;">Product of the day</span><?php endif; ?>
+        <?php if ($fundingRound): ?><span class="badge badge-funding" style="display: inline-block; margin-bottom: 8px; margin-left: 6px;"><i class="fa-solid fa-hand-holding-dollar"></i> Raising</span><?php endif; ?>
         <?php if ($s->tagline): ?><p class="tagline"><?= e($s->tagline) ?></p><?php endif; ?>
         <div class="startup-meta">
           <?php if ($s->category): ?><span><?= e($s->category) ?></span><?php endif; ?>
@@ -95,6 +97,24 @@ $productImages = $s->product_images ?? [];
         </div>
       </div>
       <?php endforeach; ?>
+    </div>
+  </section>
+  <?php endif; ?>
+
+  <?php if ($fundingRound): ?>
+  <section class="startup-section startup-funding" aria-labelledby="funding-heading">
+    <h2 id="funding-heading"><i class="fa-solid fa-hand-holding-dollar" aria-hidden="true"></i> Raising funding</h2>
+    <div class="startup-funding-card">
+      <div class="startup-funding-badge"><?= e($fundingRound->round_type_label) ?></div>
+      <?php if ($fundingRound->amount_seeking): ?>
+      <p class="startup-funding-amount"><?= e(number_format((float)$fundingRound->amount_seeking, 0)) ?> <?= e($fundingRound->currency) ?></p>
+      <?php endif; ?>
+      <?php if ($fundingRound->description): ?>
+      <p class="startup-funding-desc"><?= nl2br(e($fundingRound->description)) ?></p>
+      <?php endif; ?>
+      <?php if ($fundingRound->contact_email): ?>
+      <a href="mailto:<?= e($fundingRound->contact_email) ?>" class="btn btn-primary"><i class="fa-solid fa-envelope" aria-hidden="true"></i> Contact for investment</a>
+      <?php endif; ?>
     </div>
   </section>
   <?php endif; ?>

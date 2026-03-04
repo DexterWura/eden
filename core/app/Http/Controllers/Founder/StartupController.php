@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Founder;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Startup;
+use App\Models\StartupFundingRound;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -87,6 +88,7 @@ class StartupController extends Controller
         $this->applyFlipitForSaleFromRequest($request, $data);
         $startup->update($data);
         $this->processStartupFiles($request, $startup);
+        $this->applyFundingRoundFromRequest($request, $startup);
         return redirect()->route('founder.startups.index')->with('notify', [['success', 'Startup updated.']]);
     }
 
@@ -288,7 +290,51 @@ class StartupController extends Controller
                 'max:500',
                 'regex:/^https?:\/\/(?:www\.)?flipit\.co\.zw\/marketplace\/listing\/[a-zA-Z0-9_-]+\/?$/i',
             ],
+            'seeking_investors' => ['nullable', 'in:0,1'],
+            'funding_round_type' => ['nullable', 'string', 'in:' . implode(',', array_keys(StartupFundingRound::ROUND_TYPES))],
+            'funding_amount_seeking' => ['nullable', 'numeric', 'min:0'],
+            'funding_currency' => ['nullable', 'string', 'max:3'],
+            'funding_contact_email' => ['nullable', 'email', 'max:255'],
+            'funding_description' => ['nullable', 'string', 'max:2000'],
         ];
+    }
+
+    private function applyFundingRoundFromRequest(Request $request, Startup $startup): void
+    {
+        if (! auth()->user()->isPro()) {
+            return;
+        }
+
+        $seeking = $request->input('seeking_investors') === '1';
+
+        $openRound = $startup->activeFundingRound;
+
+        if (! $seeking) {
+            if ($openRound) {
+                $openRound->update(['status' => StartupFundingRound::STATUS_CLOSED]);
+            }
+            return;
+        }
+
+        $roundType = $request->input('funding_round_type', 'seed');
+        if (! array_key_exists($roundType, StartupFundingRound::ROUND_TYPES)) {
+            $roundType = 'seed';
+        }
+
+        $payload = [
+            'round_type' => $roundType,
+            'amount_seeking' => $request->input('funding_amount_seeking') ?: null,
+            'currency' => strtoupper(substr($request->input('funding_currency', 'USD'), 0, 3)) ?: 'USD',
+            'description' => $request->input('funding_description') ?: null,
+            'contact_email' => $request->input('funding_contact_email') ?: null,
+            'status' => StartupFundingRound::STATUS_OPEN,
+        ];
+
+        if ($openRound) {
+            $openRound->update($payload);
+        } else {
+            StartupFundingRound::create(array_merge(['startup_id' => $startup->id], $payload));
+        }
     }
 
     private function messages(): array
