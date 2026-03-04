@@ -45,6 +45,16 @@ class UserController extends Controller
             ->with('notify', [['success', $message]]);
     }
 
+    public function giftPro(User $user): RedirectResponse
+    {
+        $user->is_pro = !$user->is_pro;
+        $user->pro_since = $user->is_pro ? now() : null;
+        $user->save();
+
+        $message = $user->is_pro ? 'Pro membership granted to ' . $user->name . '.' : 'Pro membership revoked from ' . $user->name . '.';
+        return redirect()->route('admin.users.index')->with('notify', [['success', $message]]);
+    }
+
     public function startups(User $user)
     {
         $startups = Startup::query()

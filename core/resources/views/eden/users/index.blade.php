@@ -20,6 +20,7 @@
             <th>Email</th>
             <th>Joined</th>
             <th>Status</th>
+            <th>Pro</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -40,6 +41,19 @@
               @endif
             </td>
             <td>
+              @if($user->is_pro)
+                <span class="dash-badge" style="background: #ccfbf1; color: #0d9488; margin-right: 6px;"><i class="fa-solid fa-crown" style="font-size: 0.7rem;"></i> Pro</span>
+              @endif
+              <form action="{{ route('admin.users.gift-pro', $user) }}" method="post" style="display: inline;">
+                @csrf
+                @if($user->is_pro)
+                  <button type="submit" class="dash-btn" style="padding: 4px 10px; font-size: 0.8rem; background: #64748b; color: #fff; border: none;" title="Revoke Pro">Revoke</button>
+                @else
+                  <button type="submit" class="dash-btn" style="padding: 4px 10px; font-size: 0.8rem; background: #0d9488; color: #fff; border: none;" title="Gift Pro membership"><i class="fa-solid fa-crown"></i> Gift Pro</button>
+                @endif
+              </form>
+            </td>
+            <td>
               <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
                 <form action="{{ route('admin.users.toggle-status', $user) }}" method="post" style="display: inline;">
                   @csrf
@@ -55,7 +69,7 @@
           </tr>
           @empty
           <tr>
-            <td colspan="5" class="dash-placeholder">No users found.</td>
+            <td colspan="6" class="dash-placeholder">No users found.</td>
           </tr>
           @endforelse
         </tbody>

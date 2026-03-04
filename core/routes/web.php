@@ -147,6 +147,7 @@ Route::middleware('admin')->prefix('backoffice')->name('admin.')->group(function
     Route::post('startup-websites/run-check', [StartupWebsiteHealthController::class, 'runCheck'])->name('startup-websites.run-check');
     Route::get('users', [UserController::class, 'index'])->name('users.index');
     Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
+    Route::post('users/{user}/gift-pro', [UserController::class, 'giftPro'])->name('users.gift-pro');
     Route::get('users/{user}/startups', [UserController::class, 'startups'])->name('users.startups');
     Route::get('categories', [CategoryController::class, 'index'])->name('categories.index');
     Route::get('categories/create', [CategoryController::class, 'create'])->name('categories.create');
