@@ -45,7 +45,7 @@ $gateways = $gateways ?? [];
         <li><i class="fa-solid fa-check"></i> Basic founder profile</li>
         
         <li class="pricing-feature--disabled"><i class="fa-solid fa-xmark"></i> Featured placement</li>
-        <li><i class="pricing-feature--disabled"></i> Embed listing badge</li>
+        <li class="pricing-feature--disabled"><i class="fa-solid fa-xmark"></i> Embed listing badge</li>
         <li class="pricing-feature--disabled"><i class="fa-solid fa-xmark"></i> Publish blog posts</li>
         <li class="pricing-feature--disabled"><i class="fa-solid fa-xmark"></i> Analytics dashboard</li>
         <li class="pricing-feature--disabled"><i class="fa-solid fa-xmark"></i> Priority support</li>
