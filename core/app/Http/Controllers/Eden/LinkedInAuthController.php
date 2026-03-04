@@ -60,6 +60,7 @@ class LinkedInAuthController extends Controller
             $user->name = $name;
             $user->email = $email;
             $user->password = Hash::make(Str::random(32));
+            $user->auth_provider = 'linkedin';
             $user->save();
 
             Auth::guard('web')->login($user, true);

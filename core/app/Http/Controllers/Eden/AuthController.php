@@ -34,7 +34,13 @@ class AuthController extends Controller
             return redirect()->intended(route('founder.dashboard'));
         }
 
-        return redirect()->route('login')->withErrors(['email' => __('The provided credentials do not match our records.')])->withInput($request->only('email'));
+        $user = User::where('email', $request->email)->first();
+        $message = __('The provided credentials do not match our records.');
+        if ($user && $user->auth_provider === 'linkedin') {
+            $message = 'You created this account with LinkedIn. Please use the LinkedIn button to log in.';
+        }
+
+        return redirect()->route('login')->withErrors(['email' => $message])->withInput($request->only('email'));
     }
 
     public function showRegisterForm(): View
