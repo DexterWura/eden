@@ -61,7 +61,12 @@ class StartupController extends Controller
     {
         $this->authorizeStartup($startup);
         $categories = Category::orderBy('sort_order')->get();
-        $content = view('eden.founder.startups-form', ['startup' => $startup, 'categories' => $categories])->render();
+        $fundingRoundTypes = StartupFundingRound::ROUND_TYPES;
+        $content = view('eden.founder.startups-form', [
+            'startup' => $startup,
+            'categories' => $categories,
+            'fundingRoundTypes' => $fundingRoundTypes,
+        ])->render();
         return $this->layoutResponse('Edit startup', 'startups', $content, true);
     }
 

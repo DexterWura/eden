@@ -259,34 +259,41 @@
         <input type="checkbox" name="seeking_investors" value="1" id="seeking_investors" {{ (old('seeking_investors', $fundingRound ? '1' : '0')) === '1' ? 'checked' : '' }}>
         <span class="dash-label">We are raising funding / looking for investors</span>
       </label>
-      <div id="funding-round-fields" style="{{ (old('seeking_investors', $fundingRound ? '1' : '0') === '1' ? '' : 'display:none;' }}">
+      @php
+        $fundingRoundType = $fundingRound ? $fundingRound->round_type : 'seed';
+        $fundingAmount = $fundingRound ? $fundingRound->amount_seeking : '';
+        $fundingCurrency = $fundingRound ? $fundingRound->currency : 'USD';
+        $fundingContact = $fundingRound ? $fundingRound->contact_email : ($startup->founder_email ?? '');
+        $fundingDesc = $fundingRound ? $fundingRound->description : '';
+      @endphp
+      <div id="funding-round-fields" style="{{ (old('seeking_investors', $fundingRound ? '1' : '0')) === '1' ? '' : 'display:none;' }}">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
           <div>
             <label for="funding_round_type" class="dash-label">Round type</label>
             <select id="funding_round_type" name="funding_round_type" class="dash-input">
-              @foreach(\App\Models\StartupFundingRound::ROUND_TYPES as $val => $label)
-              <option value="{{ $val }}" {{ old('funding_round_type', $fundingRound?->round_type ?? 'seed') === $val ? 'selected' : '' }}>{{ $label }}</option>
+              @foreach($fundingRoundTypes ?? [] as $val => $label)
+              <option value="{{ $val }}" {{ old('funding_round_type', $fundingRoundType) === $val ? 'selected' : '' }}>{{ $label }}</option>
               @endforeach
             </select>
           </div>
           <div>
             <label for="funding_amount_seeking" class="dash-label">Amount seeking (optional)</label>
-            <input type="number" id="funding_amount_seeking" name="funding_amount_seeking" value="{{ old('funding_amount_seeking', $fundingRound?->amount_seeking ?? '') }}" class="dash-input" placeholder="e.g. 500000" min="0" step="0.01">
+            <input type="number" id="funding_amount_seeking" name="funding_amount_seeking" value="{{ old('funding_amount_seeking', $fundingAmount) }}" class="dash-input" placeholder="e.g. 500000" min="0" step="0.01">
           </div>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
           <div>
             <label for="funding_currency" class="dash-label">Currency</label>
-            <input type="text" id="funding_currency" name="funding_currency" value="{{ old('funding_currency', $fundingRound?->currency ?? 'USD') }}" class="dash-input" placeholder="USD" maxlength="3">
+            <input type="text" id="funding_currency" name="funding_currency" value="{{ old('funding_currency', $fundingCurrency) }}" class="dash-input" placeholder="USD" maxlength="3">
           </div>
           <div>
             <label for="funding_contact_email" class="dash-label">Contact email for investors</label>
-            <input type="email" id="funding_contact_email" name="funding_contact_email" value="{{ old('funding_contact_email', $fundingRound?->contact_email ?? $startup->founder_email ?? '') }}" class="dash-input" placeholder="investors@example.com">
+            <input type="email" id="funding_contact_email" name="funding_contact_email" value="{{ old('funding_contact_email', $fundingContact) }}" class="dash-input" placeholder="investors@example.com">
           </div>
         </div>
         <div>
           <label for="funding_description" class="dash-label">Description (optional)</label>
-          <textarea id="funding_description" name="funding_description" rows="3" class="dash-input" placeholder="Brief pitch, use of funds, etc.">{{ old('funding_description', $fundingRound?->description ?? '') }}</textarea>
+          <textarea id="funding_description" name="funding_description" rows="3" class="dash-input" placeholder="Brief pitch, use of funds, etc.">{{ old('funding_description', $fundingDesc) }}</textarea>
         </div>
       </div>
     </div>
