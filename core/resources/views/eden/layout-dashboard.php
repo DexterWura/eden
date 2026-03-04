@@ -50,6 +50,7 @@
         <?php endif; ?>
         <a href="<?= e(url('/founder/upvotes')) ?>" class="<?= ($activeNav ?? '') === 'upvotes' ? 'active' : '' ?>" aria-label="Upvotes" title="Upvotes"><i class="fa-solid fa-arrow-up"></i><span class="dash-sidebar-label">Upvotes</span></a>
         <?php if (auth()->check() && auth()->user()->isPro()): ?>
+        <a href="<?= e(url('/founder/analytics')) ?>" class="<?= ($activeNav ?? '') === 'analytics' ? 'active' : '' ?>" aria-label="Analytics" title="Analytics"><i class="fa-solid fa-chart-line"></i><span class="dash-sidebar-label">Analytics</span></a>
         <a href="<?= e(url('/founder/blog')) ?>" class="<?= ($activeNav ?? '') === 'blog' ? 'active' : '' ?>" aria-label="Blog" title="Blog"><i class="fa-solid fa-pen-nib"></i><span class="dash-sidebar-label">Blog</span></a>
         <?php endif; ?>
         <a href="<?= e(url('/founder/revenue-api')) ?>" class="<?= ($activeNav ?? '') === 'revenue-api' ? 'active' : '' ?>" aria-label="Revenue API" title="Revenue API"><i class="fa-solid fa-code"></i><span class="dash-sidebar-label">Revenue API</span></a>

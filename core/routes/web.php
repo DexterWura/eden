@@ -22,6 +22,7 @@ use App\Http\Controllers\Eden\PageController;
 use App\Http\Controllers\Eden\BlogController;
 use App\Http\Controllers\Eden\StartupController;
 use App\Http\Controllers\Eden\StartupCommentController;
+use App\Http\Controllers\Eden\AnalyticsController;
 use App\Http\Controllers\Eden\BadgeController;
 use App\Http\Controllers\User\Auth\SocialiteController;
 use App\Http\Controllers\Founder\BadgesController as FounderBadgesController;
@@ -102,6 +103,7 @@ Route::middleware('auth')->prefix('founder')->name('founder.')->group(function (
     Route::put('blog/{post}', [FounderBlogController::class, 'update'])->name('blog.update');
     Route::delete('blog/{post}', [FounderBlogController::class, 'destroy'])->name('blog.destroy');
     Route::get('upvotes', [UpvotesController::class, 'index'])->name('upvotes');
+    Route::get('analytics', [AnalyticsController::class, 'index'])->name('analytics');
     Route::get('badges', [FounderBadgesController::class, 'index'])->name('badges');
     Route::get('revenue-api', [FounderRevenueApiController::class, 'index'])->name('revenue-api');
     Route::post('revenue-api/startups/{startup}/create-key', [FounderRevenueApiController::class, 'createKey'])->name('revenue-api.create-key');
