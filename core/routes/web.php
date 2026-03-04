@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Eden\FlipitController as EdenFlipitController;
 use App\Http\Controllers\Api\Eden\RevenueController as EdenRevenueController;
+use App\Http\Controllers\Api\Eden\TrafficTrackController as EdenTrafficTrackController;
 use App\Http\Controllers\Admin\Auth\LoginController as AdminLoginController;
 use App\Http\Controllers\Admin\MigrationController;
 use App\Http\Controllers\Admin\ReportsController;
@@ -44,6 +45,9 @@ Route::post('api/eden/v1/revenue', [EdenRevenueController::class, 'record'])
 Route::post('api/eden/v1/flipit/listing-sold', [EdenFlipitController::class, 'listingSold'])
     ->middleware(['throttle:30,1'])
     ->name('api.eden.flipit.listing-sold');
+
+Route::get('api/eden/v1/track.js', [EdenTrafficTrackController::class, 'script'])->name('api.eden.track.script');
+Route::get('api/eden/v1/track', [EdenTrafficTrackController::class, 'track'])->middleware('throttle:120,1')->name('api.eden.track');
 
 // Admin login accessible at /backoffice (shows login for guests)
 Route::get('/backoffice', [AdminLoginController::class, 'showLoginForm'])->name('admin.login')->middleware('admin.guest');
@@ -108,6 +112,9 @@ Route::middleware('auth')->prefix('founder')->name('founder.')->group(function (
     Route::get('revenue-api', [FounderRevenueApiController::class, 'index'])->name('revenue-api');
     Route::post('revenue-api/startups/{startup}/create-key', [FounderRevenueApiController::class, 'createKey'])->name('revenue-api.create-key');
     Route::post('revenue-api/startups/{startup}/regenerate-key', [FounderRevenueApiController::class, 'regenerateKey'])->name('revenue-api.regenerate-key');
+    Route::post('revenue-api/startups/{startup}/integrations', [FounderRevenueApiController::class, 'connectIntegration'])->name('revenue-api.connect-integration');
+    Route::delete('revenue-api/startups/{startup}/integrations/{gateway}', [FounderRevenueApiController::class, 'disconnectIntegration'])->name('revenue-api.disconnect-integration')->where('gateway', 'stripe|polar|lemonsqueezy');
+    Route::post('revenue-api/startups/{startup}/sync', [FounderRevenueApiController::class, 'syncNow'])->name('revenue-api.sync');
     Route::get('settings', [FounderSettingsController::class, 'index'])->name('settings');
     Route::put('settings', [FounderSettingsController::class, 'update'])->name('settings.update');
     Route::post('hero-request/{startup}', [DashboardController::class, 'requestHeroFeature'])->name('hero-request');

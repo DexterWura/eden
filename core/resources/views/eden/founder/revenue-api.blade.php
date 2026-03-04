@@ -75,6 +75,63 @@
 </div>
 
 <div class="dash-card" style="margin-bottom: 24px;">
+  <div class="dash-card-header"><span class="dash-card-title">Automatic tracking</span></div>
+  <div class="dash-card-body">
+    <p style="color: var(--d-text-secondary); font-size: 0.875rem; margin: 0 0 16px;">Connect Stripe, Polar, or Lemon Squeezy with a <strong>read-only</strong> API key. Eden syncs revenue automatically — no webhooks or manual POSTs. Use restricted keys where possible (e.g. <a href="https://dashboard.stripe.com/apikeys" target="_blank" rel="noopener">Stripe</a> with read-only access to Charges).</p>
+    @forelse($startups as $s)
+    <div class="revenue-integration-block" style="margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--d-border);">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
+        <strong><a href="{{ url('/startup/' . $s->slug) }}" class="dash-table-link">{{ $s->name }}</a></strong>
+        @php $ints = $integrationsByStartup[$s->id] ?? collect(); @endphp
+        @if($ints->isNotEmpty())
+        <form action="{{ route('founder.revenue-api.sync', $s) }}" method="post" style="display: inline;">
+          @csrf
+          <button type="submit" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;">Sync now</button>
+        </form>
+        @endif
+      </div>
+      <div class="revenue-integration-grid" style="display: flex; flex-wrap: wrap; gap: 12px;">
+        @foreach(\App\Models\StartupRevenueIntegration::GATEWAYS as $g => $meta)
+        @php $integ = $ints->firstWhere('gateway', $g); @endphp
+        <div class="revenue-integration-item" style="flex: 1; min-width: 220px; max-width: 320px; padding: 12px; border: 1px solid var(--d-border); border-radius: var(--d-radius); background: var(--d-surface);">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+            <i class="fa {{ $meta['icon'] }}" style="color: var(--d-primary);"></i>
+            <strong>{{ $meta['name'] }}</strong>
+          </div>
+          @if($integ)
+          <p style="font-size: 0.8rem; color: var(--d-text-secondary); margin: 0 0 8px;">
+            Last sync: {{ $integ->last_synced_at ? $integ->last_synced_at->diffForHumans() : 'Never' }}
+            @if($integ->last_sync_status)
+            <br><span class="revenue-sync-status">{{ $integ->last_sync_status }}</span>
+            @endif
+          </p>
+          <form action="{{ route('founder.revenue-api.disconnect-integration', [$s, $g]) }}" method="post" style="display: inline;" onsubmit="return confirm('Disconnect {{ $meta['name'] }}? You can reconnect later.');">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;">Disconnect</button>
+          </form>
+          @else
+          <form action="{{ route('founder.revenue-api.connect-integration', $s) }}" method="post">
+            @csrf
+            <input type="hidden" name="gateway" value="{{ $g }}">
+            <div style="margin-bottom: 8px;">
+              <label class="revenue-integration-label" style="display: block; font-size: 0.75rem; color: var(--d-text-secondary); margin-bottom: 4px;">Read-only API key</label>
+              <input type="password" name="api_key" placeholder="sk_live_… / sk_test_…" required class="revenue-api-input" style="width: 100%; padding: 6px 10px; font-size: 0.85rem; border: 1px solid var(--d-border); border-radius: var(--d-radius); background: var(--d-bg); color: var(--d-text);">
+            </div>
+            <button type="submit" class="dash-btn dash-btn-primary" style="padding: 4px 10px; font-size: 0.8rem;">Connect</button>
+          </form>
+          @endif
+        </div>
+        @endforeach
+      </div>
+    </div>
+    @empty
+    <p class="dash-placeholder">No startups yet. <a href="{{ route('founder.startups.create') }}">Add a startup</a> first.</p>
+    @endforelse
+  </div>
+</div>
+
+<div class="dash-card" style="margin-bottom: 24px;">
   <div class="dash-card-header"><span class="dash-card-title">Documentation</span></div>
   <div class="dash-card-body revenue-api-docs">
     <h3 style="font-size: 1rem; margin: 0 0 12px;">Endpoint</h3>

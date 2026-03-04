@@ -79,3 +79,10 @@ Schedule::command('startups:check-websites')
     ->withoutOverlapping(5)
     ->onOneServer()
     ->appendOutputTo(storage_path('logs/startup-website-check.log'));
+
+// Eden revenue sync - pull from Stripe, Polar, Lemon Squeezy
+Schedule::command('revenue:sync')
+    ->dailyAt('03:00')
+    ->withoutOverlapping(30)
+    ->onOneServer()
+    ->appendOutputTo(storage_path('logs/revenue-sync.log'));

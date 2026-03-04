@@ -11,6 +11,8 @@ class ContactMessageController extends Controller
 {
     public function index(Request $request)
     {
+        session(['admin_last_saw_contact_messages' => now()->toDateTimeString()]);
+
         $messages = ContactSubmission::query()
             ->orderByDesc('created_at')
             ->paginate(20)
@@ -23,6 +25,8 @@ class ContactMessageController extends Controller
 
     public function show(ContactSubmission $submission)
     {
+        session(['admin_last_saw_contact_messages' => now()->toDateTimeString()]);
+
         $content = view('eden.contact-messages.show', ['message' => $submission])->render();
 
         return response()->view('eden.layout-dashboard', $this->dashboardVars('Contact message', 'contact-messages', $content));

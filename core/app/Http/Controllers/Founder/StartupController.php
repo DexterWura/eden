@@ -38,6 +38,7 @@ class StartupController extends Controller
         }
         $data = $validator->validated();
         unset($data['logo'], $data['founders_names'], $data['founders_emails'], $data['founders_twitter_urls'], $data['founders_linkedin_urls'], $data['founders_photos'], $data['product_images']);
+        $data['traffic_tracking_enabled'] = filter_var($data['traffic_tracking_enabled'] ?? false, FILTER_VALIDATE_BOOLEAN);
         $data['user_id'] = auth()->id();
         $data['slug'] = Str::slug($data['name']);
         if (Startup::where('slug', $data['slug'])->exists()) {
@@ -83,6 +84,7 @@ class StartupController extends Controller
             $data['slug'] = $data['slug'] . '-' . Str::random(4);
         }
         unset($data['logo'], $data['founders_names'], $data['founders_emails'], $data['founders_twitter_urls'], $data['founders_linkedin_urls'], $data['founders_photos'], $data['product_images']);
+        $data['traffic_tracking_enabled'] = filter_var($data['traffic_tracking_enabled'] ?? false, FILTER_VALIDATE_BOOLEAN);
         $data['founders'] = $this->buildFoundersFromRequest($request, $startup);
         $first = $this->firstFounderData($data['founders']);
         $data['founder_name'] = $first['name'] ?? $startup->founder_name;
@@ -288,6 +290,7 @@ class StartupController extends Controller
             'product_images.*' => ['nullable', 'image', 'mimes:jpeg,png,gif,webp', 'max:2048'],
             'mrr' => ['nullable', 'numeric', 'min:0'],
             'revenue' => ['nullable', 'numeric', 'min:0'],
+            'traffic_tracking_enabled' => ['nullable', 'boolean'],
             'for_sale' => ['nullable', 'boolean'],
             'flipit_listing_url' => [
                 'nullable',

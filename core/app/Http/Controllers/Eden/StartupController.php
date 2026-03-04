@@ -58,11 +58,26 @@ class StartupController extends EdenController
 
         $comments = $startup->comments()->with('user:id,name')->get();
 
+        $trafficByDay = [];
+        $trafficTotal = 0;
+        if ($startup->traffic_tracking_enabled) {
+            $trafficRows = $startup->trafficDaily()
+                ->where('date', '>=', now()->subDays(14))
+                ->orderBy('date')
+                ->get();
+            foreach ($trafficRows as $row) {
+                $trafficByDay[$row->date->format('Y-m-d')] = $row->visits;
+                $trafficTotal += $row->visits;
+            }
+        }
+
         return $this->page('startup-show', $pageTitle, null, [
             'startup' => $startup,
             'hasUpvoted' => $hasUpvoted,
             'isProductOfDay' => $this->startupService->getProductOfDayId() === $startup->id,
             'comments' => $comments,
+            'trafficByDay' => $trafficByDay,
+            'trafficTotal' => $trafficTotal,
         ], $layoutData);
     }
 

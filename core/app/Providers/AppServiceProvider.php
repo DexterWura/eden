@@ -5,6 +5,8 @@ namespace App\Providers;
 use App\Constants\Status;
 use App\Lib\Searchable;
 use App\Models\AdminNotification;
+use App\Models\ContactSubmission;
+use App\Models\Startup;
 use App\Models\Frontend;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
@@ -205,6 +207,23 @@ class AppServiceProvider extends ServiceProvider
                         'adminNotifications' => collect(),
                         'adminNotificationCount' => 0,
                     ]);
+                }
+            });
+
+            $this->app->make('view')->composer('eden.layout-dashboard', function ($view) {
+                $data = $view->getData();
+                if (($data['sidebar'] ?? '') !== 'admin') {
+                    return;
+                }
+                try {
+                    $lastSawStartups = session('admin_last_saw_startups', '1970-01-01 00:00:00');
+                    $lastSawMessages = session('admin_last_saw_contact_messages', '1970-01-01 00:00:00');
+                    $view->with([
+                        'adminPendingStartupsBadge' => Startup::pending()->where('created_at', '>', $lastSawStartups)->count(),
+                        'adminUnseenMessagesBadge' => ContactSubmission::where('created_at', '>', $lastSawMessages)->count(),
+                    ]);
+                } catch (\Exception $e) {
+                    $view->with(['adminPendingStartupsBadge' => 0, 'adminUnseenMessagesBadge' => 0]);
                 }
             });
 

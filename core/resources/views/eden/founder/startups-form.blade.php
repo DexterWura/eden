@@ -240,6 +240,22 @@
         <div>Clicks: <strong>{{ (int)($startup->clicks ?? 0) }}</strong></div>
       </div>
       @endif
+      <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--d-border, #2a2e3d);">
+        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+          <input type="hidden" name="traffic_tracking_enabled" value="0">
+          <input type="checkbox" name="traffic_tracking_enabled" value="1" id="traffic_tracking_enabled" {{ old('traffic_tracking_enabled', $startup->traffic_tracking_enabled) ? 'checked' : '' }}>
+          <span class="dash-label">Enable website traffic tracking</span>
+        </label>
+        <p class="dash-hint" style="margin: 8px 0 0; font-size: 0.8rem; color: var(--d-text-secondary);">Add a script to your site to track visits. Stats are shown on your startup page.</p>
+        @if($isEdit && $startup->traffic_tracking_enabled)
+        @php $trafficScript = '<script async src="' . url('/api/eden/v1/track.js') . '?slug=' . e($startup->slug) . '"></script>'; @endphp
+        <div id="traffic-script-snippet" style="margin-top: 12px; padding: 12px; background: var(--d-surface); border: 1px solid var(--d-border); border-radius: var(--d-radius);">
+          <p style="font-size: 0.8rem; color: var(--d-text-secondary); margin: 0 0 8px;">Add this to your site&rsquo;s <code>&lt;head&gt;</code>:</p>
+          <pre style="margin: 0; padding: 10px; font-size: 0.75rem; overflow-x: auto; background: var(--d-bg); border-radius: 4px;"><code>{{ e($trafficScript) }}</code></pre>
+          <button type="button" class="dash-btn dash-btn-secondary" style="margin-top: 8px; font-size: 0.8rem;" onclick="navigator.clipboard.writeText({{ json_encode($trafficScript) }}); this.textContent='Copied!'; setTimeout(function(){this.textContent='Copy script';}.bind(this), 2000);">Copy script</button>
+        </div>
+        @endif
+      </div>
     </div>
   </div>
 

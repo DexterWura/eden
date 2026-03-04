@@ -45,6 +45,8 @@ class StartupController extends Controller
             $s->hasLinkedInFounders = ! empty($this->getFoundersWithLinkedIn($s));
         }
 
+        session(['admin_last_saw_startups' => now()->toDateTimeString()]);
+
         $content = view('eden.startups.index', [
             'startups' => $startups,
             'statusFilter' => $statusFilter,

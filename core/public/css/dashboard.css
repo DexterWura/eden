@@ -138,6 +138,27 @@ body.dashboard {
 }
 .dash-sidebar a:hover { background: var(--d-sidebar-bg); color: var(--d-text); }
 .dash-sidebar a.active { background: var(--d-sidebar-bg); color: var(--d-primary); }
+.dash-sidebar a { position: relative; }
+.dash-nav-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+  background: #dc2626;
+  color: #fff;
+  border-radius: 9px;
+}
+.dash-layout.dash-sidebar-expanded .dash-nav-badge {
+  position: static;
+  margin-left: auto;
+  flex-shrink: 0;
+}
 .dash-sidebar .dash-nav-bottom { margin-top: auto; }
 .dash-sidebar svg,
 .dash-sidebar i {

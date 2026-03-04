@@ -130,6 +130,44 @@ $productImages = $s->product_images ?? [];
   </section>
 
   <?php
+  $trafficByDay = $trafficByDay ?? [];
+  $trafficTotal = (int)($trafficTotal ?? 0);
+  $showTraffic = $s->traffic_tracking_enabled ?? false;
+  ?>
+  <?php if ($showTraffic): ?>
+  <section class="startup-section startup-traffic-section" aria-labelledby="traffic-heading">
+    <h2 id="traffic-heading"><i class="fa-solid fa-chart-line" aria-hidden="true"></i> Website traffic</h2>
+    <div class="startup-traffic-card">
+      <div class="startup-traffic-total">
+        <span class="startup-traffic-number" data-count="<?= $trafficTotal ?>">0</span>
+        <span class="startup-traffic-label">visits last 14 days</span>
+      </div>
+      <?php if (count($trafficByDay) > 0): ?>
+      <?php
+      $maxVisits = max(...array_values($trafficByDay)) ?: 1;
+      $days = [];
+      for ($i = 13; $i >= 0; $i--) {
+        $d = now()->subDays($i)->format('Y-m-d');
+        $days[] = ['date' => $d, 'label' => now()->subDays($i)->format('M j'), 'visits' => $trafficByDay[$d] ?? 0];
+      }
+      ?>
+      <div class="startup-traffic-chart">
+        <?php foreach ($days as $i => $day): ?>
+        <div class="startup-traffic-bar-wrap" style="animation-delay: <?= $i * 40 ?>ms;" title="<?= e($day['label']) ?>: <?= (int)$day['visits'] ?> visits">
+          <div class="startup-traffic-bar" style="--h: <?= $maxVisits > 0 ? round(100 * $day['visits'] / $maxVisits) : 0 ?>%;"></div>
+        </div>
+        <?php endforeach; ?>
+      </div>
+      <div class="startup-traffic-labels">
+        <span><?= $days[0]['label'] ?? '' ?></span>
+        <span><?= $days[count($days)-1]['label'] ?? '' ?></span>
+      </div>
+      <?php endif; ?>
+    </div>
+  </section>
+  <?php endif; ?>
+
+  <?php
   $comments = $comments ?? collect();
   $canComment = auth()->check() && auth()->user()->isPro();
   ?>
@@ -172,3 +210,34 @@ $productImages = $s->product_images ?? [];
     <a href="<?= e(url('/submit')) ?>" class="btn btn-primary">Submit your startup</a>
   </div>
 </div>
+
+<?php if ($showTraffic ?? false): ?>
+<style>
+.startup-traffic-section { margin-top: 32px; }
+.startup-traffic-card { background: linear-gradient(135deg, var(--surface, #1a1d28) 0%, var(--surface-hover, #22262f) 100%); border: 1px solid var(--border, #2a2e3d); border-radius: 12px; padding: 24px; }
+.startup-traffic-total { display: flex; align-items: baseline; gap: 8px; margin-bottom: 20px; }
+.startup-traffic-number { font-size: 2.5rem; font-weight: 700; color: var(--accent, #00d4aa); line-height: 1; }
+.startup-traffic-label { font-size: 0.9rem; color: var(--text-muted, #64748b); }
+.startup-traffic-chart { display: flex; align-items: flex-end; gap: 6px; height: 80px; margin-bottom: 8px; }
+.startup-traffic-bar-wrap { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; animation: startup-traffic-bar-in 0.5s ease-out forwards; opacity: 0; transform-origin: bottom; }
+.startup-traffic-bar { height: var(--h, 0%); min-height: 2px; background: linear-gradient(to top, var(--accent, #00d4aa), rgba(0, 212, 170, 0.6)); border-radius: 4px 4px 0 0; }
+@keyframes startup-traffic-bar-in { from { opacity: 0; transform: scaleY(0); } to { opacity: 1; transform: scaleY(1); } }
+.startup-traffic-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted, #64748b); }
+</style>
+<script>
+(function(){
+var el=document.querySelector('.startup-traffic-number');
+if(!el)return;
+var target=parseInt(el.getAttribute('data-count')||0,10);
+if(target<=0){el.textContent='0';return;}
+var dur=1200,start=Date.now();
+function tick(){
+  var t=Math.min((Date.now()-start)/dur,1);
+  var eased=1-Math.pow(1-t,3);
+  el.textContent=Math.round(target*eased);
+  if(t<1)requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+})();
+</script>
+<?php endif; ?>

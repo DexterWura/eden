@@ -36,6 +36,7 @@ class Startup extends Model
         'upvotes',
         'views',
         'clicks',
+        'traffic_tracking_enabled',
         'mrr',
         'revenue',
         'twitter_url',
@@ -61,6 +62,7 @@ class Startup extends Model
         'is_featured' => 'boolean',
         'featured_on_hero' => 'boolean',
         'for_sale' => 'boolean',
+        'traffic_tracking_enabled' => 'boolean',
         'founders' => 'array',
         'product_images' => 'array',
         'mrr' => 'decimal:2',
@@ -297,6 +299,11 @@ class Startup extends Model
     public function activeFundingRound()
     {
         return $this->hasOne(StartupFundingRound::class)->where('status', StartupFundingRound::STATUS_OPEN)->latest();
+    }
+
+    public function trafficDaily()
+    {
+        return $this->hasMany(StartupTrafficDaily::class)->orderBy('date');
     }
 
     public static function normalizeUrl(?string $url): ?string
