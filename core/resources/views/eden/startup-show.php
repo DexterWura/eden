@@ -109,6 +109,43 @@ $productImages = $s->product_images ?? [];
     </div>
   </section>
 
+  <?php
+  $comments = $comments ?? collect();
+  $canComment = auth()->check() && auth()->user()->isPro();
+  ?>
+  <section class="startup-section startup-comments" aria-labelledby="comments-heading">
+    <h2 id="comments-heading">Comments <?= $comments->count() > 0 ? '(' . $comments->count() . ')' : '' ?></h2>
+    <?php if ($comments->count() > 0): ?>
+    <ul class="startup-comments-list" aria-label="Comments on <?= e($s->name) ?>">
+      <?php foreach ($comments as $c): ?>
+      <li class="startup-comment">
+        <div class="startup-comment-header">
+          <span class="startup-comment-author"><?= e($c->user->name ?? 'User') ?></span>
+          <time class="startup-comment-date" datetime="<?= e($c->created_at->toIso8601String()) ?>"><?= e($c->created_at->diffForHumans()) ?></time>
+        </div>
+        <p class="startup-comment-body"><?= nl2br(e($c->body)) ?></p>
+      </li>
+      <?php endforeach; ?>
+    </ul>
+    <?php endif; ?>
+    <?php if ($canComment): ?>
+    <form action="<?= e(route('startup.comment', $s->slug)) ?>" method="POST" class="startup-comment-form">
+      <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
+      <label for="comment-body" class="visually-hidden">Write a comment</label>
+      <textarea id="comment-body" name="body" rows="3" maxlength="2000" placeholder="Write a comment..." required><?= e(old('body', '')) ?></textarea>
+      <button type="submit" class="btn btn-primary"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Post comment</button>
+    </form>
+    <?php elseif (auth()->check()): ?>
+    <p class="startup-comments-pro-only">
+      <i class="fa-solid fa-crown" aria-hidden="true"></i> Only Pro members can comment. <a href="<?= e(route('pricing')) ?>">Upgrade to Pro</a> to join the conversation.
+    </p>
+    <?php else: ?>
+    <p class="startup-comments-login">
+      <a href="<?= e(route('login')) ?>">Log in</a> to comment. Pro members can post comments on startups.
+    </p>
+    <?php endif; ?>
+  </section>
+
   <div class="cta-strip">
     <a href="<?= e(route('startup.claim', $s->slug)) ?>" class="btn btn-primary"><i class="fa-solid fa-hand-holding-hand" aria-hidden="true"></i> Claim this startup</a>
     <a href="<?= e(url('/')) ?>" class="btn btn-ghost">Browse more startups</a>

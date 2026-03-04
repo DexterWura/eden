@@ -56,10 +56,13 @@ class StartupController extends EdenController
             'structuredData' => $structuredData,
         ];
 
+        $comments = $startup->comments()->with('user:id,name')->get();
+
         return $this->page('startup-show', $pageTitle, null, [
             'startup' => $startup,
             'hasUpvoted' => $hasUpvoted,
             'isProductOfDay' => $this->startupService->getProductOfDayId() === $startup->id,
+            'comments' => $comments,
         ], $layoutData);
     }
 

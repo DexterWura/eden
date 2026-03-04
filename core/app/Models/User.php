@@ -147,6 +147,11 @@ class User extends Authenticatable
         return $this->hasMany(StartupUpvote::class);
     }
 
+    public function startupComments()
+    {
+        return $this->hasMany(StartupComment::class);
+    }
+
     public function watchlist()
     {
         return $this->hasMany(Watchlist::class);

@@ -21,6 +21,7 @@ use App\Http\Controllers\Eden\HomeController;
 use App\Http\Controllers\Eden\PageController;
 use App\Http\Controllers\Eden\BlogController;
 use App\Http\Controllers\Eden\StartupController;
+use App\Http\Controllers\Eden\StartupCommentController;
 use App\Http\Controllers\Eden\BadgeController;
 use App\Http\Controllers\User\Auth\SocialiteController;
 use App\Http\Controllers\Founder\BadgesController as FounderBadgesController;
@@ -80,6 +81,7 @@ Route::get('/badge/{type}', [BadgeController::class, 'show'])->name('badge.show'
 Route::get('/startup/{slug}', [StartupController::class, 'show'])->name('startup.show');
 Route::get('/startup/{slug}/out', [StartupController::class, 'out']);
 Route::post('/startup/{slug}/upvote', [StartupController::class, 'upvote'])->name('startup.upvote');
+Route::post('/startup/{slug}/comment', [StartupCommentController::class, 'store'])->name('startup.comment')->middleware('auth');
 Route::get('/startup/{slug}/claim', [ClaimController::class, 'show'])->name('startup.claim');
 Route::post('/startup/{slug}/claim/confirm', [ClaimController::class, 'confirm'])->name('startup.claim.confirm')->middleware('auth');
 Route::post('/startup/{slug}/claim/start', [ClaimController::class, 'startVerification'])->name('startup.claim.start')->middleware('auth');

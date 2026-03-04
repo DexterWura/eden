@@ -284,6 +284,11 @@ class Startup extends Model
         return $this->hasMany(StartupUpvote::class);
     }
 
+    public function comments()
+    {
+        return $this->hasMany(StartupComment::class)->orderBy('created_at', 'asc');
+    }
+
     public static function normalizeUrl(?string $url): ?string
     {
         if ($url === null || trim($url) === '') {
