@@ -141,3 +141,14 @@ document.getElementById('leaderboardSort')?.addEventListener('change', function(
   window.location.href = url.toString();
 });
 </script>
+<?php if (auth()->check() && !auth()->user()->isPro()): ?>
+<script>
+(function() {
+  setTimeout(function() {
+    if (typeof edenPromoToast === 'function') {
+      edenPromoToast({ key: 'pro_leaderboard', message: 'Pro founders get detailed analytics and stand out. See what you\'re missing.', ctaText: 'See Pro', ctaHref: typeof edenPricingUrl !== 'undefined' ? edenPricingUrl : '<?= e(url('/pricing')) ?>' });
+    }
+  }, 2000);
+})();
+</script>
+<?php endif; ?>

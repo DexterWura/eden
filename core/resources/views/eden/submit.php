@@ -251,3 +251,14 @@ function toggleAuthTab(mode) {
   }
 })();
 </script>
+<?php if (!auth()->check()): ?>
+<script>
+(function() {
+  setTimeout(function() {
+    if (typeof edenPromoToast === 'function') {
+      edenPromoToast({ key: 'submit_guest', message: 'Create an account to manage your listing and track performance.', ctaText: 'Sign up', ctaHref: typeof edenSignupUrl !== 'undefined' ? edenSignupUrl : '/register' });
+    }
+  }, 2000);
+})();
+</script>
+<?php endif; ?>

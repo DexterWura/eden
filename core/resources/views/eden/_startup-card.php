@@ -55,6 +55,10 @@ $isRow = $cardVariant === 'row';
       </form>
       <?php endif; ?>
     </div>
+    <?php else: ?>
+    <div class="save-ui" style="margin-left: 6px;">
+      <button type="button" class="save-btn eden-guest-save" aria-label="Save startup"><i class="fa-regular fa-bookmark" aria-hidden="true"></i></button>
+    </div>
     <?php endif; ?>
   </div>
   <a href="<?= $url ?>" class="card-link">

@@ -152,3 +152,14 @@
     <a href="<?= e(url('/founder/settings')) ?>" class="dash-btn dash-btn-secondary" style="text-decoration: none;"><i class="fa-solid fa-gear"></i> Settings</a>
   </div>
 </div>
+<?php if (auth()->check() && !auth()->user()->isPro()): ?>
+<script>
+(function() {
+  setTimeout(function() {
+    if (typeof edenPromoToast === 'function') {
+      edenPromoToast({ key: 'pro_dashboard', message: 'Unlock analytics, hero featuring, and more — go Pro.', ctaText: 'View plans', ctaHref: typeof edenPricingUrl !== 'undefined' ? edenPricingUrl : '<?= e(url('/pricing')) ?>' });
+    }
+  }, 1500);
+})();
+</script>
+<?php endif; ?>

@@ -95,6 +95,8 @@
       </main>
     </div>
   </div>
+  <div id="edenToastContainer" class="eden-toast-container" aria-live="polite"></div>
+  <style>.eden-toast-container{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9998;display:flex;flex-direction:column;gap:8px;max-width:min(400px,calc(100vw - 32px));pointer-events:none}.eden-toast{pointer-events:auto;padding:12px 16px;border-radius:8px;font-size:0.9rem;line-height:1.4;box-shadow:0 4px 20px rgba(0,0,0,0.2);border:1px solid var(--d-border,#2a2e3d);background:var(--d-surface,#12141c);color:var(--d-text,#e8eaef);animation:eden-toast-in 0.25s ease}.eden-toast--promo{border-left:4px solid var(--accent,#00d4aa)}.eden-toast--promo .eden-toast-cta{display:inline-block;margin-top:8px;font-weight:600;color:var(--accent);text-decoration:none;font-size:0.875rem}.eden-toast--promo .eden-toast-cta:hover{text-decoration:underline}@keyframes eden-toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}</style>
   <script>
     (function() {
       var toggle = document.getElementById('dashSidebarToggle');
@@ -148,6 +150,44 @@
           if (localStorage.getItem(STORAGE_KEY) === '1') setExpanded(true);
         } catch (e) {}
       }
+    })();
+    (function() {
+      var container = document.getElementById('edenToastContainer');
+      if (!container) return;
+      var pricingUrl = '<?= e(url('/pricing')) ?>';
+      function showToast(type, msg, options) {
+        options = options || {};
+        var el = document.createElement('div');
+        el.className = 'eden-toast eden-toast--' + (type || 'info');
+        el.appendChild(document.createTextNode(msg));
+        var cta = options.ctaText && options.ctaHref;
+        if (cta) {
+          el.appendChild(document.createTextNode(' '));
+          var a = document.createElement('a');
+          a.href = options.ctaHref;
+          a.className = 'eden-toast-cta';
+          a.textContent = options.ctaText;
+          el.appendChild(a);
+        }
+        container.appendChild(el);
+        var duration = options.duration !== undefined ? options.duration : (cta ? 6000 : 4000);
+        setTimeout(function() {
+          el.style.opacity = '0';
+          el.style.transform = 'translateY(-4px)';
+          setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 200);
+        }, duration);
+      }
+      window.edenPromoToast = function(opts) {
+        var key = opts.key;
+        if (key) {
+          try {
+            if (sessionStorage.getItem('eden_promo_' + key)) return;
+            sessionStorage.setItem('eden_promo_' + key, '1');
+          } catch (e) {}
+        }
+        showToast('promo', opts.message || '', { ctaText: opts.ctaText, ctaHref: opts.ctaHref || '#', duration: opts.duration });
+      };
+      window.edenPricingUrl = pricingUrl;
     })();
   </script>
   <?= $scriptDeps ?? '' ?>

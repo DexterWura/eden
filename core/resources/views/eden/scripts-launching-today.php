@@ -29,7 +29,11 @@
         }).then(function(res) {
           var data = res.data || {};
           if (res.status === 401) {
-            toast('info', data.message || 'Log in to upvote.');
+            if (typeof edenPromoToast === 'function') {
+              edenPromoToast({ message: data.message || 'Sign in to upvote and support founders.', ctaText: 'Log in', ctaHref: (typeof edenLoginUrl !== 'undefined' ? edenLoginUrl : '/login') });
+            } else {
+              toast('info', data.message || 'Log in to upvote.');
+            }
             return;
           }
           if (res.status >= 400) {

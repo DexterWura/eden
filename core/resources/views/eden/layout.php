@@ -56,6 +56,8 @@
     </div>
   </div>
 
+  <div id="edenToastContainer" class="eden-toast-container" aria-live="polite"></div>
+
   <header class="site-header">
     <div class="wrap header-inner">
       <a href="<?= e(url('/')) ?>" class="logo"><?= e(function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden') ?></a>
@@ -311,6 +313,15 @@
   .cookie-consent-text { margin: 0; font-size: 0.9rem; color: var(--text-muted, #8b90a0); }
   .cookie-consent-text a { color: var(--accent, #00d4aa); text-decoration: underline; }
   .cookie-consent-btn { flex-shrink: 0; }
+  .eden-toast-container { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 9998; display: flex; flex-direction: column; gap: 8px; max-width: min(400px, calc(100vw - 32px)); pointer-events: none; }
+  .eden-toast { pointer-events: auto; padding: 12px 16px; border-radius: var(--radius-sm, 8px); font-size: 0.9rem; line-height: 1.4; box-shadow: 0 4px 20px rgba(0,0,0,0.2); border: 1px solid var(--border); background: var(--surface); color: var(--text); animation: eden-toast-in 0.25s ease; }
+  .eden-toast--success { border-left: 4px solid var(--accent); }
+  .eden-toast--error { border-left: 4px solid var(--danger, #ff4767); }
+  .eden-toast--info { border-left: 4px solid var(--text-muted); }
+  .eden-toast--promo { border-left: 4px solid var(--accent); }
+  .eden-toast--promo .eden-toast-cta { display: inline-block; margin-top: 8px; font-weight: 600; color: var(--accent); text-decoration: none; font-size: 0.875rem; }
+  .eden-toast--promo .eden-toast-cta:hover { text-decoration: underline; }
+  @keyframes eden-toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 
   <script>
@@ -428,6 +439,62 @@
             overlay.setAttribute('aria-hidden', 'true');
           }
         });
+      });
+    })();
+    (function() {
+      var container = document.getElementById('edenToastContainer');
+      if (!container) return;
+      var loginUrl = '<?= e(url('/login')) ?>';
+      var signupUrl = '<?= e(url('/register')) ?>';
+      var pricingUrl = '<?= e(url('/pricing')) ?>';
+      function showToast(type, msg, options) {
+        options = options || {};
+        var el = document.createElement('div');
+        el.className = 'eden-toast eden-toast--' + (type || 'info');
+        el.appendChild(document.createTextNode(msg));
+        var cta = options.ctaText && options.ctaHref;
+        if (cta) {
+          el.appendChild(document.createTextNode(' '));
+          var a = document.createElement('a');
+          a.href = options.ctaHref;
+          a.className = 'eden-toast-cta';
+          a.textContent = options.ctaText;
+          el.appendChild(a);
+        }
+        container.appendChild(el);
+        var duration = options.duration !== undefined ? options.duration : (cta ? 6000 : 4000);
+        setTimeout(function() {
+          el.style.opacity = '0';
+          el.style.transform = 'translateY(-4px)';
+          setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 200);
+        }, duration);
+      }
+      window.notify = function(type, msg) {
+        if (typeof msg !== 'string') msg = (msg && msg[0]) ? msg[0] : 'Done';
+        showToast(type || 'info', msg, {});
+      };
+      window.edenPromoToast = function(opts) {
+        var key = opts.key;
+        if (key) {
+          try {
+            if (sessionStorage.getItem('eden_promo_' + key)) return;
+            sessionStorage.setItem('eden_promo_' + key, '1');
+          } catch (e) {}
+        }
+        showToast('promo', opts.message || '', { ctaText: opts.ctaText, ctaHref: opts.ctaHref || '#', duration: opts.duration });
+      };
+      window.edenLoginUrl = loginUrl;
+      window.edenSignupUrl = signupUrl;
+      window.edenPricingUrl = pricingUrl;
+      document.addEventListener('click', function(e) {
+        var btn = e.target.closest('.eden-guest-save');
+        if (btn) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (typeof edenPromoToast === 'function') {
+            edenPromoToast({ message: 'Sign in to save startups and get personalized recommendations.', ctaText: 'Log in', ctaHref: loginUrl });
+          }
+        }
       });
     })();
   </script>
