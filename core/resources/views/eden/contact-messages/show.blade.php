@@ -51,7 +51,7 @@
         @endphp{{ old('body', $defaultBody) }}</textarea>
         @error('body') <span class="dash-error">{{ $message }}</span> @enderror
         <span class="dash-hint" style="display:block;margin-top:4px;font-size:0.8rem;color:var(--d-text-secondary);">
-          The content you write here will be inserted into the global email template as {{ '{{message}}' }}.
+          The content you write here will be inserted into the global email template as {{ '{{' }}{{ 'message' }}{{ '}}' }}.
         </span>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
