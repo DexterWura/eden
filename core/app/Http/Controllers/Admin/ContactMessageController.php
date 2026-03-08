@@ -27,7 +27,15 @@ class ContactMessageController extends Controller
     {
         session(['admin_last_saw_contact_messages' => now()->toDateTimeString()]);
 
-        $content = view('eden.contact-messages.show', ['message' => $submission])->render();
+        $defaultSubject = $submission->reply_subject ?: 'Re: ' . ($submission->subject ?: 'Your message to Eden');
+        $defaultBody = $submission->reply_body ?: "Hi {$submission->name},\n\nThanks for reaching out.\n\n";
+
+        $content = view('eden.contact-messages.show', [
+            'message' => $submission,
+            'defaultSubject' => $defaultSubject,
+            'defaultBody' => $defaultBody,
+            'templatePlaceholder' => '{{message}}',
+        ])->render();
 
         return response()->view('eden.layout-dashboard', $this->dashboardVars('Contact message', 'contact-messages', $content));
     }
