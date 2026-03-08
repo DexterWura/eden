@@ -61,6 +61,9 @@ class HomeController extends EdenController
         }
         if ($searchResults === null) {
             $leaderboardPreview = $leaderboardPreview ?? $this->startupService->getLeaderboard($leaderboardSort, 10, $categoryFilter, $featuredOnly, $locationFilter);
+            $trendingStartups = $this->startupService->getTopPerforming($categoryFilter, $featuredOnly, 6, $locationFilter);
+        } else {
+            $trendingStartups = collect();
         }
 
         $heroStartups = Startup::where('featured_on_hero', true)->orderBy('name')->limit(20)->get();
@@ -98,6 +101,7 @@ class HomeController extends EdenController
             'sortNewest' => $sortNewest,
             'searchQuery' => $searchQuery,
             'searchResults' => $searchResults,
+            'trendingStartups' => $trendingStartups ?? collect(),
             'productOfDayId' => $this->startupService->getProductOfDayId(),
             'showTrustedByBlock' => $showTrustedByBlock,
             'featuredFounders' => $featuredFounders,

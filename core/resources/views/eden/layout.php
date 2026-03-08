@@ -31,7 +31,8 @@
   <meta name="twitter:description" content="<?= e($socialDesc) ?>">
   <?php if ($seoImageUrl): ?><meta name="twitter:image" content="<?= e($seoImageUrl) ?>"><?php endif; ?>
   <?php if (isset($structuredData) && is_array($structuredData) && !empty($structuredData)): ?>
-  <script type="application/ld+json"><?= json_encode($structuredData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?></script>
+  <?php $structuredDataJson = isset($structuredData[0]) && is_array($structuredData[0]) ? $structuredData : [$structuredData]; ?>
+  <script type="application/ld+json"><?= json_encode($structuredDataJson, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?></script>
   <?php endif; ?>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

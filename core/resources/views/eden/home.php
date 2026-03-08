@@ -134,6 +134,26 @@
   </section>
   <?php endif; ?>
 
+  <?php $trendingStartups = $trendingStartups ?? collect(); ?>
+  <?php if (!$sortNewest && $trendingStartups->isNotEmpty()): ?>
+  <section class="section-block" aria-labelledby="trending-heading">
+    <header class="section-header">
+      <div>
+        <h2 id="trending-heading" class="section-heading">Hot this week</h2>
+        <p class="section-sub">Most upvoted in the last 7 days.</p>
+      </div>
+    </header>
+    <div class="section-cards-row" tabindex="0">
+      <?php foreach ($trendingStartups as $startup):
+        $rank = null;
+        $showRank = false;
+        $cardVariant = 'row';
+        include __DIR__ . '/_startup-card.php';
+      endforeach; ?>
+    </div>
+  </section>
+  <?php endif; ?>
+
   <?php $featuredProducts = $featuredProducts ?? collect(); ?>
   <?php if (!$sortNewest && $featuredProducts->isNotEmpty()): ?>
   <section class="section-block" aria-labelledby="featured-heading">

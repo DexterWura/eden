@@ -13,6 +13,7 @@ $productImages = $s->product_images ?? [];
     <div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:14px 18px;margin-bottom:16px;font-size:0.92rem;color:#92400e;text-align:center">
       <i class="fa-solid fa-clock" style="margin-right:6px"></i>
       This startup is pending review and is not yet visible to the public.
+      <br>Share this link so people can get notified when you launch: <a href="<?= e(route('launch-notify.show', $s->slug)) ?>" style="color:#92400e;text-decoration:underline"><?= e(route('launch-notify.show', $s->slug)) ?></a>
     </div>
     <?php endif; ?>
     <a href="<?= e(url('/')) ?>" class="back-link">&larr; All startups</a>
@@ -69,6 +70,14 @@ $productImages = $s->product_images ?? [];
           <?php endif; ?>
           <?php endif; ?>
           <a href="<?= e(route('startup.claim', $s->slug)) ?>" class="btn btn-ghost" style="margin-left: 4px;"><i class="fa-solid fa-hand-holding-hand" aria-hidden="true"></i> Claim this startup</a>
+          <div class="share-ui share-ui--inline" style="margin-left: 8px; position: relative; display: inline-block;">
+            <button type="button" class="btn btn-ghost share-btn-trigger" id="shareTrigger" aria-label="Share" aria-expanded="false" aria-haspopup="true"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i> Share</button>
+            <div class="share-dropdown" id="shareDropdown" role="menu" aria-label="Share options" hidden>
+              <button type="button" class="share-dropdown-item" data-action="copy" data-url="<?= e(url('/startup/' . $s->slug)) ?>"><i class="fa-solid fa-link" aria-hidden="true"></i> Copy link</button>
+              <a href="https://twitter.com/intent/tweet?url=<?= e(rawurlencode(url('/startup/' . $s->slug))) ?>&text=<?= e(rawurlencode(($s->tagline ?: $s->name) . ' — ' . $s->name)) ?>" target="_blank" rel="noopener noreferrer" class="share-dropdown-item"><i class="fa-brands fa-x-twitter" aria-hidden="true"></i> Share on X</a>
+              <a href="https://www.linkedin.com/sharing/share-offsite/?url=<?= e(rawurlencode(url('/startup/' . $s->slug))) ?>" target="_blank" rel="noopener noreferrer" class="share-dropdown-item"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i> Share on LinkedIn</a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -188,6 +197,22 @@ $productImages = $s->product_images ?? [];
   </section>
   <?php endif; ?>
 
+  <?php $similarStartups = $similarStartups ?? collect(); ?>
+  <?php if ($similarStartups->isNotEmpty()): ?>
+  <section class="startup-section" aria-labelledby="similar-heading">
+    <h2 id="similar-heading">Similar startups</h2>
+    <p class="section-sub" style="margin-bottom: 16px;">More in <?= e($s->category ?: 'the directory') ?>.</p>
+    <div class="section-cards-row startup-similar-cards">
+      <?php foreach ($similarStartups as $startup):
+        $rank = null;
+        $showRank = false;
+        $cardVariant = 'row';
+        include __DIR__ . '/_startup-card.php';
+      endforeach; ?>
+    </div>
+  </section>
+  <?php endif; ?>
+
   <?php
   $comments = $comments ?? collect();
   $canComment = auth()->check();
@@ -228,6 +253,43 @@ $productImages = $s->product_images ?? [];
   </div>
 </div>
 
+<style>
+.share-ui--inline .share-dropdown { position: absolute; top: 100%; left: 0; margin-top: 4px; min-width: 160px; background: var(--surface, #12141c); border: 1px solid var(--border, #2a2e3d); border-radius: var(--radius-sm, 8px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); z-index: 50; padding: 4px; }
+.share-ui--inline .share-dropdown[hidden] { display: none; }
+.share-dropdown-item { display: flex; align-items: center; gap: 8px; width: 100%; padding: 10px 12px; border: none; background: none; color: var(--text, #e8eaef); font: inherit; font-size: 0.9rem; text-align: left; cursor: pointer; border-radius: 6px; text-decoration: none; }
+.share-dropdown-item:hover { background: var(--surface-hover, #1a1d28); color: var(--accent, #00d4aa); }
+.share-dropdown-item i { width: 18px; opacity: 0.9; }
+</style>
+<script>
+(function() {
+  var trigger = document.getElementById('shareTrigger');
+  var dropdown = document.getElementById('shareDropdown');
+  if (!trigger || !dropdown) return;
+  function close() { dropdown.setAttribute('hidden', ''); trigger.setAttribute('aria-expanded', 'false'); }
+  trigger.addEventListener('click', function(e) {
+    e.stopPropagation();
+    if (dropdown.hasAttribute('hidden')) {
+      dropdown.removeAttribute('hidden');
+      trigger.setAttribute('aria-expanded', 'true');
+    } else close();
+  });
+  document.addEventListener('click', function() { close(); });
+  dropdown.addEventListener('click', function(e) {
+    var item = e.target.closest('[data-action="copy"]');
+    if (item) {
+      e.preventDefault();
+      var url = item.getAttribute('data-url');
+      if (url && navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(function() {
+          var label = item.innerHTML;
+          item.innerHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i> Copied!';
+          setTimeout(function() { item.innerHTML = label; }, 1500);
+        });
+      }
+    }
+  });
+})();
+</script>
 <?php if ($showTraffic ?? false): ?>
 <style>
 .startup-traffic-section { margin-top: 32px; }

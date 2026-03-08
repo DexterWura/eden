@@ -74,6 +74,9 @@ class StartupController extends EdenController
             }
         }
 
+        $similarStartups = $this->startupService->getSimilar($startup, 6);
+        $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->pluck('id')->toArray() : [];
+
         return $this->page('startup-show', $pageTitle, null, [
             'startup' => $startup,
             'hasUpvoted' => $hasUpvoted,
@@ -82,6 +85,8 @@ class StartupController extends EdenController
             'comments' => $comments,
             'trafficByDay' => $trafficByDay,
             'trafficTotal' => $trafficTotal,
+            'similarStartups' => $similarStartups,
+            'savedStartupIds' => $savedStartupIds,
         ], $layoutData);
     }
 
@@ -110,7 +115,7 @@ class StartupController extends EdenController
     private function startupStructuredData(Startup $startup, string $url, ?string $imageUrl): array
     {
         $siteName = function_exists('gs') && gs('site_name') ? (string) gs('site_name') : 'Eden';
-        $data = [
+        $organization = [
             '@context' => 'https://schema.org',
             '@type' => 'Organization',
             'name' => $startup->name,
@@ -118,27 +123,50 @@ class StartupController extends EdenController
             'description' => $this->startupMetaDescription($startup, 500),
         ];
         if ($imageUrl) {
-            $data['image'] = $imageUrl;
+            $organization['image'] = $imageUrl;
         }
         if ($startup->location) {
-            $data['address'] = ['@type' => 'PostalAddress', 'addressLocality' => $startup->location];
+            $organization['address'] = ['@type' => 'PostalAddress', 'addressLocality' => $startup->location];
+        }
+        $sameAs = array_filter([$startup->website, $startup->twitter_url ?? null, $startup->linkedin_url ?? null]);
+        if (! empty($sameAs)) {
+            $organization['sameAs'] = array_values($sameAs);
         }
         $founders = $startup->founders_display ?? [];
         if (! empty($founders)) {
-            $data['member'] = array_values(array_map(function ($f) {
+            $organization['member'] = array_values(array_map(function ($f) {
                 $member = ['@type' => 'Person', 'name' => $f['name'] ?? ''];
                 if (! empty($f['email'])) {
                     $member['email'] = $f['email'];
                 }
+                if (! empty($f['linkedin_url'])) {
+                    $member['url'] = $f['linkedin_url'];
+                }
                 return $member;
             }, $founders));
         }
-        $data['publisher'] = [
+        $organization['publisher'] = [
             '@type' => 'Organization',
             'name' => $siteName,
             'url' => url('/'),
         ];
-        return $data;
+
+        $product = [
+            '@context' => 'https://schema.org',
+            '@type' => 'SoftwareApplication',
+            'name' => $startup->name,
+            'description' => $this->startupMetaDescription($startup, 500),
+            'url' => $url,
+            'applicationCategory' => $startup->category ?: 'BusinessApplication',
+        ];
+        if ($imageUrl) {
+            $product['image'] = $imageUrl;
+        }
+        if ($startup->website) {
+            $product['offers'] = ['@type' => 'Offer', 'url' => $startup->website];
+        }
+
+        return [$organization, $product];
     }
 
     public function out(string $slug): RedirectResponse

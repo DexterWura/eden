@@ -87,7 +87,7 @@ class StartupService
     /**
      * Top performing = most upvoted this week. Returns top $limit startups.
      */
-    public function getTopPerforming(?string $category = null, bool $featuredOnly = false, int $limit = 6): Collection
+    public function getTopPerforming(?string $category = null, bool $featuredOnly = false, int $limit = 6, ?string $location = null): Collection
     {
         $startOfWeek = now()->copy()->startOfWeek();
 
@@ -101,6 +101,9 @@ class StartupService
         }
         if ($featuredOnly) {
             $query->featured();
+        }
+        if ($location !== null && trim($location) !== '') {
+            $query->where('location', 'like', '%' . trim($location) . '%');
         }
         return $query->take($limit)->get();
     }
@@ -199,6 +202,16 @@ class StartupService
             $query->orderByDesc('upvotes');
         }
         return $query->paginate($perPage)->withQueryString();
+    }
+
+    public function getSimilar(Startup $startup, int $limit = 6): Collection
+    {
+        $query = $this->withFunding()->active()
+            ->where('id', '!=', $startup->id);
+        if ($startup->category !== null && $startup->category !== '') {
+            $query->byCategory($startup->category);
+        }
+        return $query->orderByDesc('upvotes')->take($limit)->get();
     }
 
     public function getBySlug(string $slug): Startup

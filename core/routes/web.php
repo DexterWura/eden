@@ -24,6 +24,7 @@ use App\Http\Controllers\Eden\BlogController;
 use App\Http\Controllers\Eden\StartupController;
 use App\Http\Controllers\Eden\StartupCommentController;
 use App\Http\Controllers\Eden\SavedStartupController;
+use App\Http\Controllers\Eden\LaunchNotifyController;
 use App\Http\Controllers\Eden\AnalyticsController;
 use App\Http\Controllers\Eden\BadgeController;
 use App\Http\Controllers\User\Auth\SocialiteController;
@@ -90,6 +91,8 @@ Route::get('/feed/featured', [FeedController::class, 'featured'])->name('feed.fe
 Route::get('/launching-today', [StartupController::class, 'launchingToday']);
 Route::get('/badge/{type}', [BadgeController::class, 'show'])->name('badge.show')->where('type', 'listed|featured|product-of-day');
 Route::get('/startup/{slug}', [StartupController::class, 'show'])->name('startup.show');
+Route::get('/startup/{slug}/notify', [LaunchNotifyController::class, 'show'])->name('launch-notify.show');
+Route::post('/startup/{slug}/notify', [LaunchNotifyController::class, 'store'])->name('launch-notify.store');
 Route::get('/startup/{slug}/out', [StartupController::class, 'out']);
 Route::post('/startup/{slug}/upvote', [StartupController::class, 'upvote'])->name('startup.upvote');
 Route::post('/startup/{slug}/save', [SavedStartupController::class, 'save'])->name('startup.save')->middleware('auth');

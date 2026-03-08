@@ -318,6 +318,11 @@ class Startup extends Model
         return $this->belongsToMany(User::class, 'saved_startups')->withTimestamps();
     }
 
+    public function launchNotifications()
+    {
+        return $this->hasMany(LaunchNotification::class);
+    }
+
     public function comments()
     {
         return $this->hasMany(StartupComment::class)->orderBy('created_at', 'asc');

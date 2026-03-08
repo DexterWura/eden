@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Startup;
 use App\Models\StartupUpvote;
 use App\Models\User;
+use App\Services\LaunchNotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -140,7 +141,11 @@ class StartupController extends Controller
         if (($data['status'] ?? $startup->status) === Startup::STATUS_ACTIVE) {
             $data['dormant_at'] = null;
         }
+        $becameActive = $startup->status !== Startup::STATUS_ACTIVE && ($data['status'] ?? $startup->status) === Startup::STATUS_ACTIVE;
         $startup->update($data);
+        if ($becameActive) {
+            app(LaunchNotificationService::class)->sendLaunchEmails($startup->fresh());
+        }
         $this->processStartupFiles($request, $startup);
         return redirect()->route('admin.startups.index')
             ->with('notify', [['success', 'Startup updated.']]);
@@ -274,6 +279,7 @@ class StartupController extends Controller
         if ($wasPending) {
             $this->notifyFounderApproved($startup);
         }
+        app(LaunchNotificationService::class)->sendLaunchEmails($startup);
         return response()->json(['status' => 'success', 'message' => $wasPending ? 'Startup approved and is now live.' : 'Startup activated.']);
     }
 
