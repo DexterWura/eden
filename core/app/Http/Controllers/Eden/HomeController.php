@@ -83,7 +83,7 @@ class HomeController extends EdenController
         }
         $featuredFounders = $featuredFounders->take(10);
         $showTrustedByBlock = $featuredFounders->isNotEmpty();
-        $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->pluck('id')->toArray() : [];
+        $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->select('startups.id')->pluck('id')->toArray() : [];
 
         return $this->page('home', null, 'scripts-home', [
             'launchingToday' => $launchingToday,
@@ -134,7 +134,7 @@ class HomeController extends EdenController
         $startups = $this->startupService->getRaising($categoryFilter);
         $categories = $this->startupService->getCategoriesWithCounts();
 
-        $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->pluck('id')->toArray() : [];
+        $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->select('startups.id')->pluck('id')->toArray() : [];
         return $this->page('raising', 'Startups raising funding', null, [
             'startups' => $startups,
             'categories' => $categories,
@@ -148,7 +148,7 @@ class HomeController extends EdenController
     {
         $startups = $this->startupService->getForSale();
 
-        $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->pluck('id')->toArray() : [];
+        $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->select('startups.id')->pluck('id')->toArray() : [];
         return $this->page('for-sale', 'Startups for sale', null, [
             'startups' => $startups,
             'productOfDayId' => $this->startupService->getProductOfDayId(),

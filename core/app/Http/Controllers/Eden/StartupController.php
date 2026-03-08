@@ -19,7 +19,7 @@ class StartupController extends EdenController
     public function launchingToday()
     {
         $startups = $this->startupService->getLaunchingToday();
-        $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->pluck('id')->toArray() : [];
+        $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->select('startups.id')->pluck('id')->toArray() : [];
         return $this->page('launching-today', 'Launching today', 'scripts-launching-today', [
             'startups' => $startups,
             'productOfDayId' => $this->startupService->getProductOfDayId(),
@@ -75,7 +75,7 @@ class StartupController extends EdenController
         }
 
         $similarStartups = $this->startupService->getSimilar($startup, 6);
-        $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->pluck('id')->toArray() : [];
+        $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->select('startups.id')->pluck('id')->toArray() : [];
 
         return $this->page('startup-show', $pageTitle, null, [
             'startup' => $startup,
