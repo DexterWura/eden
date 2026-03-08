@@ -152,6 +152,16 @@ class User extends Authenticatable
         return $this->hasMany(StartupComment::class);
     }
 
+    public function savedStartups()
+    {
+        return $this->hasMany(SavedStartup::class);
+    }
+
+    public function savedStartupsList()
+    {
+        return $this->belongsToMany(Startup::class, 'saved_startups')->withTimestamps();
+    }
+
     public function watchlist()
     {
         return $this->hasMany(Watchlist::class);

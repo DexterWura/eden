@@ -34,11 +34,14 @@ class StartupService
         return $query->take($limit)->get();
     }
 
-    public function getAllStartups(?string $category = null): Collection
+    public function getAllStartups(?string $category = null, ?string $location = null): Collection
     {
         $query = $this->withFunding()->active()->orderByDesc('upvotes');
         if ($category !== null && $category !== '') {
             $query->byCategory($category);
+        }
+        if ($location !== null && trim($location) !== '') {
+            $query->where('location', 'like', '%' . trim($location) . '%');
         }
         return $query->get();
     }
@@ -54,7 +57,7 @@ class StartupService
             ->get();
     }
 
-    public function getLaunchingToday(?string $category = null, bool $featuredOnly = false, int $limit = 0): Collection
+    public function getLaunchingToday(?string $category = null, bool $featuredOnly = false, int $limit = 0, ?string $location = null): Collection
     {
         $query = $this->withFunding()->active()->launchingToday()->orderByDesc('upvotes');
         if ($category !== null && $category !== '') {
@@ -63,14 +66,20 @@ class StartupService
         if ($featuredOnly) {
             $query->featured();
         }
+        if ($location !== null && trim($location) !== '') {
+            $query->where('location', 'like', '%' . trim($location) . '%');
+        }
         return $limit > 0 ? $query->take($limit)->get() : $query->get();
     }
 
-    public function getFeatured(?string $category = null, int $limit = 10): Collection
+    public function getFeatured(?string $category = null, int $limit = 10, ?string $location = null): Collection
     {
         $query = $this->withFunding()->active()->featured()->orderByDesc('upvotes');
         if ($category !== null && $category !== '') {
             $query->byCategory($category);
+        }
+        if ($location !== null && trim($location) !== '') {
+            $query->where('location', 'like', '%' . trim($location) . '%');
         }
         return $query->take($limit)->get();
     }
@@ -96,7 +105,7 @@ class StartupService
         return $query->take($limit)->get();
     }
 
-    public function getJustListed(?string $category = null, bool $featuredOnly = false, int $limit = 10): Collection
+    public function getJustListed(?string $category = null, bool $featuredOnly = false, int $limit = 10, ?string $location = null): Collection
     {
         $query = $this->withFunding()->active()->orderByDesc('created_at');
         if ($category !== null && $category !== '') {
@@ -105,10 +114,67 @@ class StartupService
         if ($featuredOnly) {
             $query->featured();
         }
+        if ($location !== null && trim($location) !== '') {
+            $query->where('location', 'like', '%' . trim($location) . '%');
+        }
         return $query->take($limit)->get();
     }
 
-    public function getLeaderboard(string $sortBy = 'upvotes', int $perPage = 20, ?string $category = null, bool $featuredOnly = false)
+    public function getRaising(?string $category = null): Collection
+    {
+        $query = $this->withFunding()->active()
+            ->whereHas('activeFundingRound')
+            ->orderByDesc('upvotes');
+        if ($category !== null && $category !== '') {
+            $query->byCategory($category);
+        }
+        return $query->get();
+    }
+
+    public function getForSale(): Collection
+    {
+        return $this->withFunding()->active()
+            ->forSale()
+            ->orderByDesc('upvotes')
+            ->get();
+    }
+
+    public function search(?string $q, ?string $category = null, ?string $location = null, int $perPage = 50)
+    {
+        $query = $this->withFunding()->active();
+        if ($q !== null && trim($q) !== '') {
+            $term = '%' . trim($q) . '%';
+            $query->where(function ($builder) use ($term) {
+                $builder->where('name', 'like', $term)
+                    ->orWhere('tagline', 'like', $term)
+                    ->orWhere('description', 'like', $term)
+                    ->orWhere('category', 'like', $term)
+                    ->orWhere('location', 'like', $term)
+                    ->orWhere('founder_name', 'like', $term)
+                    ->orWhere('founders', 'like', $term);
+            });
+        }
+        if ($category !== null && $category !== '') {
+            $query->byCategory($category);
+        }
+        if ($location !== null && trim($location) !== '') {
+            $query->where('location', 'like', '%' . trim($location) . '%');
+        }
+        return $query->orderByDesc('upvotes')->paginate($perPage)->withQueryString();
+    }
+
+    public function getLocationsWithCounts(): Collection
+    {
+        return Startup::active()
+            ->selectRaw('location, count(*) as count')
+            ->whereNotNull('location')
+            ->where('location', '!=', '')
+            ->groupBy('location')
+            ->orderByDesc('count')
+            ->get();
+    }
+
+    public function getLeaderboard(string $sortBy = 'upvotes', int $perPage = 20, ?string $category = null, bool $featuredOnly = false, ?string $location = null)
     {
         $query = $this->withFunding()->active();
         if ($category !== null && $category !== '') {
@@ -116,6 +182,9 @@ class StartupService
         }
         if ($featuredOnly) {
             $query->featured();
+        }
+        if ($location !== null && trim($location) !== '') {
+            $query->where('location', 'like', '%' . trim($location) . '%');
         }
         $sortColumn = match ($sortBy) {
             'views' => 'views',

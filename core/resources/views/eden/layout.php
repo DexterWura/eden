@@ -58,11 +58,14 @@
         </button>
         <a href="<?= e(url('/launching-today')) ?>">Launching today</a>
         <a href="<?= e(url('/leaderboard')) ?>">Leaderboard</a>
+        <a href="<?= e(url('/raising')) ?>">Raising</a>
+        <a href="<?= e(url('/for-sale')) ?>">For sale</a>
         <a href="<?= e(url('/categories')) ?>">Categories</a>
         <a href="<?= e(url('/blog')) ?>">Blog</a>
         <a href="<?= e(url('/submit')) ?>">Submit</a>
         <a href="<?= e(url('/pricing')) ?>" style="color:var(--accent)"><i class="fa-solid fa-crown" aria-hidden="true"></i> Pro</a>
         <?php if (auth()->check()): ?>
+        <a href="<?= e(url('/saved')) ?>">Saved</a>
         <a href="<?= e(url('/founder')) ?>" class="btn btn-ghost"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i> Dashboard</a>
         <form action="<?= e(route('logout')) ?>" method="POST" class="nav-logout-form">
           <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
@@ -117,11 +120,14 @@
       </div>
       <a href="<?= e(url('/launching-today')) ?>">Launching today</a>
       <a href="<?= e(url('/leaderboard')) ?>">Leaderboard</a>
+      <a href="<?= e(url('/raising')) ?>">Raising</a>
+      <a href="<?= e(url('/for-sale')) ?>">For sale</a>
       <a href="<?= e(url('/categories')) ?>">Categories</a>
       <a href="<?= e(url('/blog')) ?>">Blog</a>
       <a href="<?= e(url('/submit')) ?>">Submit</a>
       <a href="<?= e(url('/pricing')) ?>" style="color:var(--accent)"><i class="fa-solid fa-crown" aria-hidden="true"></i> Pro</a>
       <?php if (auth()->check()): ?>
+      <a href="<?= e(url('/saved')) ?>">Saved</a>
       <a href="<?= e(url('/founder')) ?>" class="nav-drawer-extra"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i> Dashboard</a>
       <form action="<?= e(route('logout')) ?>" method="POST" class="nav-logout-form nav-drawer-logout">
         <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">

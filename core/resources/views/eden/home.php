@@ -9,10 +9,12 @@
     <h1>Discover the next wave of startups</h1>
     <p>Explore, search, and connect. One directory. Zero noise.</p>
     <div class="hero-actions">
-      <div class="search-wrap hero-search">
+      <form action="<?= e(url('/')) ?>" method="get" class="search-wrap hero-search" role="search">
         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-        <input type="search" class="search-input" placeholder="Search startups, founders, categories…" aria-label="Search" id="homeSearch">
-      </div>
+        <input type="search" name="q" class="search-input" placeholder="Search startups, founders, categories…" aria-label="Search" id="homeSearch" value="<?= e($searchQuery ?? '') ?>">
+        <?php if (isset($categoryFilter) && $categoryFilter !== null && $categoryFilter !== ''): ?><input type="hidden" name="category" value="<?= e($categoryFilter) ?>"><?php endif; ?>
+        <?php if (isset($locationFilter) && $locationFilter !== null && $locationFilter !== ''): ?><input type="hidden" name="location" value="<?= e($locationFilter) ?>"><?php endif; ?>
+      </form>
       <a href="<?= e(url('/submit')) ?>" class="btn btn-primary btn-add"><i class="fa-solid fa-plus" aria-hidden="true"></i> Submit your startup</a>
     </div>
     <?php
@@ -66,22 +68,36 @@
       <span class="hero-quick-nav-sep" aria-hidden="true">·</span>
       <a href="<?= e(url('/submit')) ?>">Submit</a>
     </nav>
-    <?php $browseCategories = $browseCategories ?? []; ?>
+    <?php $browseCategories = $browseCategories ?? []; $browseLocations = $browseLocations ?? []; ?>
+    <?php
+    $categoryFilter = $categoryFilter ?? null;
+    $locationFilter = $locationFilter ?? null;
+    $featuredOnly = $featuredOnly ?? false;
+    $sortNewest = $sortNewest ?? false;
+    $searchQuery = $searchQuery ?? null;
+    $baseQuery = array_filter(['q' => $searchQuery && trim($searchQuery) !== '' ? trim($searchQuery) : null, 'featured' => $featuredOnly ? '1' : null, 'sort' => $sortNewest ? 'newest' : null, 'location' => $locationFilter ?: null]);
+    ?>
     <?php if (count($browseCategories) > 0): ?>
     <div class="hero-categories" id="heroCategories">
       <h2 class="hero-categories-title">Browse by category</h2>
       <div class="filters filters--categories">
-        <?php
-        $categoryFilter = $categoryFilter ?? null;
-        $featuredOnly = $featuredOnly ?? false;
-        $sortNewest = $sortNewest ?? false;
-        $baseQuery = array_filter(['featured' => $featuredOnly ? '1' : null, 'sort' => $sortNewest ? 'newest' : null]);
-        $urlAll = url('/') . ($baseQuery ? '?' . http_build_query($baseQuery) : '');
-        ?>
+        <?php $urlAll = url('/') . ($baseQuery ? '?' . http_build_query($baseQuery) : ''); ?>
         <a href="<?= e($urlAll) ?>" class="pill<?= $categoryFilter === null || $categoryFilter === '' ? ' active' : '' ?>">All</a>
         <?php foreach ($browseCategories as $cat): ?>
         <?php $query = array_merge($baseQuery, ['category' => $cat->name]); ?>
         <a href="<?= e(url('/') . '?' . http_build_query($query)) ?>" class="pill<?= $categoryFilter === $cat->name ? ' active' : '' ?>"><?= e($cat->name) ?></a>
+        <?php endforeach; ?>
+      </div>
+    </div>
+    <?php endif; ?>
+    <?php if (count($browseLocations) > 0): ?>
+    <div class="hero-categories" id="heroLocations" style="margin-top: 12px;">
+      <h2 class="hero-categories-title">Location</h2>
+      <div class="filters filters--categories">
+        <a href="<?= e(url('/') . ($baseQuery ? '?' . http_build_query($baseQuery) : '')) ?>" class="pill<?= $locationFilter === null || $locationFilter === '' ? ' active' : '' ?>">All</a>
+        <?php foreach ($browseLocations as $loc): ?>
+        <?php $query = array_merge($baseQuery, ['location' => $loc->name]); ?>
+        <a href="<?= e(url('/') . '?' . http_build_query($query)) ?>" class="pill<?= $locationFilter === $loc->name ? ' active' : '' ?>"><?= e($loc->name) ?></a>
         <?php endforeach; ?>
       </div>
     </div>
@@ -274,8 +290,10 @@
 
   <section class="section-block" aria-labelledby="startups-heading">
     <header class="section-header">
-      <h2 id="startups-heading" class="section-heading"><?= ($sortNewest ?? false) ? 'Just listed' : (($featuredOnly ?? false) ? 'Featured startups' : 'All Startups') ?></h2>
-      <?php if ($sortNewest ?? false): ?>
+      <h2 id="startups-heading" class="section-heading"><?= ($searchQuery ?? '') !== '' ? 'Search results for “' . e($searchQuery) . '”' : (($sortNewest ?? false) ? 'Just listed' : (($featuredOnly ?? false) ? 'Featured startups' : 'All Startups')) ?></h2>
+      <?php if (($searchQuery ?? '') !== ''): ?>
+      <a href="<?= e(url('/')) ?>" class="section-link-all">Clear search <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+      <?php elseif ($sortNewest ?? false): ?>
       <a href="<?= e(url('/leaderboard?sort=newest')) ?>" class="section-link-all">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
       <?php else: ?>
       <a href="<?= e(url('/launching-today')) ?>" class="section-link-all">Launching today <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
@@ -292,9 +310,12 @@
       endforeach;
       ?>
       <?php if ($allStartups->isEmpty()): ?>
-      <p class="section-empty">No startups yet. <a href="<?= e(url('/submit')) ?>">Submit your startup</a>.</p>
+      <p class="section-empty"><?= ($searchQuery ?? '') !== '' ? 'No startups match your search. Try different keywords.' : 'No startups yet. <a href="' . e(url('/submit')) . '">Submit your startup</a>.' ?></p>
       <?php endif; ?>
     </div>
+    <?php if (isset($searchResults) && $searchResults && $searchResults->hasPages()): ?>
+    <div class="section-pagination" style="margin-top: 24px;"><?= $searchResults->withQueryString()->links() ?></div>
+    <?php endif; ?>
   </section>
 
   <div class="cta-strip" id="submit">

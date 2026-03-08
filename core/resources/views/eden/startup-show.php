@@ -54,6 +54,20 @@ $productImages = $s->product_images ?? [];
           <?php if (!empty($s->website)): ?>
           <a href="<?= e(url('/startup/' . $s->slug . '/out')) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="margin-left: 4px;"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Visit website</a>
           <?php endif; ?>
+          <?php if (auth()->check()): ?>
+          <?php $hasSaved = $hasSaved ?? false; ?>
+          <?php if ($hasSaved): ?>
+          <form action="<?= e(route('startup.unsave', $s->slug)) ?>" method="post" style="display: inline; margin-left: 4px;">
+            <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
+            <button type="submit" class="btn btn-ghost"><i class="fa-solid fa-bookmark" aria-hidden="true"></i> Saved</button>
+          </form>
+          <?php else: ?>
+          <form action="<?= e(route('startup.save', $s->slug)) ?>" method="post" style="display: inline; margin-left: 4px;">
+            <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
+            <button type="submit" class="btn btn-ghost"><i class="fa-regular fa-bookmark" aria-hidden="true"></i> Save</button>
+          </form>
+          <?php endif; ?>
+          <?php endif; ?>
           <a href="<?= e(route('startup.claim', $s->slug)) ?>" class="btn btn-ghost" style="margin-left: 4px;"><i class="fa-solid fa-hand-holding-hand" aria-hidden="true"></i> Claim this startup</a>
         </div>
       </div>

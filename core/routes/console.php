@@ -86,3 +86,10 @@ Schedule::command('revenue:sync')
     ->withoutOverlapping(30)
     ->onOneServer()
     ->appendOutputTo(storage_path('logs/revenue-sync.log'));
+
+// Eden weekly digest - new startups email to subscribers (Mondays 9:00)
+Schedule::command('eden:weekly-digest')
+    ->weeklyOn(1, '09:00')
+    ->withoutOverlapping(10)
+    ->onOneServer()
+    ->appendOutputTo(storage_path('logs/eden-weekly-digest.log'));

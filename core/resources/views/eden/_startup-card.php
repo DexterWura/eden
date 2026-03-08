@@ -37,6 +37,25 @@ $isRow = $cardVariant === 'row';
       ><i class="fa-solid fa-arrow-up"></i></button>
       <span class="upvote-count"><?= (int)$s->upvotes ?></span>
     </div>
+    <?php
+    $savedStartupIds = $savedStartupIds ?? [];
+    if (auth()->check()):
+      $isSaved = in_array((int)$s->id, $savedStartupIds, true);
+    ?>
+    <div class="save-ui" style="margin-left: 6px;">
+      <?php if ($isSaved): ?>
+      <form action="<?= e(route('startup.unsave', $s->slug)) ?>" method="post" style="display:inline;" onsubmit="event.stopPropagation();">
+        <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
+        <button type="submit" class="save-btn save-btn--saved" aria-label="Remove from saved"><i class="fa-solid fa-bookmark" aria-hidden="true"></i></button>
+      </form>
+      <?php else: ?>
+      <form action="<?= e(route('startup.save', $s->slug)) ?>" method="post" style="display:inline;" onsubmit="event.stopPropagation();">
+        <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
+        <button type="submit" class="save-btn" aria-label="Save startup"><i class="fa-regular fa-bookmark" aria-hidden="true"></i></button>
+      </form>
+      <?php endif; ?>
+    </div>
+    <?php endif; ?>
   </div>
   <a href="<?= $url ?>" class="card-link">
     <h3 class="card-title"><?= e($s->name) ?></h3>

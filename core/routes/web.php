@@ -23,6 +23,7 @@ use App\Http\Controllers\Eden\PageController;
 use App\Http\Controllers\Eden\BlogController;
 use App\Http\Controllers\Eden\StartupController;
 use App\Http\Controllers\Eden\StartupCommentController;
+use App\Http\Controllers\Eden\SavedStartupController;
 use App\Http\Controllers\Eden\AnalyticsController;
 use App\Http\Controllers\Eden\BadgeController;
 use App\Http\Controllers\User\Auth\SocialiteController;
@@ -33,6 +34,7 @@ use App\Http\Controllers\Founder\StartupController as FounderStartupController;
 use App\Http\Controllers\Founder\UpvotesController;
 use App\Http\Controllers\Founder\BlogController as FounderBlogController;
 use App\Http\Controllers\Eden\PricingController;
+use App\Http\Controllers\Eden\FeedController;
 use App\Http\Controllers\Eden\LinkedInAuthController;
 use App\Http\Controllers\Admin\GatewayController;
 use Illuminate\Support\Facades\Artisan;
@@ -66,6 +68,8 @@ Route::get('/cron', function () {
 
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/leaderboard', [HomeController::class, 'leaderboard'])->name('leaderboard');
+Route::get('/raising', [HomeController::class, 'raising'])->name('raising');
+Route::get('/for-sale', [HomeController::class, 'forSale'])->name('for-sale');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/about', [PageController::class, 'about']);
@@ -81,16 +85,21 @@ Route::get('/checkout/paypal/return', [PricingController::class, 'paypalReturn']
 Route::get('/checkout/paypal/cancel', [PricingController::class, 'paypalCancel'])->middleware('auth');
 Route::get('/checkout/paynow/return', [PricingController::class, 'paynowReturn'])->middleware('auth');
 Route::any('/checkout/paynow/callback', [PricingController::class, 'paynowCallback']);
+Route::get('/feed/new', [FeedController::class, 'new'])->name('feed.new');
+Route::get('/feed/featured', [FeedController::class, 'featured'])->name('feed.featured');
 Route::get('/launching-today', [StartupController::class, 'launchingToday']);
 Route::get('/badge/{type}', [BadgeController::class, 'show'])->name('badge.show')->where('type', 'listed|featured|product-of-day');
 Route::get('/startup/{slug}', [StartupController::class, 'show'])->name('startup.show');
 Route::get('/startup/{slug}/out', [StartupController::class, 'out']);
 Route::post('/startup/{slug}/upvote', [StartupController::class, 'upvote'])->name('startup.upvote');
+Route::post('/startup/{slug}/save', [SavedStartupController::class, 'save'])->name('startup.save')->middleware('auth');
+Route::post('/startup/{slug}/unsave', [SavedStartupController::class, 'unsave'])->name('startup.unsave')->middleware('auth');
 Route::post('/startup/{slug}/comment', [StartupCommentController::class, 'store'])->name('startup.comment')->middleware('auth');
 Route::get('/startup/{slug}/claim', [ClaimController::class, 'show'])->name('startup.claim');
 Route::post('/startup/{slug}/claim/confirm', [ClaimController::class, 'confirm'])->name('startup.claim.confirm')->middleware('auth');
 Route::post('/startup/{slug}/claim/start', [ClaimController::class, 'startVerification'])->name('startup.claim.start')->middleware('auth');
 Route::post('/startup/{slug}/claim/verify', [ClaimController::class, 'verify'])->name('startup.claim.verify')->middleware('auth');
+Route::get('/saved', [SavedStartupController::class, 'index'])->name('saved')->middleware('auth');
 Route::middleware('auth')->prefix('founder')->name('founder.')->group(function () {
     Route::get('/', [DashboardController::class, 'founderDashboard'])->name('dashboard');
     Route::get('startups', [FounderStartupController::class, 'index'])->name('startups.index');

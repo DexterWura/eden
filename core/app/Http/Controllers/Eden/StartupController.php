@@ -19,9 +19,11 @@ class StartupController extends EdenController
     public function launchingToday()
     {
         $startups = $this->startupService->getLaunchingToday();
+        $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->pluck('id')->toArray() : [];
         return $this->page('launching-today', 'Launching today', 'scripts-launching-today', [
             'startups' => $startups,
             'productOfDayId' => $this->startupService->getProductOfDayId(),
+            'savedStartupIds' => $savedStartupIds,
         ]);
     }
 
@@ -31,6 +33,7 @@ class StartupController extends EdenController
         $startup->increment('views');
         $hasUpvoted = auth()->check() && StartupUpvote::where('user_id', auth()->id())
             ->where('startup_id', $startup->id)->exists();
+        $hasSaved = auth()->check() && auth()->user()->savedStartupsList()->where('startups.id', $startup->id)->exists();
 
         $siteName = function_exists('gs') && gs('site_name') ? (string) gs('site_name') : 'Eden';
         $pageTitle = $startup->name;
@@ -74,6 +77,7 @@ class StartupController extends EdenController
         return $this->page('startup-show', $pageTitle, null, [
             'startup' => $startup,
             'hasUpvoted' => $hasUpvoted,
+            'hasSaved' => $hasSaved,
             'isProductOfDay' => $this->startupService->getProductOfDayId() === $startup->id,
             'comments' => $comments,
             'trafficByDay' => $trafficByDay,
