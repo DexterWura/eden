@@ -49,6 +49,13 @@
   <div class="bg-grid"></div>
   <div class="bg-glow"></div>
 
+  <div id="cookieConsent" class="cookie-consent" role="dialog" aria-label="Cookie notice" aria-live="polite" hidden>
+    <div class="cookie-consent-inner wrap">
+      <p class="cookie-consent-text">We use cookies to run the site and for advertising. By continuing you accept our <a href="<?= e(url('/privacy')) ?>">Privacy Policy</a>.</p>
+      <button type="button" class="btn btn-primary cookie-consent-btn" id="cookieConsentAccept" aria-label="Accept cookies">OK</button>
+    </div>
+  </div>
+
   <header class="site-header">
     <div class="wrap header-inner">
       <a href="<?= e(url('/')) ?>" class="logo"><?= e(function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden') ?></a>
@@ -61,12 +68,10 @@
         <a href="<?= e(url('/leaderboard')) ?>">Leaderboard</a>
         <a href="<?= e(url('/raising')) ?>">Raising</a>
         <a href="<?= e(url('/for-sale')) ?>">For sale</a>
-        <a href="<?= e(url('/categories')) ?>">Categories</a>
         <a href="<?= e(url('/blog')) ?>">Blog</a>
         <a href="<?= e(url('/submit')) ?>">Submit</a>
         <a href="<?= e(url('/pricing')) ?>" style="color:var(--accent)"><i class="fa-solid fa-crown" aria-hidden="true"></i> Pro</a>
         <?php if (auth()->check()): ?>
-        <a href="<?= e(url('/saved')) ?>">Saved</a>
         <a href="<?= e(url('/founder')) ?>" class="btn btn-ghost"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i> Dashboard</a>
         <form action="<?= e(route('logout')) ?>" method="POST" class="nav-logout-form">
           <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
@@ -123,12 +128,10 @@
       <a href="<?= e(url('/leaderboard')) ?>">Leaderboard</a>
       <a href="<?= e(url('/raising')) ?>">Raising</a>
       <a href="<?= e(url('/for-sale')) ?>">For sale</a>
-      <a href="<?= e(url('/categories')) ?>">Categories</a>
       <a href="<?= e(url('/blog')) ?>">Blog</a>
       <a href="<?= e(url('/submit')) ?>">Submit</a>
       <a href="<?= e(url('/pricing')) ?>" style="color:var(--accent)"><i class="fa-solid fa-crown" aria-hidden="true"></i> Pro</a>
       <?php if (auth()->check()): ?>
-      <a href="<?= e(url('/saved')) ?>">Saved</a>
       <a href="<?= e(url('/founder')) ?>" class="nav-drawer-extra"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i> Dashboard</a>
       <form action="<?= e(route('logout')) ?>" method="POST" class="nav-logout-form nav-drawer-logout">
         <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
@@ -269,6 +272,10 @@
           <p class="site-footer__links">
             <a href="<?= e(url('/about')) ?>">About</a>
             <a href="<?= e(url('/contact')) ?>">Contact</a>
+            <a href="<?= e(url('/privacy')) ?>">Privacy Policy</a>
+            <a href="<?= e(url('/terms')) ?>">Terms</a>
+            <a href="<?= e(url('/categories')) ?>">Categories</a>
+            <?php if (auth()->check()): ?><a href="<?= e(url('/saved')) ?>">Saved</a><?php endif; ?>
           </p>
         </div>
         <div class="site-footer__col">
@@ -298,6 +305,12 @@
   .site-footer__credit { margin: 0; padding-top: 1rem; border-top: 1px solid var(--border); text-align: center; font-size: 0.875rem; color: var(--text-muted); }
   .site-footer__credit a { color: var(--link); }
   .site-footer__credit a:hover { color: var(--link-hover); }
+  .cookie-consent { position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; background: var(--surface, #12141c); border-top: 1px solid var(--border, #2a2e3d); padding: 12px 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.2); }
+  .cookie-consent[hidden] { display: none !important; }
+  .cookie-consent-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .cookie-consent-text { margin: 0; font-size: 0.9rem; color: var(--text-muted, #8b90a0); }
+  .cookie-consent-text a { color: var(--accent, #00d4aa); text-decoration: underline; }
+  .cookie-consent-btn { flex-shrink: 0; }
   </style>
 
   <script>
@@ -327,6 +340,22 @@
       });
       var lbl = document.getElementById('themeToggleLabel');
       if (lbl) lbl.textContent = t === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+    })();
+    (function() {
+      var banner = document.getElementById('cookieConsent');
+      var btn = document.getElementById('cookieConsentAccept');
+      var key = 'eden_cookie_consent';
+      try {
+        if (banner && !localStorage.getItem(key)) {
+          banner.removeAttribute('hidden');
+        }
+        if (btn && banner) {
+          btn.addEventListener('click', function() {
+            try { localStorage.setItem(key, '1'); } catch (e) {}
+            banner.setAttribute('hidden', '');
+          });
+        }
+      } catch (e) {}
     })();
     (function() {
       var navToggle = document.getElementById('navToggle');

@@ -32,6 +32,16 @@ class PageController extends EdenController
         return $this->page('about', 'About', null, ['about' => $about]);
     }
 
+    public function privacy()
+    {
+        return $this->page('privacy', 'Privacy Policy', null, []);
+    }
+
+    public function terms()
+    {
+        return $this->page('terms', 'Terms of Service', null, []);
+    }
+
     public function contact()
     {
         return $this->page('contact', 'Contact');

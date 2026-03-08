@@ -74,6 +74,8 @@ Route::get('/for-sale', [HomeController::class, 'forSale'])->name('for-sale');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/about', [PageController::class, 'about']);
+Route::get('/privacy', [PageController::class, 'privacy'])->name('privacy');
+Route::get('/terms', [PageController::class, 'terms'])->name('terms');
 Route::get('/contact', [PageController::class, 'contact']);
 Route::post('/contact', [PageController::class, 'contactStore']);
 Route::get('/submit', [PageController::class, 'submit']);

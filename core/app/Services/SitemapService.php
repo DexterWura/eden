@@ -17,6 +17,8 @@ class SitemapService
             ['loc' => $baseUrl . '/', 'changefreq' => 'daily', 'priority' => '1.0'],
             ['loc' => $baseUrl . '/about', 'changefreq' => 'monthly', 'priority' => '0.8'],
             ['loc' => $baseUrl . '/contact', 'changefreq' => 'monthly', 'priority' => '0.7'],
+            ['loc' => $baseUrl . '/privacy', 'changefreq' => 'monthly', 'priority' => '0.6'],
+            ['loc' => $baseUrl . '/terms', 'changefreq' => 'monthly', 'priority' => '0.6'],
             ['loc' => $baseUrl . '/submit', 'changefreq' => 'monthly', 'priority' => '0.8'],
             ['loc' => $baseUrl . '/categories', 'changefreq' => 'daily', 'priority' => '0.9'],
             ['loc' => $baseUrl . '/launching-today', 'changefreq' => 'daily', 'priority' => '0.9'],
