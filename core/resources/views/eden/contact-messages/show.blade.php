@@ -42,14 +42,14 @@
       <div>
         <label for="subject" class="dash-label">Subject</label>
         <input type="text" id="subject" name="subject" class="dash-input" value="{{ old('subject', $message->reply_subject ?: ('Re: ' . ($message->subject ?: 'Your message to Eden'))) }}">
-        @error('subject') <span class="dash-error">{{ $message }}</span> @enderror
+        @error('subject') <span class="dash-error">{{ $errors->first('subject') }}</span> @enderror
       </div>
       <div>
         <label for="body" class="dash-label">Message</label>
         <textarea id="body" name="body" rows="8" class="dash-input" placeholder="Write your reply…">@php
           $defaultBody = $message->reply_body ?: 'Hi ' . $message->name . ",\n\nThanks for reaching out.\n\n";
         @endphp{{ old('body', $defaultBody) }}</textarea>
-        @error('body') <span class="dash-error">{{ $message }}</span> @enderror
+        @error('body') <span class="dash-error">{{ $errors->first('body') }}</span> @enderror
         <span class="dash-hint" style="display:block;margin-top:4px;font-size:0.8rem;color:var(--d-text-secondary);">
           The content you write here will be inserted into the global email template as {{ '{{' }}{{ 'message' }}{{ '}}' }}.
         </span>
