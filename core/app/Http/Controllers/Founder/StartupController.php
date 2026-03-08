@@ -29,8 +29,8 @@ class StartupController extends Controller
     public function create()
     {
         if (! $this->canAddStartup(auth()->user())) {
-            return redirect()->route('founder.startups.index')
-                ->with('notify', [['error', 'Free accounts are limited to one startup. Upgrade to Pro for unlimited startups.']]);
+            return redirect()->route('pricing')
+                ->with('info', 'Free accounts get one startup. Go Pro for unlimited startups, analytics, hero featuring, and more.');
         }
         $startup = new Startup(['status' => Startup::STATUS_ACTIVE]);
         $categories = Category::orderBy('sort_order')->get();
@@ -41,8 +41,8 @@ class StartupController extends Controller
     public function store(Request $request): RedirectResponse
     {
         if (! $this->canAddStartup(auth()->user())) {
-            return redirect()->route('founder.startups.index')
-                ->with('notify', [['error', 'Free accounts are limited to one startup. Upgrade to Pro for unlimited startups.']]);
+            return redirect()->route('pricing')
+                ->with('info', 'Free accounts get one startup. Go Pro for unlimited startups, analytics, hero featuring, and more.');
         }
         $validator = Validator::make($request->all(), $this->rules(), $this->messages());
         if ($validator->fails()) {
