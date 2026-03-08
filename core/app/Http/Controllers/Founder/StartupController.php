@@ -316,7 +316,19 @@ class StartupController extends Controller
                 'nullable',
                 'string',
                 'max:500',
-                'regex:/^https?:\/\/(?:www\.)?flipit\.co\.zw\/marketplace\/listing\/[a-zA-Z0-9_-]+\/?$/i',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if ($value === null || trim((string) $value) === '') {
+                        return;
+                    }
+                    $v = trim((string) $value);
+                    if (Startup::isFlipitListingNumber($v)) {
+                        return;
+                    }
+                    if (Startup::flipitListingIdFromUrl($v) !== null) {
+                        return;
+                    }
+                    $fail('The FLIPit listing must be a valid listing number (12 characters) or a full FLIPit listing URL.');
+                },
             ],
             'seeking_investors' => ['nullable', 'in:0,1'],
             'funding_round_type' => ['nullable', 'string', 'in:' . implode(',', array_keys(StartupFundingRound::ROUND_TYPES))],
@@ -376,8 +388,15 @@ class StartupController extends Controller
         $forSale = filter_var($data['for_sale'] ?? false, FILTER_VALIDATE_BOOLEAN);
         $data['for_sale'] = $forSale;
         if ($forSale) {
-            $url = $request->input('flipit_listing_url');
-            $data['flipit_listing_id'] = $url ? Startup::flipitListingIdFromUrl($url) : null;
+            $value = $request->input('flipit_listing_url');
+            $value = $value ? trim($value) : null;
+            if ($value === null || $value === '') {
+                $data['flipit_listing_id'] = null;
+            } elseif (Startup::isFlipitListingNumber($value)) {
+                $data['flipit_listing_id'] = strtoupper($value);
+            } else {
+                $data['flipit_listing_id'] = Startup::flipitListingIdFromUrl($value);
+            }
         } else {
             $data['flipit_listing_id'] = null;
         }

@@ -53,6 +53,9 @@ class Startup extends Model
     /** FLIPit listing URL pattern: https://flipit.co.zw/marketplace/listing/{id} */
     public const FLIPIT_LISTING_URL_PATTERN = '#^https?://(?:www\.)?flipit\.co\.zw/marketplace/listing/([a-zA-Z0-9_-]+)/?$#i';
 
+    /** FLIPit listing number format: 12 alphanumeric (A-Z, 1-9) from dashboard */
+    public const FLIPIT_LISTING_NUMBER_PATTERN = '/^[A-Za-z0-9]{12}$/';
+
     protected $casts = [
         'launch_date' => 'date',
         'dormant_at' => 'datetime',
@@ -83,6 +86,30 @@ class Startup extends Model
             return $m[1];
         }
         return null;
+    }
+
+    /**
+     * Whether the stored flipit_listing_id is a listing number (12 alphanumeric) rather than a slug.
+     */
+    public static function isFlipitListingNumber(?string $value): bool
+    {
+        return $value !== null && $value !== '' && preg_match(self::FLIPIT_LISTING_NUMBER_PATTERN, trim($value));
+    }
+
+    /**
+     * Canonical FLIPit marketplace URL for this startup's listing (by-number or by slug).
+     */
+    public function getFlipitListingUrl(): ?string
+    {
+        $id = $this->flipit_listing_id;
+        if ($id === null || $id === '') {
+            return null;
+        }
+        $id = trim($id);
+        if (self::isFlipitListingNumber($id)) {
+            return 'https://flipit.co.zw/marketplace/listing/by-number/' . $id;
+        }
+        return 'https://flipit.co.zw/marketplace/listing/' . $id;
     }
 
     public function scopeForSale($query)

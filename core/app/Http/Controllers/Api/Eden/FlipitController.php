@@ -15,6 +15,17 @@ class FlipitController extends Controller
      */
     public function listingSold(Request $request): JsonResponse
     {
+        $secret = config('services.flipit.webhook_secret');
+        if ($secret !== null && $secret !== '') {
+            $header = $request->header('X-Eden-Flipit-Secret');
+            if (! is_string($header) || ! hash_equals($secret, $header)) {
+                return response()->json([
+                    'error' => 'unauthorized',
+                    'message' => 'Invalid or missing webhook secret.',
+                ], 401, ['Content-Type' => 'application/json']);
+            }
+        }
+
         $validated = $request->validate([
             'listing_id' => 'required|string|max:255',
             'new_owner_email' => 'nullable|string|email|max:255',
@@ -23,6 +34,9 @@ class FlipitController extends Controller
         ]);
 
         $listingId = trim((string) $validated['listing_id']);
+        if (Startup::isFlipitListingNumber($listingId)) {
+            $listingId = strtoupper($listingId);
+        }
         $startup = Startup::where('flipit_listing_id', $listingId)->first();
 
         if ($startup === null) {

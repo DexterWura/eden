@@ -316,13 +316,12 @@
   </div>
   @endif
 
-  {{-- List for sale (FLIPit) – uncomment to show to founders
   <div class="founder-card-block" style="margin-top: 24px;">
     <div class="founder-card">
       <div class="founder-card-head">
         <span class="founder-card-num">List for sale</span>
       </div>
-      <p style="font-size: 0.875rem; color: var(--d-text-secondary); margin-bottom: 16px;">Link this startup to a FLIPit listing. Eden will use the listing ID to communicate with FLIPit (e.g. mark as sold, transfer to new owner).</p>
+      <p style="font-size: 0.875rem; color: var(--d-text-secondary); margin-bottom: 16px;">Link this startup to a FLIPit listing. When the listing sells on FLIPit, Eden will automatically remove the "For sale" badge.</p>
       <div class="dash-form" style="display: flex; flex-direction: column; gap: 14px;">
         <div>
           <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
@@ -332,15 +331,22 @@
           </label>
         </div>
         <div>
-          <label for="flipit_listing_url" class="dash-label">FLIPit listing URL</label>
-          <input type="url" id="flipit_listing_url" name="flipit_listing_url" value="{{ old('flipit_listing_url', $startup->flipit_listing_id ? 'https://flipit.co.zw/marketplace/listing/'.$startup->flipit_listing_id : '') }}" class="dash-input" placeholder="https://flipit.co.zw/marketplace/listing/your-listing-id">
+          <label for="flipit_listing_url" class="dash-label">FLIPit listing number</label>
+          @php
+            $flipitDisplay = old('flipit_listing_url');
+            if ($flipitDisplay === null && $startup->flipit_listing_id) {
+              $flipitDisplay = \App\Models\Startup::isFlipitListingNumber($startup->flipit_listing_id)
+                ? $startup->flipit_listing_id
+                : 'https://flipit.co.zw/marketplace/listing/'.$startup->flipit_listing_id;
+            }
+          @endphp
+          <input type="text" id="flipit_listing_url" name="flipit_listing_url" value="{{ $flipitDisplay }}" class="dash-input" placeholder="e.g. AB12CD34EF56">
           @error('flipit_listing_url') <span class="dash-error">{{ $message }}</span> @enderror
-          <span class="dash-hint" style="display: block; margin-top: 4px; font-size: 0.8rem; color: var(--d-text-secondary);">Paste the full listing page URL; the system will store the listing ID for Eden–FLIPit communication.</span>
+          <span class="dash-hint" style="display: block; margin-top: 4px; font-size: 0.8rem; color: var(--d-text-secondary);">Find this in your FLIPit dashboard under My Listings. You can paste the listing number (e.g. AB12CD34EF56) or the full listing URL.</span>
         </div>
       </div>
     </div>
   </div>
-  --}}
 
   @if(!$isEdit)
   <div style="background:var(--surface-hover,#1a1d28);border:1px solid var(--border,#2a2e3d);border-left:4px solid var(--accent,#00d4aa);border-radius:8px;padding:14px 18px;margin-bottom:16px;font-size:0.92rem;color:var(--text-muted,#8b90a0)">

@@ -36,4 +36,8 @@ return [
         'item_id' => env('ENVATO_ITEM_ID'),
     ],
 
+    'flipit' => [
+        'webhook_secret' => env('EDEN_FLIPIT_WEBHOOK_SECRET'),
+    ],
+
 ];

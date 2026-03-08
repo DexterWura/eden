@@ -23,6 +23,10 @@ $isRow = $cardVariant === 'row';
       <?php if ($s->is_featured): ?><span class="badge">Featured</span><?php endif; ?>
       <?php if ($s->launch_date && $s->launch_date->isToday()): ?><span class="badge launch">Launch</span><?php endif; ?>
       <?php if ($s->activeFundingRound): ?><span class="badge badge-funding"><i class="fa-solid fa-hand-holding-dollar"></i> Raising</span><?php endif; ?>
+      <?php if ($s->for_sale && !$s->sold_at && $s->flipit_listing_id): ?>
+        <?php $flipitUrl = $s->getFlipitListingUrl(); ?>
+        <?php if ($flipitUrl): ?><a href="<?= e($flipitUrl) ?>" target="_blank" rel="noopener noreferrer" class="badge badge-for-sale"><i class="fa-solid fa-tag" aria-hidden="true"></i> For sale</a><?php endif; ?>
+      <?php endif; ?>
     </div>
     <div class="upvote-ui">
       <button

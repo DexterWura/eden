@@ -25,6 +25,10 @@ $productImages = $s->product_images ?? [];
         <?php $isProductOfDay = $isProductOfDay ?? false; ?>
         <?php if ($isProductOfDay): ?><span class="badge badge-product-of-day" style="display: inline-block; margin-bottom: 8px;">Product of the day</span><?php endif; ?>
         <?php if ($fundingRound): ?><span class="badge badge-funding" style="display: inline-block; margin-bottom: 8px; margin-left: 6px;"><i class="fa-solid fa-hand-holding-dollar"></i> Raising</span><?php endif; ?>
+        <?php if ($s->for_sale && !$s->sold_at && $s->flipit_listing_id): ?>
+          <?php $flipitUrl = $s->getFlipitListingUrl(); ?>
+          <?php if ($flipitUrl): ?><a href="<?= e($flipitUrl) ?>" target="_blank" rel="noopener noreferrer" class="badge badge-for-sale" style="display: inline-block; margin-bottom: 8px; margin-left: 6px;"><i class="fa-solid fa-tag" aria-hidden="true"></i> For sale</a><?php endif; ?>
+        <?php endif; ?>
         <?php if ($s->tagline): ?><p class="tagline"><?= e($s->tagline) ?></p><?php endif; ?>
         <div class="startup-meta">
           <?php if ($s->category): ?><span><?= e($s->category) ?></span><?php endif; ?>
@@ -58,6 +62,9 @@ $productImages = $s->product_images ?? [];
 </section>
 
 <div class="wrap">
+  <?php if ($s->for_sale && !$s->sold_at && $s->flipit_listing_id): ?>
+  <p style="font-size: 0.875rem; color: var(--text-muted, #64748b); margin-bottom: 16px;">This startup is listed for sale on <a href="https://flipit.co.zw" target="_blank" rel="noopener noreferrer">FLIPit</a>.</p>
+  <?php endif; ?>
   <?php if (!empty($productImages)): ?>
   <section class="startup-section startup-product-images" aria-labelledby="product-heading">
     <h2 id="product-heading">Product</h2>
