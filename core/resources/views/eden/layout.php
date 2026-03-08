@@ -58,6 +58,10 @@
 
   <div id="edenToastContainer" class="eden-toast-container" aria-live="polite"></div>
 
+  <button type="button" id="backToTop" class="back-to-top" aria-label="Back to top" title="Back to top" hidden>
+    <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
+  </button>
+
   <header class="site-header">
     <div class="wrap header-inner">
       <a href="<?= e(url('/')) ?>" class="logo"><?= e(function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden') ?></a>
@@ -322,6 +326,12 @@
   .eden-toast--promo .eden-toast-cta { display: inline-block; margin-top: 8px; font-weight: 600; color: var(--accent); text-decoration: none; font-size: 0.875rem; }
   .eden-toast--promo .eden-toast-cta:hover { text-decoration: underline; }
   @keyframes eden-toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .back-to-top { position: fixed; bottom: 24px; right: 24px; z-index: 9990; width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); color: var(--accent); box-shadow: 0 4px 20px rgba(0,0,0,0.15); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s; opacity: 0; pointer-events: none; }
+  .back-to-top[hidden] { display: none !important; }
+  .back-to-top.is-visible { opacity: 1; pointer-events: auto; }
+  .back-to-top:hover { background: var(--surface-hover); box-shadow: 0 6px 24px rgba(0,0,0,0.2); transform: translateY(-2px); }
+  .back-to-top:active { transform: translateY(0); }
+  .back-to-top i { font-size: 1.125rem; }
   </style>
 
   <script>
@@ -440,6 +450,26 @@
           }
         });
       });
+    })();
+    (function() {
+      var backToTop = document.getElementById('backToTop');
+      if (backToTop) {
+        var scrollThreshold = 400;
+        function updateVisibility() {
+          if (window.scrollY > scrollThreshold) {
+            backToTop.removeAttribute('hidden');
+            backToTop.classList.add('is-visible');
+          } else {
+            backToTop.classList.remove('is-visible');
+            backToTop.setAttribute('hidden', '');
+          }
+        }
+        window.addEventListener('scroll', function() { updateVisibility(); }, { passive: true });
+        updateVisibility();
+        backToTop.addEventListener('click', function() {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      }
     })();
     (function() {
       var container = document.getElementById('edenToastContainer');
