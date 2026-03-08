@@ -122,6 +122,8 @@ Route::middleware('auth')->prefix('founder')->name('founder.')->group(function (
     Route::delete('blog/{post}', [FounderBlogController::class, 'destroy'])->name('blog.destroy');
     Route::get('upvotes', [UpvotesController::class, 'index'])->name('upvotes');
     Route::get('analytics', [AnalyticsController::class, 'index'])->name('analytics');
+    Route::get('analytics/export/csv', [AnalyticsController::class, 'exportCsv'])->name('analytics.export.csv');
+    Route::get('analytics/export/pdf', [AnalyticsController::class, 'exportPdf'])->name('analytics.export.pdf');
     Route::get('badges', [FounderBadgesController::class, 'index'])->name('badges');
     Route::get('revenue-api', [FounderRevenueApiController::class, 'index'])->name('revenue-api');
     Route::post('revenue-api/startups/{startup}/create-key', [FounderRevenueApiController::class, 'createKey'])->name('revenue-api.create-key');

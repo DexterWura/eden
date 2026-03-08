@@ -1,6 +1,11 @@
 <h1 class="dash-page-title">Analytics</h1>
-<div class="dash-welcome">
-  <strong>Pro Analytics</strong> — Track views, revenue, upvotes, comments, and more across your startups. Stock-market style charts for quick insights.
+<div class="dash-welcome" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;">
+  <span><strong>Pro Analytics</strong> — Track views, revenue, upvotes, comments, and more across your startups. Stock-market style charts for quick insights.</span>
+  <div class="analytics-export-wrap" style="display: flex; align-items: center; gap: 8px;">
+    <a href="{{ route('founder.analytics.export.csv') }}" class="dash-btn dash-btn-secondary" style="text-decoration: none; font-size: 0.875rem;"><i class="fa-solid fa-file-csv"></i> CSV</a>
+    <a href="{{ route('founder.analytics.export.pdf') }}" class="dash-btn dash-btn-secondary" style="text-decoration: none; font-size: 0.875rem;"><i class="fa-solid fa-file-pdf"></i> PDF</a>
+    <button type="button" id="analyticsExportPng" class="dash-btn dash-btn-secondary" style="font-size: 0.875rem;"><i class="fa-solid fa-image"></i> PNG</button>
+  </div>
 </div>
 
 @php
@@ -194,8 +199,10 @@
     tooltip: { theme: isDark ? 'dark' : 'light' }
   };
 
+  var chartInstances = [];
+
   if (document.getElementById('revenueChart')) {
-    new ApexCharts(document.getElementById('revenueChart'), {
+    var ch = new ApexCharts(document.getElementById('revenueChart'), {
       series: [{ name: 'Revenue', data: revenueSeries }],
       chart: { type: 'area', height: 280, toolbar: { show: true }, zoom: { enabled: true } },
       stroke: { curve: 'smooth', width: 2 },
@@ -203,22 +210,26 @@
       dataLabels: { enabled: false },
       xaxis: { categories: dates.map(function(d) { return d.slice(5); }) },
       ...commonOptions
-    }).render();
+    });
+    chartInstances.push({ chart: ch, name: 'eden-revenue' });
+    ch.render();
   }
 
   if (document.getElementById('upvotesChart')) {
-    new ApexCharts(document.getElementById('upvotesChart'), {
+    var ch = new ApexCharts(document.getElementById('upvotesChart'), {
       series: [{ name: 'Upvotes', data: upvotesSeries }],
       chart: { type: 'bar', height: 240 },
       plotOptions: { bar: { columnWidth: '60%', borderRadius: 4 } },
       dataLabels: { enabled: false },
       xaxis: { categories: dates.map(function(d) { return d.slice(5); }) },
       ...commonOptions
-    }).render();
+    });
+    chartInstances.push({ chart: ch, name: 'eden-upvotes' });
+    ch.render();
   }
 
   if (document.getElementById('commentsChart')) {
-    new ApexCharts(document.getElementById('commentsChart'), {
+    var ch = new ApexCharts(document.getElementById('commentsChart'), {
       series: [{ name: 'Comments', data: commentsSeries }],
       chart: { type: 'bar', height: 240 },
       plotOptions: { bar: { columnWidth: '60%', borderRadius: 4 } },
@@ -226,13 +237,15 @@
       xaxis: { categories: dates.map(function(d) { return d.slice(5); }) },
       colors: ['#6366f1'],
       ...commonOptions
-    }).render();
+    });
+    chartInstances.push({ chart: ch, name: 'eden-comments' });
+    ch.render();
   }
 
   var metrics = @json($startupMetrics);
   if (document.getElementById('startupComparisonChart') && metrics.length > 0) {
     var names = metrics.map(function(m) { return m.name.length > 18 ? m.name.slice(0, 15) + '…' : m.name; });
-    new ApexCharts(document.getElementById('startupComparisonChart'), {
+    var ch = new ApexCharts(document.getElementById('startupComparisonChart'), {
       series: [
         { name: 'Views', data: metrics.map(function(m) { return m.views; }) },
         { name: 'Upvotes', data: metrics.map(function(m) { return m.upvotes; }) },
@@ -245,8 +258,45 @@
       legend: { position: 'top' },
       colors: [accentColor, '#6366f1', '#f59e0b', '#10b981'],
       ...commonOptions
-    }).render();
+    });
+    chartInstances.push({ chart: ch, name: 'eden-comparison' });
+    ch.render();
   }
+
+  function downloadUri(uri, filename) {
+    var a = document.createElement('a');
+    a.href = uri;
+    a.download = filename;
+    a.target = '_blank';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  document.getElementById('analyticsExportPng')?.addEventListener('click', function() {
+    if (chartInstances.length === 0) return;
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Preparing…';
+    var i = 0;
+    function next() {
+      if (i >= chartInstances.length) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-image"></i> PNG';
+        return;
+      }
+      var item = chartInstances[i];
+      item.chart.dataURI().then(function(opts) {
+        downloadUri(opts.imgURI, item.name + '.png');
+        i++;
+        setTimeout(next, 300);
+      }).catch(function() {
+        i++;
+        next();
+      });
+    }
+    next();
+  });
 })();
 </script>
 @endif
