@@ -85,6 +85,8 @@ class HomeController extends EdenController
         $showTrustedByBlock = $featuredFounders->isNotEmpty();
         $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->select('startups.id')->pluck('id')->toArray() : [];
 
+        $itemListSchema = $this->buildStartupItemListSchema($allStartups->take(20), 'Startups on ' . (function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden'));
+
         return $this->page('home', null, 'scripts-home', [
             'launchingToday' => $launchingToday,
             'featuredProducts' => $featuredProducts,
@@ -106,7 +108,30 @@ class HomeController extends EdenController
             'showTrustedByBlock' => $showTrustedByBlock,
             'featuredFounders' => $featuredFounders,
             'savedStartupIds' => $savedStartupIds,
-        ]);
+        ], $itemListSchema ? ['structuredData' => [$itemListSchema]] : []);
+    }
+
+    private function buildStartupItemListSchema($startups, string $name): ?array
+    {
+        if ($startups->isEmpty()) {
+            return null;
+        }
+        $items = [];
+        foreach ($startups as $i => $s) {
+            $items[] = [
+                '@type' => 'ListItem',
+                'position' => $i + 1,
+                'url' => url('/startup/' . $s->slug),
+                'name' => $s->name,
+            ];
+        }
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'ItemList',
+            'name' => $name,
+            'numberOfItems' => $startups->count(),
+            'itemListElement' => $items,
+        ];
     }
 
     public function leaderboard(Request $request)
@@ -119,13 +144,14 @@ class HomeController extends EdenController
         $startups = $this->startupService->getLeaderboard($sortBy, 50, null, false, $locationFilter);
         $browseLocations = $this->startupService->getLocationsWithCounts();
 
+        $itemListSchema = $this->buildStartupItemListSchema($startups, 'Startup leaderboard');
         return $this->page('leaderboard', 'Leaderboard', null, [
             'startups' => $startups,
             'sortBy' => $sortBy,
             'locationFilter' => $locationFilter,
             'browseLocations' => $browseLocations,
             'productOfDayId' => $this->startupService->getProductOfDayId(),
-        ]);
+        ], $itemListSchema ? ['structuredData' => [$itemListSchema]] : []);
     }
 
     public function raising(Request $request)
@@ -135,13 +161,14 @@ class HomeController extends EdenController
         $categories = $this->startupService->getCategoriesWithCounts();
 
         $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->select('startups.id')->pluck('id')->toArray() : [];
+        $itemListSchema = $this->buildStartupItemListSchema($startups, 'Startups raising funding');
         return $this->page('raising', 'Startups raising funding', null, [
             'startups' => $startups,
             'categories' => $categories,
             'categoryFilter' => $categoryFilter,
             'productOfDayId' => $this->startupService->getProductOfDayId(),
             'savedStartupIds' => $savedStartupIds,
-        ]);
+        ], $itemListSchema ? ['structuredData' => [$itemListSchema]] : []);
     }
 
     public function forSale(Request $request)
@@ -149,10 +176,11 @@ class HomeController extends EdenController
         $startups = $this->startupService->getForSale();
 
         $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->select('startups.id')->pluck('id')->toArray() : [];
+        $itemListSchema = $this->buildStartupItemListSchema($startups, 'Startups for sale');
         return $this->page('for-sale', 'Startups for sale', null, [
             'startups' => $startups,
             'productOfDayId' => $this->startupService->getProductOfDayId(),
             'savedStartupIds' => $savedStartupIds,
-        ]);
+        ], $itemListSchema ? ['structuredData' => [$itemListSchema]] : []);
     }
 }

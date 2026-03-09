@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" itemscope itemtype="https://schema.org/WebPage">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,6 +11,7 @@
     $metaKeywordsFinal = isset($metaKeywords) ? $metaKeywords : (function_exists('gs') && gs('meta_keywords') ? gs('meta_keywords') : '');
     $seoImageUrl = isset($metaImage) ? $metaImage : (function_exists('gs') && gs('seo_image') ? url(asset(gs('seo_image'))) : '');
     $canonicalUrl = isset($canonicalUrl) ? $canonicalUrl : url()->current();
+    $baseUrl = rtrim(url('/'), '/');
   ?>
   <title><?= e($pageTitleFinal) ?></title>
   <link rel="icon" type="image/png" href="<?= e(asset('images/favicon.png')) ?>">
@@ -25,15 +26,51 @@
   <meta property="og:title" content="<?= e($pageTitleFinal) ?>">
   <meta property="og:description" content="<?= e($socialDesc) ?>">
   <meta property="og:site_name" content="<?= e($siteName) ?>">
-  <?php if ($seoImageUrl): ?><meta property="og:image" content="<?= e($seoImageUrl) ?>"><?php endif; ?>
+  <meta property="og:locale" content="en_US">
+  <?php if ($seoImageUrl): ?>
+  <meta property="og:image" content="<?= e($seoImageUrl) ?>">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="<?= e($siteName . ' – Startup directory') ?>">
+  <?php endif; ?>
   <meta name="twitter:card" content="<?= $seoImageUrl ? 'summary_large_image' : 'summary' ?>">
   <meta name="twitter:title" content="<?= e($pageTitleFinal) ?>">
   <meta name="twitter:description" content="<?= e($socialDesc) ?>">
   <?php if ($seoImageUrl): ?><meta name="twitter:image" content="<?= e($seoImageUrl) ?>"><?php endif; ?>
-  <?php if (isset($structuredData) && is_array($structuredData) && !empty($structuredData)): ?>
-  <?php $structuredDataJson = isset($structuredData[0]) && is_array($structuredData[0]) ? $structuredData : [$structuredData]; ?>
-  <script type="application/ld+json"><?= json_encode($structuredDataJson, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?></script>
-  <?php endif; ?>
+  <?php
+    $siteSchema = [
+      '@context' => 'https://schema.org',
+      '@graph' => [
+        [
+          '@type' => 'Organization',
+          '@id' => $baseUrl . '/#organization',
+          'name' => $siteName,
+          'url' => $baseUrl . '/',
+          'logo' => ['@type' => 'ImageObject', 'url' => url(asset('images/favicon.png'))],
+        ],
+        [
+          '@type' => 'WebSite',
+          '@id' => $baseUrl . '/#website',
+          'url' => $baseUrl . '/',
+          'name' => $siteName,
+          'description' => $metaDesc,
+          'publisher' => ['@id' => $baseUrl . '/#organization'],
+          'potentialAction' => [
+            '@type' => 'SearchAction',
+            'target' => ['@type' => 'EntryPoint', 'urlTemplate' => $baseUrl . '/?q={search_term_string}'],
+            'query-input' => 'required name=search_term_string',
+          ],
+        ],
+      ],
+    ];
+    $allStructured = [$siteSchema];
+    if (isset($structuredData) && is_array($structuredData) && !empty($structuredData)) {
+      foreach ((isset($structuredData[0]) && is_array($structuredData[0]) ? $structuredData : [$structuredData]) as $sd) {
+        $allStructured[] = $sd;
+      }
+    }
+  ?>
+  <script type="application/ld+json"><?= json_encode($allStructured, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">

@@ -19,7 +19,8 @@
         </div>
         <div>
           <label for="meta_description" class="dash-label">Meta description</label>
-          <textarea id="meta_description" name="meta_description" rows="2" class="dash-input" placeholder="Short description for search results (e.g. 150–160 chars).">{{ old('meta_description', $seo->meta_description ?? '') }}</textarea>
+          <textarea id="meta_description" name="meta_description" rows="2" class="dash-input" maxlength="160" placeholder="Short description for search results. 150–160 chars is optimal for Google.">{{ old('meta_description', $seo->meta_description ?? '') }}</textarea>
+          <p class="dash-hint" style="margin-top: 4px;"><span id="meta_desc_count">0</span>/160 — optimal length for Google search snippets.</p>
           @error('meta_description') <span class="dash-error">{{ $message }}</span> @enderror
         </div>
         <div>
@@ -45,6 +46,16 @@
           </div>
         </div>
         <script>
+        (function() {
+          var metaDesc = document.getElementById('meta_description');
+          var countEl = document.getElementById('meta_desc_count');
+          if (metaDesc && countEl) {
+            function updateCount() { countEl.textContent = (metaDesc.value || '').length; }
+            metaDesc.addEventListener('input', updateCount);
+            metaDesc.addEventListener('change', updateCount);
+            updateCount();
+          }
+        })();
         (function() {
           var input = document.getElementById('seo_image');
           var preview = document.getElementById('seo_image_preview');

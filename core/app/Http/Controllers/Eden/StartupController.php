@@ -20,11 +20,12 @@ class StartupController extends EdenController
     {
         $startups = $this->startupService->getLaunchingToday();
         $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->select('startups.id')->pluck('id')->toArray() : [];
+        $itemListSchema = $this->buildStartupItemListSchema($startups, 'Startups launching today');
         return $this->page('launching-today', 'Launching today', 'scripts-launching-today', [
             'startups' => $startups,
             'productOfDayId' => $this->startupService->getProductOfDayId(),
             'savedStartupIds' => $savedStartupIds,
-        ]);
+        ], $itemListSchema ? ['structuredData' => [$itemListSchema]] : []);
     }
 
     public function show(string $slug)
@@ -49,6 +50,10 @@ class StartupController extends EdenController
         $canonicalUrl = route('startup.show', $startup->slug);
         $keywords = array_filter([$startup->name, $startup->category, $startup->location, $siteName . ' startup directory']);
         $structuredData = $this->startupStructuredData($startup, $canonicalUrl, $metaImage);
+        $structuredData[] = $this->breadcrumbSchema([
+            ['name' => 'Home', 'url' => url('/')],
+            ['name' => $startup->name, 'url' => $canonicalUrl],
+        ]);
 
         $layoutData = [
             'pageTitle' => $pageTitle,
@@ -167,6 +172,47 @@ class StartupController extends EdenController
         }
 
         return [$organization, $product];
+    }
+
+    private function buildStartupItemListSchema($startups, string $name): ?array
+    {
+        if ($startups->isEmpty()) {
+            return null;
+        }
+        $items = [];
+        foreach ($startups as $i => $s) {
+            $items[] = [
+                '@type' => 'ListItem',
+                'position' => $i + 1,
+                'url' => url('/startup/' . $s->slug),
+                'name' => $s->name,
+            ];
+        }
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'ItemList',
+            'name' => $name,
+            'numberOfItems' => $startups->count(),
+            'itemListElement' => $items,
+        ];
+    }
+
+    private function breadcrumbSchema(array $items): array
+    {
+        $listItems = [];
+        foreach ($items as $i => $item) {
+            $listItems[] = [
+                '@type' => 'ListItem',
+                'position' => $i + 1,
+                'name' => $item['name'],
+                'item' => $item['url'],
+            ];
+        }
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => $listItems,
+        ];
     }
 
     public function out(string $slug): RedirectResponse
