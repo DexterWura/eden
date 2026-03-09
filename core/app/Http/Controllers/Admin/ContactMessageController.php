@@ -11,7 +11,11 @@ class ContactMessageController extends Controller
 {
     public function index(Request $request)
     {
-        session(['admin_last_saw_contact_messages' => now()->toDateTimeString()]);
+        $admin = auth()->guard('admin')->user();
+        if ($admin) {
+            $admin->last_saw_contact_messages_at = now();
+            $admin->save();
+        }
 
         $messages = ContactSubmission::query()
             ->orderByDesc('created_at')
@@ -25,7 +29,11 @@ class ContactMessageController extends Controller
 
     public function show(ContactSubmission $submission)
     {
-        session(['admin_last_saw_contact_messages' => now()->toDateTimeString()]);
+        $admin = auth()->guard('admin')->user();
+        if ($admin) {
+            $admin->last_saw_contact_messages_at = now();
+            $admin->save();
+        }
 
         $defaultSubject = $submission->reply_subject ?: 'Re: ' . ($submission->subject ?: 'Your message to Eden');
         $defaultBody = $submission->reply_body ?: "Hi {$submission->name},\n\nThanks for reaching out.\n\n";

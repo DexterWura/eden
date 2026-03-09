@@ -32,6 +32,7 @@ class Admin extends Authenticatable
         'is_super_admin',
         'allowed_modules',
         'status',
+        'last_saw_contact_messages_at',
     ];
 
     /**
@@ -44,6 +45,7 @@ class Admin extends Authenticatable
         'is_super_admin' => 'boolean',
         'allowed_modules' => 'array',
         'status' => 'integer',
+        'last_saw_contact_messages_at' => 'datetime',
     ];
 
     /**

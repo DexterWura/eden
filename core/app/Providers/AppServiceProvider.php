@@ -217,7 +217,10 @@ class AppServiceProvider extends ServiceProvider
                 }
                 try {
                     $lastSawStartups = session('admin_last_saw_startups', '1970-01-01 00:00:00');
-                    $lastSawMessages = session('admin_last_saw_contact_messages', '1970-01-01 00:00:00');
+                    $admin = auth()->guard('admin')->user();
+                    $lastSawMessages = $admin && $admin->last_saw_contact_messages_at
+                        ? $admin->last_saw_contact_messages_at->toDateTimeString()
+                        : '1970-01-01 00:00:00';
                     $view->with([
                         'adminPendingStartupsBadge' => Startup::pending()->where('created_at', '>', $lastSawStartups)->count(),
                         'adminUnseenMessagesBadge' => ContactSubmission::where('created_at', '>', $lastSawMessages)->count(),
