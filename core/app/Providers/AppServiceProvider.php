@@ -5,9 +5,14 @@ namespace App\Providers;
 use App\Constants\Status;
 use App\Lib\Searchable;
 use App\Models\AdminNotification;
+use App\Models\BlogPost;
+use App\Models\Category;
 use App\Models\ContactSubmission;
 use App\Models\Startup;
 use App\Models\Frontend;
+use App\Observers\BlogPostObserver;
+use App\Observers\CategoryObserver;
+use App\Observers\StartupObserver;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
@@ -29,6 +34,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Startup::observe(StartupObserver::class);
+        BlogPost::observe(BlogPostObserver::class);
+        Category::observe(CategoryObserver::class);
+
         // Don't redirect if we're already on the install page
         try {
             $request = request();

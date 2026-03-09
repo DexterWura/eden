@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\BlogPost;
 use App\Models\Startup;
 use Illuminate\Support\Facades\File;
 
@@ -23,6 +24,10 @@ class SitemapService
             ['loc' => $baseUrl . '/categories', 'changefreq' => 'daily', 'priority' => '0.9'],
             ['loc' => $baseUrl . '/launching-today', 'changefreq' => 'daily', 'priority' => '0.9'],
             ['loc' => $baseUrl . '/leaderboard', 'changefreq' => 'daily', 'priority' => '0.9'],
+            ['loc' => $baseUrl . '/pricing', 'changefreq' => 'monthly', 'priority' => '0.8'],
+            ['loc' => $baseUrl . '/raising', 'changefreq' => 'daily', 'priority' => '0.9'],
+            ['loc' => $baseUrl . '/for-sale', 'changefreq' => 'daily', 'priority' => '0.9'],
+            ['loc' => $baseUrl . '/blog', 'changefreq' => 'daily', 'priority' => '0.8'],
         ];
 
         $now = now()->toAtomString();
@@ -42,6 +47,17 @@ class SitemapService
                 'lastmod' => $startup->updated_at?->toAtomString() ?? $now,
                 'changefreq' => 'weekly',
                 'priority' => '0.7',
+            ];
+        }
+
+        $blogPosts = BlogPost::published()->orderBy('updated_at')->get(['slug', 'updated_at', 'published_at']);
+        foreach ($blogPosts as $post) {
+            $lastmod = $post->updated_at?->toAtomString() ?? $post->published_at?->toAtomString() ?? $now;
+            $urls[] = [
+                'loc' => $baseUrl . '/blog/' . $post->slug,
+                'lastmod' => $lastmod,
+                'changefreq' => 'monthly',
+                'priority' => '0.6',
             ];
         }
 
