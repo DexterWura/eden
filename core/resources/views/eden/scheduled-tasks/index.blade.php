@@ -13,9 +13,17 @@
       </li>
       <li>
         Add this line so the scheduler runs every minute (replace the URL with your site&rsquo;s URL if different):
+        @php
+          $cronSecret = env('CRON_SECRET');
+          $cronUrl = url('/cron');
+          if (!empty($cronSecret)) {
+            $cronUrl .= '?secret=' . urlencode($cronSecret);
+          }
+          $cronCommand = '* * * * * curl -s ' . $cronUrl . ' > /dev/null 2>&1';
+        @endphp
         <div class="cron-command-row" style="margin-top: 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
-          <code id="cronCommandCode">* * * * * curl -s {{ url('/cron') }} &gt; /dev/null 2&gt;&amp;1</code>
-          <button type="button" class="dash-btn dash-btn-secondary cron-copy-btn" style="padding: 4px 12px; font-size: 0.8125rem;" data-cron-command="* * * * * curl -s {{ url('/cron') }} > /dev/null 2>&1" title="Copy to clipboard">
+          <code id="cronCommandCode">* * * * * curl -s {{ $cronUrl }} &gt; /dev/null 2&gt;&amp;1</code>
+          <button type="button" class="dash-btn dash-btn-secondary cron-copy-btn" style="padding: 4px 12px; font-size: 0.8125rem;" data-cron-command="{{ $cronCommand }}" title="Copy to clipboard">
             <i class="fa-solid fa-copy" aria-hidden="true"></i> Copy
           </button>
           <span class="cron-copy-feedback" style="font-size: 0.8125rem; color: var(--d-primary); display: none;">Copied!</span>
@@ -27,10 +35,15 @@
       <li>
         If a task stays on <strong>No recent runs</strong>, check that cron is active and that <code>curl</code> can reach your site URL.
       </li>
+      @if(empty(env('CRON_SECRET')))
+      <li>
+        <strong>Security tip:</strong> Add <code>CRON_SECRET=your-secret</code> to your <code>.env</code> file to protect the cron endpoint from unauthorized access. Then use the command shown above (it will include the secret).
+      </li>
+      @endif
       <li>
         <strong>If you see &ldquo;bad command&rdquo; or &ldquo;Invalid crontab file&rdquo;</strong>: paste can add hidden characters. Type the line by hand in crontab, or copy again from the button above. Use this exact line (one line, no line break):
-        <div style="margin-top: 6px; padding: 8px 10px; background: var(--d-bg); border: 1px solid var(--d-border); border-radius: 6px; font-size: 0.8rem; font-family: monospace; word-break: break-all;">* * * * * curl -s {{ url('/cron') }} &gt; /dev/null 2&gt;&amp;1</div>
-        If your server needs the full path to curl, use: <code>* * * * * /usr/bin/curl -s {{ url('/cron') }} &gt; /dev/null 2&gt;&amp;1</code>
+        <div style="margin-top: 6px; padding: 8px 10px; background: var(--d-bg); border: 1px solid var(--d-border); border-radius: 6px; font-size: 0.8rem; font-family: monospace; word-break: break-all;">* * * * * curl -s {{ $cronUrl }} &gt; /dev/null 2&gt;&amp;1</div>
+        If your server needs the full path to curl, use: <code>* * * * * /usr/bin/curl -s {{ $cronUrl }} &gt; /dev/null 2&gt;&amp;1</code>
       </li>
     </ol>
   </div>

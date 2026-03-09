@@ -210,7 +210,7 @@ class StartupController extends Controller
             if (!is_dir($baseDir)) {
                 @mkdir($baseDir, 0755, true);
             }
-            $ext = $request->file('logo')->getClientOriginalExtension();
+            $ext = allowed_image_extension($request->file('logo'));
             $request->file('logo')->move($baseDir, 'logo.' . $ext);
             $updates['logo_path'] = 'images/startups/' . $startup->id . '/logo.' . $ext;
         }
@@ -229,7 +229,8 @@ class StartupController extends Controller
                 if (!$file->isValid()) {
                     continue;
                 }
-                $filename = 'p-' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $ext = allowed_image_extension($file);
+                $filename = 'p-' . uniqid() . '.' . $ext;
                 $file->move($productDir, $filename);
                 $existing[] = 'images/startups/' . $startup->id . '/products/' . $filename;
             }

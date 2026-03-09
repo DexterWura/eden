@@ -160,7 +160,7 @@ class PageController extends EdenController
         $baseDir = public_path('images/startups/' . $startup->id);
         if ($request->hasFile('logo') && $request->file('logo')->isValid()) {
             @mkdir($baseDir, 0755, true);
-            $ext = $request->file('logo')->getClientOriginalExtension();
+            $ext = allowed_image_extension($request->file('logo'));
             $request->file('logo')->move($baseDir, 'logo.' . $ext);
             $startup->update(['logo_path' => 'images/startups/' . $startup->id . '/logo.' . $ext]);
         }
@@ -172,7 +172,8 @@ class PageController extends EdenController
             $paths = [];
             foreach ($productFiles as $file) {
                 if ($file->isValid()) {
-                    $filename = 'p-' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    $ext = allowed_image_extension($file);
+                    $filename = 'p-' . uniqid() . '.' . $ext;
                     $file->move($productDir, $filename);
                     $paths[] = 'images/startups/' . $startup->id . '/products/' . $filename;
                 }

@@ -74,7 +74,7 @@ class StaffController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email',
             'username' => 'required|string|max:255|unique:admins,username',
-            'password' => 'required|min:5|confirmed',
+            'password' => 'required|min:8|confirmed',
             'image' => ['nullable', 'image', new FileTypeValidate(['jpg', 'jpeg', 'png'])],
             'modules' => 'required|array|min:1',
             'modules.*' => 'string|in:' . implode(',', $this->getAssignableModules()),
@@ -149,7 +149,7 @@ class StaffController extends Controller
             'modules.*' => 'string|in:' . implode(',', $this->getAssignableModules()),
         ];
         if ($request->filled('password')) {
-            $rules['password'] = 'required|min:5|confirmed';
+            $rules['password'] = 'required|min:8|confirmed';
         }
         $request->validate($rules, [
             'modules.required' => 'At least one module (role) must be assigned to staff.',

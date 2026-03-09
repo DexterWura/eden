@@ -54,7 +54,7 @@ Route::get('api/eden/v1/track', [EdenTrafficTrackController::class, 'track'])->m
 
 // Admin login accessible at /backoffice (shows login for guests)
 Route::get('/backoffice', [AdminLoginController::class, 'showLoginForm'])->name('admin.login')->middleware('admin.guest');
-Route::post('/backoffice', [AdminLoginController::class, 'login'])->middleware('admin.guest');
+Route::post('/backoffice', [AdminLoginController::class, 'login'])->middleware(['admin.guest', 'throttle:5,1']);
 Route::get('/backoffice/logout', [AdminLoginController::class, 'logout'])->name('admin.logout')->middleware('admin');
 Route::get('/backoffice/password/reset', fn () => redirect()->route('admin.login'))->name('admin.password.reset');
 
@@ -63,9 +63,16 @@ Route::redirect('/founder-dashboard', '/founder', 301);
 Route::redirect('/startup', '/founder', 301);
 
 Route::get('/cron', function () {
+    $secret = env('CRON_SECRET');
+    if ($secret !== '' && $secret !== null) {
+        $provided = request()->query('secret') ?? request()->header('X-Cron-Secret');
+        if (!hash_equals((string) $secret, (string) $provided)) {
+            abort(403);
+        }
+    }
     \Illuminate\Support\Facades\Artisan::call('schedule:run');
     return response('', 204);
-})->name('cron');
+})->middleware('throttle:60,1')->name('cron');
 
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/leaderboard', [HomeController::class, 'leaderboard'])->name('leaderboard');
@@ -77,11 +84,11 @@ Route::get('/about', [PageController::class, 'about']);
 Route::get('/privacy', [PageController::class, 'privacy'])->name('privacy');
 Route::get('/terms', [PageController::class, 'terms'])->name('terms');
 Route::get('/contact', [PageController::class, 'contact']);
-Route::post('/contact', [PageController::class, 'contactStore']);
+Route::post('/contact', [PageController::class, 'contactStore'])->middleware('throttle:10,1');
 Route::get('/submit', [PageController::class, 'submit']);
-Route::post('/submit', [PageController::class, 'submitStore']);
+Route::post('/submit', [PageController::class, 'submitStore'])->middleware('throttle:5,1');
 Route::get('/categories', [PageController::class, 'categories']);
-Route::post('/subscribe', [PageController::class, 'subscribe']);
+Route::post('/subscribe', [PageController::class, 'subscribe'])->middleware('throttle:10,1');
 Route::get('/pricing', [PricingController::class, 'index'])->name('pricing');
 Route::post('/checkout', [PricingController::class, 'checkout'])->middleware('auth');
 Route::get('/checkout/paypal/return', [PricingController::class, 'paypalReturn'])->middleware('auth');
@@ -94,9 +101,9 @@ Route::get('/launching-today', [StartupController::class, 'launchingToday']);
 Route::get('/badge/{type}', [BadgeController::class, 'show'])->name('badge.show')->where('type', 'listed|featured|product-of-day');
 Route::get('/startup/{slug}', [StartupController::class, 'show'])->name('startup.show');
 Route::get('/startup/{slug}/notify', [LaunchNotifyController::class, 'show'])->name('launch-notify.show');
-Route::post('/startup/{slug}/notify', [LaunchNotifyController::class, 'store'])->name('launch-notify.store');
+Route::post('/startup/{slug}/notify', [LaunchNotifyController::class, 'store'])->middleware('throttle:10,1')->name('launch-notify.store');
 Route::get('/startup/{slug}/out', [StartupController::class, 'out']);
-Route::post('/startup/{slug}/upvote', [StartupController::class, 'upvote'])->name('startup.upvote');
+Route::post('/startup/{slug}/upvote', [StartupController::class, 'upvote'])->middleware('throttle:30,1')->name('startup.upvote');
 Route::post('/startup/{slug}/save', [SavedStartupController::class, 'save'])->name('startup.save')->middleware('auth');
 Route::post('/startup/{slug}/unsave', [SavedStartupController::class, 'unsave'])->name('startup.unsave')->middleware('auth');
 Route::post('/startup/{slug}/comment', [StartupCommentController::class, 'store'])->name('startup.comment')->middleware('auth');
@@ -144,9 +151,9 @@ Route::middleware('auth')->prefix('founder')->name('founder.')->group(function (
 });
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login')->middleware('guest');
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register')->middleware('guest');
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/auth/social/{provider}', [SocialiteController::class, 'socialLogin'])->name('user.social.login')->where('provider', 'google|facebook|linkedin|twitter');
 Route::get('/auth/social/callback/{provider}', [SocialiteController::class, 'callback'])->name('user.social.login.callback')->where('provider', 'google|facebook|linkedin|twitter');

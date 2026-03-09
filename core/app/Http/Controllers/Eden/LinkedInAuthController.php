@@ -21,7 +21,10 @@ class LinkedInAuthController extends Controller
         }
 
         if ($request->has('redirect')) {
-            session()->put('linkedin_auth_redirect', $request->query('redirect'));
+            $redirect = $request->query('redirect');
+            if ($this->isSafeRedirect($redirect)) {
+                session()->put('linkedin_auth_redirect', $redirect);
+            }
         }
 
         return Socialite::driver('linkedin-openid')->redirect();
@@ -68,6 +71,9 @@ class LinkedInAuthController extends Controller
         }
 
         $redirectTo = session()->pull('linkedin_auth_redirect', route('founder.dashboard'));
+        if (!$this->isSafeRedirect($redirectTo)) {
+            $redirectTo = route('founder.dashboard');
+        }
         return redirect($redirectTo);
     }
 
@@ -96,5 +102,20 @@ class LinkedInAuthController extends Controller
         return $general
             && !empty(trim((string) ($general->linkedin_client_id ?? '')))
             && !empty(trim((string) ($general->linkedin_client_secret ?? '')));
+    }
+
+    private function isSafeRedirect(?string $url): bool
+    {
+        if ($url === null || trim($url) === '') {
+            return false;
+        }
+        $url = trim($url);
+        if (str_starts_with($url, '/') && !str_starts_with($url, '//')) {
+            return true;
+        }
+        $appHost = parse_url(config('app.url'), PHP_URL_HOST);
+        $parsed = parse_url($url);
+        $urlHost = $parsed['host'] ?? null;
+        return $urlHost !== null && strtolower($urlHost) === strtolower($appHost);
     }
 }

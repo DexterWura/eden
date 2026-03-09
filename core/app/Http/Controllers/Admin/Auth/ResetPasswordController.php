@@ -30,7 +30,7 @@ class ResetPasswordController extends Controller
         $request->validate([
             'email' => 'required|email',
             'token' => 'required',
-            'password' => 'required|confirmed|min:4',
+            'password' => 'required|confirmed|min:8',
         ]);
 
         $reset = AdminPasswordReset::where('token', $request->token)->orderBy('created_at', 'desc')->first();

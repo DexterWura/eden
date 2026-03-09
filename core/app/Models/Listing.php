@@ -581,9 +581,16 @@ class Listing extends Model
             }
         }
 
-        // Apply sorting
+        // Apply sorting - whitelist to prevent SQL injection
+        $allowedSort = ['created_at', 'updated_at', 'asking_price', 'view_count', 'price', 'views', 'ending_soon'];
         $sortBy = $filters['sort'] ?? 'created_at';
-        $sortDirection = $filters['direction'] ?? 'desc';
+        if (!in_array($sortBy, $allowedSort, true)) {
+            $sortBy = 'created_at';
+        }
+        $sortDirection = strtolower($filters['direction'] ?? 'desc');
+        if (!in_array($sortDirection, ['asc', 'desc'], true)) {
+            $sortDirection = 'desc';
+        }
 
         switch ($sortBy) {
             case 'price':
@@ -600,7 +607,8 @@ class Listing extends Model
                 $query->auction()->orderBy('auction_end', 'asc');
                 break;
             default:
-                $query->orderBy($sortBy, $sortDirection);
+                $safeColumn = $sortBy === 'created_at' ? 'created_at' : ($sortBy === 'updated_at' ? 'updated_at' : 'asking_price');
+                $query->orderBy($safeColumn, $sortDirection);
         }
 
         return $query;

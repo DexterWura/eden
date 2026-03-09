@@ -60,6 +60,16 @@ function normalizeUrl($url)
 }
 
 /**
+ * Get a safe image file extension from an uploaded file (whitelist to prevent path traversal).
+ */
+function allowed_image_extension(\Illuminate\Http\UploadedFile $file): string
+{
+    $allowed = ['jpeg', 'jpg', 'png', 'gif', 'webp'];
+    $ext = strtolower($file->getClientOriginalExtension() ?? '');
+    return in_array($ext, $allowed, true) ? $ext : ($file->guessExtension() ?: 'jpg');
+}
+
+/**
  * Extract clean domain name from URL
  */
 function extractDomain($url)

@@ -172,11 +172,15 @@ class StartupController extends Controller
                 if (! is_dir($dir)) {
                     @mkdir($dir, 0755, true);
                 }
-                $filename = 'f-' . uniqid() . '-' . $i . '.' . $photos[$i]->getClientOriginalExtension();
+                $ext = allowed_image_extension($photos[$i]);
+                $filename = 'f-' . uniqid() . '-' . $i . '.' . $ext;
                 $photos[$i]->move($dir, $filename);
                 $photoUrl = 'images/startups/founders/' . $filename;
             } elseif (! empty(trim($photoUrls[$i] ?? ''))) {
-                $photoUrl = trim($photoUrls[$i]);
+                $candidate = trim($photoUrls[$i]);
+                if ($this->isSafePhotoUrl($candidate)) {
+                    $photoUrl = $candidate;
+                }
             } elseif (isset($existing[$i]) && is_array($existing[$i]) && ! empty($existing[$i]['photo_url'])) {
                 $photoUrl = $existing[$i]['photo_url'];
             }
@@ -232,7 +236,7 @@ class StartupController extends Controller
             if (!is_dir($baseDir)) {
                 @mkdir($baseDir, 0755, true);
             }
-            $ext = $request->file('logo')->getClientOriginalExtension();
+            $ext = allowed_image_extension($request->file('logo'));
             $request->file('logo')->move($baseDir, 'logo.' . $ext);
             $updates['logo_path'] = 'images/startups/' . $startup->id . '/logo.' . $ext;
         }
@@ -251,7 +255,8 @@ class StartupController extends Controller
                 if (!$file->isValid()) {
                     continue;
                 }
-                $filename = 'p-' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $ext = allowed_image_extension($file);
+                $filename = 'p-' . uniqid() . '.' . $ext;
                 $file->move($productDir, $filename);
                 $existing[] = 'images/startups/' . $startup->id . '/products/' . $filename;
             }
@@ -404,6 +409,21 @@ class StartupController extends Controller
             'scriptDeps' => '<script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>',
             'notifyPartial' => view('partials.notify')->render(),
         ]);
+    }
+
+    private function isSafePhotoUrl(string $url): bool
+    {
+        $lower = strtolower($url);
+        if (str_starts_with($lower, 'javascript:') || str_starts_with($lower, 'data:')) {
+            return false;
+        }
+        if (str_starts_with($lower, 'http://') || str_starts_with($lower, 'https://')) {
+            return filter_var($url, FILTER_VALIDATE_URL) !== false;
+        }
+        if (str_starts_with($url, '/') && !str_starts_with($url, '//')) {
+            return true;
+        }
+        return false;
     }
 
     private function getFoundersWithLinkedIn(Startup $startup): array
