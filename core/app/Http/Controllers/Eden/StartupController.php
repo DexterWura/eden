@@ -222,7 +222,9 @@ class StartupController extends EdenController
             return redirect()->to(url('/startup/' . $slug))->with('error', 'Startup or website not found.');
         }
         $startup->increment('clicks');
-        return redirect()->away($startup->website);
+        $website = $startup->website;
+        $separator = str_contains($website, '?') ? '&' : '?';
+        return redirect()->away($website . $separator . 'ref=eden');
     }
 
     public function upvote(Request $request, string $slug): RedirectResponse|JsonResponse
