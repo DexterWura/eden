@@ -14,7 +14,7 @@ class CheckStartupWebsites extends Command
 
     protected $description = 'Ping startup websites (every 3 days per startup); mark dormant after 3 consecutive failures; delete if dormant too long';
 
-    private const PING_TIMEOUT_SECONDS = 10;
+    private const PING_TIMEOUT_SECONDS = 25;
 
     private const CHECK_INTERVAL_DAYS = 3;
 
@@ -128,7 +128,23 @@ class CheckStartupWebsites extends Command
     {
         try {
             $response = Http::timeout(self::PING_TIMEOUT_SECONDS)
-                ->connectTimeout(5)
+                ->connectTimeout(10)
+                ->withOptions(['verify' => false])
+                ->get($url);
+
+            if ($response->successful()) {
+                return true;
+            }
+        } catch (\Throwable $e) {
+            // fall through to retry below
+        }
+
+        // Retry once after a short delay to tolerate transient issues
+        sleep(2);
+
+        try {
+            $response = Http::timeout(self::PING_TIMEOUT_SECONDS)
+                ->connectTimeout(10)
                 ->withOptions(['verify' => false])
                 ->get($url);
 

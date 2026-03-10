@@ -36,6 +36,13 @@ Schedule::command('eden:run-scheduled-tasks')
     ->onOneServer()
     ->appendOutputTo(storage_path('logs/eden-scheduled-tasks.log'));
 
+// Daily sitemap generation - ensure sitemap.xml is regenerated once per day
+Schedule::command('sitemap:generate')
+    ->dailyAt('01:00')
+    ->withoutOverlapping(30)
+    ->onOneServer()
+    ->appendOutputTo(storage_path('logs/sitemap-generate.log'));
+
 // Process ending auctions - run every minute (always enabled)
 Schedule::command('auctions:process-ending --minutes=5')
     ->everyMinute()
