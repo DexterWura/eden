@@ -69,7 +69,10 @@ $productImages = $s->product_images ?? [];
           </form>
           <?php endif; ?>
           <?php endif; ?>
+          <?php $showClaimButton = empty($s->user_id) && empty($s->founder_email); ?>
+          <?php if ($showClaimButton): ?>
           <a href="<?= e(route('startup.claim', $s->slug)) ?>" class="btn btn-ghost" style="margin-left: 4px;"><i class="fa-solid fa-hand-holding-hand" aria-hidden="true"></i> Claim this startup</a>
+          <?php endif; ?>
           <div class="share-ui share-ui--inline" style="margin-left: 8px; position: relative; display: inline-block;">
             <button type="button" class="btn btn-ghost share-btn-trigger" id="shareTrigger" aria-label="Share" aria-expanded="false" aria-haspopup="true"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i> Share</button>
             <div class="share-dropdown" id="shareDropdown" role="menu" aria-label="Share options" hidden>
@@ -247,7 +250,9 @@ $productImages = $s->product_images ?? [];
   </section>
 
   <div class="cta-strip">
+    <?php if ($showClaimButton ?? (empty($s->user_id) && empty($s->founder_email))): ?>
     <a href="<?= e(route('startup.claim', $s->slug)) ?>" class="btn btn-primary"><i class="fa-solid fa-hand-holding-hand" aria-hidden="true"></i> Claim this startup</a>
+    <?php endif; ?>
     <a href="<?= e(url('/')) ?>" class="btn btn-ghost">Browse more startups</a>
     <a href="<?= e(url('/submit')) ?>" class="btn btn-primary">Submit your startup</a>
   </div>
