@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Eden;
 
 use App\Models\BlogPost;
+use App\Models\AdSpot;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -15,6 +16,8 @@ class BlogController extends EdenController
             ->paginate(12)
             ->withQueryString();
 
+        $blogAd = AdSpot::activeForPlacement('blog_banner_1')->first();
+
         $siteName = function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden';
         $pageTitle = 'Blog — ' . $siteName;
         $metaDescription = function_exists('gs') && gs('meta_description') ? gs('meta_description') : 'Articles and updates from ' . $siteName . '.';
@@ -24,7 +27,10 @@ class BlogController extends EdenController
             'pageTitle' => $pageTitle,
             'metaDescription' => $metaDescription,
             'canonicalUrl' => url('/blog'),
-            'content' => view('eden.blog.list', ['posts' => $posts])->render(),
+            'content' => view('eden.blog.list', [
+                'posts' => $posts,
+                'blogAd' => $blogAd,
+            ])->render(),
             'scripts' => '',
         ]);
     }
