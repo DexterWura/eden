@@ -11,9 +11,14 @@ $blogAd = $blogAd ?? null;
 
 <div class="wrap content-block">
   <?php if ($blogAd): ?>
+  <?php
+    $blogAdPath = $blogAd->image_path ?? '';
+    $blogAdIsExternal = is_string($blogAdPath) && ($blogAdPath !== '') && (str_starts_with($blogAdPath, 'http://') || str_starts_with($blogAdPath, 'https://'));
+    $blogAdSrc = $blogAdIsExternal ? $blogAdPath : asset($blogAdPath);
+  ?>
   <div class="blog-ad-spot" style="margin-bottom: 24px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border, #e2e8f0); background: #0f172a;">
     <a href="<?= e($blogAd->target_url) ?>" target="_blank" rel="noopener noreferrer" style="display: block;">
-      <img src="<?= e(asset($blogAd->image_path)) ?>" alt="Sponsored ad" style="display: block; width: 100%; max-width: 728px; height: auto; margin: 0 auto;">
+      <img src="<?= e($blogAdSrc) ?>" alt="Sponsored ad" style="display: block; width: 100%; max-width: 728px; height: auto; margin: 0 auto;">
     </a>
   </div>
   <?php else: ?>
