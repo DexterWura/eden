@@ -21,8 +21,8 @@ class HomeController extends EdenController
         $searchQuery = $request->query('q');
 
         if ($searchQuery !== null && trim($searchQuery) !== '') {
-            $searchResults = $this->startupService->search(trim($searchQuery), $categoryFilter, $locationFilter, 100);
-            $allStartups = $searchResults->getCollection();
+            $searchResults = $this->startupService->search(trim($searchQuery), $categoryFilter, $locationFilter, 50);
+            $allStartups = $searchResults;
             $launchingToday = collect();
             $featuredProducts = collect();
             $justListed = collect();
@@ -34,11 +34,11 @@ class HomeController extends EdenController
             $justListed = $this->startupService->getJustListed($categoryFilter, $featuredOnly, 8, $locationFilter);
 
             if ($featuredOnly) {
-                $allStartups = $this->startupService->getFeatured($categoryFilter, 500, $locationFilter);
+                $allStartups = $this->startupService->getFeaturedPaginated($categoryFilter, 50, $locationFilter);
             } elseif ($sortNewest) {
-                $allStartups = $this->startupService->getJustListed($categoryFilter, false, 500, $locationFilter);
+                $allStartups = $this->startupService->getJustListedPaginated($categoryFilter, false, 50, $locationFilter);
             } else {
-                $allStartups = $this->startupService->getAllStartups($categoryFilter, $locationFilter);
+                $allStartups = $this->startupService->getAllStartupsPaginated($categoryFilter, $locationFilter, 50);
             }
 
             $leaderboardSort = $request->query('leaderboard_sort', 'upvotes');
@@ -85,7 +85,7 @@ class HomeController extends EdenController
         $showTrustedByBlock = $featuredFounders->isNotEmpty();
         $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->select('startups.id')->pluck('id')->toArray() : [];
 
-        $itemListSchema = $this->buildStartupItemListSchema($allStartups->take(20), 'Startups on ' . (function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden'));
+        $itemListSchema = $this->buildStartupItemListSchema($allStartups instanceof \Illuminate\Contracts\Pagination\Paginator ? collect($allStartups->items())->take(20) : $allStartups->take(20), 'Startups on ' . (function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden'));
 
         return $this->page('home', null, 'scripts-home', [
             'launchingToday' => $launchingToday,

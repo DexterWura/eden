@@ -46,6 +46,18 @@ class StartupService
         return $query->get();
     }
 
+    public function getAllStartupsPaginated(?string $category = null, ?string $location = null, int $perPage = 50)
+    {
+        $query = $this->withFunding()->active()->orderByDesc('upvotes');
+        if ($category !== null && $category !== '') {
+            $query->byCategory($category);
+        }
+        if ($location !== null && trim($location) !== '') {
+            $query->where('location', 'like', '%' . trim($location) . '%');
+        }
+        return $query->paginate($perPage)->withQueryString();
+    }
+
     public function getCategoriesWithCounts(): Collection
     {
         return Startup::active()
@@ -82,6 +94,18 @@ class StartupService
             $query->where('location', 'like', '%' . trim($location) . '%');
         }
         return $query->take($limit)->get();
+    }
+
+    public function getFeaturedPaginated(?string $category = null, int $perPage = 50, ?string $location = null)
+    {
+        $query = $this->withFunding()->active()->featured()->orderByDesc('upvotes');
+        if ($category !== null && $category !== '') {
+            $query->byCategory($category);
+        }
+        if ($location !== null && trim($location) !== '') {
+            $query->where('location', 'like', '%' . trim($location) . '%');
+        }
+        return $query->paginate($perPage)->withQueryString();
     }
 
     /**
@@ -121,6 +145,21 @@ class StartupService
             $query->where('location', 'like', '%' . trim($location) . '%');
         }
         return $query->take($limit)->get();
+    }
+
+    public function getJustListedPaginated(?string $category = null, bool $featuredOnly = false, int $perPage = 50, ?string $location = null)
+    {
+        $query = $this->withFunding()->active()->orderByDesc('created_at');
+        if ($category !== null && $category !== '') {
+            $query->byCategory($category);
+        }
+        if ($featuredOnly) {
+            $query->featured();
+        }
+        if ($location !== null && trim($location) !== '') {
+            $query->where('location', 'like', '%' . trim($location) . '%');
+        }
+        return $query->paginate($perPage)->withQueryString();
     }
 
     public function getRaising(?string $category = null): Collection

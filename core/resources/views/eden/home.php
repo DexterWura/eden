@@ -358,12 +358,12 @@
         include __DIR__ . '/_startup-card.php';
       endforeach;
       ?>
-      <?php if ($allStartups->isEmpty()): ?>
+      <?php if ($allStartups instanceof \Illuminate\Support\Collection && $allStartups->isEmpty()): ?>
       <p class="section-empty"><?= ($searchQuery ?? '') !== '' ? 'No startups match your search. Try different keywords.' : 'No startups yet. <a href="' . e(url('/submit')) . '">Submit your startup</a>.' ?></p>
       <?php endif; ?>
     </div>
-    <?php if (isset($searchResults) && $searchResults && $searchResults->hasPages()): ?>
-    <div class="section-pagination" style="margin-top: 24px;"><?= $searchResults->withQueryString()->links() ?></div>
+    <?php if ($allStartups instanceof \Illuminate\Contracts\Pagination\Paginator && $allStartups->hasPages()): ?>
+    <div class="section-pagination" style="margin-top: 24px;"><?= $allStartups->withQueryString()->links() ?></div>
     <?php endif; ?>
   </section>
 
