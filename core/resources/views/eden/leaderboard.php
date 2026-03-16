@@ -127,7 +127,7 @@ $sortLabel = $sortLabels[$sortBy] ?? 'Upvotes';
       </tbody>
     </table>
     <?php if ($startups && $startups->hasPages()): ?>
-    <div class="leaderboard-pagination">
+    <div class="pagination-container">
       <?= $startups->withQueryString()->links() ?>
     </div>
     <?php endif; ?>

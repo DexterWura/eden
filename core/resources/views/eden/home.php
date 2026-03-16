@@ -363,7 +363,7 @@
       <?php endif; ?>
     </div>
     <?php if ($allStartups instanceof \Illuminate\Contracts\Pagination\Paginator && $allStartups->hasPages()): ?>
-    <div class="section-pagination" style="margin-top: 24px;"><?= $allStartups->withQueryString()->links() ?></div>
+    <div class="pagination-container" style="margin-top: 24px;"><?= $allStartups->withQueryString()->links() ?></div>
     <?php endif; ?>
   </section>
 

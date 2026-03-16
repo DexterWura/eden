@@ -847,13 +847,13 @@ a.hero-trusted-by-avatar:hover {
 .leaderboard-founder-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .leaderboard-founder-initials { font-size: 0.8rem; font-weight: 600; color: var(--accent); }
 .leaderboard-founder-name { font-size: 0.9rem; color: var(--text); }
-.leaderboard-pagination {
+.pagination-container {
   padding: 16px 24px;
   border-top: 1px solid var(--border);
   display: flex;
   justify-content: center;
 }
-.leaderboard-pagination > nav {
+.pagination-container > nav {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -862,13 +862,13 @@ a.hero-trusted-by-avatar:hover {
   width: 100%;
   max-width: 640px;
 }
-.leaderboard-pagination > nav .small,
-.leaderboard-pagination > nav p {
+.pagination-container > nav .small,
+.pagination-container > nav p {
   margin: 0;
   font-size: 0.8125rem;
   color: var(--text-muted);
 }
-.leaderboard-pagination .pagination {
+.pagination {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -877,10 +877,10 @@ a.hero-trusted-by-avatar:hover {
   margin: 0;
   padding: 0;
 }
-.leaderboard-pagination .page-item {
+.page-item {
   display: inline-block;
 }
-.leaderboard-pagination .page-link {
+.page-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -896,18 +896,18 @@ a.hero-trusted-by-avatar:hover {
   text-decoration: none;
   transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
-.leaderboard-pagination .page-item a.page-link:hover {
+.page-item a.page-link:hover {
   background: var(--surface-hover);
   border-color: var(--text-muted);
   color: var(--text);
 }
-.leaderboard-pagination .page-item.active .page-link {
+.page-item.active .page-link {
   background: var(--accent);
   border-color: var(--accent);
   color: #fff;
   cursor: default;
 }
-.leaderboard-pagination .page-item.disabled .page-link {
+.page-item.disabled .page-link {
   opacity: 0.5;
   cursor: not-allowed;
   color: var(--text-muted);
