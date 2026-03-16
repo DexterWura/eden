@@ -177,6 +177,36 @@ class AnalyticsController extends EdenController
         return $pdf->download($filename);
     }
 
+    public function investorUpdate(): Response
+    {
+        $user = auth()->user();
+        if (! $user->isPro()) {
+            abort(403, 'Pro membership required to access investor updates.');
+        }
+
+        $data = $this->gatherAnalyticsData($user);
+        $data['exportedAt'] = Date::now()->toDateTimeString();
+
+        $siteName = function_exists('gs') && gs('site_name') ? (string) gs('site_name') : 'Eden';
+        $data['siteName'] = $siteName;
+
+        $primaryStartup = Startup::visibleToUser($user)->orderBy('name')->first();
+        $data['primaryStartup'] = $primaryStartup;
+
+        return response()->view('eden.layout-dashboard', [
+            'title' => 'Investor update',
+            'sidebar' => 'founder',
+            'activeNav' => 'analytics',
+            'dashboardLogo' => $siteName,
+            'dashboardTopbar' => $primaryStartup ? '<a href="' . url('/startup/' . $primaryStartup->slug) . '" target="_blank" class="dash-account" style="text-decoration:none;">' . e($primaryStartup->name) . ' · Founder</a>' : '',
+            'searchPlaceholder' => "Try searching 'investor update template'",
+            'avatarTitle' => $user->name ?? 'Account',
+            'avatarLetter' => strtoupper(mb_substr($user->name ?? '?', 0, 1)),
+            'notifyPartial' => view('partials.notify')->render(),
+            'content' => view('eden.founder.investor-update', $data)->render(),
+        ]);
+    }
+
     private function gatherAnalyticsData($user): array
     {
         $startupIds = Startup::visibleToUser($user)->pluck('id');

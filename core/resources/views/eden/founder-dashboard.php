@@ -20,9 +20,17 @@
 <?php endforeach; ?>
 <?php endif; ?>
 <div class="dash-welcome">
-  <strong>Welcome back!</strong> Here's an overview of your startups and upvotes.
+  <strong>Welcome back!</strong> Here's an overview of your startups and key metrics.
 </div>
-<?php $myStartups = $myStartups ?? []; $totalUpvotes = $totalUpvotes ?? 0; ?>
+<?php
+  $myStartups = $myStartups ?? [];
+  $totalUpvotes = $totalUpvotes ?? 0;
+  $totalViews = $totalViews ?? 0;
+  $totalClicks = $totalClicks ?? 0;
+  $totalComments = $totalComments ?? 0;
+  $totalRevenue = $totalRevenue ?? 0;
+  $totalMrr = $totalMrr ?? 0;
+?>
 <div class="dash-kpi-row">
   <div class="dash-kpi-card">
     <div class="dash-kpi-label">Total upvotes</div>
@@ -32,6 +40,16 @@
     <div class="dash-kpi-label">Your startups</div>
     <div class="dash-kpi-value"><?= e(count($myStartups)) ?></div>
   </div>
+  <?php if (auth()->user()->isPro()): ?>
+  <div class="dash-kpi-card">
+    <div class="dash-kpi-label">Total views</div>
+    <div class="dash-kpi-value"><?= number_format($totalViews) ?></div>
+  </div>
+  <div class="dash-kpi-card">
+    <div class="dash-kpi-label">MRR</div>
+    <div class="dash-kpi-value">$<?= number_format($totalMrr, 2) ?></div>
+  </div>
+  <?php endif; ?>
 </div>
 <div class="dash-card">
   <div class="dash-card-header">

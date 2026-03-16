@@ -24,7 +24,12 @@
     <div class="dash-kpi-value"><?= e($totalSubscribers ?? 0) ?></div>
   </div>
 </div>
-<?php $heroRequests = $heroRequests ?? collect(); ?>
+<?php
+  $heroRequests = $heroRequests ?? collect();
+  $days = $days ?? 60;
+  $revenueByDay = $revenueByDay ?? [];
+  $usersByDay = $usersByDay ?? [];
+?>
 <?php if ($heroRequests->isNotEmpty()): ?>
 <div class="dash-card" style="border-left:4px solid #f59e0b">
   <div class="dash-card-header">
@@ -115,6 +120,24 @@
 </div>
 <div class="dash-card">
   <div class="dash-card-header">
+    <span class="dash-card-title"><i class="fa-solid fa-wave-square"></i> Money over time</span>
+    <span class="dash-card-subtitle">Last <?= e($days) ?> days · cumulative</span>
+  </div>
+  <div class="dash-card-body">
+    <div id="adminRevenueChart" class="analytics-chart" style="min-height:260px;"></div>
+  </div>
+</div>
+<div class="dash-card">
+  <div class="dash-card-header">
+    <span class="dash-card-title"><i class="fa-solid fa-user-group"></i> Users over time</span>
+    <span class="dash-card-subtitle">New signups per day · last <?= e($days) ?> days</span>
+  </div>
+  <div class="dash-card-body">
+    <div id="adminUsersChart" class="analytics-chart" style="min-height:240px;"></div>
+  </div>
+</div>
+<div class="dash-card">
+  <div class="dash-card-header">
     <span class="dash-card-title">Recent contact messages</span>
     <a href="<?= e(url('/backoffice/contact-messages')) ?>" class="dash-table-link">View all</a>
   </div>
@@ -155,6 +178,92 @@
     <a href="<?= e(url('/backoffice/contact-messages')) ?>">View all contact messages →</a>
   </div>
 </div>
+<script>
+(function() {
+  if (typeof ApexCharts === 'undefined') return;
+
+  var isDark = document.documentElement.classList.contains('dashboard')
+    ? true
+    : (document.documentElement.getAttribute('data-theme') !== 'light');
+  var textColor = isDark ? '#8b90a0' : '#5f6368';
+  var gridColor = isDark ? '#2a2e3d' : '#e8eaed';
+  var accentColor = '#00d4aa';
+
+  function dateRange(days) {
+    var arr = [];
+    for (var i = days - 1; i >= 0; i--) {
+      var d = new Date();
+      d.setDate(d.getDate() - i);
+      arr.push(d.toISOString().slice(0, 10));
+    }
+    return arr;
+  }
+
+  function cumulativeFromDaily(dates, dailyData) {
+    var cum = 0;
+    return dates.map(function(d) {
+      cum += (parseFloat(dailyData[d]) || 0);
+      return cum;
+    });
+  }
+
+  var days = <?= (int) $days ?>;
+  var revenueDaily = <?= json_encode($revenueByDay, JSON_THROW_ON_ERROR) ?>;
+  var usersDaily = <?= json_encode($usersByDay, JSON_THROW_ON_ERROR) ?>;
+  var dates = dateRange(days);
+
+  var revenueSeries = cumulativeFromDaily(dates, revenueDaily);
+  var usersSeries = dates.map(function(d) { return parseInt(usersDaily[d] || 0, 10); });
+
+  var commonOptions = {
+    chart: { fontFamily: 'Outfit, system-ui, sans-serif', background: 'transparent' },
+    grid: { borderColor: gridColor, strokeDashArray: 3 },
+    xaxis: { labels: { style: { colors: textColor } } },
+    yaxis: { labels: { style: { colors: textColor } } },
+    tooltip: { theme: isDark ? 'dark' : 'light' }
+  };
+
+  if (document.getElementById('adminRevenueChart')) {
+    var revChart = new ApexCharts(document.getElementById('adminRevenueChart'), {
+      series: [{ name: 'Total revenue (all startups)', data: revenueSeries }],
+      chart: {
+        type: 'area',
+        height: 260,
+        toolbar: { show: true, tools: { zoom: true, pan: true, reset: true } },
+        zoom: { enabled: true },
+        animations: { enabled: true, easing: 'easeInOutQuart', speed: 600 }
+      },
+      stroke: { curve: 'smooth', width: 2 },
+      fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05 } },
+      dataLabels: { enabled: false },
+      colors: [accentColor],
+      xaxis: { categories: dates.map(function(d) { return d.slice(5); }) },
+      ...commonOptions
+    });
+    revChart.render();
+  }
+
+  if (document.getElementById('adminUsersChart')) {
+    var userChart = new ApexCharts(document.getElementById('adminUsersChart'), {
+      series: [{ name: 'New users', data: usersSeries }],
+      chart: {
+        type: 'line',
+        height: 240,
+        toolbar: { show: true, tools: { zoom: true, pan: true, reset: true } },
+        zoom: { enabled: true },
+        animations: { enabled: true, easing: 'easeInOutQuart', speed: 600 }
+      },
+      stroke: { curve: 'smooth', width: 2 },
+      markers: { size: 0 },
+      dataLabels: { enabled: false },
+      colors: ['#6366f1'],
+      xaxis: { categories: dates.map(function(d) { return d.slice(5); }) },
+      ...commonOptions
+    });
+    userChart.render();
+  }
+})();
+</script>
 <div class="dash-card">
   <div class="dash-card-header">
     <span class="dash-card-title">Quick links</span>

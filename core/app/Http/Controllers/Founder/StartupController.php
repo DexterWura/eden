@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Startup;
 use App\Models\StartupFundingRound;
+use App\Services\GoogleSearchConsoleService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -279,6 +280,8 @@ class StartupController extends Controller
 
     private function rules(?int $excludeId = null): array
     {
+        $gscService = app(GoogleSearchConsoleService::class);
+
         return [
             'name' => ['required', 'string', 'max:255'],
             'tagline' => ['nullable', 'string', 'max:255'],
@@ -312,6 +315,20 @@ class StartupController extends Controller
             'mrr' => ['nullable', 'numeric', 'min:0'],
             'revenue' => ['nullable', 'numeric', 'min:0'],
             'traffic_tracking_enabled' => ['nullable', 'boolean'],
+            'search_console_property' => [
+                'nullable',
+                'string',
+                'max:500',
+                function (string $attribute, mixed $value, \Closure $fail) use ($gscService): void {
+                    $value = is_string($value) ? trim($value) : '';
+                    if ($value === '' || ! $gscService->isConfigured()) {
+                        return;
+                    }
+                    if (! $gscService->verifyPropertyAccessible($value)) {
+                        $fail('Could not verify access to this Google Search Console property. Make sure the API key is configured and the property is shared with the API project.');
+                    }
+                },
+            ],
             'for_sale' => ['nullable', 'boolean'],
             'flipit_listing_url' => [
                 'nullable',

@@ -2,6 +2,7 @@
 <div class="dash-welcome" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;">
   <span><strong>Pro Analytics</strong> — Track views, revenue, upvotes, comments, and more across your startups. Stock-market style charts for quick insights.</span>
   <div class="analytics-export-wrap" style="display: flex; align-items: center; gap: 8px;">
+    <a href="{{ route('founder.analytics.investor-update') }}" class="dash-btn dash-btn-secondary" style="text-decoration: none; font-size: 0.875rem;"><i class="fa-solid fa-envelope-open-text"></i> Investor update</a>
     <a href="{{ route('founder.analytics.export.csv') }}" class="dash-btn dash-btn-secondary" style="text-decoration: none; font-size: 0.875rem;"><i class="fa-solid fa-file-csv"></i> CSV</a>
     <a href="{{ route('founder.analytics.export.pdf') }}" class="dash-btn dash-btn-secondary" style="text-decoration: none; font-size: 0.875rem;"><i class="fa-solid fa-file-pdf"></i> PDF</a>
     <button type="button" id="analyticsExportPng" class="dash-btn dash-btn-secondary" style="font-size: 0.875rem;"><i class="fa-solid fa-image"></i> PNG</button>

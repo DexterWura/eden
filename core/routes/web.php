@@ -41,6 +41,7 @@ use App\Http\Controllers\Eden\FeedController;
 use App\Http\Controllers\Eden\LinkedInAuthController;
 use App\Http\Controllers\Admin\GatewayController;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 
 Route::post('api/eden/v1/revenue', [EdenRevenueController::class, 'record'])
@@ -73,6 +74,11 @@ Route::get('/cron', function () {
         }
     }
     \Illuminate\Support\Facades\Artisan::call('schedule:run');
+    try {
+        Cache::forever('eden_last_cron_at', now());
+    } catch (\Throwable $e) {
+        // best-effort only
+    }
     return response('', 204);
 })->middleware('throttle:60,1')->name('cron');
 
@@ -139,6 +145,7 @@ Route::middleware('auth')->prefix('founder')->name('founder.')->group(function (
     Route::get('analytics', [AnalyticsController::class, 'index'])->name('analytics');
     Route::get('analytics/export/csv', [AnalyticsController::class, 'exportCsv'])->name('analytics.export.csv');
     Route::get('analytics/export/pdf', [AnalyticsController::class, 'exportPdf'])->name('analytics.export.pdf');
+    Route::get('analytics/investor-update', [AnalyticsController::class, 'investorUpdate'])->name('analytics.investor-update');
     Route::get('badges', [FounderBadgesController::class, 'index'])->name('badges');
     Route::get('revenue-api', [FounderRevenueApiController::class, 'index'])->name('revenue-api');
     Route::post('revenue-api/startups/{startup}/create-key', [FounderRevenueApiController::class, 'createKey'])->name('revenue-api.create-key');

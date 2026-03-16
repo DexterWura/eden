@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Eden;
 use App\Models\ContactSubmission;
 use App\Models\Startup;
 use App\Models\Subscriber;
+use App\Models\StartupRevenueEvent;
+use App\Models\StartupComment;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
@@ -21,6 +23,16 @@ class DashboardController extends EdenController
         $user = auth()->user();
         $myStartups = Startup::visibleToUser($user)->orderByDesc('updated_at')->get();
         $totalUpvotes = $myStartups->sum('upvotes');
+        $totalViews = $myStartups->sum('views');
+        $totalClicks = $myStartups->sum('clicks');
+        $totalRevenue = (float) $myStartups->sum('revenue');
+        $totalMrr = (float) $myStartups->sum('mrr');
+
+        $startupIds = $myStartups->pluck('id');
+        $totalComments = $startupIds->isEmpty()
+            ? 0
+            : StartupComment::whereIn('startup_id', $startupIds)->count();
+
         $primaryStartup = $myStartups->first();
         $siteName = $this->siteName();
         $unreadNotifications = $user->unreadNotifications;
@@ -38,6 +50,11 @@ class DashboardController extends EdenController
             'content' => view('eden.founder-dashboard', [
                 'myStartups' => $myStartups,
                 'totalUpvotes' => $totalUpvotes,
+                'totalViews' => $totalViews,
+                'totalClicks' => $totalClicks,
+                'totalComments' => $totalComments,
+                'totalRevenue' => $totalRevenue,
+                'totalMrr' => $totalMrr,
                 'unreadNotifications' => $unreadNotifications,
             ])->render(),
         ]);
@@ -141,6 +158,23 @@ class DashboardController extends EdenController
         $heroRequests = Startup::where('hero_request_status', 'pending')->where('featured_on_hero', false)->orderBy('updated_at')->get();
         $siteName = $this->siteName();
 
+        $days = 60;
+        $startDate = now()->subDays($days);
+
+        $revenueByDay = StartupRevenueEvent::where('created_at', '>=', $startDate)
+            ->selectRaw('DATE(created_at) as date, SUM(amount) as total')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->pluck('total', 'date')
+            ->toArray();
+
+        $usersByDay = User::where('created_at', '>=', $startDate)
+            ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->pluck('count', 'date')
+            ->toArray();
+
         return response()->view('eden.layout-dashboard', [
             'title' => 'Admin dashboard',
             'sidebar' => 'admin',
@@ -149,6 +183,7 @@ class DashboardController extends EdenController
             'searchPlaceholder' => "Try searching 'startups by category'",
             'avatarTitle' => 'Admin',
             'avatarLetter' => 'A',
+            'scriptDeps' => '<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>',
             'content' => view('eden.admin-dashboard', [
                 'totalStartups' => $totalStartups,
                 'activeStartups' => $activeStartups,
@@ -158,6 +193,9 @@ class DashboardController extends EdenController
                 'recentStartups' => $recentStartups,
                 'recentContactMessages' => $recentContactMessages,
                 'heroRequests' => $heroRequests,
+                'days' => $days,
+                'revenueByDay' => $revenueByDay,
+                'usersByDay' => $usersByDay,
             ])->render(),
         ]);
     }

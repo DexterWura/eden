@@ -7,6 +7,7 @@ use App\Models\ScheduledTask;
 use App\Services\SitemapService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -15,9 +16,12 @@ class ScheduledTasksController extends Controller
     public function index(): Response
     {
         $tasks = ScheduledTask::orderBy('name')->get();
+        $lastCronAt = Cache::get('eden_last_cron_at');
+
         $content = view('eden.scheduled-tasks.index', [
             'tasks' => $tasks,
             'intervalOptions' => $this->intervalOptions(),
+            'lastCronAt' => $lastCronAt,
         ])->render();
 
         return response()->view('eden.layout-dashboard', [

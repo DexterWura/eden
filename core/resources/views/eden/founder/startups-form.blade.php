@@ -213,6 +213,21 @@
           @error('linkedin_url') <span class="dash-error">{{ $message }}</span> @enderror
         </div>
       </div>
+      <div style="margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--d-border, #2a2e3d);">
+        <label for="search_console_property" class="dash-label">Google Search Console property</label>
+        <input
+          type="text"
+          id="search_console_property"
+          name="search_console_property"
+          value="{{ old('search_console_property', $startup->search_console_property) }}"
+          class="dash-input"
+          placeholder="e.g. https://example.com/ or sc-domain:example.com"
+        >
+        @error('search_console_property') <span class="dash-error">{{ $message }}</span> @enderror
+        <p class="dash-hint" style="margin-top: 4px; font-size: 0.8rem; color: var(--d-text-secondary);">
+          Enter the exact Search Console property for this startup. Eden will validate it using the configured Google Search Console API key.
+        </p>
+      </div>
     </div>
   </div>
 

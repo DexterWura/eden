@@ -40,4 +40,9 @@ return [
         'webhook_secret' => env('EDEN_FLIPIT_WEBHOOK_SECRET'),
     ],
 
+    'google_search_console' => [
+        // API key for a project with Search Console API enabled.
+        'api_key' => env('GOOGLE_SEARCH_CONSOLE_API_KEY'),
+    ],
+
 ];

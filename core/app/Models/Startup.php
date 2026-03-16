@@ -43,6 +43,7 @@ class Startup extends Model
         'linkedin_url',
         'status',
         'dormant_at',
+        'search_console_property',
         'for_sale',
         'flipit_listing_id',
         'sold_at',

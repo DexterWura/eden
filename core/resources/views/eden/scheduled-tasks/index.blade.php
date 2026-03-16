@@ -5,7 +5,31 @@
 </div>
 
 <div class="dash-card" style="margin-top: 20px;">
-  <div class="dash-card-header"><span class="dash-card-title">How to enable scheduled tasks (cron)</span></div>
+  <div class="dash-card-header" style="flex-wrap: wrap; gap: 8px;">
+    <span class="dash-card-title">How to enable scheduled tasks (cron)</span>
+    @php
+      /** @var \Illuminate\Support\Carbon|\Carbon\CarbonInterface|null $lastCronAt */
+      $lastCronAt = $lastCronAt ?? null;
+      $cronStatusLabel = 'No cron heartbeat yet';
+      $cronStatusClass = 'dash-badge-warning';
+      $cronTitle = 'The /cron endpoint has not been called since deployment.';
+      if ($lastCronAt) {
+          $diffMinutes = $lastCronAt->diffInMinutes(now());
+          if ($diffMinutes <= 3) {
+              $cronStatusLabel = 'Cron healthy · last ran ' . $lastCronAt->diffForHumans();
+              $cronStatusClass = 'dash-badge-success';
+              $cronTitle = 'The /cron endpoint has run recently. Scheduler should be active.';
+          } else {
+              $cronStatusLabel = 'Cron stale · last ran ' . $lastCronAt->diffForHumans();
+              $cronStatusClass = 'dash-badge-warning';
+              $cronTitle = 'The /cron endpoint has not run in the last few minutes. Check your crontab.';
+          }
+      }
+    @endphp
+    <span class="dash-badge {{ $cronStatusClass }}" style="margin-left:auto;" title="{{ $cronTitle }}">
+      {{ $cronStatusLabel }}
+    </span>
+  </div>
   <div class="dash-card-body">
     <ol style="margin: 0; padding-left: 1.25rem; font-size: 0.875rem; color: var(--d-text-secondary); display: flex; flex-direction: column; gap: 6px;">
       <li>
@@ -30,7 +54,7 @@
         </div>
       </li>
       <li>
-        Save the crontab. After a few minutes, enabled tasks should show <strong>On · recent run</strong> in the Scheduler column below.
+        Save the crontab. After a few minutes, the cron status pill above should show <strong>Cron healthy</strong>, and enabled tasks will show <strong>On · recent run</strong> in the Scheduler column below.
       </li>
       <li>
         If a task stays on <strong>No recent runs</strong>, check that cron is active and that <code>curl</code> can reach your site URL.

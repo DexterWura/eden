@@ -96,7 +96,56 @@
     </div>
   </div>
   <div id="edenToastContainer" class="eden-toast-container" aria-live="polite"></div>
-  <style>.eden-toast-container{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9998;display:flex;flex-direction:column;gap:8px;max-width:min(400px,calc(100vw - 32px));pointer-events:none}.eden-toast{pointer-events:auto;padding:12px 16px;border-radius:8px;font-size:0.9rem;line-height:1.4;box-shadow:0 4px 20px rgba(0,0,0,0.2);border:1px solid var(--d-border,#2a2e3d);background:var(--d-surface,#12141c);color:var(--d-text,#e8eaef);animation:eden-toast-in 0.25s ease}.eden-toast--promo{border-left:4px solid var(--accent,#00d4aa)}.eden-toast--promo .eden-toast-cta{display:inline-block;margin-top:8px;font-weight:600;color:var(--accent);text-decoration:none;font-size:0.875rem}.eden-toast--promo .eden-toast-cta:hover{text-decoration:underline}@keyframes eden-toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}</style>
+  <style>
+    .eden-toast-container{
+      position:fixed;
+      top:20px;
+      right:20px;
+      z-index:9998;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      max-width:min(440px,calc(100vw - 32px));
+      pointer-events:none
+    }
+    .eden-toast{
+      pointer-events:auto;
+      padding:14px 18px;
+      border-radius:10px;
+      font-size:0.95rem;
+      line-height:1.5;
+      box-shadow:0 10px 30px rgba(0,0,0,0.35);
+      border:1px solid var(--d-border,#2a2e3d);
+      background:var(--d-surface,#12141c);
+      color:var(--d-text,#e8eaef);
+      transform-origin:top right;
+      animation:eden-toast-in 0.35s cubic-bezier(0.18,0.89,0.32,1.28)
+    }
+    .eden-toast--promo{
+      border-left:4px solid var(--accent,#00d4aa)
+    }
+    .eden-toast--promo .eden-toast-cta{
+      display:inline-block;
+      margin-top:8px;
+      font-weight:600;
+      color:var(--accent);
+      text-decoration:none;
+      font-size:0.875rem
+    }
+    .eden-toast--promo .eden-toast-cta:hover{
+      text-decoration:underline
+    }
+    @keyframes eden-toast-in{
+      from{
+        opacity:0;
+        transform:translateY(-10px) translateX(10px) scale(0.96)
+      }
+      to{
+        opacity:1;
+        transform:translateY(0) translateX(0) scale(1)
+      }
+    }
+  </style>
   <script>
     (function() {
       var toggle = document.getElementById('dashSidebarToggle');
