@@ -67,6 +67,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Force HTTPS
+    |--------------------------------------------------------------------------
+    |
+    | When true, HTTP requests are redirected to HTTPS and generated URLs use
+    | https. Set FORCE_HTTPS=false in .env for local development without TLS.
+    |
+    */
+
+    'force_https' => (bool) env('FORCE_HTTPS', true),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |

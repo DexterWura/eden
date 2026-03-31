@@ -38,6 +38,10 @@ class AppServiceProvider extends ServiceProvider
         BlogPost::observe(BlogPostObserver::class);
         Category::observe(CategoryObserver::class);
 
+        if (config('app.force_https', true)) {
+            \URL::forceScheme('https');
+        }
+
         // Don't redirect if we're already on the install page
         try {
             $request = request();
@@ -249,14 +253,6 @@ class AppServiceProvider extends ServiceProvider
                     $view->with(['seo' => null]);
                 }
             });
-
-            try {
-                if (gs('force_ssl')) {
-                    \URL::forceScheme('https');
-                }
-            } catch (\Exception $e) {
-                // Ignore if gs() fails
-            }
         } catch (\Exception $e) {
             // Database not ready, set minimal view shares if view service is available
             if ($this->app->bound('view')) {
