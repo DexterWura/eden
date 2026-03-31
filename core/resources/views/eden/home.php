@@ -345,6 +345,32 @@
       <a href="<?= e(url('/launching-today')) ?>" class="section-link-all">Launching today <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
       <?php endif; ?>
     </header>
+    <?php
+    $hasAlertFilters = (isset($searchQuery) && trim((string) $searchQuery) !== '')
+        || (isset($categoryFilter) && $categoryFilter !== null && $categoryFilter !== '')
+        || (isset($locationFilter) && $locationFilter !== null && $locationFilter !== '');
+    ?>
+    <?php if ($hasAlertFilters): ?>
+    <div class="search-alert-callout" style="margin-bottom: 20px; padding: 16px 18px; border: 1px solid var(--border, #e2e8f0); border-radius: 10px; background: var(--surface, rgba(15,23,42,0.2));">
+      <p style="margin: 0 0 12px; font-size: 0.9rem; line-height: 1.5; color: var(--text-muted, #64748b);">Get an email when new listings match these filters (weekly).</p>
+      <?php if (isset($errors) && ($errors->has('email') || $errors->has('search_query'))): ?>
+      <p style="color: #b91c1c; font-size: 0.875rem; margin: 0 0 10px;"><?= e($errors->first('email') ?: $errors->first('search_query')) ?></p>
+      <?php endif; ?>
+      <form action="<?= e(route('search-alerts.store')) ?>" method="post" class="search-alert-form" style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;">
+        <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
+        <input type="hidden" name="search_query" value="<?= e($searchQuery ?? '') ?>">
+        <input type="hidden" name="category" value="<?= e($categoryFilter ?? '') ?>">
+        <input type="hidden" name="location" value="<?= e($locationFilter ?? '') ?>">
+        <div style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
+          <label for="searchAlertHp">Website</label>
+          <input type="text" name="website" id="searchAlertHp" tabindex="-1" autocomplete="off">
+        </div>
+        <label for="searchAlertEmail" class="visually-hidden">Email</label>
+        <input type="email" name="email" id="searchAlertEmail" required placeholder="you@example.com" class="form-input" style="min-width: 200px; max-width: 100%;" value="<?= e(old('email', auth()->check() ? auth()->user()->email : '')) ?>">
+        <button type="submit" class="btn btn-ghost"><i class="fa-solid fa-bell" aria-hidden="true"></i> Email me new matches</button>
+      </form>
+    </div>
+    <?php endif; ?>
     <div class="startup-list" id="startups">
       <?php
       $allStartups = $allStartups ?? collect();

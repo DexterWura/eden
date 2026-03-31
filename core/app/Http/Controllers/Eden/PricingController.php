@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Eden;
 
 use App\Models\PaymentGateway;
+use App\Support\Seo\EdenSeo;
 use App\Models\ProPayment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -17,7 +18,7 @@ class PricingController extends EdenController
         $isPro = auth()->check() && auth()->user()->isPro();
         $gateways = PaymentGateway::enabled()->get();
 
-        return $this->page('pricing', 'Pricing', null, compact('isPro', 'gateways'));
+        return $this->page('pricing', 'Pricing', null, compact('isPro', 'gateways'), EdenSeo::forStaticPath('/pricing'));
     }
 
     public function checkout(Request $request)

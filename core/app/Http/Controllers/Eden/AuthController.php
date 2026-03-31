@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Eden;
 
 use App\Http\Controllers\Controller;
+use App\Support\Seo\EdenSeo;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,11 +16,11 @@ class AuthController extends Controller
 {
     public function showLoginForm(): View
     {
-        return view('eden.layout', [
+        return view('eden.layout', array_merge([
             'title' => 'Log in',
             'content' => view('eden.auth.login')->render(),
             'scripts' => '',
-        ]);
+        ], EdenSeo::forAuthPage('/login')));
     }
 
     public function login(Request $request): RedirectResponse
@@ -45,11 +46,11 @@ class AuthController extends Controller
 
     public function showRegisterForm(): View
     {
-        return view('eden.layout', [
+        return view('eden.layout', array_merge([
             'title' => 'Sign up',
             'content' => view('eden.auth.register')->render(),
             'scripts' => '',
-        ]);
+        ], EdenSeo::forAuthPage('/register')));
     }
 
     public function register(Request $request): RedirectResponse

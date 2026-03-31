@@ -100,3 +100,10 @@ Schedule::command('eden:weekly-digest')
     ->withoutOverlapping(10)
     ->onOneServer()
     ->appendOutputTo(storage_path('logs/eden-weekly-digest.log'));
+
+// Saved search alerts — new listings matching filters (Mondays 9:15, after weekly digest)
+Schedule::command('eden:search-alert-digests')
+    ->weeklyOn(1, '09:15')
+    ->withoutOverlapping(10)
+    ->onOneServer()
+    ->appendOutputTo(storage_path('logs/eden-search-alert-digests.log'));

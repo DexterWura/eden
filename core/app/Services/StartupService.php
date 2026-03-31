@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Startup;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
 
@@ -184,6 +185,24 @@ class StartupService
     public function search(?string $q, ?string $category = null, ?string $location = null, int $perPage = 50)
     {
         $query = $this->withFunding()->active();
+        $this->applySearchFiltersToQuery($query, $q, $category, $location);
+
+        return $query->orderByDesc('upvotes')->paginate($perPage)->withQueryString();
+    }
+
+    /**
+     * New active listings matching the same filters as the directory search (for weekly alert emails).
+     */
+    public function activeStartupsMatchingFiltersSince(?string $q, ?string $category, ?string $location, mixed $since): Collection
+    {
+        $query = $this->withFunding()->active()->where('created_at', '>', $since);
+        $this->applySearchFiltersToQuery($query, $q, $category, $location);
+
+        return $query->orderByDesc('created_at')->get();
+    }
+
+    private function applySearchFiltersToQuery(Builder $query, ?string $q, ?string $category, ?string $location): void
+    {
         if ($q !== null && trim($q) !== '') {
             $term = '%' . trim($q) . '%';
             $query->where(function ($builder) use ($term) {
@@ -199,10 +218,9 @@ class StartupService
         if ($category !== null && $category !== '') {
             $query->byCategory($category);
         }
-        if ($location !== null && trim($location) !== '') {
-            $query->where('location', 'like', '%' . trim($location) . '%');
+        if ($location !== null && trim((string) $location) !== '') {
+            $query->where('location', 'like', '%' . trim((string) $location) . '%');
         }
-        return $query->orderByDesc('upvotes')->paginate($perPage)->withQueryString();
     }
 
     public function getLocationsWithCounts(): Collection
@@ -243,14 +261,54 @@ class StartupService
         return $query->paginate($perPage)->withQueryString();
     }
 
+    /**
+     * Related listings: prefer same category + location, then category, then location, then popular.
+     */
     public function getSimilar(Startup $startup, int $limit = 6): Collection
     {
-        $query = $this->withFunding()->active()
-            ->where('id', '!=', $startup->id);
-        if ($startup->category !== null && $startup->category !== '') {
-            $query->byCategory($startup->category);
+        if ($limit < 1) {
+            return new Collection();
         }
-        return $query->orderByDesc('upvotes')->take($limit)->get();
+
+        $excludeId = $startup->id;
+        $picked = new Collection();
+        $excludeIds = [$excludeId];
+
+        $pull = function (\Illuminate\Database\Eloquent\Builder $query) use (&$picked, &$excludeIds, $limit): void {
+            $need = $limit - $picked->count();
+            if ($need <= 0) {
+                return;
+            }
+            $batch = $query
+                ->whereNotIn('id', $excludeIds)
+                ->orderByDesc('upvotes')
+                ->take($need)
+                ->get();
+            foreach ($batch as $row) {
+                $picked->push($row);
+                $excludeIds[] = $row->id;
+            }
+        };
+
+        $base = fn (): \Illuminate\Database\Eloquent\Builder => $this->withFunding()->active();
+
+        $category = $startup->category !== null && $startup->category !== '' ? $startup->category : null;
+        $location = $startup->location !== null && trim((string) $startup->location) !== '' ? trim((string) $startup->location) : null;
+
+        if ($category !== null && $location !== null) {
+            $pull($base()->where('category', $category)->where('location', $location));
+        }
+        if ($picked->count() < $limit && $category !== null) {
+            $pull($base()->byCategory($category));
+        }
+        if ($picked->count() < $limit && $location !== null) {
+            $pull($base()->where('location', $location));
+        }
+        if ($picked->count() < $limit) {
+            $pull($base());
+        }
+
+        return $picked->take($limit)->values();
     }
 
     public function getBySlug(string $slug): Startup

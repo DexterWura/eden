@@ -329,6 +329,11 @@ class Startup extends Model
         return $this->hasMany(StartupComment::class)->orderBy('created_at', 'asc');
     }
 
+    public function reports()
+    {
+        return $this->hasMany(StartupReport::class);
+    }
+
     public function fundingRounds()
     {
         return $this->hasMany(StartupFundingRound::class)->orderByDesc('created_at');
@@ -342,6 +347,32 @@ class Startup extends Model
     public function trafficDaily()
     {
         return $this->hasMany(StartupTrafficDaily::class)->orderBy('date');
+    }
+
+    /**
+     * Normalize a listing title for duplicate checks (case and spacing only).
+     */
+    public static function normalizeListingName(?string $name): ?string
+    {
+        if ($name === null || trim($name) === '') {
+            return null;
+        }
+        $n = trim(preg_replace('/\s+/u', ' ', $name));
+
+        return mb_strtolower($n, 'UTF-8');
+    }
+
+    public static function listingNameExistsForAnother(?string $name, ?int $excludeId = null): bool
+    {
+        $norm = self::normalizeListingName($name);
+        if ($norm === null || $norm === '') {
+            return false;
+        }
+
+        return self::query()
+            ->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))
+            ->get(['id', 'name'])
+            ->contains(fn ($s) => self::normalizeListingName($s->name) === $norm);
     }
 
     public static function normalizeUrl(?string $url): ?string

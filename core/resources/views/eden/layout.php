@@ -11,7 +11,14 @@
     $metaKeywordsFinal = isset($metaKeywords) ? $metaKeywords : (function_exists('gs') && gs('meta_keywords') ? gs('meta_keywords') : '');
     $seoImageUrl = isset($metaImage) ? $metaImage : (function_exists('gs') && gs('seo_image') ? url(asset(gs('seo_image'))) : '');
     $canonicalUrl = isset($canonicalUrl) ? $canonicalUrl : url()->current();
+    $metaRobots = isset($metaRobots) ? $metaRobots : null;
+    $ogType = isset($ogType) ? $ogType : 'website';
+    $ogImageAlt = isset($ogImageAlt) ? $ogImageAlt : ($siteName . ' – Startup directory');
     $baseUrl = rtrim(url('/'), '/');
+    $hasSearchQuery = request()->filled('q') && trim((string) request()->query('q')) !== '';
+    $includeDefaultSiteGraph = isset($includeDefaultSiteGraph)
+      ? (bool) $includeDefaultSiteGraph
+      : (request()->path() === '' && ! $hasSearchQuery && (int) request()->query('page', 1) <= 1);
   ?>
   <title><?= e($pageTitleFinal) ?></title>
   <link rel="icon" type="image/png" href="<?= e(asset('images/favicon.png')) ?>">
@@ -19,9 +26,10 @@
     (function(){var t=localStorage.getItem('eden_theme')||'light';document.documentElement.setAttribute('data-theme',t);})();
   </script>
   <link rel="canonical" href="<?= e($canonicalUrl) ?>">
+  <?php if ($metaRobots !== null && $metaRobots !== ''): ?><meta name="robots" content="<?= e($metaRobots) ?>"><?php endif; ?>
   <?php if ($metaKeywordsFinal !== ''): ?><meta name="keywords" content="<?= e($metaKeywordsFinal) ?>"><?php endif; ?>
   <meta name="description" content="<?= e($metaDesc) ?>">
-  <meta property="og:type" content="website">
+  <meta property="og:type" content="<?= e($ogType) ?>">
   <meta property="og:url" content="<?= e($canonicalUrl) ?>">
   <meta property="og:title" content="<?= e($pageTitleFinal) ?>">
   <meta property="og:description" content="<?= e($socialDesc) ?>">
@@ -31,7 +39,7 @@
   <meta property="og:image" content="<?= e($seoImageUrl) ?>">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="<?= e($siteName . ' – Startup directory') ?>">
+  <meta property="og:image:alt" content="<?= e($ogImageAlt) ?>">
   <?php endif; ?>
   <meta name="twitter:card" content="<?= $seoImageUrl ? 'summary_large_image' : 'summary' ?>">
   <meta name="twitter:title" content="<?= e($pageTitleFinal) ?>">
@@ -63,14 +71,30 @@
         ],
       ],
     ];
-    $allStructured = [$siteSchema];
-    if (isset($structuredData) && is_array($structuredData) && !empty($structuredData)) {
+    $organizationOnlySchema = [
+      '@context' => 'https://schema.org',
+      '@type' => 'Organization',
+      '@id' => $baseUrl . '/#organization',
+      'name' => $siteName,
+      'url' => $baseUrl . '/',
+      'logo' => ['@type' => 'ImageObject', 'url' => url(asset('images/favicon.png'))],
+    ];
+    $hasPageStructuredData = isset($structuredData) && is_array($structuredData) && !empty($structuredData);
+    $allStructured = [];
+    if ($includeDefaultSiteGraph) {
+      $allStructured[] = $siteSchema;
+    } elseif (! $hasPageStructuredData) {
+      $allStructured[] = $organizationOnlySchema;
+    }
+    if ($hasPageStructuredData) {
       foreach ((isset($structuredData[0]) && is_array($structuredData[0]) ? $structuredData : [$structuredData]) as $sd) {
         $allStructured[] = $sd;
       }
     }
   ?>
+  <?php if (!empty($allStructured)): ?>
   <script type="application/ld+json"><?= json_encode($allStructured, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?></script>
+  <?php endif; ?>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">

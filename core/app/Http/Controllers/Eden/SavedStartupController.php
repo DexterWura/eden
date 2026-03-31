@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Eden;
 use App\Models\SavedStartup;
 use App\Models\Startup;
 use App\Services\StartupService;
+use App\Support\Seo\EdenSeo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -26,7 +27,7 @@ class SavedStartupController extends EdenController
         return $this->page('saved', 'My saved startups', null, [
             'startups' => $startups,
             'productOfDayId' => $this->startupService->getProductOfDayId(),
-        ]);
+        ], EdenSeo::forPrivatePage('/saved'));
     }
 
     public function save(Request $request, string $slug): JsonResponse|RedirectResponse

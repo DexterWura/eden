@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Eden;
 use App\Models\AdSpot;
 use App\Models\PaymentGateway;
 use App\Support\AdSpotOffers;
+use App\Support\Seo\EdenSeo;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -20,7 +21,8 @@ class AdController extends EdenController
             'advertise-index',
             'Advertise',
             null,
-            ['spots' => AdSpotOffers::allBySegment()]
+            ['spots' => AdSpotOffers::allBySegment()],
+            EdenSeo::forStaticPath('/advertise')
         );
     }
 
@@ -37,7 +39,8 @@ class AdController extends EdenController
                 'segment' => $segment,
                 'meta' => $meta,
                 'gateways' => $gateways,
-            ]
+            ],
+            EdenSeo::forStaticPath('/advertise/' . $segment)
         );
     }
 

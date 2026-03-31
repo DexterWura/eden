@@ -9,6 +9,7 @@ use App\Models\Startup;
 use App\Models\Subscriber;
 use App\Models\User;
 use App\Services\StartupService;
+use App\Support\Seo\EdenSeo;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,22 +30,22 @@ class PageController extends EdenController
         $about = $general && is_array($general->about_page ?? null)
             ? array_merge($aboutDefaults, $general->about_page)
             : $aboutDefaults;
-        return $this->page('about', 'About', null, ['about' => $about]);
+        return $this->page('about', 'About', null, ['about' => $about], EdenSeo::forStaticPath('/about'));
     }
 
     public function privacy()
     {
-        return $this->page('privacy', 'Privacy Policy', null, []);
+        return $this->page('privacy', 'Privacy Policy', null, [], EdenSeo::forStaticPath('/privacy'));
     }
 
     public function terms()
     {
-        return $this->page('terms', 'Terms of Service', null, []);
+        return $this->page('terms', 'Terms of Service', null, [], EdenSeo::forStaticPath('/terms'));
     }
 
     public function contact()
     {
-        return $this->page('contact', 'Contact');
+        return $this->page('contact', 'Contact', null, [], EdenSeo::forStaticPath('/contact'));
     }
 
     public function contactStore(Request $request): RedirectResponse
@@ -62,13 +63,17 @@ class PageController extends EdenController
     public function submit()
     {
         $categories = Category::orderBy('sort_order')->get();
-        return $this->page('submit', 'Submit your startup', null, ['categories' => $categories]);
+        return $this->page('submit', 'Submit your startup', null, ['categories' => $categories], EdenSeo::forStaticPath('/submit'));
     }
 
     public function submitStore(Request $request): RedirectResponse
     {
         $startupRules = [
-            'name' => 'required|string|max:255',
+            'name' => ['required', 'string', 'max:255', function ($attr, $value, $fail) {
+                if ($value && Startup::listingNameExistsForAnother($value)) {
+                    $fail(__('A listing with this name already exists.'));
+                }
+            }],
             'tagline' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:10000',
             'category' => 'nullable|string|exists:categories,name',
@@ -193,7 +198,7 @@ class PageController extends EdenController
         foreach ($allCategories as $cat) {
             $cat->count = $countsByCategory->has($cat->name) ? (int) $countsByCategory->get($cat->name)->count : 0;
         }
-        return $this->page('categories', 'Categories', null, ['categories' => $allCategories]);
+        return $this->page('categories', 'Categories', null, ['categories' => $allCategories], EdenSeo::forStaticPath('/categories'));
     }
 
     public function subscribe(Request $request): RedirectResponse

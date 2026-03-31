@@ -283,7 +283,11 @@ class StartupController extends Controller
         $gscService = app(GoogleSearchConsoleService::class);
 
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255', function ($attr, $value, $fail) use ($excludeId) {
+                if ($value && Startup::listingNameExistsForAnother($value, $excludeId)) {
+                    $fail(__('A listing with this name already exists.'));
+                }
+            }],
             'tagline' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'category' => ['nullable', 'string', 'exists:categories,name'],

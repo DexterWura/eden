@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Eden;
 
 use App\Models\AdSpot;
 use App\Models\Startup;
+use App\Models\StartupReport;
 use App\Models\StartupUpvote;
 use App\Services\StartupService;
+use App\Support\Seo\EdenSeo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -29,7 +31,7 @@ class StartupController extends EdenController
             'productOfDayId' => $this->startupService->getProductOfDayId(),
             'savedStartupIds' => $savedStartupIds,
             'launchingAd' => $launchingAd,
-        ], $itemListSchema ? ['structuredData' => [$itemListSchema]] : []);
+        ], array_merge($itemListSchema ? ['structuredData' => [$itemListSchema]] : [], EdenSeo::forStaticPath('/launching-today')));
     }
 
     public function show(string $slug)
@@ -59,6 +61,12 @@ class StartupController extends EdenController
             ['name' => $startup->name, 'url' => $canonicalUrl],
         ]);
 
+        $similarStartups = $this->startupService->getSimilar($startup, 6);
+        $similarSchema = $this->buildStartupItemListSchema($similarStartups, 'Similar startups');
+        if ($similarSchema !== null) {
+            $structuredData[] = $similarSchema;
+        }
+
         $layoutData = [
             'pageTitle' => $pageTitle,
             'metaDescription' => $metaDesc,
@@ -66,6 +74,8 @@ class StartupController extends EdenController
             'canonicalUrl' => $canonicalUrl,
             'metaKeywords' => implode(', ', $keywords),
             'structuredData' => $structuredData,
+            'ogImageAlt' => $startup->name,
+            'includeDefaultSiteGraph' => false,
         ];
 
         $comments = $startup->comments()->with('user:id,name')->get();
@@ -83,7 +93,6 @@ class StartupController extends EdenController
             }
         }
 
-        $similarStartups = $this->startupService->getSimilar($startup, 6);
         $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->select('startups.id')->pluck('id')->toArray() : [];
 
         return $this->page('startup-show', $pageTitle, null, [
@@ -96,6 +105,7 @@ class StartupController extends EdenController
             'trafficTotal' => $trafficTotal,
             'similarStartups' => $similarStartups,
             'savedStartupIds' => $savedStartupIds,
+            'reportReasons' => StartupReport::reasonLabels(),
         ], $layoutData);
     }
 

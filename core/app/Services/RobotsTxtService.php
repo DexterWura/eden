@@ -36,6 +36,7 @@ class RobotsTxtService
             'Disallow: /admin',
             'Disallow: /login',
             'Disallow: /register',
+            'Disallow: /saved',
             'Disallow: /auth/',
             'Disallow: /api/',
             'Disallow: /startup/*/claim',

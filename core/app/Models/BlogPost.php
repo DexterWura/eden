@@ -68,7 +68,7 @@ class BlogPost extends Model
     public function getStructuredDataAttribute(): array
     {
         $siteName = function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden';
-        return [
+        $article = [
             '@context' => 'https://schema.org',
             '@type' => 'Article',
             'headline' => $this->title,
@@ -81,5 +81,11 @@ class BlogPost extends Model
                 'name' => $siteName,
             ],
         ];
+        $og = $this->og_image_url;
+        if ($og) {
+            $article['image'] = $og;
+        }
+
+        return $article;
     }
 }

@@ -204,7 +204,17 @@ $productImages = $s->product_images ?? [];
   <?php if ($similarStartups->isNotEmpty()): ?>
   <section class="startup-section" aria-labelledby="similar-heading">
     <h2 id="similar-heading">Similar startups</h2>
-    <p class="section-sub" style="margin-bottom: 16px;">More in <?= e($s->category ?: 'the directory') ?>.</p>
+    <?php
+    $similarBlurb = 'You might also like.';
+    if (!empty($s->category) && !empty($s->location)) {
+        $similarBlurb = 'More in ' . $s->category . ' · ' . $s->location . '.';
+    } elseif (!empty($s->category)) {
+        $similarBlurb = 'More in ' . $s->category . '.';
+    } elseif (!empty($s->location)) {
+        $similarBlurb = 'More from ' . $s->location . '.';
+    }
+    ?>
+    <p class="section-sub" style="margin-bottom: 16px;"><?= e($similarBlurb) ?></p>
     <div class="section-cards-row startup-similar-cards">
       <?php foreach ($similarStartups as $startup):
         $rank = null;
@@ -248,6 +258,43 @@ $productImages = $s->product_images ?? [];
     </p>
     <?php endif; ?>
   </section>
+
+  <?php $reportReasons = $reportReasons ?? []; ?>
+  <?php if (!empty($reportReasons)): ?>
+  <details class="startup-report-box" style="margin-top: 28px; padding: 16px 18px; border: 1px solid var(--border, #e2e8f0); border-radius: 10px; background: var(--surface, rgba(15,23,42,0.35));">
+    <summary style="cursor: pointer; font-size: 0.9rem; font-weight: 600; color: var(--text-muted, #64748b); list-style: none;">
+      <i class="fa-solid fa-flag" style="margin-right: 6px;" aria-hidden="true"></i> Report this listing
+    </summary>
+    <p style="margin: 12px 0 14px; font-size: 0.875rem; color: var(--text-muted, #64748b); line-height: 1.5;">
+      See something off? Tell us — we review every report. Your email is only used if we need to follow up.
+    </p>
+    <form action="<?= e(route('startup.report', $s->slug)) ?>" method="post" style="max-width: 420px;">
+      <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
+      <div style="position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden;" aria-hidden="true">
+        <label for="reportWebsiteHp">Website</label>
+        <input type="text" name="website" id="reportWebsiteHp" tabindex="-1" autocomplete="off">
+      </div>
+      <div class="form-group" style="margin-bottom: 12px;">
+        <label class="form-label" for="reportEmail">Your email</label>
+        <input type="email" name="reporter_email" id="reportEmail" class="form-input" required value="<?= e(old('reporter_email', auth()->check() ? auth()->user()->email : '')) ?>" placeholder="you@example.com">
+      </div>
+      <div class="form-group" style="margin-bottom: 12px;">
+        <label class="form-label" for="reportReason">What’s the issue?</label>
+        <select name="reason" id="reportReason" class="form-input" required>
+          <option value="">Choose a reason</option>
+          <?php foreach ($reportReasons as $key => $label): ?>
+          <option value="<?= e($key) ?>" <?= old('reason') === $key ? 'selected' : '' ?>><?= e($label) ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom: 12px;">
+        <label class="form-label" for="reportDetails">Details (optional)</label>
+        <textarea name="details" id="reportDetails" class="form-input" rows="3" placeholder="Optional context — required if you chose “Other”."><?= e(old('details')) ?></textarea>
+      </div>
+      <button type="submit" class="btn btn-ghost" style="font-size: 0.875rem;">Submit report</button>
+    </form>
+  </details>
+  <?php endif; ?>
 
   <div class="cta-strip">
     <?php if ($showClaimButton ?? (empty($s->user_id) && empty($s->founder_email))): ?>

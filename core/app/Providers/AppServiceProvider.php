@@ -9,6 +9,7 @@ use App\Models\BlogPost;
 use App\Models\Category;
 use App\Models\ContactSubmission;
 use App\Models\Startup;
+use App\Models\StartupReport;
 use App\Models\Frontend;
 use App\Observers\BlogPostObserver;
 use App\Observers\CategoryObserver;
@@ -237,9 +238,14 @@ class AppServiceProvider extends ServiceProvider
                     $view->with([
                         'adminPendingStartupsBadge' => Startup::pending()->where('created_at', '>', $lastSawStartups)->count(),
                         'adminUnseenMessagesBadge' => ContactSubmission::where('created_at', '>', $lastSawMessages)->count(),
+                        'adminPendingListingReportsBadge' => StartupReport::where('status', StartupReport::STATUS_PENDING)->count(),
                     ]);
                 } catch (\Exception $e) {
-                    $view->with(['adminPendingStartupsBadge' => 0, 'adminUnseenMessagesBadge' => 0]);
+                    $view->with([
+                        'adminPendingStartupsBadge' => 0,
+                        'adminUnseenMessagesBadge' => 0,
+                        'adminPendingListingReportsBadge' => 0,
+                    ]);
                 }
             });
 
