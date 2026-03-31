@@ -117,7 +117,8 @@ body.dashboard {
 .dash-layout.dash-sidebar-expanded .dash-sidebar .dash-sidebar-label {
   display: inline;
 }
-.dash-sidebar a {
+.dash-sidebar a,
+.dash-sidebar button.dash-sidebar-link {
   width: 48px;
   height: 48px;
   display: flex;
@@ -129,16 +130,47 @@ body.dashboard {
   transition: background 0.15s, color 0.15s;
   box-sizing: border-box;
 }
-.dash-layout.dash-sidebar-expanded .dash-sidebar a {
+.dash-sidebar button.dash-sidebar-link {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+}
+.dash-layout.dash-sidebar-expanded .dash-sidebar a,
+.dash-layout.dash-sidebar-expanded .dash-sidebar button.dash-sidebar-link {
   width: 100%;
   justify-content: flex-start;
   padding-left: 14px;
   padding-right: 12px;
   border-radius: var(--d-radius);
 }
-.dash-sidebar a:hover { background: var(--d-sidebar-bg); color: var(--d-text); }
-.dash-sidebar a.active { background: var(--d-sidebar-bg); color: var(--d-primary); }
-.dash-sidebar a { position: relative; }
+.dash-sidebar a:hover,
+.dash-sidebar button.dash-sidebar-link:hover { background: var(--d-sidebar-bg); color: var(--d-text); }
+.dash-sidebar a.active,
+.dash-sidebar button.dash-sidebar-link.active { background: var(--d-sidebar-bg); color: var(--d-primary); }
+.dash-sidebar a,
+.dash-sidebar button.dash-sidebar-link { position: relative; }
+.dash-sidebar-link--pro-gated { opacity: 0.92; }
+.dash-sidebar-link--pro-gated:hover { opacity: 1; }
+.dash-sidebar-pro-lock {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 0.45rem;
+  color: #b45309;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 2;
+}
+.dash-layout.dash-sidebar-expanded .dash-sidebar-pro-lock {
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.6rem;
+}
 .dash-nav-badge {
   position: absolute;
   top: 6px;
@@ -696,7 +728,8 @@ body.dashboard {
   }
   .dash-sidebar.is-open { transform: translateX(0); }
   .dash-sidebar .dash-sidebar-label { display: none; }
-  .dash-sidebar a {
+  .dash-sidebar a,
+  .dash-sidebar button.dash-sidebar-link {
     width: 48px;
     height: 48px;
     justify-content: center;

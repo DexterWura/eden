@@ -203,6 +203,79 @@ nav a:hover { color: var(--accent); }
   animation-delay: -14s;
   animation-duration: 18s;
 }
+.hero-bg-orb--4 {
+  width: 220px;
+  height: 220px;
+  background: rgba(99, 102, 241, 0.12);
+  bottom: 18%;
+  right: 12%;
+  animation-delay: -9s;
+  animation-duration: 23s;
+}
+.hero-bg-mesh {
+  position: absolute;
+  inset: -25%;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 55% at 15% 25%, rgba(0, 212, 170, 0.11), transparent 52%),
+    radial-gradient(ellipse 55% 45% at 88% 75%, rgba(99, 102, 241, 0.09), transparent 48%),
+    radial-gradient(circle at 50% 100%, rgba(0, 212, 170, 0.05), transparent 40%);
+  animation: hero-mesh-shift 28s ease-in-out infinite;
+  opacity: 0.85;
+}
+.hero-bg-floating-icons {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.hero-float-icon {
+  position: absolute;
+  color: var(--accent);
+  opacity: 0.14;
+  line-height: 1;
+  text-shadow: 0 0 24px rgba(0, 212, 170, 0.25);
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+[data-theme="light"] .hero-float-icon {
+  opacity: 0.11;
+  text-shadow: 0 0 20px rgba(0, 212, 170, 0.2);
+}
+.hero-float-icon i { display: block; }
+.hero-float-icon--1 { top: 10%; left: 4%; font-size: clamp(1.1rem, 2.2vw, 1.85rem); animation-name: hero-icon-float-a; animation-duration: 16s; animation-delay: 0s; }
+.hero-float-icon--2 { top: 8%; right: 6%; left: auto; font-size: clamp(1.3rem, 2.8vw, 2.2rem); animation-name: hero-icon-float-b; animation-duration: 19s; animation-delay: -2s; }
+.hero-float-icon--3 { top: 22%; left: 12%; font-size: clamp(0.95rem, 1.8vw, 1.45rem); animation-name: hero-icon-float-c; animation-duration: 14s; animation-delay: -4s; }
+.hero-float-icon--4 { top: 18%; right: 18%; left: auto; font-size: clamp(1rem, 2vw, 1.6rem); animation-name: hero-icon-float-d; animation-duration: 21s; animation-delay: -1s; }
+.hero-float-icon--5 { top: 38%; left: 2%; font-size: clamp(1.15rem, 2.4vw, 1.9rem); animation-name: hero-icon-float-b; animation-duration: 17s; animation-delay: -7s; }
+.hero-float-icon--6 { top: 42%; right: 4%; left: auto; font-size: clamp(1.25rem, 2.6vw, 2rem); animation-name: hero-icon-float-a; animation-duration: 20s; animation-delay: -3s; }
+.hero-float-icon--7 { top: 52%; left: 8%; font-size: clamp(0.9rem, 1.6vw, 1.35rem); animation-name: hero-icon-float-d; animation-duration: 15s; animation-delay: -9s; }
+.hero-float-icon--8 { top: 48%; right: 22%; left: auto; font-size: clamp(1.4rem, 3vw, 2.35rem); animation-name: hero-icon-float-c; animation-duration: 18s; animation-delay: -5s; }
+.hero-float-icon--9 { top: 62%; left: 18%; font-size: clamp(1rem, 2vw, 1.55rem); animation-name: hero-icon-float-a; animation-duration: 22s; animation-delay: -11s; }
+.hero-float-icon--10 { top: 58%; right: 10%; left: auto; font-size: clamp(1.2rem, 2.5vw, 1.95rem); animation-name: hero-icon-float-b; animation-duration: 16s; animation-delay: -6s; }
+.hero-float-icon--11 { top: 72%; left: 6%; font-size: clamp(1.1rem, 2.2vw, 1.75rem); animation-name: hero-icon-float-c; animation-duration: 19s; animation-delay: -8s; }
+.hero-float-icon--12 { top: 68%; right: 28%; left: auto; font-size: clamp(0.95rem, 1.9vw, 1.5rem); animation-name: hero-icon-float-d; animation-duration: 17s; animation-delay: -12s; }
+.hero-float-icon--13 { top: 28%; left: 42%; font-size: clamp(1rem, 2vw, 1.6rem); animation-name: hero-icon-float-d; animation-duration: 24s; animation-delay: -14s; opacity: 0.1; }
+.hero-float-icon--14 { top: 35%; right: 38%; left: auto; font-size: clamp(1.35rem, 2.9vw, 2.1rem); animation-name: hero-icon-float-a; animation-duration: 20s; animation-delay: -10s; }
+.hero-float-icon--15 { bottom: 12%; left: 28%; top: auto; font-size: clamp(1.2rem, 2.5vw, 1.9rem); animation-name: hero-icon-float-b; animation-duration: 18s; animation-delay: -4s; }
+.hero-float-icon--16 { bottom: 18%; right: 14%; left: auto; top: auto; font-size: clamp(1rem, 2.1vw, 1.65rem); animation-name: hero-icon-float-c; animation-duration: 21s; animation-delay: -15s; }
+.hero-bg-scanline {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    transparent 40%,
+    rgba(0, 212, 170, 0.03) 50%,
+    transparent 60%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: hero-scanline 12s linear infinite;
+  pointer-events: none;
+  opacity: 0.5;
+}
 .hero-bg-grid {
   position: absolute;
   inset: 0;
@@ -222,9 +295,82 @@ nav a:hover { color: var(--accent); }
   0%, 100% { opacity: 0.5; }
   50% { opacity: 0.8; }
 }
+@keyframes hero-mesh-shift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  40% { transform: translate(2%, -1.5%) scale(1.02); }
+  70% { transform: translate(-1.5%, 2%) scale(0.99); }
+}
+@keyframes hero-scanline {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+@keyframes hero-icon-float-a {
+  0%, 100% { transform: translate(0, 0) rotate(-6deg) scale(1); opacity: 0.12; }
+  50% { transform: translate(14px, -22px) rotate(6deg) scale(1.08); opacity: 0.2; }
+}
+@keyframes hero-icon-float-b {
+  0%, 100% { transform: translate(0, 0) rotate(4deg) scale(1); opacity: 0.1; }
+  50% { transform: translate(-18px, 16px) rotate(-8deg) scale(0.95); opacity: 0.18; }
+}
+@keyframes hero-icon-float-c {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.11; }
+  33% { transform: translate(10px, 12px) rotate(10deg); opacity: 0.19; }
+  66% { transform: translate(-12px, -8px) rotate(-5deg); opacity: 0.14; }
+}
+@keyframes hero-icon-float-d {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.09; }
+  50% { transform: translate(-10px, -20px) scale(1.12); opacity: 0.17; }
+}
+@keyframes hero-reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.hero-reveal {
+  opacity: 0;
+  animation: hero-reveal-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.hero-reveal--1 { animation-delay: 0.06s; }
+.hero-reveal--2 { animation-delay: 0.14s; }
+.hero-reveal--3 { animation-delay: 0.22s; }
+.hero-reveal--4 { animation-delay: 0.3s; }
+.hero-reveal--5 { animation-delay: 0.38s; }
+.hero-reveal--6 { animation-delay: 0.46s; }
+.hero-reveal--7 { animation-delay: 0.54s; }
+.hero-actions .btn-primary.btn-add {
+  animation: hero-cta-softpulse 4s ease-in-out infinite;
+}
+@keyframes hero-cta-softpulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 212, 170, 0.28); }
+  50% { box-shadow: 0 0 32px 4px rgba(0, 212, 170, 0.18); }
+}
+@media (max-width: 768px) {
+  .hero-float-icon--5,
+  .hero-float-icon--7,
+  .hero-float-icon--9,
+  .hero-float-icon--11,
+  .hero-float-icon--13,
+  .hero-float-icon--15 { display: none; }
+  .hero-bg-orb--4 { opacity: 0.7; width: 160px; height: 160px; }
+}
 @media (prefers-reduced-motion: reduce) {
   .hero-bg-orb { animation: none; }
+  .hero-bg-orb--4 { animation: none; }
+  .hero-bg-mesh { animation: none; }
   .hero-bg-grid { animation: none; opacity: 0.6; }
+  .hero-bg-scanline { animation: none; opacity: 0; }
+  .hero-float-icon { animation: none !important; opacity: 0.08; transform: none; }
+  .hero-reveal {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
+  .hero-actions .btn-primary.btn-add { animation: none; }
 }
 
 .hero .wrap { position: relative; z-index: 1; }
@@ -237,6 +383,8 @@ nav a:hover { color: var(--accent); }
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  isolation: isolate;
+  backface-visibility: hidden;
 }
 
 [data-theme="light"] .hero h1 {
@@ -1118,6 +1266,14 @@ a.hero-trusted-by-avatar:hover {
 .badge.sponsored { background: rgba(255,71,103,0.15); color: var(--danger); }
 .badge.launch { background: rgba(0,212,170,0.25); color: var(--accent); }
 .badge.badge-product-of-day { background: rgba(251,191,36,0.25); color: #b45309; }
+.badge.badge-hot-week {
+  background: rgba(249,115,22,0.18);
+  color: #c2410c;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.badge.badge-hot-week .badge-hot-week-label { text-transform: none; letter-spacing: normal; font-weight: 600; }
 .badge.badge-funding { background: rgba(99,102,241,0.2); color: #6366f1; }
 .card-title { font-size: 1.1rem; font-weight: 600; overflow-wrap: break-word; word-break: break-word; margin: 0; }
 .card-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; overflow-wrap: break-word; word-break: break-word; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }

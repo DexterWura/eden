@@ -19,6 +19,12 @@ $isRow = $cardVariant === 'row';
     </div>
     <div class="card-badges">
       <?php $productOfDayId = $productOfDayId ?? null; ?>
+      <?php
+      $hotThisWeekIds = $hotThisWeekIds ?? [];
+      if (in_array((int) $s->id, $hotThisWeekIds, true)):
+      ?>
+      <span class="badge badge-hot-week" title="Hot this week — most upvoted in the last 7 days"><i class="fa-solid fa-fire" aria-hidden="true"></i><span class="badge-hot-week-label"> Hot</span></span>
+      <?php endif; ?>
       <?php if ($productOfDayId && (int)$s->id === (int)$productOfDayId): ?><span class="badge badge-product-of-day">Product of the day</span><?php endif; ?>
       <?php if ($s->is_featured): ?><span class="badge">Featured</span><?php endif; ?>
       <?php if ($s->launch_date && $s->launch_date->isToday()): ?><span class="badge launch">Launch</span><?php endif; ?>

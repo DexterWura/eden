@@ -44,15 +44,21 @@
         <a href="<?= e(url('/backoffice/gateways')) ?>" class="<?= ($activeNav ?? '') === 'gateways' ? 'active' : '' ?>" aria-label="Payment gateways" title="Payment gateways"><i class="fa-solid fa-credit-card"></i><span class="dash-sidebar-label">Gateways</span></a>
         <a href="<?= e(url('/backoffice/settings')) ?>" class="<?= ($activeNav ?? '') === 'settings' ? 'active' : '' ?>" aria-label="Settings" title="Settings"><i class="fa-solid fa-gear"></i><span class="dash-sidebar-label">Settings</span></a>
       <?php else: ?>
+        <?php $isProFounder = auth()->check() && auth()->user()->isPro(); ?>
         <a href="<?= e(url('/founder')) ?>" class="<?= ($activeNav ?? '') === 'home' ? 'active' : '' ?>" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i><span class="dash-sidebar-label">Home</span></a>
         <a href="<?= e(url('/founder/startups')) ?>" class="<?= ($activeNav ?? '') === 'startups' ? 'active' : '' ?>" aria-label="My startup" title="My startups"><i class="fa-solid fa-building-user"></i><span class="dash-sidebar-label">Startups</span></a>
-        <?php if (auth()->check() && auth()->user()->isPro()): ?>
+        <?php if ($isProFounder): ?>
         <a href="<?= e(url('/founder/badges')) ?>" class="<?= ($activeNav ?? '') === 'badges' ? 'active' : '' ?>" aria-label="Badges" title="Embed badges"><i class="fa-solid fa-certificate"></i><span class="dash-sidebar-label">Badges</span></a>
+        <?php else: ?>
+        <button type="button" class="dash-sidebar-link dash-sidebar-link--pro-gated<?= ($activeNav ?? '') === 'badges' ? ' active' : '' ?>" data-pro-toast="badges" aria-label="Badges (Pro)" title="Badges — Pro feature"><i class="fa-solid fa-certificate"></i><span class="dash-sidebar-label">Badges</span><span class="dash-sidebar-pro-lock" aria-hidden="true"><i class="fa-solid fa-crown"></i></span></button>
         <?php endif; ?>
         <a href="<?= e(url('/founder/upvotes')) ?>" class="<?= ($activeNav ?? '') === 'upvotes' ? 'active' : '' ?>" aria-label="Upvotes" title="Upvotes"><i class="fa-solid fa-arrow-up"></i><span class="dash-sidebar-label">Upvotes</span></a>
-        <?php if (auth()->check() && auth()->user()->isPro()): ?>
+        <?php if ($isProFounder): ?>
         <a href="<?= e(url('/founder/analytics')) ?>" class="<?= ($activeNav ?? '') === 'analytics' ? 'active' : '' ?>" aria-label="Analytics" title="Analytics"><i class="fa-solid fa-chart-line"></i><span class="dash-sidebar-label">Analytics</span></a>
         <a href="<?= e(url('/founder/blog')) ?>" class="<?= ($activeNav ?? '') === 'blog' ? 'active' : '' ?>" aria-label="Blog" title="Blog"><i class="fa-solid fa-pen-nib"></i><span class="dash-sidebar-label">Blog</span></a>
+        <?php else: ?>
+        <button type="button" class="dash-sidebar-link dash-sidebar-link--pro-gated<?= ($activeNav ?? '') === 'analytics' ? ' active' : '' ?>" data-pro-toast="analytics" aria-label="Analytics (Pro)" title="Analytics — Pro feature"><i class="fa-solid fa-chart-line"></i><span class="dash-sidebar-label">Analytics</span><span class="dash-sidebar-pro-lock" aria-hidden="true"><i class="fa-solid fa-crown"></i></span></button>
+        <button type="button" class="dash-sidebar-link dash-sidebar-link--pro-gated<?= ($activeNav ?? '') === 'blog' ? ' active' : '' ?>" data-pro-toast="blog" aria-label="Blog (Pro)" title="Founder blog — Pro feature"><i class="fa-solid fa-pen-nib"></i><span class="dash-sidebar-label">Blog</span><span class="dash-sidebar-pro-lock" aria-hidden="true"><i class="fa-solid fa-crown"></i></span></button>
         <?php endif; ?>
         <a href="<?= e(url('/founder/revenue-api')) ?>" class="<?= ($activeNav ?? '') === 'revenue-api' ? 'active' : '' ?>" aria-label="Revenue API" title="Revenue API"><i class="fa-solid fa-code"></i><span class="dash-sidebar-label">Revenue API</span></a>
         <a href="<?= e(url('/founder/settings')) ?>" class="<?= ($activeNav ?? '') === 'settings' ? 'active' : '' ?>" aria-label="Settings" title="Settings"><i class="fa-solid fa-gear"></i><span class="dash-sidebar-label">Settings</span></a>
@@ -368,6 +374,24 @@
         showToast('promo', opts.message || '', { ctaText: opts.ctaText, ctaHref: opts.ctaHref || '#', duration: opts.duration });
       };
       window.edenPricingUrl = pricingUrl;
+
+      var proToastCopy = {
+        badges: 'Embed trust badges on your site — Pro members get full badge access.',
+        analytics: 'See views, clicks, and trends for your listings. Upgrade to Pro for analytics.',
+        blog: 'Write posts as a founder on the blog. Pro unlocks the founder blog.'
+      };
+      document.querySelectorAll('.dash-sidebar-link--pro-gated').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          var key = btn.getAttribute('data-pro-toast') || 'badges';
+          var msg = proToastCopy[key] || 'This feature is part of Pro.';
+          showToast('promo', msg, { ctaText: 'View Pro pricing', ctaHref: pricingUrl, duration: 7000 });
+          var sb = document.getElementById('dashSidebar');
+          var bd = document.getElementById('dashSidebarBackdrop');
+          if (sb) sb.classList.remove('is-open');
+          if (bd) bd.classList.remove('is-open');
+        });
+      });
     })();
   </script>
   <?php if (! empty($edenShowProPopups)): ?>

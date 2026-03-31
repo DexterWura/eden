@@ -54,18 +54,23 @@ class HomeController extends EdenController
         $browseCategories = $this->startupService->getCategoriesWithCounts()
             ->take(12)
             ->map(fn ($c) => (object) ['name' => $c->category]);
-        $browseLocations = $this->startupService->getLocationsWithCounts()
-            ->take(12)
-            ->map(fn ($l) => (object) ['name' => $l->location]);
         $leaderboardSort = $request->query('leaderboard_sort', 'upvotes');
         if (! in_array($leaderboardSort, ['upvotes', 'views', 'clicks', 'mrr', 'revenue', 'newest'], true)) {
             $leaderboardSort = 'upvotes';
         }
         if ($searchResults === null) {
             $leaderboardPreview = $leaderboardPreview ?? $this->startupService->getLeaderboard($leaderboardSort, 10, $categoryFilter, $featuredOnly, $locationFilter);
-            $trendingStartups = $this->startupService->getTopPerforming($categoryFilter, $featuredOnly, 6, $locationFilter);
+            $hotThisWeekIds = $this->startupService
+                ->getTopPerforming($categoryFilter, $featuredOnly, 6, $locationFilter)
+                ->pluck('id')
+                ->map(fn ($id) => (int) $id)
+                ->values()
+                ->all();
         } else {
-            $trendingStartups = collect();
+            $hotThisWeekIds = [];
+        }
+        if ($sortNewest) {
+            $hotThisWeekIds = [];
         }
 
         $heroStartups = Startup::where('featured_on_hero', true)->orderBy('name')->limit(20)->get();
@@ -102,16 +107,14 @@ class HomeController extends EdenController
             'allStartups' => $allStartups,
             'categories' => $categories,
             'browseCategories' => $browseCategories,
-            'browseLocations' => $browseLocations ?? collect(),
             'categoryFilter' => $categoryFilter,
-            'locationFilter' => $locationFilter,
             'leaderboardPreview' => $leaderboardPreview,
             'leaderboardSort' => $leaderboardSort,
             'featuredOnly' => $featuredOnly,
             'sortNewest' => $sortNewest,
             'searchQuery' => $searchQuery,
             'searchResults' => $searchResults,
-            'trendingStartups' => $trendingStartups ?? collect(),
+            'hotThisWeekIds' => $hotThisWeekIds ?? [],
             'productOfDayId' => $this->startupService->getProductOfDayId(),
             'showTrustedByBlock' => $showTrustedByBlock,
             'featuredFounders' => $featuredFounders,

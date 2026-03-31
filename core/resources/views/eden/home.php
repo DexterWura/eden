@@ -3,17 +3,37 @@
     <span class="hero-bg-orb hero-bg-orb--1"></span>
     <span class="hero-bg-orb hero-bg-orb--2"></span>
     <span class="hero-bg-orb hero-bg-orb--3"></span>
+    <span class="hero-bg-orb hero-bg-orb--4"></span>
+    <span class="hero-bg-mesh"></span>
     <span class="hero-bg-grid"></span>
+    <div class="hero-bg-floating-icons">
+      <span class="hero-float-icon hero-float-icon--1"><i class="fa-solid fa-rocket"></i></span>
+      <span class="hero-float-icon hero-float-icon--2"><i class="fa-solid fa-chart-line"></i></span>
+      <span class="hero-float-icon hero-float-icon--3"><i class="fa-solid fa-lightbulb"></i></span>
+      <span class="hero-float-icon hero-float-icon--4"><i class="fa-solid fa-code"></i></span>
+      <span class="hero-float-icon hero-float-icon--5"><i class="fa-solid fa-seedling"></i></span>
+      <span class="hero-float-icon hero-float-icon--6"><i class="fa-solid fa-globe"></i></span>
+      <span class="hero-float-icon hero-float-icon--7"><i class="fa-solid fa-coins"></i></span>
+      <span class="hero-float-icon hero-float-icon--8"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+      <span class="hero-float-icon hero-float-icon--9"><i class="fa-solid fa-layer-group"></i></span>
+      <span class="hero-float-icon hero-float-icon--10"><i class="fa-solid fa-arrow-trend-up"></i></span>
+      <span class="hero-float-icon hero-float-icon--11"><i class="fa-solid fa-laptop-code"></i></span>
+      <span class="hero-float-icon hero-float-icon--12"><i class="fa-solid fa-bullhorn"></i></span>
+      <span class="hero-float-icon hero-float-icon--13"><i class="fa-solid fa-handshake"></i></span>
+      <span class="hero-float-icon hero-float-icon--14"><i class="fa-solid fa-star"></i></span>
+      <span class="hero-float-icon hero-float-icon--15"><i class="fa-solid fa-bolt"></i></span>
+      <span class="hero-float-icon hero-float-icon--16"><i class="fa-solid fa-compass"></i></span>
+    </div>
+    <span class="hero-bg-scanline"></span>
   </div>
   <div class="wrap">
-    <h1>Discover the next wave of startups</h1>
-    <p>Explore, search, and connect. One directory. Zero noise.</p>
-    <div class="hero-actions">
+    <h1 class="hero-reveal hero-reveal--1">Discover the next wave of startups</h1>
+    <p class="hero-reveal hero-reveal--2">Explore, search, and connect. One directory. Zero noise.</p>
+    <div class="hero-actions hero-reveal hero-reveal--3">
       <form action="<?= e(url('/')) ?>" method="get" class="search-wrap hero-search" role="search">
         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
         <input type="search" name="q" class="search-input" placeholder="Search startups, founders, categories…" aria-label="Search" id="homeSearch" value="<?= e($searchQuery ?? '') ?>">
         <?php if (isset($categoryFilter) && $categoryFilter !== null && $categoryFilter !== ''): ?><input type="hidden" name="category" value="<?= e($categoryFilter) ?>"><?php endif; ?>
-        <?php if (isset($locationFilter) && $locationFilter !== null && $locationFilter !== ''): ?><input type="hidden" name="location" value="<?= e($locationFilter) ?>"><?php endif; ?>
       </form>
       <a href="<?= e(url('/submit')) ?>" class="btn btn-primary btn-add"><i class="fa-solid fa-plus" aria-hidden="true"></i> Submit your startup</a>
     </div>
@@ -22,7 +42,7 @@
     $featuredFounders = $featuredFounders ?? collect();
     if ($showTrustedByBlock && $featuredFounders->isNotEmpty()):
     ?>
-    <div class="hero-trusted-by" style="display:flex;flex-direction:row;align-items:center;justify-content:center;gap:12px;margin-top:24px" aria-label="Trusted by founders">
+    <div class="hero-trusted-by hero-reveal hero-reveal--4" style="display:flex;flex-direction:row;align-items:center;justify-content:center;gap:12px;margin-top:24px" aria-label="Trusted by founders">
       <div class="hero-trusted-by-avatars" style="display:flex;align-items:center">
         <?php foreach ($featuredFounders as $founder):
           $photoUrl = !empty(trim($founder->hero_photo_url ?? '')) ? $founder->hero_photo_url : null;
@@ -59,7 +79,7 @@
       <p class="hero-trusted-by-text" style="margin:0;flex:none">100+ founders</p>
     </div>
     <?php endif; ?>
-    <nav class="hero-quick-nav" aria-label="Quick links">
+    <nav class="hero-quick-nav hero-reveal hero-reveal--5" aria-label="Quick links">
       <a href="<?= e(url('/launching-today')) ?>">Launching today</a>
       <span class="hero-quick-nav-sep" aria-hidden="true">·</span>
       <a href="<?= e(url('/leaderboard')) ?>">Leaderboard</a>
@@ -68,17 +88,16 @@
       <span class="hero-quick-nav-sep" aria-hidden="true">·</span>
       <a href="<?= e(url('/submit')) ?>">Submit</a>
     </nav>
-    <?php $browseCategories = $browseCategories ?? []; $browseLocations = $browseLocations ?? []; ?>
+    <?php $browseCategories = $browseCategories ?? []; ?>
     <?php
     $categoryFilter = $categoryFilter ?? null;
-    $locationFilter = $locationFilter ?? null;
     $featuredOnly = $featuredOnly ?? false;
     $sortNewest = $sortNewest ?? false;
     $searchQuery = $searchQuery ?? null;
-    $baseQuery = array_filter(['q' => $searchQuery && trim($searchQuery) !== '' ? trim($searchQuery) : null, 'featured' => $featuredOnly ? '1' : null, 'sort' => $sortNewest ? 'newest' : null, 'location' => $locationFilter ?: null]);
+    $baseQuery = array_filter(['q' => $searchQuery && trim($searchQuery) !== '' ? trim($searchQuery) : null, 'featured' => $featuredOnly ? '1' : null, 'sort' => $sortNewest ? 'newest' : null]);
     ?>
     <?php if (count($browseCategories) > 0): ?>
-    <div class="hero-categories" id="heroCategories">
+    <div class="hero-categories hero-reveal hero-reveal--6" id="heroCategories">
       <h2 class="hero-categories-title">Browse by category</h2>
       <div class="filters filters--categories">
         <?php $urlAll = url('/') . ($baseQuery ? '?' . http_build_query($baseQuery) : ''); ?>
@@ -86,18 +105,6 @@
         <?php foreach ($browseCategories as $cat): ?>
         <?php $query = array_merge($baseQuery, ['category' => $cat->name]); ?>
         <a href="<?= e(url('/') . '?' . http_build_query($query)) ?>" class="pill<?= $categoryFilter === $cat->name ? ' active' : '' ?>"><?= e($cat->name) ?></a>
-        <?php endforeach; ?>
-      </div>
-    </div>
-    <?php endif; ?>
-    <?php if (count($browseLocations) > 0): ?>
-    <div class="hero-categories" id="heroLocations" style="margin-top: 12px;">
-      <h2 class="hero-categories-title">Location</h2>
-      <div class="filters filters--categories">
-        <a href="<?= e(url('/') . ($baseQuery ? '?' . http_build_query($baseQuery) : '')) ?>" class="pill<?= $locationFilter === null || $locationFilter === '' ? ' active' : '' ?>">All</a>
-        <?php foreach ($browseLocations as $loc): ?>
-        <?php $query = array_merge($baseQuery, ['location' => $loc->name]); ?>
-        <a href="<?= e(url('/') . '?' . http_build_query($query)) ?>" class="pill<?= $locationFilter === $loc->name ? ' active' : '' ?>"><?= e($loc->name) ?></a>
         <?php endforeach; ?>
       </div>
     </div>
@@ -158,26 +165,6 @@
       include __DIR__ . '/partials/ad-spot.php';
     ?>
   </div>
-  <?php endif; ?>
-
-  <?php $trendingStartups = $trendingStartups ?? collect(); ?>
-  <?php if (!$sortNewest && $trendingStartups->isNotEmpty()): ?>
-  <section class="section-block" aria-labelledby="trending-heading">
-    <header class="section-header">
-      <div>
-        <h2 id="trending-heading" class="section-heading">Hot this week</h2>
-        <p class="section-sub">Most upvoted in the last 7 days.</p>
-      </div>
-    </header>
-    <div class="section-cards-row" tabindex="0">
-      <?php foreach ($trendingStartups as $startup):
-        $rank = null;
-        $showRank = false;
-        $cardVariant = 'row';
-        include __DIR__ . '/_startup-card.php';
-      endforeach; ?>
-    </div>
-  </section>
   <?php endif; ?>
 
   <?php $featuredProducts = $featuredProducts ?? collect(); ?>
@@ -347,8 +334,7 @@
     </header>
     <?php
     $hasAlertFilters = (isset($searchQuery) && trim((string) $searchQuery) !== '')
-        || (isset($categoryFilter) && $categoryFilter !== null && $categoryFilter !== '')
-        || (isset($locationFilter) && $locationFilter !== null && $locationFilter !== '');
+        || (isset($categoryFilter) && $categoryFilter !== null && $categoryFilter !== '');
     ?>
     <?php if ($hasAlertFilters): ?>
     <div class="search-alert-callout" style="margin-bottom: 20px; padding: 16px 18px; border: 1px solid var(--border, #e2e8f0); border-radius: 10px; background: var(--surface, rgba(15,23,42,0.2));">
@@ -360,7 +346,6 @@
         <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
         <input type="hidden" name="search_query" value="<?= e($searchQuery ?? '') ?>">
         <input type="hidden" name="category" value="<?= e($categoryFilter ?? '') ?>">
-        <input type="hidden" name="location" value="<?= e($locationFilter ?? '') ?>">
         <div style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
           <label for="searchAlertHp">Website</label>
           <input type="text" name="website" id="searchAlertHp" tabindex="-1" autocomplete="off">
