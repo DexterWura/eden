@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 
 class PricingController extends EdenController
 {
-    const PRO_PRICE = 10.00;
+    const PRO_PRICE = 9.99;
     const PRO_CURRENCY = 'USD';
 
     public function index()

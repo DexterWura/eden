@@ -132,35 +132,32 @@
     </div>
     <p class="section-browse-all"><a href="<?= e(url('/launching-today')) ?>">Browse all on Launching today</a></p>
   </section>
+  <?php endif; ?>
 
+  <?php if (!($sortNewest ?? false)): ?>
   <?php $homeAd = $homeAd ?? null; ?>
   <div class="home-ad-spot" style="margin: 24px 0;">
-    <?php if ($homeAd): ?>
     <?php
-      $homeAdPath = $homeAd->image_path ?? '';
-      $homeAdIsExternal = is_string($homeAdPath) && ($homeAdPath !== '') && (str_starts_with($homeAdPath, 'http://') || str_starts_with($homeAdPath, 'https://'));
-      $homeAdSrc = $homeAdIsExternal ? $homeAdPath : asset($homeAdPath);
+      $ad = $homeAd;
+      $buyUrl = url('/advertise/home');
+      $emptyTitle = 'Ad spot available';
+      $emptyCopy = '728×90 banner below the hero on the main directory.';
+      $maxWidth = 728;
+      include __DIR__ . '/partials/ad-spot.php';
     ?>
-    <div style="border-radius: 8px; overflow: hidden; border: 1px solid var(--border, #e2e8f0); background: #0f172a;">
-      <a href="<?= e($homeAd->target_url) ?>" target="_blank" rel="noopener noreferrer" style="display: block;">
-        <img src="<?= e($homeAdSrc) ?>" alt="Sponsored ad" style="display: block; width: 100%; max-width: 728px; height: auto; margin: 0 auto;">
-      </a>
-    </div>
-    <?php else: ?>
-    <div style="border-radius: 8px; border: 1px dashed var(--border, #e2e8f0); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; background: rgba(15,23,42,0.6);">
-      <div>
-        <p style="margin: 0 0 4px; font-weight: 600;">Ad spot available</p>
-        <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted, #94a3b8);">
-          Place your 728x90 banner here on the Eden homepage.
-        </p>
-      </div>
-      <div>
-        <a href="<?= e(url('/advertise/blog')) ?>" class="btn btn-primary">Buy this ad spot</a>
-      </div>
-    </div>
-    <?php endif; ?>
   </div>
 
+  <?php $homeSidebarAd = $homeSidebarAd ?? null; ?>
+  <div class="home-ad-spot home-ad-spot--sidebar" style="margin: 8px 0 24px; display: flex; justify-content: center;">
+    <?php
+      $ad = $homeSidebarAd;
+      $buyUrl = url('/advertise/home-sidebar');
+      $emptyTitle = 'Medium rectangle spot';
+      $emptyCopy = '300×250 on the homepage — ideal for product creative.';
+      $maxWidth = 300;
+      include __DIR__ . '/partials/ad-spot.php';
+    ?>
+  </div>
   <?php endif; ?>
 
   <?php $trendingStartups = $trendingStartups ?? collect(); ?>
@@ -369,30 +366,14 @@
 
   <?php $homeBottomAd = $homeBottomAd ?? null; ?>
   <div class="home-ad-spot home-ad-spot--bottom" style="margin: 24px 0 32px;">
-    <?php if ($homeBottomAd): ?>
     <?php
-      $homeBottomAdPath = $homeBottomAd->image_path ?? '';
-      $homeBottomAdIsExternal = is_string($homeBottomAdPath) && ($homeBottomAdPath !== '') && (str_starts_with($homeBottomAdPath, 'http://') || str_starts_with($homeBottomAdPath, 'https://'));
-      $homeBottomAdSrc = $homeBottomAdIsExternal ? $homeBottomAdPath : asset($homeBottomAdPath);
+      $ad = $homeBottomAd;
+      $buyUrl = url('/advertise/home-bottom');
+      $emptyTitle = 'Ad spot for sale';
+      $emptyCopy = '728×90 banner above the footer call to action.';
+      $maxWidth = 728;
+      include __DIR__ . '/partials/ad-spot.php';
     ?>
-    <div style="border-radius: 8px; overflow: hidden; border: 1px solid var(--border, #e2e8f0); background: #0f172a;">
-      <a href="<?= e($homeBottomAd->target_url) ?>" target="_blank" rel="noopener noreferrer" style="display: block;">
-        <img src="<?= e($homeBottomAdSrc) ?>" alt="Sponsored ad" style="display: block; width: 100%; max-width: 728px; height: auto; margin: 0 auto;">
-      </a>
-    </div>
-    <?php else: ?>
-    <div style="border-radius: 8px; border: 1px dashed var(--border, #e2e8f0); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; background: rgba(15,23,42,0.6);">
-      <div>
-        <p style="margin: 0 0 4px; font-weight: 600;">Ad spot for sale</p>
-        <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted, #94a3b8);">
-          Place your 728x90 banner right above this call to action.
-        </p>
-      </div>
-      <div>
-        <a href="<?= e(url('/advertise/blog')) ?>" class="btn btn-primary">Buy this ad spot</a>
-      </div>
-    </div>
-    <?php endif; ?>
   </div>
 
   <div class="cta-strip" id="submit">

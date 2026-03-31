@@ -322,12 +322,7 @@
           </p>
         </div>
         <div class="site-footer__col">
-          <p class="site-footer__heading">Our other sites</p>
-          <ul class="site-footer__sites">
-            <li><a href="https://dextersoft.com" target="_blank" rel="noopener noreferrer">dextersoft.com</a></li>
-            <li><a href="https://flipit.co.zw" target="_blank" rel="noopener noreferrer">flipit.co.zw</a></li>
-            <li><a href="https://zimadsense.com" target="_blank" rel="noopener noreferrer">zimadsense.com</a></li>
-          </ul>
+          <?php include __DIR__ . '/partials/sister-sites.php'; ?>
         </div>
       </div>
       <p class="site-footer__credit">Developed with <i class="fa-solid fa-heart" aria-hidden="true" style="color: var(--accent); vertical-align: middle;"></i> by <a href="https://www.linkedin.com/in/dexterity-wurayayi-967a64230/" target="_blank" rel="noopener noreferrer">Dexter Wurayayi</a>.</p>

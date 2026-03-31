@@ -30,7 +30,7 @@ $blogAd = $blogAd ?? null;
       </p>
     </div>
     <div>
-      <a href="<?= e(url('/advertise/blog')) ?>" class="btn btn-primary">Buy this ad spot</a>
+      <a href="<?= e(url('/advertise/blog')) ?>" class="btn btn-primary">Buy blog ad spot</a>
     </div>
   </div>
   <?php endif; ?>

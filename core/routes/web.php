@@ -103,8 +103,16 @@ Route::get('/checkout/paypal/return', [PricingController::class, 'paypalReturn']
 Route::get('/checkout/paypal/cancel', [PricingController::class, 'paypalCancel'])->middleware('auth');
 Route::get('/checkout/paynow/return', [PricingController::class, 'paynowReturn'])->middleware('auth');
 Route::any('/checkout/paynow/callback', [PricingController::class, 'paynowCallback']);
-Route::get('/advertise/blog', [AdController::class, 'showBlogAdForm'])->name('advertise.blog');
-Route::post('/advertise/blog', [AdController::class, 'createBlogAd']);
+Route::get('/advertise', [AdController::class, 'index'])->name('advertise.index');
+Route::get('/advertise/paypal/return', [AdController::class, 'paypalReturn']);
+Route::get('/advertise/paypal/cancel', [AdController::class, 'paypalCancel']);
+Route::get('/advertise/paynow/return', [AdController::class, 'paynowReturn']);
+Route::any('/advertise/paynow/callback', [AdController::class, 'paynowCallback']);
+Route::get('/advertise/{segment}', [AdController::class, 'showForm'])
+    ->where('segment', 'blog|home|home-sidebar|home-bottom|leaderboard|launching|raising|for-sale')
+    ->name('advertise.form');
+Route::post('/advertise/{segment}', [AdController::class, 'create'])
+    ->where('segment', 'blog|home|home-sidebar|home-bottom|leaderboard|launching|raising|for-sale');
 Route::get('/advertise/blog/paypal/return', [AdController::class, 'paypalReturn']);
 Route::get('/advertise/blog/paypal/cancel', [AdController::class, 'paypalCancel']);
 Route::get('/advertise/blog/paynow/return', [AdController::class, 'paynowReturn']);

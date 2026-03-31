@@ -6,6 +6,6 @@
     <p style="color: var(--d-text-secondary, #64748b); font-size: 0.95rem; margin-bottom: 24px; line-height: 1.5;">
       Embed badges on your site to show that your startup is listed on {{ $siteName ?? 'Eden' }}. Upgrade to Pro to get access.
     </p>
-    <a href="{{ url('/pricing') }}" class="dash-btn dash-btn-primary" style="text-decoration: none;"><i class="fa-solid fa-crown"></i> Upgrade to Pro — $10</a>
+    <a href="{{ url('/pricing') }}" class="dash-btn dash-btn-primary" style="text-decoration: none;"><i class="fa-solid fa-crown"></i> Upgrade to Pro — $9.99</a>
   </div>
 </div>

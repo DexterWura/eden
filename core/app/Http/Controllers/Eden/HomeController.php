@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Eden;
 
+use App\Models\AdSpot;
 use App\Models\Startup;
 use App\Services\StartupService;
 use Illuminate\Http\Request;
@@ -87,6 +88,10 @@ class HomeController extends EdenController
 
         $itemListSchema = $this->buildStartupItemListSchema($allStartups instanceof \Illuminate\Contracts\Pagination\Paginator ? collect($allStartups->items())->take(20) : $allStartups->take(20), 'Startups on ' . (function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden'));
 
+        $homeAd = AdSpot::activeForPlacement('home_leaderboard_1')->first();
+        $homeSidebarAd = AdSpot::activeForPlacement('home_sidebar_1')->first();
+        $homeBottomAd = AdSpot::activeForPlacement('home_bottom_banner_1')->first();
+
         return $this->page('home', null, 'scripts-home', [
             'launchingToday' => $launchingToday,
             'featuredProducts' => $featuredProducts,
@@ -108,6 +113,9 @@ class HomeController extends EdenController
             'showTrustedByBlock' => $showTrustedByBlock,
             'featuredFounders' => $featuredFounders,
             'savedStartupIds' => $savedStartupIds,
+            'homeAd' => $homeAd,
+            'homeSidebarAd' => $homeSidebarAd,
+            'homeBottomAd' => $homeBottomAd,
         ], $itemListSchema ? ['structuredData' => [$itemListSchema]] : []);
     }
 
@@ -145,12 +153,15 @@ class HomeController extends EdenController
         $browseLocations = $this->startupService->getLocationsWithCounts();
 
         $itemListSchema = $this->buildStartupItemListSchema($startups, 'Startup leaderboard');
+        $leaderboardAd = AdSpot::activeForPlacement('leaderboard_banner_1')->first();
+
         return $this->page('leaderboard', 'Leaderboard', null, [
             'startups' => $startups,
             'sortBy' => $sortBy,
             'locationFilter' => $locationFilter,
             'browseLocations' => $browseLocations,
             'productOfDayId' => $this->startupService->getProductOfDayId(),
+            'leaderboardAd' => $leaderboardAd,
         ], $itemListSchema ? ['structuredData' => [$itemListSchema]] : []);
     }
 
@@ -162,12 +173,15 @@ class HomeController extends EdenController
 
         $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->select('startups.id')->pluck('id')->toArray() : [];
         $itemListSchema = $this->buildStartupItemListSchema($startups, 'Startups raising funding');
+        $raisingAd = AdSpot::activeForPlacement('raising_banner_1')->first();
+
         return $this->page('raising', 'Startups raising funding', null, [
             'startups' => $startups,
             'categories' => $categories,
             'categoryFilter' => $categoryFilter,
             'productOfDayId' => $this->startupService->getProductOfDayId(),
             'savedStartupIds' => $savedStartupIds,
+            'raisingAd' => $raisingAd,
         ], $itemListSchema ? ['structuredData' => [$itemListSchema]] : []);
     }
 
@@ -177,10 +191,13 @@ class HomeController extends EdenController
 
         $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->select('startups.id')->pluck('id')->toArray() : [];
         $itemListSchema = $this->buildStartupItemListSchema($startups, 'Startups for sale');
+        $forSaleAd = AdSpot::activeForPlacement('for_sale_banner_1')->first();
+
         return $this->page('for-sale', 'Startups for sale', null, [
             'startups' => $startups,
             'productOfDayId' => $this->startupService->getProductOfDayId(),
             'savedStartupIds' => $savedStartupIds,
+            'forSaleAd' => $forSaleAd,
         ], $itemListSchema ? ['structuredData' => [$itemListSchema]] : []);
     }
 }

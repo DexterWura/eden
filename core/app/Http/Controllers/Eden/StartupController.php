@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Eden;
 
+use App\Models\AdSpot;
 use App\Models\Startup;
 use App\Models\StartupUpvote;
 use App\Services\StartupService;
@@ -21,10 +22,13 @@ class StartupController extends EdenController
         $startups = $this->startupService->getLaunchingToday();
         $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->select('startups.id')->pluck('id')->toArray() : [];
         $itemListSchema = $this->buildStartupItemListSchema($startups, 'Startups launching today');
+        $launchingAd = AdSpot::activeForPlacement('launching_today_banner_1')->first();
+
         return $this->page('launching-today', 'Launching today', 'scripts-launching-today', [
             'startups' => $startups,
             'productOfDayId' => $this->startupService->getProductOfDayId(),
             'savedStartupIds' => $savedStartupIds,
+            'launchingAd' => $launchingAd,
         ], $itemListSchema ? ['structuredData' => [$itemListSchema]] : []);
     }
 

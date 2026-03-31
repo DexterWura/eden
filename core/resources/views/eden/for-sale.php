@@ -12,30 +12,14 @@ $productOfDayId = $productOfDayId ?? null;
 <div class="wrap content-block">
   <?php $forSaleAd = $forSaleAd ?? null; ?>
   <div class="for-sale-ad-spot" style="margin: 0 0 24px;">
-    <?php if ($forSaleAd): ?>
     <?php
-      $forSaleAdPath = $forSaleAd->image_path ?? '';
-      $forSaleAdIsExternal = is_string($forSaleAdPath) && ($forSaleAdPath !== '') && (str_starts_with($forSaleAdPath, 'http://') || str_starts_with($forSaleAdPath, 'https://'));
-      $forSaleAdSrc = $forSaleAdIsExternal ? $forSaleAdPath : asset($forSaleAdPath);
+      $ad = $forSaleAd;
+      $buyUrl = url('/advertise/for-sale');
+      $emptyTitle = 'Ad spot for buyers';
+      $emptyCopy = 'Reach founders and operators looking to buy startups listed for sale.';
+      $maxWidth = 728;
+      include __DIR__ . '/partials/ad-spot.php';
     ?>
-    <div style="border-radius: 8px; overflow: hidden; border: 1px solid var(--border, #e2e8f0); background: #0f172a;">
-      <a href="<?= e($forSaleAd->target_url) ?>" target="_blank" rel="noopener noreferrer" style="display: block;">
-        <img src="<?= e($forSaleAdSrc) ?>" alt="Sponsored ad" style="display: block; width: 100%; max-width: 728px; height: auto; margin: 0 auto;">
-      </a>
-    </div>
-    <?php else: ?>
-    <div style="border-radius: 8px; border: 1px dashed var(--border, #e2e8f0); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; background: rgba(15,23,42,0.6);">
-      <div>
-        <p style="margin: 0 0 4px; font-weight: 600;">Ad spot for buyers</p>
-        <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted, #94a3b8);">
-          Reach founders and operators looking to buy startups listed for sale.
-        </p>
-      </div>
-      <div>
-        <a href="<?= e(url('/advertise/blog')) ?>" class="btn btn-primary">Buy this ad spot</a>
-      </div>
-    </div>
-    <?php endif; ?>
   </div>
   <?php if ($startups->isNotEmpty()): ?>
   <div class="startup-list">

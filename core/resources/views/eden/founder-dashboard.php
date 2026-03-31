@@ -152,7 +152,7 @@
   </div>
   <div class="dash-card-body" style="text-align:center;padding:28px 20px">
     <p style="color:var(--text-muted,#8b90a0);font-size:0.92rem;margin-bottom:14px">Upgrade to <strong>Pro</strong> to request your startup to be featured on the homepage hero section.</p>
-    <a href="<?= e(url('/pricing')) ?>" class="dash-btn dash-btn-primary" style="text-decoration:none"><i class="fa-solid fa-crown"></i> Upgrade to Pro — $10</a>
+    <a href="<?= e(url('/pricing')) ?>" class="dash-btn dash-btn-primary" style="text-decoration:none"><i class="fa-solid fa-crown"></i> Upgrade to Pro — $9.99</a>
   </div>
 </div>
 <?php endif; ?>

@@ -92,10 +92,20 @@
         <div class="dash-content">
           <?= $content ?? '' ?>
         </div>
+        <footer class="dash-sister-footer" style="padding: 12px 20px 16px; border-top: 1px solid var(--d-border, #2a2e3d); margin-top: auto;">
+          <?php $style = 'compact'; include __DIR__ . '/partials/sister-sites.php'; ?>
+        </footer>
       </main>
     </div>
   </div>
   <div id="edenToastContainer" class="eden-toast-container" aria-live="polite"></div>
+  <?php
+    $edenShowProPopups = (($sidebar ?? '') === 'founder' && auth()->check() && ! auth()->user()->isPro());
+    $edenSiteName = (function_exists('gs') && gs('site_name')) ? (string) gs('site_name') : 'Eden';
+  ?>
+  <?php if ($edenShowProPopups): ?>
+  <div id="edenProPopupStack" class="eden-pro-popup-stack" aria-label="Pro membership offers"></div>
+  <?php endif; ?>
   <style>
     .eden-toast-container{
       position:fixed;
@@ -145,6 +155,126 @@
         transform:translateY(0) translateX(0) scale(1)
       }
     }
+    .eden-pro-popup-stack{
+      position:fixed;
+      top:88px;
+      right:20px;
+      z-index:9997;
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap:14px;
+      max-width:min(440px,calc(100vw - 28px));
+      max-height:calc(100vh - 100px);
+      overflow-y:auto;
+      overflow-x:hidden;
+      -webkit-overflow-scrolling:touch;
+      pointer-events:auto
+    }
+    .eden-pro-popup{
+      pointer-events:auto;
+      position:relative;
+      width:100%;
+      min-width:min(400px,calc(100vw - 28px));
+      max-width:440px;
+      padding:24px 26px 22px;
+      border-radius:16px;
+      background:linear-gradient(145deg,rgba(18,20,28,0.98) 0%,rgba(22,26,38,0.98) 100%);
+      border:1px solid rgba(0,212,170,0.35);
+      box-shadow:0 18px 48px rgba(0,0,0,0.45),0 0 0 1px rgba(255,255,255,0.04) inset,0 0 40px rgba(0,212,170,0.08);
+      color:var(--d-text,#e8eaef);
+      transform-origin:top right;
+      opacity:0;
+      transform:translate3d(32px,-24px,0) scale(0.94);
+      animation:eden-pro-popup-in 0.65s cubic-bezier(0.22,1,0.36,1) forwards;
+      will-change:transform,opacity
+    }
+    @media (max-width:640px){
+      .eden-pro-popup-stack{top:72px;right:14px;max-width:calc(100vw - 20px)}
+      .eden-pro-popup{min-width:0;padding:20px 20px 18px;border-radius:14px}
+    }
+    @media (prefers-reduced-motion:reduce){
+      .eden-pro-popup{animation:none;opacity:1;transform:none}
+    }
+    @keyframes eden-pro-popup-in{
+      to{
+        opacity:1;
+        transform:translate3d(0,0,0) scale(1)
+      }
+    }
+    .eden-pro-popup.is-leaving{
+      animation:eden-pro-popup-out 0.38s ease forwards
+    }
+    @keyframes eden-pro-popup-out{
+      to{
+        opacity:0;
+        transform:translate3d(28px,-12px,0) scale(0.96)
+      }
+    }
+    .eden-pro-popup__close{
+      position:absolute;
+      top:12px;
+      right:12px;
+      width:36px;
+      height:36px;
+      border:none;
+      border-radius:10px;
+      background:rgba(255,255,255,0.06);
+      color:var(--d-text-secondary,#94a3b8);
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:background 0.2s,color 0.2s
+    }
+    .eden-pro-popup__close:hover{
+      background:rgba(255,255,255,0.1);
+      color:var(--d-text,#e8eaef)
+    }
+    .eden-pro-popup__badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      font-size:0.7rem;
+      font-weight:700;
+      letter-spacing:0.06em;
+      text-transform:uppercase;
+      color:#00d4aa;
+      margin-bottom:10px
+    }
+    .eden-pro-popup__title{
+      font-size:1.2rem;
+      font-weight:700;
+      line-height:1.25;
+      margin:0 0 10px;
+      padding-right:36px
+    }
+    .eden-pro-popup__body{
+      font-size:0.94rem;
+      line-height:1.55;
+      color:var(--d-text-secondary,#94a3b8);
+      margin:0 0 18px
+    }
+    .eden-pro-popup__cta{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:12px 20px;
+      border-radius:10px;
+      font-weight:600;
+      font-size:0.9rem;
+      text-decoration:none;
+      color:#0f172a;
+      background:linear-gradient(135deg,#00d4aa,#00b894);
+      box-shadow:0 4px 16px rgba(0,212,170,0.35);
+      transition:transform 0.2s,box-shadow 0.2s
+    }
+    .eden-pro-popup__cta:hover{
+      transform:translateY(-1px);
+      box-shadow:0 8px 22px rgba(0,212,170,0.45);
+      color:#0f172a
+    }
+    .eden-pro-popup__cta i{font-size:1rem}
   </style>
   <script>
     (function() {
@@ -239,6 +369,121 @@
       window.edenPricingUrl = pricingUrl;
     })();
   </script>
+  <?php if (! empty($edenShowProPopups)): ?>
+  <script>
+    (function() {
+      var stack = document.getElementById('edenProPopupStack');
+      if (!stack) return;
+      var pricingUrl = <?= json_encode(url('/pricing')) ?>;
+      var siteName = <?= json_encode($edenSiteName) ?>;
+
+      var popups = [
+        {
+          id: 'analytics',
+          title: 'See who engages with your listing',
+          body: 'Pro unlocks analytics — views, clicks, and trends so you can sharpen your pitch and spot real interest.',
+          cta: 'Explore Pro features',
+          icon: 'fa-chart-line'
+        },
+        {
+          id: 'badges',
+          title: 'Trust badges for your website',
+          body: 'Show visitors you are listed on ' + siteName + ' with embeddable badges. Pro members get full badge access.',
+          cta: 'Upgrade for badges',
+          icon: 'fa-certificate'
+        },
+        {
+          id: 'scale',
+          title: 'List every product you ship',
+          body: 'Free tier is limited. Pro gives unlimited startups, blog posts, hero placement requests, and priority support — $9.99 once, lifetime.',
+          cta: 'Go Pro — $9.99 lifetime',
+          icon: 'fa-layer-group'
+        },
+        {
+          id: 'hero',
+          title: 'Get featured on the homepage',
+          body: 'Request a hero spotlight for your startup. Pro founders can submit — stand out where new visitors look first.',
+          cta: 'Unlock with Pro',
+          icon: 'fa-star'
+        }
+      ];
+
+      var STORAGE_PREFIX = 'eden_pro_popup_dismissed_v1_';
+
+      function dismissed(id) {
+        try {
+          return sessionStorage.getItem(STORAGE_PREFIX + id) === '1';
+        } catch (e) {
+          return false;
+        }
+      }
+
+      function rememberDismiss(id) {
+        try {
+          sessionStorage.setItem(STORAGE_PREFIX + id, '1');
+        } catch (e) {}
+      }
+
+      function removeEl(el) {
+        if (el && el.parentNode) el.parentNode.removeChild(el);
+      }
+
+      function buildPopup(item) {
+        if (dismissed(item.id)) return;
+        var wrap = document.createElement('article');
+        wrap.className = 'eden-pro-popup';
+        wrap.setAttribute('role', 'dialog');
+        wrap.setAttribute('aria-labelledby', 'eden-pro-title-' + item.id);
+
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'eden-pro-popup__close';
+        btn.setAttribute('aria-label', 'Dismiss');
+        btn.innerHTML = '<i class="fa-solid fa-xmark" aria-hidden="true"></i>';
+        btn.addEventListener('click', function() {
+          rememberDismiss(item.id);
+          wrap.classList.add('is-leaving');
+          setTimeout(function() { removeEl(wrap); }, 380);
+        });
+
+        var badge = document.createElement('div');
+        badge.className = 'eden-pro-popup__badge';
+        badge.innerHTML = '<i class="fa-solid ' + item.icon + '" aria-hidden="true"></i> Pro';
+
+        var h = document.createElement('h2');
+        h.className = 'eden-pro-popup__title';
+        h.id = 'eden-pro-title-' + item.id;
+        h.textContent = item.title;
+
+        var p = document.createElement('p');
+        p.className = 'eden-pro-popup__body';
+        p.textContent = item.body;
+
+        var a = document.createElement('a');
+        a.href = pricingUrl;
+        a.className = 'eden-pro-popup__cta';
+        a.innerHTML = '<i class="fa-solid fa-crown" aria-hidden="true"></i> ' + item.cta;
+
+        wrap.appendChild(btn);
+        wrap.appendChild(badge);
+        wrap.appendChild(h);
+        wrap.appendChild(p);
+        wrap.appendChild(a);
+        stack.appendChild(wrap);
+      }
+
+      var step = 2200;
+      var pending = popups.filter(function(item) {
+        return !dismissed(item.id);
+      });
+      pending.forEach(function(item, i) {
+        setTimeout(function() {
+          buildPopup(item);
+        }, i * step);
+      });
+    })();
+  </script>
+  <?php endif; ?>
   <?= $scriptDeps ?? '' ?>
   <?= $notifyPartial ?? '' ?>
   <?= $scripts ?? '' ?>

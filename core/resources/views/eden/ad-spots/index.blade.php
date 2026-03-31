@@ -15,7 +15,7 @@
         <option value="active" {{ $status === 'active' ? 'selected' : '' }}>Active</option>
         <option value="expired" {{ $status === 'expired' ? 'selected' : '' }}>Expired</option>
       </select>
-      <input type="text" name="placement" value="{{ $placement }}" placeholder="Placement (e.g. blog_banner_1)" class="dash-search" style="max-width: 220px;">
+      <input type="text" name="placement" value="{{ $placement }}" placeholder="Placement key (e.g. home_leaderboard_1)" class="dash-search" style="max-width: 280px;">
       <button type="submit" class="dash-btn dash-btn-secondary"><i class="fa-solid fa-magnifying-glass"></i> Filter</button>
     </form>
     <div class="dash-table-wrap">

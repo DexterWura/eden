@@ -61,7 +61,7 @@ $gateways = $gateways ?? [];
       <div class="pricing-popular-tag">Most popular</div>
       <div class="pricing-card-header">
         <span class="pricing-badge pricing-badge--pro"><i class="fa-solid fa-crown"></i> Pro</span>
-        <h2 class="pricing-price">$10</h2>
+        <h2 class="pricing-price">$9.99</h2>
         <p class="pricing-period">one-time · lifetime access</p>
       </div>
       <ul class="pricing-features">
@@ -99,7 +99,7 @@ $gateways = $gateways ?? [];
                 <?php $firstGw = false; endforeach; ?>
               </div>
             </div>
-            <button type="submit" class="btn btn-primary btn-block btn-lg">Upgrade for $10</button>
+            <button type="submit" class="btn btn-primary btn-block btn-lg">Upgrade for $9.99</button>
           </form>
           <?php else: ?>
           <p class="pricing-no-gateways">Payment gateways are being configured. Check back soon.</p>

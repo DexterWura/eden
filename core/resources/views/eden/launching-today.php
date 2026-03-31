@@ -6,6 +6,17 @@
 </section>
 
 <div class="wrap">
+  <?php $launchingAd = $launchingAd ?? null; ?>
+  <div style="margin-bottom: 20px;">
+    <?php
+      $ad = $launchingAd;
+      $buyUrl = url('/advertise/launching');
+      $emptyTitle = 'Launching today — ad spot';
+      $emptyCopy = '728×90 banner for visitors browsing today’s launches.';
+      $maxWidth = 728;
+      include __DIR__ . '/partials/ad-spot.php';
+    ?>
+  </div>
   <h2 class="section-title">Today's launches</h2>
   <div class="startup-list">
     <?php

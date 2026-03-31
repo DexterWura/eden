@@ -30,6 +30,19 @@ $sortLabel = $sortLabels[$sortBy] ?? 'Upvotes';
     <?php endforeach; ?>
   </div>
   <?php endif; ?>
+
+  <?php $leaderboardAd = $leaderboardAd ?? null; ?>
+  <div style="margin-bottom: 20px;">
+    <?php
+      $ad = $leaderboardAd;
+      $buyUrl = url('/advertise/leaderboard');
+      $emptyTitle = 'Sponsor the leaderboard';
+      $emptyCopy = '728×90 banner at the top of this page.';
+      $maxWidth = 728;
+      include __DIR__ . '/partials/ad-spot.php';
+    ?>
+  </div>
+
   <div class="leaderboard-wrap">
     <div class="leaderboard-header">
       <h2 class="leaderboard-title">Leaderboard</h2>

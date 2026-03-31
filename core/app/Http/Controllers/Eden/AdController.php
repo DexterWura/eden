@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Eden;
 
 use App\Models\AdSpot;
 use App\Models\PaymentGateway;
+use App\Support\AdSpotOffers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -11,32 +12,39 @@ use Illuminate\Support\Str;
 
 class AdController extends EdenController
 {
-    private const BLOG_PLACEMENT = 'blog_banner_1';
-    private const AD_PRICE = 2.00;
     private const AD_CURRENCY = 'USD';
-    private const WIDTH = 728;
-    private const HEIGHT = 90;
 
-    public function showBlogAdForm(): Response
+    public function index(): Response
     {
+        return $this->page(
+            'advertise-index',
+            'Advertise',
+            null,
+            ['spots' => AdSpotOffers::allBySegment()]
+        );
+    }
+
+    public function showForm(string $segment): Response
+    {
+        $meta = AdSpotOffers::forSegment($segment);
         $gateways = PaymentGateway::enabled()->get();
 
         return $this->page(
-            'advertise-blog',
-            'Advertise on the blog',
+            'advertise-form',
+            $meta['label'],
             null,
             [
-                'price' => self::AD_PRICE,
-                'currency' => self::AD_CURRENCY,
+                'segment' => $segment,
+                'meta' => $meta,
                 'gateways' => $gateways,
-                'width' => self::WIDTH,
-                'height' => self::HEIGHT,
             ]
         );
     }
 
-    public function createBlogAd(Request $request): RedirectResponse
+    public function create(Request $request, string $segment): RedirectResponse
     {
+        $meta = AdSpotOffers::forSegment($segment);
+
         $request->validate([
             'contact_email' => 'required|email',
             'target_url' => 'required|url',
@@ -54,19 +62,19 @@ class AdController extends EdenController
 
         $image = $request->file('image');
         $size = @getimagesize($image->getRealPath());
-        if (! $size || $size[0] !== self::WIDTH || $size[1] !== self::HEIGHT) {
+        if (! $size || $size[0] !== $meta['width'] || $size[1] !== $meta['height']) {
             return redirect()
                 ->back()
                 ->withInput($request->except('image'))
-                ->with('error', "Ad banner must be exactly " . self::WIDTH . "x" . self::HEIGHT . " pixels.");
+                ->with('error', 'Ad banner must be exactly ' . $meta['width'] . '×' . $meta['height'] . ' pixels.');
         }
 
-        $path = $image->storePublicly('uploads/ads/blog', ['disk' => 'public']);
+        $path = $image->storePublicly('uploads/ads/' . $meta['storage_dir'], ['disk' => 'public']);
 
         $paymentReference = 'AD' . strtoupper(Str::random(16));
 
         $ad = AdSpot::create([
-            'placement' => self::BLOG_PLACEMENT,
+            'placement' => $meta['placement'],
             'image_path' => $path,
             'target_url' => $request->input('target_url'),
             'status' => AdSpot::STATUS_PENDING,
@@ -76,8 +84,8 @@ class AdController extends EdenController
         ]);
 
         return match ($gateway->alias) {
-            'paypal' => $this->initiatePaypal($ad, $gateway),
-            'paynow' => $this->initiatePaynow($ad, $gateway),
+            'paypal' => $this->initiatePaypal($ad, $gateway, $meta),
+            'paynow' => $this->initiatePaynow($ad, $gateway, $meta),
             default => redirect()->back()->with('error', 'Unsupported payment gateway.'),
         };
     }
@@ -91,12 +99,12 @@ class AdController extends EdenController
             ->first();
 
         if (! $ad) {
-            return redirect(url('/advertise/blog'))->with('error', 'Ad purchase not found or already processed.');
+            return redirect(url('/advertise'))->with('error', 'Ad purchase not found or already processed.');
         }
 
         $gateway = PaymentGateway::where('alias', 'paypal')->where('enabled', true)->first();
         if (! $gateway) {
-            return redirect(url('/advertise/blog'))->with('error', 'PayPal gateway is not configured.');
+            return $this->redirectAfterPaymentError($ad, 'PayPal gateway is not configured.');
         }
 
         $mode = $gateway->param('mode', 'sandbox');
@@ -109,7 +117,7 @@ class AdController extends EdenController
         ]);
 
         if (! $tokenResponse || empty($tokenResponse['access_token'])) {
-            return redirect(url('/advertise/blog'))->with('error', 'Could not verify with PayPal.');
+            return $this->redirectAfterPaymentError($ad, 'Could not verify with PayPal.');
         }
 
         $orderId = $ad->payment_reference;
@@ -124,10 +132,12 @@ class AdController extends EdenController
 
         if ($captureResponse && ($captureResponse['status'] ?? '') === 'COMPLETED') {
             $this->activateAd($ad);
-            return redirect(url('/blog'))->with('success', 'Your ad is now live on the blog for one month.');
+            $successUrl = AdSpotOffers::successRedirectForPlacement($ad->placement);
+
+            return redirect(url($successUrl))->with('success', 'Your ad is now live for one month.');
         }
 
-        return redirect(url('/advertise/blog'))->with('error', 'Payment could not be captured. Please contact support or try again.');
+        return $this->redirectAfterPaymentError($ad, 'Payment could not be captured. Please contact support or try again.');
     }
 
     public function paypalCancel(Request $request): RedirectResponse
@@ -143,7 +153,7 @@ class AdController extends EdenController
             $ad->save();
         }
 
-        return redirect(url('/advertise/blog'))->with('error', 'Payment was cancelled.');
+        return redirect(url('/advertise'))->with('error', 'Payment was cancelled.');
     }
 
     public function paynowReturn(Request $request): RedirectResponse
@@ -155,12 +165,12 @@ class AdController extends EdenController
             ->first();
 
         if (! $ad) {
-            return redirect(url('/advertise/blog'))->with('error', 'Ad purchase not found.');
+            return redirect(url('/advertise'))->with('error', 'Ad purchase not found.');
         }
 
         $gateway = PaymentGateway::where('alias', 'paynow')->where('enabled', true)->first();
         if (! $gateway) {
-            return redirect(url('/advertise/blog'))->with('error', 'Paynow gateway is not configured.');
+            return $this->redirectAfterPaymentError($ad, 'Paynow gateway is not configured.');
         }
 
         require_once app_path('Http/Controllers/Gateway/Paynow/autoloader.php');
@@ -168,26 +178,28 @@ class AdController extends EdenController
         $paynow = new \Paynow\Payments\Paynow(
             $gateway->param('integration_id'),
             $gateway->param('integration_key'),
-            url('/advertise/blog/paynow/return?trx=' . $ad->payment_reference),
-            url('/advertise/blog/paynow/callback')
+            url('/advertise/paynow/return?trx=' . $ad->payment_reference),
+            url('/advertise/paynow/callback')
         );
 
         $pollUrl = $ad->payment_reference ? ($ad->payment_reference) : null;
         if (! $pollUrl) {
-            return redirect(url('/advertise/blog'))->with('error', 'Missing payment reference.');
+            return $this->redirectAfterPaymentError($ad, 'Missing payment reference.');
         }
 
         try {
             $status = $paynow->pollTransaction($pollUrl);
             if ($status->paid()) {
                 $this->activateAd($ad);
-                return redirect(url('/blog'))->with('success', 'Your ad is now live on the blog for one month.');
+                $successUrl = AdSpotOffers::successRedirectForPlacement($ad->placement);
+
+                return redirect(url($successUrl))->with('success', 'Your ad is now live for one month.');
             }
         } catch (\Exception $e) {
             // fall through
         }
 
-        return redirect(url('/advertise/blog'))->with('error', 'Payment not yet confirmed. If you completed payment, it may take a moment—refresh this page shortly.');
+        return $this->redirectAfterPaymentError($ad, 'Payment not yet confirmed. If you completed payment, it may take a moment—refresh this page shortly.');
     }
 
     public function paynowCallback(Request $request): Response
@@ -212,14 +224,15 @@ class AdController extends EdenController
         $paynow = new \Paynow\Payments\Paynow(
             $gateway->param('integration_id'),
             $gateway->param('integration_key'),
-            url('/advertise/blog/paynow/return?trx=' . $ad->payment_reference),
-            url('/advertise/blog/paynow/callback')
+            url('/advertise/paynow/return?trx=' . $ad->payment_reference),
+            url('/advertise/paynow/callback')
         );
 
         try {
             $status = $paynow->processStatusUpdate();
             if ($status->paid()) {
                 $this->activateAd($ad);
+
                 return response('OK', 200);
             }
         } catch (\Exception $e) {
@@ -227,6 +240,13 @@ class AdController extends EdenController
         }
 
         return response('Not paid', 400);
+    }
+
+    private function redirectAfterPaymentError(AdSpot $ad, string $message): RedirectResponse
+    {
+        $segment = AdSpotOffers::segmentForPlacement($ad->placement);
+
+        return redirect(url($segment ? '/advertise/' . $segment : '/advertise'))->with('error', $message);
     }
 
     private function activateAd(AdSpot $ad): void
@@ -237,7 +257,10 @@ class AdController extends EdenController
         $ad->save();
     }
 
-    private function initiatePaypal(AdSpot $ad, PaymentGateway $gateway): RedirectResponse
+    /**
+     * @param array{placement: string, label: string, description: string, width: int, height: int, price: float, currency: string, storage_dir: string, paypal_desc: string, paynow_title: string} $meta
+     */
+    private function initiatePaypal(AdSpot $ad, PaymentGateway $gateway, array $meta): RedirectResponse
     {
         $clientId = $gateway->param('client_id');
         $secret = $gateway->param('secret');
@@ -257,7 +280,7 @@ class AdController extends EdenController
         ]);
 
         if (! $tokenResponse || empty($tokenResponse['access_token'])) {
-            return redirect(url('/advertise/blog'))->with('error', 'Could not connect to PayPal. Please try again.');
+            return $this->redirectAfterPaymentError($ad, 'Could not connect to PayPal. Please try again.');
         }
 
         $accessToken = $tokenResponse['access_token'];
@@ -266,16 +289,16 @@ class AdController extends EdenController
             'intent' => 'CAPTURE',
             'purchase_units' => [[
                 'reference_id' => $ad->payment_reference,
-                'description' => 'Blog ad spot — 1 month',
+                'description' => $meta['paypal_desc'],
                 'amount' => [
                     'currency_code' => self::AD_CURRENCY,
-                    'value' => number_format(self::AD_PRICE, 2, '.', ''),
+                    'value' => number_format($meta['price'], 2, '.', ''),
                 ],
             ]],
             'application_context' => [
                 'brand_name' => function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden',
-                'return_url' => url('/advertise/blog/paypal/return?trx=' . $ad->payment_reference),
-                'cancel_url' => url('/advertise/blog/paypal/cancel?trx=' . $ad->payment_reference),
+                'return_url' => url('/advertise/paypal/return?trx=' . $ad->payment_reference),
+                'cancel_url' => url('/advertise/paypal/cancel?trx=' . $ad->payment_reference),
                 'user_action' => 'PAY_NOW',
             ],
         ];
@@ -289,7 +312,7 @@ class AdController extends EdenController
         ]);
 
         if (! $orderResponse || empty($orderResponse['id'])) {
-            return redirect(url('/advertise/blog'))->with('error', 'Could not create PayPal order. Please try again.');
+            return $this->redirectAfterPaymentError($ad, 'Could not create PayPal order. Please try again.');
         }
 
         $ad->payment_reference = $orderResponse['id'];
@@ -297,31 +320,34 @@ class AdController extends EdenController
 
         $approveLink = collect($orderResponse['links'] ?? [])->firstWhere('rel', 'approve');
         if (! $approveLink) {
-            return redirect(url('/advertise/blog'))->with('error', 'Could not get PayPal approval link.');
+            return $this->redirectAfterPaymentError($ad, 'Could not get PayPal approval link.');
         }
 
         return redirect($approveLink['href']);
     }
 
-    private function initiatePaynow(AdSpot $ad, PaymentGateway $gateway): RedirectResponse
+    /**
+     * @param array{placement: string, label: string, description: string, width: int, height: int, price: float, currency: string, storage_dir: string, paypal_desc: string, paynow_title: string} $meta
+     */
+    private function initiatePaynow(AdSpot $ad, PaymentGateway $gateway, array $meta): RedirectResponse
     {
         require_once app_path('Http/Controllers/Gateway/Paynow/autoloader.php');
 
         $integrationId = $gateway->param('integration_id');
         $integrationKey = $gateway->param('integration_key');
 
-        $returnUrl = url('/advertise/blog/paynow/return?trx=' . $ad->payment_reference);
-        $resultUrl = url('/advertise/blog/paynow/callback');
+        $returnUrl = url('/advertise/paynow/return?trx=' . $ad->payment_reference);
+        $resultUrl = url('/advertise/paynow/callback');
 
         $paynow = new \Paynow\Payments\Paynow($integrationId, $integrationKey, $returnUrl, $resultUrl);
 
         $paynowPayment = $paynow->createPayment($ad->payment_reference, $ad->contact_email ?? 'guest@example.com');
-        $paynowPayment->add('Blog ad spot — 1 month', self::AD_PRICE);
+        $paynowPayment->add($meta['paynow_title'], $meta['price']);
 
         try {
             $response = $paynow->send($paynowPayment);
             if (! $response->success()) {
-                return redirect(url('/advertise/blog'))->with('error', 'Paynow error: ' . $response->error());
+                return $this->redirectAfterPaymentError($ad, 'Paynow error: ' . $response->error());
             }
 
             $ad->payment_reference = $response->pollUrl();
@@ -329,7 +355,7 @@ class AdController extends EdenController
 
             return redirect($response->redirectUrl());
         } catch (\Exception $e) {
-            return redirect(url('/advertise/blog'))->with('error', 'Paynow error: ' . $e->getMessage());
+            return $this->redirectAfterPaymentError($ad, 'Paynow error: ' . $e->getMessage());
         }
     }
 
@@ -360,4 +386,3 @@ class AdController extends EdenController
         return json_decode($response, true);
     }
 }
-
