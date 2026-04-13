@@ -2,6 +2,10 @@
 <div class="dash-welcome">
   Embed these badges on your site to show that your startup is listed on {{ $siteName }}. Copy the HTML and paste it where you want the badge to appear. Each badge links to your startup page.
 </div>
+<div class="badge-dofollow-note">All embed snippets below are generated as dofollow links.</div>
+@php
+  $defaultTheme = request('theme') === 'light' ? 'light' : 'dark';
+@endphp
 
 @if($startups->isEmpty())
 <div class="dash-card" style="margin-top: 20px;">
@@ -10,6 +14,17 @@
   </div>
 </div>
 @else
+<div class="badge-theme-picker">
+  <span class="badge-theme-picker__label">Badge style:</span>
+  <label class="badge-theme-option">
+    <input type="radio" name="badge-theme" value="dark" @checked($defaultTheme === 'dark')>
+    <span>Dark</span>
+  </label>
+  <label class="badge-theme-option">
+    <input type="radio" name="badge-theme" value="light" @checked($defaultTheme === 'light')>
+    <span>Light</span>
+  </label>
+</div>
 @foreach($startups as $startup)
 @php
   $startupUrl = url('/startup/' . $startup->slug);
@@ -25,26 +40,40 @@
     {{-- Listed on Eden (always) --}}
     <div class="badge-row">
       <div class="badge-preview">
-        <img src="{{ $badgeBaseUrl }}/listed" alt="Listed on {{ $siteName }}" width="200" height="32" style="border: 0; display: block;">
+        <img
+          src="{{ $badgeBaseUrl }}/listed?theme={{ $defaultTheme }}"
+          alt="Listed on {{ $siteName }}"
+          width="220"
+          height="52"
+          style="border: 0; display: block;"
+          class="badge-preview-image"
+          data-badge-src="{{ $badgeBaseUrl }}/listed">
         <span class="dash-badge dash-badge-success">Always available</span>
       </div>
       <label class="dash-label badge-code-label">Embed code (Listed on {{ $siteName }})</label>
-      <pre class="dash-badge-code"><code>&lt;a href="{{ $startupUrl }}" target="_blank" rel="noopener"&gt;&lt;img src="{{ $badgeBaseUrl }}/listed" alt="Listed on {{ $siteName }}" width="200" height="32" style="border:0;"&gt;&lt;/a&gt;</code></pre>
+      <pre class="dash-badge-code"><code class="badge-embed-code" data-startup-url="{{ $startupUrl }}" data-badge-src="{{ $badgeBaseUrl }}/listed" data-alt="Listed on {{ $siteName }}"></code></pre>
     </div>
 
     @if($isFeatured)
     <div class="badge-row">
       <div class="badge-preview">
-        <img src="{{ $badgeBaseUrl }}/featured" alt="Featured on {{ $siteName }}" width="200" height="32" style="border: 0; display: block;">
+        <img
+          src="{{ $badgeBaseUrl }}/featured?theme={{ $defaultTheme }}"
+          alt="Featured on {{ $siteName }}"
+          width="220"
+          height="52"
+          style="border: 0; display: block;"
+          class="badge-preview-image"
+          data-badge-src="{{ $badgeBaseUrl }}/featured">
         <span class="dash-badge dash-badge-success">Featured</span>
       </div>
       <label class="dash-label badge-code-label">Embed code (Featured on {{ $siteName }})</label>
-      <pre class="dash-badge-code"><code>&lt;a href="{{ $startupUrl }}" target="_blank" rel="noopener"&gt;&lt;img src="{{ $badgeBaseUrl }}/featured" alt="Featured on {{ $siteName }}" width="200" height="32" style="border:0;"&gt;&lt;/a&gt;</code></pre>
+      <pre class="dash-badge-code"><code class="badge-embed-code" data-startup-url="{{ $startupUrl }}" data-badge-src="{{ $badgeBaseUrl }}/featured" data-alt="Featured on {{ $siteName }}"></code></pre>
     </div>
     @else
     <div class="badge-row badge-row--locked">
       <div class="badge-preview">
-        <img src="{{ $badgeBaseUrl }}/featured" alt="Featured on {{ $siteName }}" width="200" height="32" style="border: 0; display: block; opacity: 0.6;">
+        <img src="{{ $badgeBaseUrl }}/featured?theme={{ $defaultTheme }}" alt="Featured on {{ $siteName }}" width="220" height="52" style="border: 0; display: block; opacity: 0.55;" class="badge-preview-image" data-badge-src="{{ $badgeBaseUrl }}/featured">
         <span class="dash-badge dash-badge-muted">Not featured</span>
       </div>
       <p class="badge-hint">This badge appears when your startup is featured by {{ $siteName }}.</p>
@@ -54,16 +83,23 @@
     @if($isProductOfDay)
     <div class="badge-row">
       <div class="badge-preview">
-        <img src="{{ $badgeBaseUrl }}/product-of-day" alt="Product of the day on {{ $siteName }}" width="200" height="32" style="border: 0; display: block;">
+        <img
+          src="{{ $badgeBaseUrl }}/product-of-day?theme={{ $defaultTheme }}"
+          alt="Product of the day on {{ $siteName }}"
+          width="220"
+          height="52"
+          style="border: 0; display: block;"
+          class="badge-preview-image"
+          data-badge-src="{{ $badgeBaseUrl }}/product-of-day">
         <span class="dash-badge dash-badge-success">Product of the day</span>
       </div>
       <label class="dash-label badge-code-label">Embed code (Product of the day on {{ $siteName }})</label>
-      <pre class="dash-badge-code"><code>&lt;a href="{{ $startupUrl }}" target="_blank" rel="noopener"&gt;&lt;img src="{{ $badgeBaseUrl }}/product-of-day" alt="Product of the day on {{ $siteName }}" width="200" height="32" style="border:0;"&gt;&lt;/a&gt;</code></pre>
+      <pre class="dash-badge-code"><code class="badge-embed-code" data-startup-url="{{ $startupUrl }}" data-badge-src="{{ $badgeBaseUrl }}/product-of-day" data-alt="Product of the day on {{ $siteName }}"></code></pre>
     </div>
     @else
     <div class="badge-row badge-row--locked">
       <div class="badge-preview">
-        <img src="{{ $badgeBaseUrl }}/product-of-day" alt="Product of the day on {{ $siteName }}" width="200" height="32" style="border: 0; display: block; opacity: 0.6;">
+        <img src="{{ $badgeBaseUrl }}/product-of-day?theme={{ $defaultTheme }}" alt="Product of the day on {{ $siteName }}" width="220" height="52" style="border: 0; display: block; opacity: 0.55;" class="badge-preview-image" data-badge-src="{{ $badgeBaseUrl }}/product-of-day">
         <span class="dash-badge dash-badge-muted">Not product of the day</span>
       </div>
       <p class="badge-hint">This badge appears when your startup is product of the day (top by upvotes).</p>
@@ -75,11 +111,16 @@
 @endif
 
 <style>
+.badge-theme-picker { margin-top: 18px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.badge-theme-picker__label { font-size: 0.8125rem; color: var(--d-text-secondary, #64748b); font-weight: 600; }
+.badge-theme-option { display: inline-flex; align-items: center; gap: 7px; padding: 6px 11px; border-radius: 999px; border: 1px solid var(--d-border, #e5e7eb); background: var(--d-bg-soft, #fff); font-size: 0.8125rem; cursor: pointer; user-select: none; }
+.badge-theme-option input { margin: 0; accent-color: var(--accent, #0f766e); }
+.badge-dofollow-note { margin-top: 10px; color: var(--d-text-secondary, #64748b); font-size: 0.8rem; }
 .badge-row { margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--d-border, #e5e7eb); }
 .badge-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
 .badge-row--locked { opacity: 0.75; }
 .badge-preview { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; flex-wrap: wrap; }
-.badge-preview img { border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.badge-preview img { border-radius: 26px; box-shadow: 0 7px 14px rgba(15, 23, 42, 0.12); }
 .badge-code-label { font-size: 0.8rem; color: var(--d-text-secondary); }
 .badge-hint { margin: 0; font-size: 0.8125rem; color: var(--d-text-secondary); }
 .dash-badge-code { margin: 8px 0 0; padding: 12px 14px; background: var(--d-bg); border: 1px solid var(--d-border); border-radius: 8px; font-size: 0.75rem; overflow-x: auto; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
@@ -92,6 +133,50 @@
 
 <script>
 (function() {
+  var badgeWidth = 220;
+  var badgeHeight = 52;
+  var themeInputs = document.querySelectorAll('input[name="badge-theme"]');
+
+  function selectedTheme() {
+    var checked = document.querySelector('input[name="badge-theme"]:checked');
+    return checked ? checked.value : 'dark';
+  }
+
+  function renderEmbedCode(theme) {
+    document.querySelectorAll('.badge-embed-code').forEach(function(code) {
+      var startupUrl = code.dataset.startupUrl;
+      var badgeSrc = code.dataset.badgeSrc;
+      var alt = code.dataset.alt;
+      if (!startupUrl || !badgeSrc || !alt) return;
+      var srcWithTheme = badgeSrc + '?theme=' + theme;
+      var safeStartupUrl = startupUrl.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      var safeSrc = srcWithTheme.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      var safeAlt = alt.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      code.textContent = '<a href="' + safeStartupUrl + '" target="_blank"><img src="' + safeSrc + '" alt="' + safeAlt + '" width="' + badgeWidth + '" height="' + badgeHeight + '" style="border:0;"></a>';
+    });
+  }
+
+  function renderPreviewBadges(theme) {
+    document.querySelectorAll('.badge-preview-image').forEach(function(img) {
+      var badgeSrc = img.dataset.badgeSrc;
+      if (!badgeSrc) return;
+      img.src = badgeSrc + '?theme=' + theme;
+    });
+  }
+
+  function applyTheme(theme) {
+    renderPreviewBadges(theme);
+    renderEmbedCode(theme);
+  }
+
+  applyTheme(selectedTheme());
+
+  themeInputs.forEach(function(input) {
+    input.addEventListener('change', function() {
+      applyTheme(selectedTheme());
+    });
+  });
+
   document.querySelectorAll('.dash-badge-code').forEach(function(pre) {
     pre.style.cursor = 'pointer';
     pre.title = 'Click to select';
