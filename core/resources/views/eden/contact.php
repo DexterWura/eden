@@ -5,6 +5,12 @@
   </div>
 </section>
 
+<?php
+$contactPrefill = $contactPrefill ?? [];
+$subjectValue = old('subject', $contactPrefill['subject'] ?? null);
+$prefillStartup = $contactPrefill['startup'] ?? null;
+$messageValue = old('message', $contactPrefill['message'] ?? null);
+?>
 <div class="wrap content-block contact-form-wrap" style="max-width: 560px; margin-left: auto; margin-right: auto;">
   <?php if (session('success')): ?>
   <p class="form-hint" style="color: var(--success, #0a0); margin-bottom: 16px;"><?= e(session('success')) ?></p>
@@ -22,16 +28,22 @@
     <div class="form-group">
       <label class="form-label" for="subject">Subject</label>
       <select id="subject" name="subject" class="form-select">
-        <option value="">Choose…</option>
-        <option value="listing" <?= (old('subject') === 'listing') ? 'selected' : '' ?>>Listing / startup</option>
-        <option value="partnership" <?= (old('subject') === 'partnership') ? 'selected' : '' ?>>Partnership</option>
-        <option value="press" <?= (old('subject') === 'press') ? 'selected' : '' ?>>Press</option>
-        <option value="other" <?= (old('subject') === 'other') ? 'selected' : '' ?>>Other</option>
+        <option value="">Choose...</option>
+        <option value="listing" <?= ($subjectValue === 'listing') ? 'selected' : '' ?>>Listing / startup</option>
+        <option value="partnership" <?= ($subjectValue === 'partnership') ? 'selected' : '' ?>>Partnership</option>
+        <option value="press" <?= ($subjectValue === 'press') ? 'selected' : '' ?>>Press</option>
+        <option value="other" <?= ($subjectValue === 'other') ? 'selected' : '' ?>>Other</option>
       </select>
     </div>
+    <?php if ($prefillStartup): ?>
+    <div class="form-group">
+      <label class="form-label" for="startupContext">Startup</label>
+      <input type="text" id="startupContext" class="form-input" value="<?= e($prefillStartup) ?>" readonly>
+    </div>
+    <?php endif; ?>
     <div class="form-group">
       <label class="form-label" for="message">Message</label>
-      <textarea id="message" name="message" class="form-textarea" placeholder="Your message" required><?= e(old('message')) ?></textarea>
+      <textarea id="message" name="message" class="form-textarea" placeholder="Your message" required><?= e($messageValue) ?></textarea>
     </div>
     <?php if (isset($errors) && $errors->any()): ?>
     <p class="form-hint" style="color: var(--error, #c00); margin-bottom: 12px;"><?= e($errors->first()) ?></p>

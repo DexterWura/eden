@@ -45,7 +45,15 @@ class PageController extends EdenController
 
     public function contact()
     {
-        return $this->page('contact', 'Contact', null, [], EdenSeo::forStaticPath('/contact'));
+        $contactPrefill = [
+            'subject' => request()->query('subject'),
+            'message' => request()->query('message'),
+            'startup' => request()->query('startup'),
+        ];
+
+        return $this->page('contact', 'Contact', null, [
+            'contactPrefill' => $contactPrefill,
+        ], EdenSeo::forStaticPath('/contact'));
     }
 
     public function contactStore(Request $request): RedirectResponse

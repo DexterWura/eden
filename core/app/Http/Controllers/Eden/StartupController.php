@@ -155,9 +155,6 @@ class StartupController extends EdenController
         if (! empty($founders)) {
             $organization['member'] = array_values(array_map(function ($f) {
                 $member = ['@type' => 'Person', 'name' => $f['name'] ?? ''];
-                if (! empty($f['email'])) {
-                    $member['email'] = $f['email'];
-                }
                 if (! empty($f['linkedin_url'])) {
                     $member['url'] = $f['linkedin_url'];
                 }

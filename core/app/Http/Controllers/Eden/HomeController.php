@@ -154,9 +154,7 @@ class HomeController extends EdenController
         if (! in_array($sortBy, ['upvotes', 'views', 'clicks', 'mrr', 'revenue', 'newest'], true)) {
             $sortBy = 'upvotes';
         }
-        $locationFilter = $request->query('location');
-        $startups = $this->startupService->getLeaderboard($sortBy, 50, null, false, $locationFilter);
-        $browseLocations = $this->startupService->getLocationsWithCounts();
+        $startups = $this->startupService->getLeaderboard($sortBy, 50);
 
         $itemListSchema = $this->buildStartupItemListSchema($startups, 'Startup leaderboard');
         $leaderboardAd = AdSpot::activeForPlacement('leaderboard_banner_1')->first();
@@ -166,8 +164,6 @@ class HomeController extends EdenController
         return $this->page('leaderboard', 'Leaderboard', null, [
             'startups' => $startups,
             'sortBy' => $sortBy,
-            'locationFilter' => $locationFilter,
-            'browseLocations' => $browseLocations,
             'productOfDayId' => $this->startupService->getProductOfDayId(),
             'leaderboardAd' => $leaderboardAd,
         ], array_merge($itemListSchema ? ['structuredData' => [$itemListSchema]] : [], $seo));

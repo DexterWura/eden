@@ -6,6 +6,9 @@ $fundingRound = $s->activeFundingRound;
 $logoLetters = $s->logo_letters ?? strtoupper(mb_substr($s->name, 0, 2));
 $foundersDisplay = $s->founders_display ?? [];
 $productImages = $s->product_images ?? [];
+$buildPublicContactUrl = static function (array $params = []) {
+  return url('/contact') . '?' . http_build_query(array_filter($params, static fn ($value) => $value !== null && $value !== ''));
+};
 ?>
 <section class="page-head">
   <div class="wrap">
@@ -120,7 +123,14 @@ $productImages = $s->product_images ?? [];
         </span>
         <div class="startup-founder-info">
           <strong class="startup-founder-name"><?= e($f['name']) ?></strong>
-          <?php if (!empty($f['email'])): ?><p class="startup-founder-email"><a href="mailto:<?= e($f['email']) ?>"><?= e($f['email']) ?></a></p><?php endif; ?>
+          <?php if (!empty($f['email'])): ?>
+          <?php $founderContactUrl = $buildPublicContactUrl([
+            'subject' => 'listing',
+            'startup' => $s->name,
+            'message' => "Hi,\n\nI'm reaching out about " . $s->name . ' and would like to contact ' . $f['name'] . ".\n\n",
+          ]); ?>
+          <p class="startup-founder-email"><a href="<?= e($founderContactUrl) ?>" class="btn btn-ghost"><i class="fa-solid fa-envelope" aria-hidden="true"></i> Email</a></p>
+          <?php endif; ?>
           <?php if (!empty($f['twitter_url']) || !empty($f['linkedin_url'])): ?>
           <div class="startup-founder-links" aria-label="Social links for <?= e($f['name']) ?>">
             <?php if (!empty($f['twitter_url'])): ?><a href="<?= e($f['twitter_url']) ?>" target="_blank" rel="noopener" aria-label="<?= e($f['name']) ?> on X"><i class="fa-brands fa-x-twitter" aria-hidden="true"></i> X</a><?php endif; ?>
@@ -146,7 +156,12 @@ $productImages = $s->product_images ?? [];
       <p class="startup-funding-desc"><?= nl2br(e($fundingRound->description)) ?></p>
       <?php endif; ?>
       <?php if ($fundingRound->contact_email): ?>
-      <a href="mailto:<?= e($fundingRound->contact_email) ?>" class="btn btn-primary"><i class="fa-solid fa-envelope" aria-hidden="true"></i> Contact for investment</a>
+      <?php $fundingContactUrl = $buildPublicContactUrl([
+        'subject' => 'listing',
+        'startup' => $s->name,
+        'message' => "Hi,\n\nI'm interested in the funding round for " . $s->name . ".\n\n",
+      ]); ?>
+      <a href="<?= e($fundingContactUrl) ?>" class="btn btn-primary"><i class="fa-solid fa-envelope" aria-hidden="true"></i> Email</a>
       <?php endif; ?>
     </div>
   </section>

@@ -8,6 +8,7 @@ use App\Models\StartupRevenueEvent;
 use App\Models\StartupUpvote;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Carbon;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AnalyticsController extends EdenController
@@ -48,28 +49,29 @@ class AnalyticsController extends EdenController
 
         $days = 60;
         $startDate = now()->subDays($days);
+        $dateLabels = $this->dateLabels($days);
 
         $revenueByDay = StartupRevenueEvent::whereIn('startup_id', $startupIds)
             ->where('created_at', '>=', $startDate)
             ->selectRaw('DATE(created_at) as date, SUM(amount) as total')
-            ->groupBy('date')
-            ->orderBy('date')
+            ->groupByRaw('DATE(created_at)')
+            ->orderByRaw('DATE(created_at)')
             ->pluck('total', 'date')
             ->toArray();
 
         $upvotesByDay = StartupUpvote::whereIn('startup_id', $startupIds)
             ->where('created_at', '>=', $startDate)
             ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
-            ->groupBy('date')
-            ->orderBy('date')
+            ->groupByRaw('DATE(created_at)')
+            ->orderByRaw('DATE(created_at)')
             ->pluck('count', 'date')
             ->toArray();
 
         $commentsByDay = StartupComment::whereIn('startup_id', $startupIds)
             ->where('created_at', '>=', $startDate)
             ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
-            ->groupBy('date')
-            ->orderBy('date')
+            ->groupByRaw('DATE(created_at)')
+            ->orderByRaw('DATE(created_at)')
             ->pluck('count', 'date')
             ->toArray();
 
@@ -97,6 +99,7 @@ class AnalyticsController extends EdenController
             'commentsByDay' => $commentsByDay,
             'startupMetrics' => $startupMetrics,
             'days' => $days,
+            'dateLabels' => $dateLabels,
         ]);
     }
 
@@ -225,33 +228,35 @@ class AnalyticsController extends EdenController
                 'upvotesByDay' => [],
                 'commentsByDay' => [],
                 'days' => 60,
+                'dateLabels' => $this->dateLabels(60),
             ];
         }
 
         $days = 60;
         $startDate = now()->subDays($days);
+        $dateLabels = $this->dateLabels($days);
 
         $revenueByDay = StartupRevenueEvent::whereIn('startup_id', $startupIds)
             ->where('created_at', '>=', $startDate)
             ->selectRaw('DATE(created_at) as date, SUM(amount) as total')
-            ->groupBy('date')
-            ->orderBy('date')
+            ->groupByRaw('DATE(created_at)')
+            ->orderByRaw('DATE(created_at)')
             ->pluck('total', 'date')
             ->toArray();
 
         $upvotesByDay = StartupUpvote::whereIn('startup_id', $startupIds)
             ->where('created_at', '>=', $startDate)
             ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
-            ->groupBy('date')
-            ->orderBy('date')
+            ->groupByRaw('DATE(created_at)')
+            ->orderByRaw('DATE(created_at)')
             ->pluck('count', 'date')
             ->toArray();
 
         $commentsByDay = StartupComment::whereIn('startup_id', $startupIds)
             ->where('created_at', '>=', $startDate)
             ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
-            ->groupBy('date')
-            ->orderBy('date')
+            ->groupByRaw('DATE(created_at)')
+            ->orderByRaw('DATE(created_at)')
             ->pluck('count', 'date')
             ->toArray();
 
@@ -278,7 +283,19 @@ class AnalyticsController extends EdenController
             'upvotesByDay' => $upvotesByDay,
             'commentsByDay' => $commentsByDay,
             'days' => $days,
+            'dateLabels' => $dateLabels,
         ];
+    }
+
+    private function dateLabels(int $days): array
+    {
+        $dates = [];
+
+        for ($i = $days - 1; $i >= 0; $i--) {
+            $dates[] = Carbon::today()->subDays($i)->format('Y-m-d');
+        }
+
+        return $dates;
     }
 
     private function renderAnalytics($user, array $data): Response

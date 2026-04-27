@@ -54,6 +54,11 @@
         <?php endif; ?>
         <a href="<?= e(url('/founder/upvotes')) ?>" class="<?= ($activeNav ?? '') === 'upvotes' ? 'active' : '' ?>" aria-label="Upvotes" title="Upvotes"><i class="fa-solid fa-arrow-up"></i><span class="dash-sidebar-label">Upvotes</span></a>
         <?php if ($isProFounder): ?>
+        <a href="<?= e(url('/founder/fundraising')) ?>" class="<?= ($activeNav ?? '') === 'fundraising' ? 'active' : '' ?>" aria-label="Fund raising" title="Fund raising"><i class="fa-solid fa-hand-holding-dollar"></i><span class="dash-sidebar-label">Fund raising</span></a>
+        <?php else: ?>
+        <button type="button" class="dash-sidebar-link dash-sidebar-link--pro-gated<?= ($activeNav ?? '') === 'fundraising' ? ' active' : '' ?>" data-pro-toast="fundraising" aria-label="Fund raising (Pro)" title="Fund raising — Pro feature"><i class="fa-solid fa-hand-holding-dollar"></i><span class="dash-sidebar-label">Fund raising</span><span class="dash-sidebar-pro-lock" aria-hidden="true"><i class="fa-solid fa-crown"></i></span></button>
+        <?php endif; ?>
+        <?php if ($isProFounder): ?>
         <a href="<?= e(url('/founder/analytics')) ?>" class="<?= ($activeNav ?? '') === 'analytics' ? 'active' : '' ?>" aria-label="Analytics" title="Analytics"><i class="fa-solid fa-chart-line"></i><span class="dash-sidebar-label">Analytics</span></a>
         <a href="<?= e(url('/founder/blog')) ?>" class="<?= ($activeNav ?? '') === 'blog' ? 'active' : '' ?>" aria-label="Blog" title="Blog"><i class="fa-solid fa-pen-nib"></i><span class="dash-sidebar-label">Blog</span></a>
         <?php else: ?>
@@ -378,7 +383,8 @@
       var proToastCopy = {
         badges: 'Embed trust badges on your site — Pro members get full badge access.',
         analytics: 'See views, clicks, and trends for your listings. Upgrade to Pro for analytics.',
-        blog: 'Write posts as a founder on the blog. Pro unlocks the founder blog.'
+        blog: 'Write posts as a founder on the blog. Pro unlocks the founder blog.',
+        fundraising: 'Show that you are raising and manage investor-facing funding details. Upgrade to Pro for fund raising.'
       };
       document.querySelectorAll('.dash-sidebar-link--pro-gated').forEach(function (btn) {
         btn.addEventListener('click', function (e) {

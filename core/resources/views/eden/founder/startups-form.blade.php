@@ -284,7 +284,7 @@
       <span class="dash-card-subtitle">Pro feature</span>
     </div>
     <div class="dash-card-body" style="display: flex; flex-direction: column; gap: 16px;">
-      <p style="font-size: 0.875rem; color: var(--d-text-secondary);">Open a funding round or mark that you're looking for investors. This will be shown on your startup page.</p>
+      <p style="font-size: 0.875rem; color: var(--d-text-secondary);">Open a funding round or mark that you're looking for investors. This will be shown on your startup page. You can also manage it from the <a href="{{ route('founder.fundraising.index') }}" class="dash-table-link">Fund raising</a> page.</p>
       <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
         <input type="hidden" name="seeking_investors" value="0">
         <input type="checkbox" name="seeking_investors" value="1" id="seeking_investors" {{ (old('seeking_investors', $fundingRound ? '1' : '0')) === '1' ? 'checked' : '' }}>
@@ -326,6 +326,19 @@
           <label for="funding_description" class="dash-label">Description (optional)</label>
           <textarea id="funding_description" name="funding_description" rows="3" class="dash-input" placeholder="Brief pitch, use of funds, etc.">{{ old('funding_description', $fundingDesc) }}</textarea>
         </div>
+      </div>
+    </div>
+  </div>
+  @elseif($isEdit)
+  <div class="dash-card" style="margin-bottom: 20px; border-left: 4px solid #f59e0b;">
+    <div class="dash-card-header">
+      <span class="dash-card-title"><i class="fa-solid fa-hand-holding-dollar"></i> Funding / Investors</span>
+      <span class="dash-card-subtitle">Pro only</span>
+    </div>
+    <div class="dash-card-body" style="display:flex; flex-direction:column; gap:14px;">
+      <p style="font-size: 0.875rem; color: var(--d-text-secondary); margin:0;">Show that you're raising funding, publish investor-facing round details, and manage it from your dashboard.</p>
+      <div>
+        <a href="{{ url('/pricing') }}" class="dash-btn dash-btn-primary" style="text-decoration:none;"><i class="fa-solid fa-crown"></i> Upgrade to Pro</a>
       </div>
     </div>
   </div>

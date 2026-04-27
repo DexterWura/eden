@@ -1,8 +1,6 @@
 <?php
 $startups = $startups ?? null;
 $sortBy = $sortBy ?? 'upvotes';
-$locationFilter = $locationFilter ?? null;
-$browseLocations = $browseLocations ?? collect();
 $productOfDayId = $productOfDayId ?? null;
 $sortLabels = [
   'upvotes' => 'Upvotes',
@@ -22,15 +20,6 @@ $sortLabel = $sortLabels[$sortBy] ?? 'Upvotes';
 </section>
 
 <div class="wrap content-block">
-  <?php if ($browseLocations->isNotEmpty()): ?>
-  <div class="filters filters--categories" style="margin-bottom: 16px;">
-    <a href="<?= e(url('/leaderboard?' . http_build_query(['sort' => $sortBy]))) ?>" class="pill<?= $locationFilter === null || $locationFilter === '' ? ' active' : '' ?>">All locations</a>
-    <?php foreach ($browseLocations as $loc): ?>
-    <a href="<?= e(url('/leaderboard?' . http_build_query(['sort' => $sortBy, 'location' => $loc->location]))) ?>" class="pill<?= $locationFilter === $loc->location ? ' active' : '' ?>"><?= e($loc->location) ?></a>
-    <?php endforeach; ?>
-  </div>
-  <?php endif; ?>
-
   <?php $leaderboardAd = $leaderboardAd ?? null; ?>
   <div style="margin-bottom: 20px;">
     <?php

@@ -37,6 +37,7 @@ use App\Http\Controllers\Founder\BadgesController as FounderBadgesController;
 use App\Http\Controllers\Founder\RevenueApiController as FounderRevenueApiController;
 use App\Http\Controllers\Founder\SettingsController as FounderSettingsController;
 use App\Http\Controllers\Founder\StartupController as FounderStartupController;
+use App\Http\Controllers\Founder\FundraisingController as FounderFundraisingController;
 use App\Http\Controllers\Founder\UpvotesController;
 use App\Http\Controllers\Founder\BlogController as FounderBlogController;
 use App\Http\Controllers\Eden\PricingController;
@@ -156,6 +157,8 @@ Route::middleware('auth')->prefix('founder')->name('founder.')->group(function (
     Route::put('blog/{post}', [FounderBlogController::class, 'update'])->name('blog.update');
     Route::delete('blog/{post}', [FounderBlogController::class, 'destroy'])->name('blog.destroy');
     Route::get('upvotes', [UpvotesController::class, 'index'])->name('upvotes');
+    Route::get('fundraising', [FounderFundraisingController::class, 'index'])->name('fundraising.index');
+    Route::post('fundraising/{startup}', [FounderFundraisingController::class, 'update'])->name('fundraising.update');
     Route::get('analytics', [AnalyticsController::class, 'index'])->name('analytics');
     Route::get('analytics/export/csv', [AnalyticsController::class, 'exportCsv'])->name('analytics.export.csv');
     Route::get('analytics/export/pdf', [AnalyticsController::class, 'exportPdf'])->name('analytics.export.pdf');

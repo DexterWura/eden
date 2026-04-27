@@ -21,6 +21,7 @@
   $upvotesByDay = $upvotesByDay ?? [];
   $commentsByDay = $commentsByDay ?? [];
   $days = $days ?? 60;
+  $dateLabels = $dateLabels ?? [];
 @endphp
 
 <div class="analytics-kpi-grid">
@@ -164,16 +165,6 @@
     monochrome: { enabled: true, color: accentColor, shadeTo: 'light', shadeIntensity: 0.4 }
   };
 
-  function dateRange(days) {
-    var arr = [];
-    for (var i = days - 1; i >= 0; i--) {
-      var d = new Date();
-      d.setDate(d.getDate() - i);
-      arr.push(d.toISOString().slice(0, 10));
-    }
-    return arr;
-  }
-
   function cumulativeFromDaily(dates, dailyData) {
     var cum = 0;
     return dates.map(function(d) {
@@ -182,7 +173,7 @@
     });
   }
 
-  var dates = dateRange({{ $days }});
+  var dates = @json($dateLabels);
   var revenueDaily = @json($revenueByDay);
   var upvotesDaily = @json($upvotesByDay);
   var commentsDaily = @json($commentsByDay);
