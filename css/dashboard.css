@@ -242,6 +242,41 @@ body.dashboard {
 }
 .dash-card-footer a:hover { text-decoration: underline; }
 
+/* Dashboard actions */
+.dash-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-radius: var(--d-radius);
+  border: 1px solid transparent;
+  background: var(--d-primary);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+}
+.dash-btn i { line-height: 1; }
+.dash-btn:hover { background: var(--d-primary-hover); color: #fff; }
+.dash-btn-secondary {
+  background: var(--d-surface);
+  border-color: var(--d-border);
+  color: var(--d-text);
+}
+.dash-btn-secondary:hover {
+  background: var(--d-sidebar-bg);
+  color: var(--d-text);
+}
+.dash-btn-danger {
+  background: #b91c1c;
+  color: #fff;
+}
+.dash-btn-danger:hover { background: #991b1b; color: #fff; }
+
 /* Table */
 .dash-table-wrap { overflow-x: auto; }
 .dash-table {
@@ -351,6 +386,7 @@ body.dashboard {
   .dash-card-body { padding: 16px; }
   .dash-table th,
   .dash-table td { padding: 10px 12px; font-size: 0.8rem; }
+  .dash-btn { width: 100%; }
 }
 
 @media (max-width: 480px) {

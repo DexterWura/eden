@@ -172,6 +172,7 @@ Route::middleware('auth')->prefix('founder')->name('founder.')->group(function (
     Route::post('revenue-api/startups/{startup}/sync', [FounderRevenueApiController::class, 'syncNow'])->name('revenue-api.sync');
     Route::get('settings', [FounderSettingsController::class, 'index'])->name('settings');
     Route::put('settings', [FounderSettingsController::class, 'update'])->name('settings.update');
+    Route::delete('settings/data', [FounderSettingsController::class, 'destroyData'])->name('settings.destroy-data');
     Route::post('hero-request/{startup}', [DashboardController::class, 'requestHeroFeature'])->name('hero-request');
     Route::post('notifications/{notification}/dismiss', function (string $notification) {
         $n = auth()->user()->notifications()->where('id', $notification)->first();

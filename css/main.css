@@ -86,6 +86,7 @@ nav a:hover { color: var(--accent); }
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   padding: 10px 20px;
   border-radius: var(--radius-sm);
   font-weight: 600;
@@ -96,6 +97,7 @@ nav a:hover { color: var(--accent); }
   transition: background 0.2s, box-shadow 0.2s;
   font-family: inherit;
 }
+.btn i { line-height: 1; }
 .btn-primary { background: var(--accent); color: var(--bg); }
 .btn-primary:hover { box-shadow: 0 0 24px var(--accent-dim); }
 .btn-ghost { background: transparent; color: var(--text-muted); }
@@ -287,6 +289,7 @@ nav a:hover { color: var(--accent); }
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-wrap: wrap;
   flex-shrink: 0;
 }
 .upvote-btn {
@@ -448,6 +451,21 @@ nav a:hover { color: var(--accent); }
 .cta-strip h3 { font-size: 1.25rem; margin-bottom: 8px; }
 .cta-strip p { color: var(--text-muted); margin-bottom: 20px; font-size: 0.95rem; }
 .cta-strip .btn { margin: 0 6px; }
+.cta-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.startup-card-actions {
+  display: flex;
+  margin-top: 8px;
+}
+.startup-card-actions .btn {
+  width: 100%;
+}
 
 /* Newsletter */
 .newsletter {
@@ -711,4 +729,8 @@ nav a:hover { color: var(--accent); }
 }
 @media (max-width: 640px) {
   .nav-drawer .logo { margin-bottom: 8px; }
+  .cta-strip .btn {
+    width: 100%;
+    margin: 0;
+  }
 }

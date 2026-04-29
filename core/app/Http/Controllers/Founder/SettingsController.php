@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Founder;
 
 use App\Http\Controllers\Controller;
+use App\Models\BlogPost;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -56,5 +59,29 @@ class SettingsController extends Controller
 
         $user->save();
         return redirect()->route('founder.settings')->with('notify', [['success', 'Profile updated.']]);
+    }
+
+    public function destroyData(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'confirm_delete' => ['required', 'accepted'],
+            'confirm_phrase' => ['required', 'in:DELETE'],
+        ], [
+            'confirm_phrase.in' => 'Type DELETE to confirm.',
+        ]);
+
+        $user = auth()->user();
+
+        DB::transaction(function () use ($user) {
+            BlogPost::where('author_id', $user->id)->delete();
+            $user->startups()->delete();
+            $user->delete();
+        });
+
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/')->with('notify', [['success', 'Your account and founder data were deleted.']]);
     }
 }

@@ -44,9 +44,35 @@
   </button>
 </form>
 
+<div class="dash-card dash-danger-zone" id="danger-zone">
+  <div class="dash-card-header"><span class="dash-card-title">Danger zone</span></div>
+  <div class="dash-card-body" style="display: flex; flex-direction: column; gap: 14px;">
+    <p style="margin: 0; color: var(--d-text-secondary); font-size: 0.875rem;">Delete your founder account and remove your owned startups/posts permanently.</p>
+    <form action="{{ route('founder.settings.destroy-data') }}" method="post" class="dash-danger-form" onsubmit="return confirm('This is permanent. Delete your data?');">
+      @csrf
+      @method('DELETE')
+      <label class="dash-danger-confirm">
+        <input type="checkbox" name="confirm_delete" value="1" required>
+        <span>I understand this action cannot be undone.</span>
+      </label>
+      <label for="confirm_phrase" class="dash-label">Type <strong>DELETE</strong> to confirm</label>
+      <input type="text" id="confirm_phrase" name="confirm_phrase" class="dash-input" placeholder="DELETE" required>
+      @error('confirm_delete') <span class="dash-error">{{ $message }}</span> @enderror
+      @error('confirm_phrase') <span class="dash-error">{{ $message }}</span> @enderror
+      <button type="submit" class="dash-btn dash-btn-danger">
+        <i class="fa-solid fa-trash"></i> Delete my data
+      </button>
+    </form>
+  </div>
+</div>
+
 <style>
 .dash-form .dash-label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.875rem; color: var(--d-text); }
 .dash-form .dash-input { width: 100%; padding: 10px 14px; font-size: 0.875rem; border: 1px solid var(--d-border); border-radius: var(--d-radius); background: var(--d-surface); color: var(--d-text); }
 .dash-form .dash-input:focus { outline: none; border-color: var(--d-primary); }
 .dash-form .dash-error { display: block; margin-top: 4px; font-size: 0.8rem; color: #dc2626; }
+.dash-danger-zone { border-color: rgba(220, 38, 38, 0.35); }
+.dash-danger-form { display: flex; flex-direction: column; gap: 12px; max-width: 460px; }
+.dash-danger-confirm { display: inline-flex; align-items: center; gap: 8px; font-size: 0.875rem; color: var(--d-text); }
+.dash-danger-confirm input { accent-color: #dc2626; }
 </style>

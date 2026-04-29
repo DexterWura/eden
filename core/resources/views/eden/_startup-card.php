@@ -8,6 +8,7 @@ $url = url('/startup/' . e($s->slug));
 $logoPath = $s->logo_path ?? null;
 $logoLetters = $s->logo_letters ?? strtoupper(mb_substr($s->name, 0, 2));
 $foundersDisplay = $s->founders_display ?? [];
+$showClaimButton = empty($s->user_id) && empty($s->founder_email);
 $searchText = implode(' ', array_filter([$s->name, $s->tagline, $s->category, $s->location, $s->founder_name, implode(' ', array_column($foundersDisplay, 'name'))], fn($v) => $v !== null && $v !== ''));
 $isRow = $cardVariant === 'row';
 ?>
@@ -92,5 +93,10 @@ $isRow = $cardVariant === 'row';
       <?php if (!empty($s->twitter_url)): ?><a href="<?= e($s->twitter_url) ?>" target="_blank" rel="noopener" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a><?php endif; ?>
       <?php if (!empty($s->linkedin_url)): ?><a href="<?= e($s->linkedin_url) ?>" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a><?php endif; ?>
     </div>
+    <?php if ($showClaimButton): ?>
+    <div class="startup-card-actions">
+      <a href="<?= e(route('startup.claim', $s->slug)) ?>" class="btn btn-primary"><i class="fa-solid fa-hand-holding-hand" aria-hidden="true"></i> Claim this startup</a>
+    </div>
+    <?php endif; ?>
   </a>
 </div>

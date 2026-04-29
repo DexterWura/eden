@@ -335,13 +335,17 @@
     <div class="wrap site-footer__wrap">
       <div class="site-footer__row">
         <div class="site-footer__col">
-          <p class="site-footer__brand"><a href="<?= e(url('/')) ?>"><?= e(function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden') ?></a>: The place to launch and discover new tech products.</p>
-          <p class="site-footer__links">
+          <p class="site-footer__brand"><a href="<?= e(url('/')) ?>"><?= e(function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden') ?></a></p>
+          <p class="site-footer__tagline">Discover and launch startups without the noise.</p>
+          <p class="site-footer__links site-footer__links--primary">
             <a href="<?= e(url('/about')) ?>">About</a>
             <a href="<?= e(url('/contact')) ?>">Contact</a>
-            <a href="<?= e(url('/privacy')) ?>">Privacy Policy</a>
-            <a href="<?= e(url('/terms')) ?>">Terms</a>
             <a href="<?= e(url('/categories')) ?>">Categories</a>
+            <a href="<?= e(url('/blog')) ?>">Blog</a>
+          </p>
+          <p class="site-footer__links site-footer__links--secondary">
+            <a href="<?= e(url('/privacy')) ?>">Privacy</a>
+            <a href="<?= e(url('/terms')) ?>">Terms</a>
             <?php if (auth()->check()): ?><a href="<?= e(url('/saved')) ?>">Saved</a><?php endif; ?>
           </p>
         </div>
@@ -349,24 +353,32 @@
           <?php include __DIR__ . '/partials/sister-sites.php'; ?>
         </div>
       </div>
-      <p class="site-footer__credit">Developed with <i class="fa-solid fa-heart" aria-hidden="true" style="color: var(--accent); vertical-align: middle;"></i> by <a href="https://www.linkedin.com/in/dexterity-wurayayi-967a64230/" target="_blank" rel="noopener noreferrer">Dexter Wurayayi</a>.</p>
+      <p class="site-footer__credit">Built by <a href="https://www.linkedin.com/in/dexterity-wurayayi-967a64230/" target="_blank" rel="noopener noreferrer">Dexter Wurayayi</a>.</p>
     </div>
   </footer>
   <style>
-  .site-footer__wrap { display: flex; flex-direction: column; gap: 1.5rem; }
-  .site-footer__row { display: flex; flex-wrap: wrap; gap: 2rem; align-items: flex-start; }
-  .site-footer__col { flex: 1 1 200px; }
-  .site-footer__brand { margin: 0 0 0.25rem; }
-  .site-footer__links { margin: 0; }
-  .site-footer__links a + a { margin-left: 0.5rem; }
-  .site-footer__heading { font-weight: 700; font-size: 0.9375rem; margin: 0 0 0.5rem; color: var(--text); }
-  .site-footer__sites { list-style: none; margin: 0; padding: 0; }
-  .site-footer__sites li { margin: 0.25rem 0; }
+  .site-footer { padding: 28px 0; }
+  .site-footer__wrap { display: flex; flex-direction: column; gap: 1.25rem; }
+  .site-footer__row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 1.5rem; align-items: start; }
+  .site-footer__col { min-width: 0; }
+  .site-footer__brand { margin: 0; font-size: 1rem; font-weight: 700; color: var(--text); }
+  .site-footer__brand a { color: inherit; text-decoration: none; }
+  .site-footer__tagline { margin: 0.25rem 0 0.75rem; color: var(--text-muted); font-size: 0.9rem; max-width: 36ch; }
+  .site-footer__links { margin: 0; display: flex; flex-wrap: wrap; gap: 0.45rem 0.8rem; }
+  .site-footer__links + .site-footer__links { margin-top: 0.45rem; }
+  .site-footer__links a { color: var(--link); text-decoration: none; font-size: 0.88rem; }
+  .site-footer__links a:hover { color: var(--link-hover); text-decoration: underline; }
+  .site-footer__heading { font-weight: 600; font-size: 0.9rem; margin: 0 0 0.5rem; color: var(--text); }
+  .site-footer__sites { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.45rem; }
+  .site-footer__sites li { margin: 0; }
   .site-footer__sites a { text-decoration: none; }
   .site-footer__sites a:hover { text-decoration: underline; }
-  .site-footer__credit { margin: 0; padding-top: 1rem; border-top: 1px solid var(--border); text-align: center; font-size: 0.875rem; color: var(--text-muted); }
+  .site-footer__credit { margin: 0; padding-top: 0.85rem; border-top: 1px solid var(--border); text-align: center; font-size: 0.82rem; color: var(--text-muted); }
   .site-footer__credit a { color: var(--link); }
   .site-footer__credit a:hover { color: var(--link-hover); }
+  @media (max-width: 800px) {
+    .site-footer__row { grid-template-columns: 1fr; gap: 1rem; }
+  }
   .cookie-consent { position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; background: var(--surface, #12141c); border-top: 1px solid var(--border, #2a2e3d); padding: 12px 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.2); }
   .cookie-consent[hidden] { display: none !important; }
   .cookie-consent-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }

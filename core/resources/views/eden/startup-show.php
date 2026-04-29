@@ -74,7 +74,7 @@ $buildPublicContactUrl = static function (array $params = []) {
           <?php endif; ?>
           <?php $showClaimButton = empty($s->user_id) && empty($s->founder_email); ?>
           <?php if ($showClaimButton): ?>
-          <a href="<?= e(route('startup.claim', $s->slug)) ?>" class="btn btn-ghost" style="margin-left: 4px;"><i class="fa-solid fa-hand-holding-hand" aria-hidden="true"></i> Claim this startup</a>
+          <a href="<?= e(route('startup.claim', $s->slug)) ?>" class="btn btn-primary" style="margin-left: 4px;"><i class="fa-solid fa-hand-holding-hand" aria-hidden="true"></i> Claim this startup</a>
           <?php endif; ?>
           <div class="share-ui share-ui--inline" style="margin-left: 8px; position: relative; display: inline-block;">
             <button type="button" class="btn btn-ghost share-btn-trigger" id="shareTrigger" aria-label="Share" aria-expanded="false" aria-haspopup="true"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i> Share</button>

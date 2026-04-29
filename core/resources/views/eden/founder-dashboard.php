@@ -173,6 +173,7 @@
     <?php endif; ?>
     <?php if (auth()->user()->isPro()): ?><a href="<?= e(url('/founder/analytics')) ?>" class="dash-btn dash-btn-secondary" style="text-decoration: none;"><i class="fa-solid fa-chart-line"></i> Analytics</a><?php endif; ?>
     <a href="<?= e(url('/founder/settings')) ?>" class="dash-btn dash-btn-secondary" style="text-decoration: none;"><i class="fa-solid fa-gear"></i> Settings</a>
+    <a href="<?= e(url('/founder/settings')) ?>#danger-zone" class="dash-btn dash-btn-danger" style="text-decoration: none;"><i class="fa-solid fa-trash"></i> Delete my data</a>
   </div>
 </div>
 <?php if (auth()->check() && !auth()->user()->isPro()): ?>
