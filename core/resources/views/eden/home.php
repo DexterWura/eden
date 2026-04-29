@@ -142,18 +142,6 @@
   <?php endif; ?>
 
   <?php if (!($sortNewest ?? false)): ?>
-  <?php $homeAd = $homeAd ?? null; ?>
-  <div class="home-ad-spot" style="margin: 24px 0;">
-    <?php
-      $ad = $homeAd;
-      $buyUrl = url('/advertise/home');
-      $emptyTitle = 'Ad spot available';
-      $emptyCopy = '728×90 banner below the hero on the main directory.';
-      $maxWidth = 728;
-      include __DIR__ . '/partials/ad-spot.php';
-    ?>
-  </div>
-
   <?php $homeSidebarAd = $homeSidebarAd ?? null; ?>
   <div class="home-ad-spot home-ad-spot--sidebar" style="margin: 8px 0 24px; display: flex; justify-content: center;">
     <?php
