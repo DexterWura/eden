@@ -24,22 +24,24 @@ $buildPublicContactUrl = static function (array $params = []) {
       <div class="startup-hero-logo" role="img" aria-label="<?= e($s->name) ?> logo">
         <?php if ($logoPath): ?><img src="<?= e(asset($logoPath)) ?>" alt="<?= e($s->name) ?> – logo" class="startup-hero-logo-img" width="80" height="80" loading="eager"><?php else: ?><?= e($logoLetters) ?><?php endif; ?>
       </div>
-      <div>
+      <div class="startup-hero-main">
         <h1><?= e($s->name) ?></h1>
         <?php $isProductOfDay = $isProductOfDay ?? false; ?>
-        <?php if ($isProductOfDay): ?><span class="badge badge-product-of-day" style="display: inline-block; margin-bottom: 8px;">Product of the day</span><?php endif; ?>
-        <?php if ($fundingRound): ?><span class="badge badge-funding" style="display: inline-block; margin-bottom: 8px; margin-left: 6px;"><i class="fa-solid fa-hand-holding-dollar"></i> Raising</span><?php endif; ?>
-        <?php if ($s->for_sale && !$s->sold_at && $s->flipit_listing_id): ?>
+        <div class="startup-hero-badges">
+          <?php if ($isProductOfDay): ?><span class="badge badge-product-of-day">Product of the day</span><?php endif; ?>
+          <?php if ($fundingRound): ?><span class="badge badge-funding"><i class="fa-solid fa-hand-holding-dollar"></i> Raising</span><?php endif; ?>
+          <?php if ($s->for_sale && !$s->sold_at && $s->flipit_listing_id): ?>
           <?php $flipitUrl = $s->getFlipitListingUrl(); ?>
-          <?php if ($flipitUrl): ?><a href="<?= e($flipitUrl) ?>" target="_blank" rel="noopener noreferrer" class="badge badge-for-sale" style="display: inline-block; margin-bottom: 8px; margin-left: 6px;"><i class="fa-solid fa-tag" aria-hidden="true"></i> For sale</a><?php endif; ?>
-        <?php endif; ?>
+          <?php if ($flipitUrl): ?><a href="<?= e($flipitUrl) ?>" target="_blank" rel="noopener noreferrer" class="badge badge-for-sale"><i class="fa-solid fa-tag" aria-hidden="true"></i> For sale</a><?php endif; ?>
+          <?php endif; ?>
+        </div>
         <?php if ($s->tagline): ?><p class="tagline"><?= e($s->tagline) ?></p><?php endif; ?>
         <div class="startup-meta">
           <?php if ($s->category): ?><span><?= e($s->category) ?></span><?php endif; ?>
           <?php if ($s->location): ?><span><?= e($s->location) ?></span><?php endif; ?>
           <?php if ($s->launch_date): ?><span><?= $s->launch_date->format('F Y') ?></span><?php endif; ?>
         </div>
-        <div class="upvote-ui" style="margin-top: 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+        <div class="upvote-ui startup-hero-actions" style="margin-top: 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
           <?php $hasUpvoted = $hasUpvoted ?? false; ?>
           <?php if ($hasUpvoted): ?>
           <span class="upvote-btn" style="opacity: 0.8; cursor: default;" aria-label="Upvoted"><i class="fa-solid fa-arrow-up"></i></span>
@@ -276,7 +278,7 @@ $buildPublicContactUrl = static function (array $params = []) {
 
   <?php $reportReasons = $reportReasons ?? []; ?>
   <?php if (!empty($reportReasons)): ?>
-  <details class="startup-report-box" style="margin-top: 28px; padding: 16px 18px; border: 1px solid var(--border, #e2e8f0); border-radius: 10px; background: var(--surface, rgba(15,23,42,0.35));">
+  <details class="startup-report-box" style="margin-top: 28px; padding: 16px 18px 22px; border: 1px solid var(--border, #e2e8f0); border-radius: 10px; background: var(--surface, rgba(15,23,42,0.35));">
     <summary style="cursor: pointer; font-size: 0.9rem; font-weight: 600; color: var(--text-muted, #64748b); list-style: none;">
       <i class="fa-solid fa-flag" style="margin-right: 6px;" aria-hidden="true"></i> Report this listing
     </summary>
@@ -321,6 +323,29 @@ $buildPublicContactUrl = static function (array $params = []) {
 </div>
 
 <style>
+.startup-hero {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+  text-align: left;
+}
+.startup-hero-main h1 { margin-bottom: 6px; }
+.startup-hero-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 8px;
+}
+.startup-hero .tagline { margin: 0 0 8px; }
+.startup-hero .startup-meta { margin-bottom: 8px; }
+.startup-hero-actions .btn { margin-left: 0 !important; }
+.startup-hero-actions .share-ui--inline { margin-left: 0 !important; }
+@media (max-width: 760px) {
+  .startup-hero { grid-template-columns: 1fr; gap: 12px; }
+  .startup-hero-logo { width: 72px; height: 72px; }
+  .startup-hero-main h1 { font-size: clamp(1.4rem, 5.5vw, 1.9rem); line-height: 1.2; }
+}
 .share-ui--inline .share-dropdown { position: absolute; top: 100%; left: 0; margin-top: 4px; min-width: 160px; background: var(--surface, #12141c); border: 1px solid var(--border, #2a2e3d); border-radius: var(--radius-sm, 8px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); z-index: 50; padding: 4px; }
 .share-ui--inline .share-dropdown[hidden] { display: none; }
 .share-dropdown-item { display: flex; align-items: center; gap: 8px; width: 100%; padding: 10px 12px; border: none; background: none; color: var(--text, #e8eaef); font: inherit; font-size: 0.9rem; text-align: left; cursor: pointer; border-radius: 6px; text-decoration: none; }
