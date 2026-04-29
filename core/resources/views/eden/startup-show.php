@@ -41,50 +41,55 @@ $buildPublicContactUrl = static function (array $params = []) {
           <?php if ($s->location): ?><span><?= e($s->location) ?></span><?php endif; ?>
           <?php if ($s->launch_date): ?><span><?= $s->launch_date->format('F Y') ?></span><?php endif; ?>
         </div>
-        <div class="upvote-ui startup-hero-actions" style="margin-top: 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-          <?php $hasUpvoted = $hasUpvoted ?? false; ?>
-          <?php if ($hasUpvoted): ?>
-          <span class="upvote-btn" style="opacity: 0.8; cursor: default;" aria-label="Upvoted"><i class="fa-solid fa-arrow-up"></i></span>
-          <span class="upvote-count"><?= (int)$s->upvotes ?></span>
-          <span style="font-size: 0.875rem; color: var(--text-muted, #64748b);">You upvoted</span>
-          <?php else: ?>
-          <form action="<?= e(route('startup.upvote', $s->slug)) ?>" method="POST" style="display: inline;">
-            <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
-            <button type="submit" class="upvote-btn" aria-label="Upvote"><i class="fa-solid fa-arrow-up"></i></button>
-          </form>
-          <span class="upvote-count"><?= (int)$s->upvotes ?></span>
-          <?php if (!auth()->check()): ?>
-          <span style="font-size: 0.875rem; color: var(--text-muted, #64748b);">Log in to upvote</span>
-          <?php endif; ?>
-          <?php endif; ?>
-          <?php if (!empty($s->website)): ?>
-          <a href="<?= e(url('/startup/' . $s->slug . '/out')) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="margin-left: 4px;"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Visit website</a>
-          <?php endif; ?>
-          <?php if (auth()->check()): ?>
-          <?php $hasSaved = $hasSaved ?? false; ?>
-          <?php if ($hasSaved): ?>
-          <form action="<?= e(route('startup.unsave', $s->slug)) ?>" method="post" style="display: inline; margin-left: 4px;">
-            <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
-            <button type="submit" class="btn btn-ghost"><i class="fa-solid fa-bookmark" aria-hidden="true"></i> Saved</button>
-          </form>
-          <?php else: ?>
-          <form action="<?= e(route('startup.save', $s->slug)) ?>" method="post" style="display: inline; margin-left: 4px;">
-            <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
-            <button type="submit" class="btn btn-ghost"><i class="fa-regular fa-bookmark" aria-hidden="true"></i> Save</button>
-          </form>
-          <?php endif; ?>
-          <?php endif; ?>
-          <?php $showClaimButton = empty($s->user_id) && empty($s->founder_email); ?>
-          <?php if ($showClaimButton): ?>
-          <a href="<?= e(route('startup.claim', $s->slug)) ?>" class="btn btn-primary" style="margin-left: 4px;"><i class="fa-solid fa-hand-holding-hand" aria-hidden="true"></i> Claim this startup</a>
-          <?php endif; ?>
-          <div class="share-ui share-ui--inline" style="margin-left: 8px; position: relative; display: inline-block;">
+        <div class="startup-hero-actions">
+          <div class="upvote-ui startup-hero-actions-main">
+            <?php $hasUpvoted = $hasUpvoted ?? false; ?>
+            <?php if ($hasUpvoted): ?>
+            <span class="upvote-btn" style="opacity: 0.8; cursor: default;" aria-label="Upvoted"><i class="fa-solid fa-arrow-up"></i></span>
+            <span class="upvote-count"><?= (int)$s->upvotes ?></span>
+            <span style="font-size: 0.875rem; color: var(--text-muted, #64748b);">You upvoted</span>
+            <?php else: ?>
+            <form action="<?= e(route('startup.upvote', $s->slug)) ?>" method="POST" style="display: inline;">
+              <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
+              <button type="submit" class="upvote-btn" aria-label="Upvote"><i class="fa-solid fa-arrow-up"></i></button>
+            </form>
+            <span class="upvote-count"><?= (int)$s->upvotes ?></span>
+            <?php if (!auth()->check()): ?>
+            <span style="font-size: 0.875rem; color: var(--text-muted, #64748b);">Log in to upvote</span>
+            <?php endif; ?>
+            <?php endif; ?>
+            <?php if (!empty($s->website)): ?>
+            <a href="<?= e(url('/startup/' . $s->slug . '/out')) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Visit website</a>
+            <?php endif; ?>
+          </div>
+
+          <div class="startup-hero-actions-side">
+            <?php if (auth()->check()): ?>
+            <?php $hasSaved = $hasSaved ?? false; ?>
+            <?php if ($hasSaved): ?>
+            <form action="<?= e(route('startup.unsave', $s->slug)) ?>" method="post" style="display: inline;">
+              <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
+              <button type="submit" class="btn btn-ghost"><i class="fa-solid fa-bookmark" aria-hidden="true"></i> Saved</button>
+            </form>
+            <?php else: ?>
+            <form action="<?= e(route('startup.save', $s->slug)) ?>" method="post" style="display: inline;">
+              <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
+              <button type="submit" class="btn btn-ghost"><i class="fa-regular fa-bookmark" aria-hidden="true"></i> Save</button>
+            </form>
+            <?php endif; ?>
+            <?php endif; ?>
+            <?php $showClaimButton = empty($s->user_id) && empty($s->founder_email); ?>
+            <?php if ($showClaimButton): ?>
+            <a href="<?= e(route('startup.claim', $s->slug)) ?>" class="btn btn-primary"><i class="fa-solid fa-hand-holding-hand" aria-hidden="true"></i> Claim this startup</a>
+            <?php endif; ?>
+            <div class="share-ui share-ui--inline" style="position: relative; display: inline-block;">
             <button type="button" class="btn btn-ghost share-btn-trigger" id="shareTrigger" aria-label="Share" aria-expanded="false" aria-haspopup="true"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i> Share</button>
             <div class="share-dropdown" id="shareDropdown" role="menu" aria-label="Share options" hidden>
               <button type="button" class="share-dropdown-item" data-action="copy" data-url="<?= e(url('/startup/' . $s->slug)) ?>"><i class="fa-solid fa-link" aria-hidden="true"></i> Copy link</button>
               <a href="https://twitter.com/intent/tweet?url=<?= e(rawurlencode(url('/startup/' . $s->slug))) ?>&text=<?= e(rawurlencode(($s->tagline ?: $s->name) . ' — ' . $s->name)) ?>" target="_blank" rel="noopener noreferrer" class="share-dropdown-item"><i class="fa-brands fa-x-twitter" aria-hidden="true"></i> Share on X</a>
               <a href="https://www.linkedin.com/sharing/share-offsite/?url=<?= e(rawurlencode(url('/startup/' . $s->slug))) ?>" target="_blank" rel="noopener noreferrer" class="share-dropdown-item"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i> Share on LinkedIn</a>
             </div>
+          </div>
           </div>
         </div>
       </div>
@@ -331,6 +336,10 @@ $buildPublicContactUrl = static function (array $params = []) {
   text-align: left;
 }
 .startup-hero-main h1 { margin-bottom: 6px; }
+.startup-hero-main {
+  width: 100%;
+  min-width: 0;
+}
 .startup-hero-badges {
   display: flex;
   flex-wrap: wrap;
@@ -339,12 +348,27 @@ $buildPublicContactUrl = static function (array $params = []) {
 }
 .startup-hero .tagline { margin: 0 0 8px; }
 .startup-hero .startup-meta { margin-bottom: 8px; }
-.startup-hero-actions .btn { margin-left: 0 !important; }
-.startup-hero-actions .share-ui--inline { margin-left: 0 !important; }
+.startup-hero-actions {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.startup-hero-actions-main,
+.startup-hero-actions-side {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.startup-hero-actions-side { margin-left: auto; }
 @media (max-width: 760px) {
   .startup-hero { grid-template-columns: 1fr; gap: 12px; }
   .startup-hero-logo { width: 72px; height: 72px; }
   .startup-hero-main h1 { font-size: clamp(1.4rem, 5.5vw, 1.9rem); line-height: 1.2; }
+  .startup-hero-actions-side { margin-left: 0; }
 }
 .share-ui--inline .share-dropdown { position: absolute; top: 100%; left: 0; margin-top: 4px; min-width: 160px; background: var(--surface, #12141c); border: 1px solid var(--border, #2a2e3d); border-radius: var(--radius-sm, 8px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); z-index: 50; padding: 4px; }
 .share-ui--inline .share-dropdown[hidden] { display: none; }
