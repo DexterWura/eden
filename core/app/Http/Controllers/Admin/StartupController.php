@@ -307,6 +307,56 @@ class StartupController extends Controller
         return response()->json(['status' => 'success', 'message' => "Startup {$label}.", 'is_featured' => $startup->is_featured]);
     }
 
+    public function addUpvotes(Request $request, Startup $startup): JsonResponse
+    {
+        $validated = $request->validate([
+            'count' => ['required', 'integer', 'min:1', 'max:500'],
+        ]);
+
+        $requested = (int) $validated['count'];
+        $alreadyUpvotedUserIds = StartupUpvote::where('startup_id', $startup->id)->pluck('user_id');
+        $candidateUsers = User::query()
+            ->whereNotIn('id', $alreadyUpvotedUserIds)
+            ->inRandomOrder()
+            ->limit($requested)
+            ->pluck('id');
+
+        if ($candidateUsers->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No eligible users are available to add legitimate upvotes.',
+            ], 422);
+        }
+
+        $added = 0;
+        DB::transaction(function () use ($startup, $candidateUsers, &$added) {
+            foreach ($candidateUsers as $userId) {
+                $upvote = StartupUpvote::firstOrCreate([
+                    'startup_id' => $startup->id,
+                    'user_id' => $userId,
+                ]);
+                if ($upvote->wasRecentlyCreated) {
+                    $added++;
+                }
+            }
+
+            $startup->upvotes = StartupUpvote::where('startup_id', $startup->id)->count();
+            $startup->save();
+        });
+
+        $shortage = max(0, $requested - $added);
+        $message = $shortage > 0
+            ? "Added {$added} legitimate upvotes ({$shortage} fewer than requested due to eligible user limits)."
+            : "Added {$added} legitimate upvotes.";
+
+        return response()->json([
+            'status' => 'success',
+            'message' => $message,
+            'added' => $added,
+            'upvotes' => (int) $startup->upvotes,
+        ]);
+    }
+
     private function notifyFounderApproved(Startup $startup): void
     {
         $userIds = [];

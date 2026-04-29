@@ -206,6 +206,7 @@ Route::middleware('admin')->prefix('backoffice')->name('admin.')->group(function
     Route::post('startups/{startup}/ban', [AdminStartupController::class, 'ban'])->name('startups.ban');
     Route::post('startups/{startup}/unban', [AdminStartupController::class, 'unban'])->name('startups.unban');
     Route::post('startups/{startup}/featured', [AdminStartupController::class, 'toggleFeatured'])->name('startups.toggle-featured');
+    Route::post('startups/{startup}/upvotes/add', [AdminStartupController::class, 'addUpvotes'])->name('startups.add-upvotes');
     Route::post('startups/{startup}/feature-on-hero', [AdminStartupController::class, 'toggleFeaturedOnHero'])->name('startups.toggle-hero');
     Route::post('hero-request/{startup}/approve', [DashboardController::class, 'approveHeroRequest'])->name('hero-request.approve');
     Route::post('hero-request/{startup}/reject', [DashboardController::class, 'rejectHeroRequest'])->name('hero-request.reject');

@@ -112,6 +112,9 @@
                 <button type="button" class="dash-btn dash-btn-secondary startup-action startup-featured" style="padding: 4px 10px; font-size: 0.8rem;" data-url="{{ route('admin.startups.toggle-featured', $startup) }}" data-featured="{{ $startup->is_featured ? '1' : '0' }}">
                   {{ $startup->is_featured ? 'Unfeature' : 'Feature' }}
                 </button>
+                <button type="button" class="dash-btn dash-btn-secondary startup-add-upvotes" style="padding: 4px 10px; font-size: 0.8rem;" data-url="{{ route('admin.startups.add-upvotes', $startup) }}" data-startup="{{ e($startup->name) }}">
+                  <i class="fa-solid fa-arrow-up"></i> Add upvotes
+                </button>
                 @if($startup->hasLinkedInFounders ?? false)
                   <form action="{{ route('admin.startups.toggle-hero', $startup) }}" method="post" style="display: inline;">
                     @csrf
@@ -253,5 +256,41 @@
       });
     });
   }
+
+  document.querySelectorAll('.startup-add-upvotes').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var url = this.getAttribute('data-url');
+      var name = this.getAttribute('data-startup') || 'this startup';
+      if (!url) return;
+      var countRaw = window.prompt('How many legitimate upvotes should be added for "' + name + '"? (1-500)');
+      if (countRaw === null) return;
+      var count = parseInt(countRaw, 10);
+      if (!Number.isFinite(count) || count < 1 || count > 500) {
+        if (typeof notify === 'function') notify('error', 'Enter a number between 1 and 500.');
+        return;
+      }
+
+      var self = this;
+      self.disabled = true;
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify({ _token: csrf, count: count })
+      }).then(function(r) {
+        return r.json().then(function(data) { return { statusCode: r.status, data: data }; });
+      }).then(function(res) {
+        if (res.statusCode >= 200 && res.statusCode < 300 && res.data.status === 'success') {
+          if (typeof notify === 'function') notify('success', res.data.message || 'Upvotes added');
+          window.location.reload();
+        } else {
+          if (typeof notify === 'function') notify('error', (res.data && res.data.message) ? res.data.message : 'Unable to add upvotes');
+          self.disabled = false;
+        }
+      }).catch(function() {
+        if (typeof notify === 'function') notify('error', 'Request failed');
+        self.disabled = false;
+      });
+    });
+  });
 })();
 </script>
