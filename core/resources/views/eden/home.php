@@ -142,17 +142,6 @@
   <?php endif; ?>
 
   <?php if (!($sortNewest ?? false)): ?>
-  <?php $homeSidebarAd = $homeSidebarAd ?? null; ?>
-  <div class="home-ad-spot home-ad-spot--sidebar" style="margin: 8px 0 24px; display: flex; justify-content: center;">
-    <?php
-      $ad = $homeSidebarAd;
-      $buyUrl = url('/advertise/home-sidebar');
-      $emptyTitle = 'Medium rectangle spot';
-      $emptyCopy = '300×250 on the homepage — ideal for product creative.';
-      $maxWidth = 300;
-      include __DIR__ . '/partials/ad-spot.php';
-    ?>
-  </div>
   <?php endif; ?>
 
   <?php $featuredProducts = $featuredProducts ?? collect(); ?>
