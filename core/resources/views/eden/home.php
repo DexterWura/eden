@@ -247,7 +247,7 @@
                   <?php if ($logoPath): ?><img src="<?= e(asset($logoPath)) ?>" alt=""><?php else: ?><?= e($logoLetters) ?><?php endif; ?>
                 </div>
                 <div class="leaderboard-startup-info">
-                  <p class="leaderboard-startup-name"><?= e($s->name) ?><?php if (!empty($productOfDayId) && (int)$s->id === (int)$productOfDayId): ?> <span class="badge badge-product-of-day">Product of the day</span><?php endif; ?></p>
+                  <p class="leaderboard-startup-name"><?= e($s->name) ?></p>
                   <p class="leaderboard-startup-desc"><?= e($s->short_description) ?></p>
                 </div>
               </a>

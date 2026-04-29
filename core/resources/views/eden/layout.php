@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <?php
     $siteName = function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden';
-    $pageTitleFinal = isset($pageTitle) ? $pageTitle : (isset($title) ? $title . ' — ' . $siteName : $siteName . ' — Startup Directory');
+    $pageTitleFinal = isset($pageTitle) ? $pageTitle : (isset($title) ? $title . ' | ' . $siteName : $siteName . ' | Startup Directory');
     $metaDesc = isset($metaDescription) ? $metaDescription : (function_exists('gs') && gs('meta_description') ? gs('meta_description') : (function_exists('gs') && gs('social_description') ? gs('social_description') : 'Startup directory for discoverability and growth.'));
     $socialDesc = isset($metaDescription) ? $metaDescription : (function_exists('gs') && gs('social_description') ? gs('social_description') : $metaDesc);
     $metaKeywordsFinal = isset($metaKeywords) ? $metaKeywords : (function_exists('gs') && gs('meta_keywords') ? gs('meta_keywords') : '');

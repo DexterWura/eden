@@ -49,7 +49,7 @@ class BlogPost extends Model
     public function getPageTitleAttribute(): string
     {
         $siteName = function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden';
-        return $this->meta_title ?: ($this->title . ' — ' . $siteName);
+        return $this->meta_title ?: ($this->title . ' | ' . $siteName);
     }
 
     public function getCanonicalUrlAttribute(): string

@@ -250,7 +250,7 @@ nav a:hover { color: var(--accent); }
   transform: translateY(-2px);
 }
 .startup-card.featured { border-color: var(--accent); background: linear-gradient(135deg, var(--surface) 0%, var(--accent-dim) 100%); }
-.card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .card-logo {
   width: 48px;
   height: 48px;
@@ -264,20 +264,57 @@ nav a:hover { color: var(--accent); }
   color: var(--accent);
   flex-shrink: 0;
 }
-.card-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+.card-badges { display: flex; gap: 6px; flex-wrap: wrap; flex: 1 1 180px; min-width: 0; }
+.card-top .upvote-ui { margin-left: auto; }
+.card-top .save-ui { margin-left: 0 !important; display: inline-flex; align-items: center; }
+.save-btn i { line-height: 1; font-size: 1rem; }
 .badge {
   font-size: 0.7rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  padding: 4px 8px;
-  border-radius: 4px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid transparent;
   background: var(--accent-dim);
   color: var(--accent);
+  white-space: nowrap;
 }
 .badge.sponsored { background: rgba(255,71,103,0.15); color: var(--danger); }
-.badge.launch { background: rgba(0,212,170,0.25); color: var(--accent); }
-.badge-for-sale { background: rgba(34,197,94,0.2); color: var(--accent, #22c55e); text-decoration: none; }
+
+/* Badge weights: gold, silver, bronze, and thematic tiers */
+.badge-product-of-day {
+  background: linear-gradient(135deg, #fef08a 0%, #fbbf24 55%, #f59e0b 100%);
+  color: #2a1a00;
+  border-color: rgba(251, 191, 36, 0.65);
+  box-shadow: 0 0 0 1px rgba(255, 214, 102, 0.25) inset;
+}
+.badge-featured {
+  background: linear-gradient(135deg, #f8fafc 0%, #cbd5e1 55%, #94a3b8 100%);
+  color: #0f172a;
+  border-color: rgba(148, 163, 184, 0.65);
+}
+.badge-hot-week {
+  background: linear-gradient(135deg, #fca5a5 0%, #f97316 50%, #dc2626 100%);
+  color: #fff7ed;
+  border-color: rgba(220, 38, 38, 0.5);
+}
+.badge.launch {
+  background: linear-gradient(135deg, #6ee7b7 0%, #34d399 55%, #10b981 100%);
+  color: #032a1f;
+  border-color: rgba(16, 185, 129, 0.6);
+}
+.badge-funding {
+  background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 55%, #3b82f6 100%);
+  color: #0b1b3f;
+  border-color: rgba(59, 130, 246, 0.6);
+}
+.badge-for-sale {
+  background: linear-gradient(135deg, #c4b5fd 0%, #a78bfa 55%, #8b5cf6 100%);
+  color: #f5f3ff;
+  border-color: rgba(139, 92, 246, 0.55);
+  text-decoration: none;
+}
 .badge-for-sale:hover { opacity: 0.9; text-decoration: none; }
 .card-title { font-size: 1.1rem; font-weight: 600; }
 .card-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; }
