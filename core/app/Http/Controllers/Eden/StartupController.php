@@ -95,11 +95,22 @@ class StartupController extends EdenController
 
         $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->select('startups.id')->pluck('id')->toArray() : [];
 
+        $isProductOfDay = $this->startupService->getProductOfDayId() === $startup->id;
+        if ($isProductOfDay) {
+            $startup->refresh();
+        }
+        $productOfDayDate = $startup->product_of_day_at ?? ($isProductOfDay ? now()->startOfDay() : null);
+        $isProductOfDayToday = $isProductOfDay
+            && $productOfDayDate !== null
+            && $productOfDayDate->isToday();
+
         return $this->page('startup-show', $pageTitle, null, [
             'startup' => $startup,
             'hasUpvoted' => $hasUpvoted,
             'hasSaved' => $hasSaved,
-            'isProductOfDay' => $this->startupService->getProductOfDayId() === $startup->id,
+            'isProductOfDay' => $isProductOfDay,
+            'productOfDayDate' => $productOfDayDate,
+            'isProductOfDayToday' => $isProductOfDayToday,
             'comments' => $comments,
             'trafficByDay' => $trafficByDay,
             'trafficTotal' => $trafficTotal,
@@ -284,6 +295,7 @@ class StartupController extends EdenController
         StartupUpvote::create(['user_id' => auth()->id(), 'startup_id' => $startup->id]);
         $startup->increment('upvotes');
         Cache::forget(StartupService::PRODUCT_OF_DAY_CACHE_KEY);
+        Cache::forget(StartupService::PRODUCT_OF_DAY_RECORDED_ID_CACHE_KEY);
         if ($request->expectsJson()) {
             return response()->json([
                 'status' => 'ok',

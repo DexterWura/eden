@@ -26,9 +26,15 @@ $buildPublicContactUrl = static function (array $params = []) {
       </div>
       <div class="startup-hero-main">
         <h1><?= e($s->name) ?></h1>
-        <?php $isProductOfDay = $isProductOfDay ?? false; ?>
+        <?php
+        $isProductOfDay = $isProductOfDay ?? false;
+        $productOfDayDate = $productOfDayDate ?? null;
+        $isProductOfDayToday = $isProductOfDayToday ?? false;
+        ?>
         <div class="startup-hero-badges">
-          <?php if ($isProductOfDay): ?><span class="badge badge-product-of-day">Product of the day</span><?php endif; ?>
+          <?php if ($isProductOfDay && $productOfDayDate): ?>
+          <?php include __DIR__ . '/partials/potd-seal.php'; ?>
+          <?php endif; ?>
           <?php if ($fundingRound): ?><span class="badge badge-funding"><i class="fa-solid fa-hand-holding-dollar"></i> Raising</span><?php endif; ?>
           <?php if ($s->for_sale && !$s->sold_at && $s->flipit_listing_id): ?>
           <?php $flipitUrl = $s->getFlipitListingUrl(); ?>
@@ -343,7 +349,8 @@ $buildPublicContactUrl = static function (array $params = []) {
 .startup-hero-badges {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  align-items: center;
+  gap: 8px;
   margin: 0 0 8px;
 }
 .startup-hero .tagline { margin: 0 0 8px; }

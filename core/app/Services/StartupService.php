@@ -10,15 +10,50 @@ use Illuminate\Support\Facades\Cache;
 class StartupService
 {
     public const PRODUCT_OF_DAY_CACHE_KEY = 'eden_product_of_day_id';
+    public const PRODUCT_OF_DAY_RECORDED_ID_CACHE_KEY = 'eden_product_of_day_recorded_id';
     public const PRODUCT_OF_DAY_CACHE_TTL_SECONDS = 60;
 
     public function getProductOfDayId(): ?int
     {
-        return Cache::remember(
+        $id = Cache::remember(
             self::PRODUCT_OF_DAY_CACHE_KEY,
             self::PRODUCT_OF_DAY_CACHE_TTL_SECONDS,
-            fn () => Startup::active()->orderByDesc('upvotes')->value('id')
+            function () {
+                $winnerId = Startup::active()->orderByDesc('upvotes')->value('id');
+
+                return $winnerId !== null ? (int) $winnerId : null;
+            }
         );
+
+        if ($id !== null) {
+            $this->recordProductOfDayAward($id);
+        }
+
+        return $id;
+    }
+
+    /**
+     * Store the calendar date when a startup began its current product-of-the-day streak.
+     */
+    private function recordProductOfDayAward(int $startupId): void
+    {
+        $recordedId = Cache::get(self::PRODUCT_OF_DAY_RECORDED_ID_CACHE_KEY);
+        $recordedId = $recordedId !== null ? (int) $recordedId : null;
+
+        if ($recordedId === $startupId) {
+            Startup::query()
+                ->where('id', $startupId)
+                ->whereNull('product_of_day_at')
+                ->update(['product_of_day_at' => now()->toDateString()]);
+
+            return;
+        }
+
+        Startup::query()
+            ->where('id', $startupId)
+            ->update(['product_of_day_at' => now()->toDateString()]);
+
+        Cache::put(self::PRODUCT_OF_DAY_RECORDED_ID_CACHE_KEY, $startupId, 86400 * 7);
     }
 
     private function withFunding(): \Illuminate\Database\Eloquent\Builder
