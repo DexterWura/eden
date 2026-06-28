@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Startup;
 use App\Models\StartupFundingRound;
+use App\Rules\SensibleDisplayName;
+use App\Rules\SensiblePersonName;
+use App\Rules\SensibleShortText;
 use App\Services\GoogleSearchConsoleService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -291,12 +294,12 @@ class StartupController extends Controller
         $gscService = app(GoogleSearchConsoleService::class);
 
         return [
-            'name' => ['required', 'string', 'max:255', function ($attr, $value, $fail) use ($excludeId) {
+            'name' => ['required', 'string', 'max:120', new SensibleDisplayName(), function ($attr, $value, $fail) use ($excludeId) {
                 if ($value && Startup::listingNameExistsForAnother($value, $excludeId)) {
                     $fail(__('A listing with this name already exists.'));
                 }
             }],
-            'tagline' => ['nullable', 'string', 'max:255'],
+            'tagline' => ['nullable', 'string', 'max:255', new SensibleShortText(255)],
             'description' => ['nullable', 'string'],
             'category' => ['nullable', 'string', 'exists:categories,name'],
             'website' => ['nullable', 'string', 'max:500', 'url', function ($attr, $value, $fail) use ($excludeId) {
@@ -304,7 +307,7 @@ class StartupController extends Controller
                     $fail('A startup with this website link already exists.');
                 }
             }],
-            'location' => ['nullable', 'string', 'max:255'],
+            'location' => ['nullable', 'string', 'max:255', new SensibleShortText(255)],
             'founder_email' => ['nullable', 'email', 'max:255'],
             'founder_twitter_url' => ['nullable', 'string', 'max:255'],
             'founder_linkedin_url' => ['nullable', 'string', 'max:500', 'url'],
@@ -313,7 +316,7 @@ class StartupController extends Controller
             'linkedin_url' => ['nullable', 'string', 'max:500', 'url'],
             'logo' => ['nullable', 'image', 'mimes:jpeg,png,gif,webp', 'max:2048'],
             'founders_names' => ['nullable', 'array'],
-            'founders_names.*' => ['nullable', 'string', 'max:255'],
+            'founders_names.*' => ['nullable', 'string', 'max:80', new SensiblePersonName()],
             'founders_emails' => ['nullable', 'array'],
             'founders_emails.*' => ['nullable', 'email', 'max:255'],
             'founders_twitter_urls' => ['nullable', 'array'],

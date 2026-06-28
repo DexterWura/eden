@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Founder;
 
 use App\Http\Controllers\Controller;
 use App\Models\BlogPost;
+use App\Rules\SensibleDisplayName;
+use App\Rules\SensibleShortText;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -33,9 +35,9 @@ class BlogController extends Controller
     {
         $this->requirePro();
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => ['required', 'string', 'max:120', new SensibleDisplayName()],
             'body' => 'required|string|max:100000',
-            'excerpt' => 'nullable|string|max:500',
+            'excerpt' => ['nullable', 'string', 'max:500', new SensibleShortText(500)],
             'og_image' => 'nullable|image|mimes:jpeg,png,gif,webp|max:4096',
         ]);
 
@@ -71,9 +73,9 @@ class BlogController extends Controller
         $this->requirePro();
         $this->authorizePost($post);
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => ['required', 'string', 'max:120', new SensibleDisplayName()],
             'body' => 'required|string|max:100000',
-            'excerpt' => 'nullable|string|max:500',
+            'excerpt' => ['nullable', 'string', 'max:500', new SensibleShortText(500)],
             'og_image' => 'nullable|image|mimes:jpeg,png,gif,webp|max:4096',
         ]);
 

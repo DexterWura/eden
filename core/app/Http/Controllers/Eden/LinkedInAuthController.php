@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Eden;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Support\TextSanity;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -57,7 +58,10 @@ class LinkedInAuthController extends Controller
             Auth::guard('web')->login($user, true);
             $request->session()->regenerate();
         } else {
-            $name = $linkedinUser->getName() ?: ($linkedinUser->getNickname() ?: 'User');
+            $name = TextSanity::fallbackPersonName(
+                $linkedinUser->getName() ?: ($linkedinUser->getNickname() ?: ''),
+                $email
+            );
 
             $user = new User();
             $user->name = $name;

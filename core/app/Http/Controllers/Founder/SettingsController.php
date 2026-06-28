@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Founder;
 use App\Http\Controllers\Controller;
 use App\Models\BlogPost;
 use App\Models\Startup;
+use App\Rules\SensiblePersonName;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -38,7 +39,7 @@ class SettingsController extends Controller
     {
         $user = auth()->user();
         $rules = [
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:80', new SensiblePersonName()],
             'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
         ];
         if ($request->filled('password')) {

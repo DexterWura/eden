@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Eden;
 
 use App\Http\Controllers\Controller;
+use App\Rules\SensiblePersonName;
 use App\Support\Seo\EdenSeo;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -56,7 +57,7 @@ class AuthController extends Controller
     public function register(Request $request): RedirectResponse
     {
         $request->validate([
-            'name' => 'required|string|min:2|max:255',
+            'name' => ['required', 'string', 'min:2', 'max:80', new SensiblePersonName()],
             'email' => 'required|string|email|max:255|unique:users,email',
             'password' => ['required', 'confirmed', Password::min(8)],
         ]);

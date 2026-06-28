@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\BlogPost;
+use App\Rules\SensibleDisplayName;
+use App\Rules\SensibleShortText;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -86,12 +88,12 @@ class BlogPostController extends Controller
     private function validatePost(Request $request): array
     {
         return $request->validate([
-            'title' => 'required|string|max:255',
-            'excerpt' => 'nullable|string|max:500',
+            'title' => ['required', 'string', 'max:120', new SensibleDisplayName()],
+            'excerpt' => ['nullable', 'string', 'max:500', new SensibleShortText(500)],
             'body' => 'required|string|max:100000',
-            'meta_title' => 'nullable|string|max:70',
-            'meta_description' => 'nullable|string|max:160',
-            'meta_keywords' => 'nullable|string|max:255',
+            'meta_title' => ['nullable', 'string', 'max:70', new SensibleShortText(70)],
+            'meta_description' => ['nullable', 'string', 'max:160', new SensibleShortText(160)],
+            'meta_keywords' => ['nullable', 'string', 'max:255', new SensibleShortText(255)],
         ]);
     }
 

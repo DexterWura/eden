@@ -8,6 +8,9 @@ use App\Models\ContactSubmission;
 use App\Models\Startup;
 use App\Models\Subscriber;
 use App\Models\User;
+use App\Rules\SensibleDisplayName;
+use App\Rules\SensiblePersonName;
+use App\Rules\SensibleShortText;
 use App\Services\StartupService;
 use App\Support\Seo\EdenSeo;
 use Illuminate\Http\RedirectResponse;
@@ -59,10 +62,10 @@ class PageController extends EdenController
     public function contactStore(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => ['required', 'string', 'max:80', new SensiblePersonName()],
             'email' => 'required|email',
-            'subject' => 'nullable|string|max:64',
-            'message' => 'required|string|max:10000',
+            'subject' => ['nullable', 'string', 'max:64', new SensibleShortText(64)],
+            'message' => ['required', 'string', 'max:10000', new SensibleShortText(10000)],
         ]);
         ContactSubmission::create($validated);
         return redirect()->to(url('/contact'))->with('success', __('Your message has been sent. We\'ll get back to you soon.'));
@@ -77,12 +80,12 @@ class PageController extends EdenController
     public function submitStore(Request $request): RedirectResponse
     {
         $startupRules = [
-            'name' => ['required', 'string', 'max:255', function ($attr, $value, $fail) {
+            'name' => ['required', 'string', 'max:120', new SensibleDisplayName(), function ($attr, $value, $fail) {
                 if ($value && Startup::listingNameExistsForAnother($value)) {
                     $fail(__('A listing with this name already exists.'));
                 }
             }],
-            'tagline' => 'nullable|string|max:255',
+            'tagline' => ['nullable', 'string', 'max:255', new SensibleShortText(255)],
             'description' => 'nullable|string|max:10000',
             'category' => 'nullable|string|exists:categories,name',
             'website' => ['nullable', 'url', 'max:500', function ($attr, $value, $fail) {
@@ -90,9 +93,9 @@ class PageController extends EdenController
                     $fail('A startup with this website link already exists.');
                 }
             }],
-            'location' => 'nullable|string|max:255',
+            'location' => ['nullable', 'string', 'max:255', new SensibleShortText(255)],
             'founder_names' => 'nullable|array',
-            'founder_names.*' => 'nullable|string|max:255',
+            'founder_names.*' => ['nullable', 'string', 'max:80', new SensiblePersonName()],
             'launch_today' => 'nullable|in:today,1,yes',
             'logo' => 'nullable|image|mimes:jpeg,png,gif,webp|max:2048',
             'product_images' => 'nullable|array',
@@ -106,7 +109,7 @@ class PageController extends EdenController
                 $startupRules['login_email'] = 'required|email';
                 $startupRules['login_password'] = 'required|string';
             } else {
-                $startupRules['auth_name'] = 'required|string|min:2|max:255';
+                $startupRules['auth_name'] = ['required', 'string', 'min:2', 'max:80', new SensiblePersonName()];
                 $startupRules['auth_email'] = 'required|string|email|max:255|unique:users,email';
                 $startupRules['auth_password'] = ['required', 'confirmed', Password::min(8)];
             }

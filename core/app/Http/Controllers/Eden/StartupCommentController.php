@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Eden;
 
 use App\Models\Startup;
 use App\Models\StartupComment;
+use App\Rules\SensibleCommentBody;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -20,7 +21,7 @@ class StartupCommentController extends EdenController
         $user = auth()->user();
 
         $validator = Validator::make($request->all(), [
-            'body' => ['required', 'string', 'min:1', 'max:2000'],
+            'body' => ['required', 'string', 'min:1', 'max:2000', new SensibleCommentBody()],
         ]);
 
         if ($validator->fails()) {
