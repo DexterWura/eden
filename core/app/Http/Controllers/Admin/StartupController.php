@@ -97,7 +97,11 @@ class StartupController extends Controller
         }
         $data['status'] = $data['status'] ?? Startup::STATUS_ACTIVE;
         $data['is_featured'] = $request->boolean('is_featured');
-        $data['founders'] = $this->buildFoundersFromRequest($request, null);
+        $data['founders'] = Startup::attachFounderUserIds(
+            $this->buildFoundersFromRequest($request, null),
+            null,
+            null
+        );
         $first = $this->firstFounderData($data['founders']);
         $data['founder_name'] = $first['name'] ?? null;
         $data['founder_email'] = $first['email'] ?? null;
@@ -131,7 +135,11 @@ class StartupController extends Controller
             $data['slug'] = $data['slug'] . '-' . Str::random(4);
         }
         $data['is_featured'] = $request->boolean('is_featured');
-        $data['founders'] = $this->buildFoundersFromRequest($request, $startup);
+        $data['founders'] = Startup::attachFounderUserIds(
+            $this->buildFoundersFromRequest($request, $startup),
+            $startup,
+            null
+        );
         $first = $this->firstFounderData($data['founders']);
         $data['founder_name'] = $first['name'] ?? $startup->founder_name;
         $data['founder_email'] = $first['email'] ?? $startup->founder_email;

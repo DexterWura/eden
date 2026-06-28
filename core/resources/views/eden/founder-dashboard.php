@@ -165,7 +165,6 @@
     <a href="<?= e(url('/founder/startups/create')) ?>" class="dash-btn dash-btn-primary" style="text-decoration: none;"><i class="fa-solid fa-plus"></i> Add startup</a>
     <a href="<?= e(url('/founder/startups')) ?>" class="dash-btn dash-btn-secondary" style="text-decoration: none;"><i class="fa-solid fa-building-user"></i> My startups</a>
     <a href="<?= e(url('/founder/badges')) ?>" class="dash-btn dash-btn-secondary" style="text-decoration: none;"><i class="fa-solid fa-certificate"></i> Badges</a>
-    <a href="<?= e(url('/founder/upvotes')) ?>" class="dash-btn dash-btn-secondary" style="text-decoration: none;"><i class="fa-solid fa-arrow-up"></i> Upvotes</a>
     <?php if (auth()->user()->isPro()): ?>
     <a href="<?= e(url('/founder/fundraising')) ?>" class="dash-btn dash-btn-secondary" style="text-decoration: none;"><i class="fa-solid fa-hand-holding-dollar"></i> Fund raising</a>
     <?php else: ?>

@@ -58,7 +58,11 @@ class StartupController extends Controller
             $data['slug'] = $data['slug'] . '-' . Str::random(4);
         }
         $data['status'] = Startup::STATUS_PENDING;
-        $data['founders'] = $this->buildFoundersFromRequest($request);
+        $data['founders'] = Startup::attachFounderUserIds(
+            $this->buildFoundersFromRequest($request),
+            null,
+            auth()->id()
+        );
         $first = $this->firstFounderData($data['founders']);
         $data['founder_name'] = $first['name'] ?? auth()->user()->name;
         $data['founder_email'] = $first['email'] ?? auth()->user()->email;
@@ -98,7 +102,11 @@ class StartupController extends Controller
         }
         unset($data['logo'], $data['founders_names'], $data['founders_emails'], $data['founders_twitter_urls'], $data['founders_linkedin_urls'], $data['founders_photos'], $data['product_images']);
         $data['traffic_tracking_enabled'] = filter_var($data['traffic_tracking_enabled'] ?? false, FILTER_VALIDATE_BOOLEAN);
-        $data['founders'] = $this->buildFoundersFromRequest($request, $startup);
+        $data['founders'] = Startup::attachFounderUserIds(
+            $this->buildFoundersFromRequest($request, $startup),
+            $startup,
+            auth()->id()
+        );
         $first = $this->firstFounderData($data['founders']);
         $data['founder_name'] = $first['name'] ?? $startup->founder_name;
         $data['founder_email'] = $first['email'] ?? $startup->founder_email;

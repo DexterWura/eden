@@ -268,22 +268,30 @@ class Startup extends Model
     }
 
     /**
-     * Whether the given user can manage this startup (owner or listed founder by email).
+     * Whether the given user can manage this startup (owner or listed founder by user_id / email).
      */
     public function userCanManage(?\Illuminate\Contracts\Auth\Authenticatable $user): bool
     {
         if ($user === null) {
             return false;
         }
-        if ($this->user_id === $user->getAuthIdentifier()) {
+        $userId = (int) $user->getAuthIdentifier();
+        if ((int) $this->user_id === $userId) {
             return true;
+        }
+        foreach ($this->founders ?? [] as $f) {
+            if (! is_array($f)) {
+                continue;
+            }
+            if (isset($f['user_id']) && (int) $f['user_id'] === $userId) {
+                return true;
+            }
         }
         $userEmail = is_string($user->email ?? null) ? strtolower(trim($user->email)) : '';
         if ($userEmail === '') {
             return false;
         }
-        $founders = $this->founders ?? [];
-        foreach ($founders as $f) {
+        foreach ($this->founders ?? [] as $f) {
             $email = is_array($f) ? ($f['email'] ?? '') : (is_object($f) ? ($f->email ?? '') : '');
             if (is_string($email) && strtolower(trim($email)) === $userEmail) {
                 return true;
@@ -293,11 +301,11 @@ class Startup extends Model
     }
 
     /**
-     * Scope: startups the user can manage (owner or listed as founder by email).
+     * Scope: startups the user can manage (owner or listed as founder by user_id / email).
      */
     public function scopeVisibleToUser($query, \App\Models\User $user)
     {
-        $userId = $user->getAuthIdentifier();
+        $userId = (int) $user->getAuthIdentifier();
         $email = $user->email ?? '';
 
         return $query->where(function ($q) use ($userId, $email) {
@@ -308,7 +316,114 @@ class Startup extends Model
                     [$email]
                 );
             }
+            $driver = $q->getConnection()->getDriverName();
+            if ($driver === 'mysql') {
+                $q->orWhereRaw(
+                    "founders IS NOT NULL AND JSON_CONTAINS(founders, ?, '$')",
+                    [json_encode(['user_id' => $userId])]
+                );
+            } elseif ($driver === 'sqlite') {
+                $q->orWhereRaw(
+                    "founders IS NOT NULL AND EXISTS (SELECT 1 FROM json_each(founders) WHERE json_extract(value, '$.user_id') = ?)",
+                    [$userId]
+                );
+            }
         });
+    }
+
+    /**
+     * Attach stable user_id values to founder entries after form submission.
+     *
+     * @param  array<int, array<string, mixed>>  $founders
+     * @return array<int, array<string, mixed>>
+     */
+    public static function attachFounderUserIds(array $founders, ?self $startup = null, ?int $actingUserId = null): array
+    {
+        $existing = $startup?->founders ?? [];
+        $result = [];
+
+        foreach ($founders as $i => $founder) {
+            $userId = isset($existing[$i]['user_id']) ? (int) $existing[$i]['user_id'] : null;
+
+            if ($userId === null && $actingUserId !== null && $i === 0) {
+                $userId = $actingUserId;
+            }
+
+            if ($userId === null && ! empty($founder['email'])) {
+                $matchedUser = User::query()->where('email', $founder['email'])->first();
+                if ($matchedUser) {
+                    $userId = (int) $matchedUser->id;
+                }
+            }
+
+            if ($userId === null && $startup && (int) $startup->user_id === (int) $actingUserId && $i === 0) {
+                $userId = $actingUserId;
+            }
+
+            $founder['user_id'] = $userId ?: null;
+            $result[] = $founder;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Keep founder JSON and legacy columns in sync when a linked user updates their profile.
+     */
+    public static function syncUserToFounderRecords(User $user): void
+    {
+        $userId = (int) $user->id;
+
+        self::query()->where('user_id', $userId)->each(function (self $startup) use ($user) {
+            $startup->updateFounderRecordForUser($user);
+        });
+
+        self::query()
+            ->whereNotNull('founders')
+            ->where(function ($query) use ($userId) {
+                $query->whereNull('user_id')->orWhere('user_id', '!=', $userId);
+            })
+            ->lazyById()
+            ->each(function (self $startup) use ($user, $userId) {
+                $hasLinkedFounder = collect($startup->founders ?? [])
+                    ->contains(fn ($founder) => is_array($founder) && (int) ($founder['user_id'] ?? 0) === $userId);
+
+                if ($hasLinkedFounder) {
+                    $startup->updateFounderRecordForUser($user);
+                }
+            });
+    }
+
+    public function updateFounderRecordForUser(User $user): void
+    {
+        $userId = (int) $user->id;
+        $founders = $this->founders ?? [];
+        $changed = false;
+
+        foreach ($founders as &$founder) {
+            if (! is_array($founder) || (int) ($founder['user_id'] ?? 0) !== $userId) {
+                continue;
+            }
+            $founder['email'] = $user->email;
+            if ($user->name) {
+                $founder['name'] = $user->name;
+            }
+            $changed = true;
+        }
+        unset($founder);
+
+        $updates = [];
+        if ($changed) {
+            $updates['founders'] = $founders;
+        }
+        if ((int) $this->user_id === $userId) {
+            $updates['founder_email'] = $user->email;
+            $updates['founder_name'] = $user->name;
+        }
+
+        if ($updates !== []) {
+            $this->update($updates);
+        }
     }
 
     public function upvoteRecords()

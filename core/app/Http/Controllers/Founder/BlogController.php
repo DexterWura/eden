@@ -34,8 +34,9 @@ class BlogController extends Controller
         $this->requirePro();
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'body' => 'required|string',
+            'body' => 'required|string|max:100000',
             'excerpt' => 'nullable|string|max:500',
+            'og_image' => 'nullable|image|mimes:jpeg,png,gif,webp|max:4096',
         ]);
 
         $slug = Str::slug($validated['title']);
@@ -43,7 +44,7 @@ class BlogController extends Controller
             $slug .= '-' . Str::random(4);
         }
 
-        BlogPost::create([
+        $post = BlogPost::create([
             'title' => $validated['title'],
             'slug' => $slug,
             'body' => $validated['body'],
@@ -52,6 +53,7 @@ class BlogController extends Controller
             'status' => 'published',
             'published_at' => now(),
         ]);
+        $this->handleOgImage($request, $post);
 
         return redirect()->route('founder.blog.index')->with('notify', [['success', 'Blog post published.']]);
     }
@@ -70,8 +72,9 @@ class BlogController extends Controller
         $this->authorizePost($post);
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'body' => 'required|string',
+            'body' => 'required|string|max:100000',
             'excerpt' => 'nullable|string|max:500',
+            'og_image' => 'nullable|image|mimes:jpeg,png,gif,webp|max:4096',
         ]);
 
         $post->update([
@@ -79,6 +82,7 @@ class BlogController extends Controller
             'body' => $validated['body'],
             'excerpt' => $validated['excerpt'] ?? Str::limit(strip_tags($validated['body']), 160),
         ]);
+        $this->handleOgImage($request, $post);
 
         return redirect()->route('founder.blog.index')->with('notify', [['success', 'Blog post updated.']]);
     }
@@ -103,6 +107,21 @@ class BlogController extends Controller
         if ((int) $post->author_id !== (int) auth()->id()) {
             abort(403, 'You do not have permission to manage this post.');
         }
+    }
+
+    private function handleOgImage(Request $request, BlogPost $post): void
+    {
+        if (!$request->hasFile('og_image') || !$request->file('og_image')->isValid()) {
+            return;
+        }
+        $dir = public_path('images/blog');
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0755, true);
+        }
+        $file = $request->file('og_image');
+        $filename = 'og-' . $post->id . '-' . uniqid() . '.' . $file->getClientOriginalExtension();
+        $file->move($dir, $filename);
+        $post->update(['og_image_path' => 'images/blog/' . $filename]);
     }
 
     private function layoutResponse(string $title, string $activeNav, string $content): \Illuminate\Http\Response

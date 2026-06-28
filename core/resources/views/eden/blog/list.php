@@ -16,50 +16,45 @@ $blogAd = $blogAd ?? null;
     $blogAdIsExternal = is_string($blogAdPath) && ($blogAdPath !== '') && (str_starts_with($blogAdPath, 'http://') || str_starts_with($blogAdPath, 'https://'));
     $blogAdSrc = $blogAdIsExternal ? $blogAdPath : asset($blogAdPath);
   ?>
-  <div class="blog-ad-spot" style="margin-bottom: 24px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border, #e2e8f0); background: #0f172a;">
-    <a href="<?= e($blogAd->target_url) ?>" target="_blank" rel="noopener noreferrer" style="display: block;">
-      <img src="<?= e($blogAdSrc) ?>" alt="Sponsored ad" style="display: block; width: 100%; max-width: 728px; height: auto; margin: 0 auto;">
+  <div class="blog-ad-spot">
+    <a href="<?= e($blogAd->target_url) ?>" target="_blank" rel="noopener noreferrer">
+      <img src="<?= e($blogAdSrc) ?>" alt="Sponsored ad">
     </a>
   </div>
   <?php else: ?>
-  <div class="blog-ad-spot" style="margin-bottom: 24px; border-radius: 8px; border: 1px dashed var(--border, #e2e8f0); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; background: rgba(15,23,42,0.6);">
+  <div class="blog-ad-spot blog-ad-spot--empty">
     <div>
-      <p style="margin: 0 0 4px; font-weight: 600;">Ad spot available</p>
-      <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted, #94a3b8);">
-        Place your 728x90 banner here for $2/month.
-      </p>
+      <p class="blog-ad-spot-title">Ad spot available</p>
+      <p class="blog-ad-spot-copy">Place your ad here for $2/month.</p>
     </div>
-    <div>
-      <a href="<?= e(url('/advertise/blog')) ?>" class="btn btn-primary">Buy blog ad spot</a>
-    </div>
+    <a href="<?= e(url('/advertise/blog')) ?>" class="btn btn-primary">Buy blog ad spot</a>
   </div>
   <?php endif; ?>
+
   <?php if ($posts->isEmpty()): ?>
   <p class="section-empty">No posts yet. Check back later.</p>
   <?php else: ?>
-  <div class="blog-list" style="display: grid; gap: 24px;">
+  <div class="blog-list">
     <?php foreach ($posts as $post): ?>
-    <article class="blog-list-item" style="border: 1px solid var(--border, #e2e8f0); border-radius: 8px; overflow: hidden; display: grid; grid-template-rows: auto 1fr; background: #fff;">
-      <a href="<?= e(url('/blog/' . $post->slug)) ?>" style="display: block;">
+    <article class="blog-list-item">
+      <a href="<?= e(url('/blog/' . $post->slug)) ?>" class="blog-list-item-image">
         <?php if ($post->og_image_url): ?>
-        <img src="<?= e($post->og_image_url) ?>" alt="<?= e($post->title) ?>" style="width: 100%; height: 200px; object-fit: cover; display: block;">
+        <img src="<?= e($post->og_image_url) ?>" alt="<?= e($post->title) ?>">
         <?php else: ?>
-        <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #e2e8f0, #cbd5f5); display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 0.9rem;">
-          Blog image
-        </div>
+        <div class="blog-list-item-placeholder">Blog image</div>
         <?php endif; ?>
       </a>
-      <div style="padding: 16px 20px 18px;">
-        <h2 style="margin-top: 0; margin-bottom: 8px; font-size: 1.25rem;">
+      <div class="blog-list-item-body">
+        <h2 class="blog-list-item-title">
           <a href="<?= e(url('/blog/' . $post->slug)) ?>"><?= e($post->title) ?></a>
         </h2>
         <?php if ($post->excerpt): ?>
-        <p style="color: var(--text-muted, #64748b); margin: 0 0 10px; font-size: 0.95rem;"><?= e($post->excerpt) ?></p>
+        <p class="blog-list-item-excerpt"><?= e($post->excerpt) ?></p>
         <?php endif; ?>
-        <p style="font-size: 0.85rem; color: var(--text-muted, #64748b); margin: 0;">
+        <p class="blog-list-item-meta">
           <span>by <?= e(optional($post->author)->name ?? 'Admin') ?></span>
           <?php if ($post->published_at): ?>
-          <span style="margin-left: 8px;">&middot;</span>
+          <span>&middot;</span>
           <span><?= $post->published_at->format('F j, Y') ?></span>
           <?php endif; ?>
         </p>
@@ -68,7 +63,7 @@ $blogAd = $blogAd ?? null;
     <?php endforeach; ?>
   </div>
   <?php if ($posts->hasPages()): ?>
-  <div style="margin-top: 24px;"><?= $posts->links() ?></div>
+  <div class="blog-pagination"><?= $posts->links() ?></div>
   <?php endif; ?>
   <?php endif; ?>
 </div>

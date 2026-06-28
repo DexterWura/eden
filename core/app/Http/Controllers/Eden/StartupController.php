@@ -99,7 +99,7 @@ class StartupController extends EdenController
         if ($isProductOfDay) {
             $startup->refresh();
         }
-        $productOfDayDate = $startup->product_of_day_at ?? ($isProductOfDay ? now()->startOfDay() : null);
+        $productOfDayDate = $startup->product_of_day_at;
         $isProductOfDayToday = $isProductOfDay
             && $productOfDayDate !== null
             && $productOfDayDate->isToday();

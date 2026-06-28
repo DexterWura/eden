@@ -33,25 +33,30 @@ class StartupService
     }
 
     /**
-     * Store the calendar date when a startup began its current product-of-the-day streak.
+     * Persist the last calendar date this startup held product of the day.
+     * Rolls forward daily while the startup remains #1; frozen once overtaken.
      */
     private function recordProductOfDayAward(int $startupId): void
     {
+        $today = now()->toDateString();
         $recordedId = Cache::get(self::PRODUCT_OF_DAY_RECORDED_ID_CACHE_KEY);
         $recordedId = $recordedId !== null ? (int) $recordedId : null;
 
         if ($recordedId === $startupId) {
             Startup::query()
                 ->where('id', $startupId)
-                ->whereNull('product_of_day_at')
-                ->update(['product_of_day_at' => now()->toDateString()]);
+                ->where(function ($query) use ($today) {
+                    $query->whereNull('product_of_day_at')
+                        ->orWhere('product_of_day_at', '<', $today);
+                })
+                ->update(['product_of_day_at' => $today]);
 
             return;
         }
 
         Startup::query()
             ->where('id', $startupId)
-            ->update(['product_of_day_at' => now()->toDateString()]);
+            ->update(['product_of_day_at' => $today]);
 
         Cache::put(self::PRODUCT_OF_DAY_RECORDED_ID_CACHE_KEY, $startupId, 86400 * 7);
     }

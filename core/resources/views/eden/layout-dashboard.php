@@ -52,7 +52,6 @@
         <?php else: ?>
         <button type="button" class="dash-sidebar-link dash-sidebar-link--pro-gated<?= ($activeNav ?? '') === 'badges' ? ' active' : '' ?>" data-pro-toast="badges" aria-label="Badges (Pro)" title="Badges — Pro feature"><i class="fa-solid fa-certificate"></i><span class="dash-sidebar-label">Badges</span><span class="dash-sidebar-pro-lock" aria-hidden="true"><i class="fa-solid fa-crown"></i></span></button>
         <?php endif; ?>
-        <a href="<?= e(url('/founder/upvotes')) ?>" class="<?= ($activeNav ?? '') === 'upvotes' ? 'active' : '' ?>" aria-label="Upvotes" title="Upvotes"><i class="fa-solid fa-arrow-up"></i><span class="dash-sidebar-label">Upvotes</span></a>
         <?php if ($isProFounder): ?>
         <a href="<?= e(url('/founder/fundraising')) ?>" class="<?= ($activeNav ?? '') === 'fundraising' ? 'active' : '' ?>" aria-label="Fund raising" title="Fund raising"><i class="fa-solid fa-hand-holding-dollar"></i><span class="dash-sidebar-label">Fund raising</span></a>
         <?php else: ?>

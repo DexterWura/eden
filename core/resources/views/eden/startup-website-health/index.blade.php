@@ -1,7 +1,7 @@
 <h1 class="dash-page-title">Startup website health</h1>
 <div class="dash-welcome">
-  All startups and whether their website URL is reachable. The system pings each startup&rsquo;s website every 3 days.
-  After 3 consecutive ping failures, a startup is marked <strong>dormant</strong>. Dormant startups are deleted automatically after 30 days if they remain dormant.
+  All startups and whether their website URL is reachable. The system pings each startup&rsquo;s website every {{ \App\Services\StartupWebsiteHealthService::CHECK_INTERVAL_DAYS }} days, trying multiple URL variants (http/https, www) with a browser-like request.
+  After {{ \App\Services\StartupWebsiteHealthService::CONSECUTIVE_FAILURES_BEFORE_DORMANT }} consecutive ping failures, a startup is marked <strong>dormant</strong>. Dormant startups are re-checked and reactivated automatically if the site comes back. They are deleted after {{ \App\Services\StartupWebsiteHealthService::DORMANT_DAYS_BEFORE_DELETE }} days if still dormant.
 </div>
 
 <div class="dash-card" style="margin-top: 20px;">

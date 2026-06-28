@@ -32,7 +32,7 @@ $buildPublicContactUrl = static function (array $params = []) {
         $isProductOfDayToday = $isProductOfDayToday ?? false;
         ?>
         <div class="startup-hero-badges">
-          <?php if ($isProductOfDay && $productOfDayDate): ?>
+          <?php if ($productOfDayDate): ?>
           <?php include __DIR__ . '/partials/potd-seal.php'; ?>
           <?php endif; ?>
           <?php if ($fundingRound): ?><span class="badge badge-funding"><i class="fa-solid fa-hand-holding-dollar"></i> Raising</span><?php endif; ?>

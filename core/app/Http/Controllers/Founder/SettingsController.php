@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Founder;
 
 use App\Http\Controllers\Controller;
 use App\Models\BlogPost;
+use App\Models\Startup;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -58,6 +59,7 @@ class SettingsController extends Controller
         }
 
         $user->save();
+        Startup::syncUserToFounderRecords($user);
         return redirect()->route('founder.settings')->with('notify', [['success', 'Profile updated.']]);
     }
 

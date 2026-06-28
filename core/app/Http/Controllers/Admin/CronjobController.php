@@ -86,7 +86,7 @@ class CronjobController extends Controller
             ],
             [
                 'name' => 'Startup Website Check',
-                'description' => 'Pings startup websites (every 3 days per startup); marks dormant after 3 consecutive failures; deletes after 30 days dormant',
+                'description' => 'Pings startup websites (every 3 days per startup); marks dormant after 6 consecutive failures; reactivates when reachable; deletes after 30 days dormant',
                 'schedule' => 'Daily',
                 'log_file' => 'startup-website-check.log',
                 'command' => 'startups:check-websites',
