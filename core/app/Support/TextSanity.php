@@ -179,7 +179,7 @@ class TextSanity
         }
 
         return (bool) preg_match(
-            '#\b[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.(?:com|net|org|io|co|app|dev|info|biz|xyz|me|us|uk|school|edu|gov|ly|link|site|online|shop|store|click|top|vip|work|live|pro|tech|cloud|ai)(?:[/?#]\S*)?#i',
+            '~\b[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.(?:com|net|org|io|co|app|dev|info|biz|xyz|me|us|uk|school|edu|gov|ly|link|site|online|shop|store|click|top|vip|work|live|pro|tech|cloud|ai)(?:[/?#]\S*)?~i',
             $value
         );
     }
