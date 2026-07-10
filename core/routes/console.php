@@ -73,6 +73,13 @@ Schedule::command('nda:process-expired')
     ->onOneServer()
     ->appendOutputTo(storage_path('logs/nda-expiration-processing.log'));
 
+// Product of the day - lock in yesterday's winner from daily upvotes
+Schedule::command('eden:select-product-of-day')
+    ->dailyAt('00:05')
+    ->withoutOverlapping(5)
+    ->onOneServer()
+    ->appendOutputTo(storage_path('logs/eden-product-of-day.log'));
+
 // Monthly revenue report - run at end of every month (last day at 23:55)
 Schedule::command('monthly:revenue-report')
     ->lastDayOfMonth('23:55')

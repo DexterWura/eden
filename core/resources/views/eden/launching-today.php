@@ -34,7 +34,7 @@
 
   <div class="cta-strip">
     <h3>Launching soon?</h3>
-    <p>List your startup and get featured on this page. Upvotes help you reach Product of the day.</p>
+    <p>List your startup and get featured on this page. Upvotes help you reach Product of the day at the end of each day.</p>
     <a href="<?= e(url('/submit')) ?>" class="btn btn-primary">Submit your startup</a>
   </div>
 

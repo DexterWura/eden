@@ -2,63 +2,101 @@
 
 namespace App\Services;
 
+use App\Models\ProductOfDayWinner;
 use App\Models\Startup;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class StartupService
 {
     public const PRODUCT_OF_DAY_CACHE_KEY = 'eden_product_of_day_id';
-    public const PRODUCT_OF_DAY_RECORDED_ID_CACHE_KEY = 'eden_product_of_day_recorded_id';
-    public const PRODUCT_OF_DAY_CACHE_TTL_SECONDS = 60;
 
     public function getProductOfDayId(): ?int
     {
+        $displayDate = now()->toDateString();
+        $cacheKey = self::productOfDayCacheKey($displayDate);
+        $secondsUntilEndOfDay = max(60, now()->diffInSeconds(now()->copy()->endOfDay()));
+
         $id = Cache::remember(
-            self::PRODUCT_OF_DAY_CACHE_KEY,
-            self::PRODUCT_OF_DAY_CACHE_TTL_SECONDS,
+            $cacheKey,
+            $secondsUntilEndOfDay,
             function () {
-                $winnerId = Startup::active()->orderByDesc('upvotes')->value('id');
+                $yesterday = now()->subDay()->toDateString();
+                $winnerId = ProductOfDayWinner::query()
+                    ->where('award_date', $yesterday)
+                    ->value('startup_id');
 
                 return $winnerId !== null ? (int) $winnerId : null;
             }
         );
 
-        if ($id !== null) {
-            $this->recordProductOfDayAward($id);
-        }
-
         return $id;
     }
 
     /**
-     * Persist the last calendar date this startup held product of the day.
-     * Rolls forward daily while the startup remains #1; frozen once overtaken.
+     * Lock in the product of the day for a calendar date from that day's upvotes.
+     *
+     * @return array{startup_id: int, upvote_count: int}|null
      */
-    private function recordProductOfDayAward(int $startupId): void
+    public function selectProductOfDayForDate(CarbonInterface $awardDate): ?array
     {
-        $today = now()->toDateString();
-        $recordedId = Cache::get(self::PRODUCT_OF_DAY_RECORDED_ID_CACHE_KEY);
-        $recordedId = $recordedId !== null ? (int) $recordedId : null;
+        $dateString = $awardDate->toDateString();
 
-        if ($recordedId === $startupId) {
-            Startup::query()
-                ->where('id', $startupId)
-                ->where(function ($query) use ($today) {
-                    $query->whereNull('product_of_day_at')
-                        ->orWhere('product_of_day_at', '<', $today);
-                })
-                ->update(['product_of_day_at' => $today]);
-
-            return;
+        if (ProductOfDayWinner::query()->where('award_date', $dateString)->exists()) {
+            return null;
         }
 
-        Startup::query()
-            ->where('id', $startupId)
-            ->update(['product_of_day_at' => $today]);
+        $dayStart = $awardDate->copy()->startOfDay();
+        $dayEnd = $awardDate->copy()->endOfDay();
 
-        Cache::put(self::PRODUCT_OF_DAY_RECORDED_ID_CACHE_KEY, $startupId, 86400 * 7);
+        $winner = Startup::active()
+            ->selectRaw(
+                'startups.*, (SELECT COUNT(*) FROM startup_upvotes WHERE startup_upvotes.startup_id = startups.id AND startup_upvotes.created_at >= ? AND startup_upvotes.created_at <= ?) AS upvotes_that_day',
+                [$dayStart, $dayEnd]
+            )
+            ->orderByDesc('upvotes_that_day')
+            ->orderByDesc('upvotes')
+            ->orderBy('id')
+            ->first();
+
+        if ($winner === null || (int) $winner->upvotes_that_day < 1) {
+            return null;
+        }
+
+        $startupId = (int) $winner->id;
+        $upvoteCount = (int) $winner->upvotes_that_day;
+
+        DB::transaction(function () use ($dateString, $startupId, $upvoteCount) {
+            ProductOfDayWinner::query()->create([
+                'award_date' => $dateString,
+                'startup_id' => $startupId,
+                'upvote_count' => $upvoteCount,
+            ]);
+
+            Startup::query()
+                ->where('id', $startupId)
+                ->update(['product_of_day_at' => $dateString]);
+        });
+
+        self::clearProductOfDayCache();
+
+        return [
+            'startup_id' => $startupId,
+            'upvote_count' => $upvoteCount,
+        ];
+    }
+
+    public static function productOfDayCacheKey(string $displayDate): string
+    {
+        return self::PRODUCT_OF_DAY_CACHE_KEY . ':' . $displayDate;
+    }
+
+    public static function clearProductOfDayCache(): void
+    {
+        Cache::forget(self::productOfDayCacheKey(now()->toDateString()));
     }
 
     private function withFunding(): \Illuminate\Database\Eloquent\Builder
@@ -68,10 +106,16 @@ class StartupService
 
     public function getProductOfDay(?string $category = null, int $limit = 5): Collection
     {
-        $query = $this->withFunding()->active()->orderByDesc('upvotes');
+        $winnerId = $this->getProductOfDayId();
+        if ($winnerId === null) {
+            return new Collection();
+        }
+
+        $query = $this->withFunding()->active()->where('id', $winnerId);
         if ($category !== null && $category !== '') {
             $query->byCategory($category);
         }
+
         return $query->take($limit)->get();
     }
 

@@ -11,7 +11,6 @@ use App\Support\Seo\EdenSeo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class StartupController extends EdenController
 {
@@ -96,13 +95,8 @@ class StartupController extends EdenController
         $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->select('startups.id')->pluck('id')->toArray() : [];
 
         $isProductOfDay = $this->startupService->getProductOfDayId() === $startup->id;
-        if ($isProductOfDay) {
-            $startup->refresh();
-        }
         $productOfDayDate = $startup->product_of_day_at;
-        $isProductOfDayToday = $isProductOfDay
-            && $productOfDayDate !== null
-            && $productOfDayDate->isToday();
+        $isProductOfDayToday = $isProductOfDay;
 
         return $this->page('startup-show', $pageTitle, null, [
             'startup' => $startup,
@@ -294,8 +288,6 @@ class StartupController extends EdenController
         }
         StartupUpvote::create(['user_id' => auth()->id(), 'startup_id' => $startup->id]);
         $startup->increment('upvotes');
-        Cache::forget(StartupService::PRODUCT_OF_DAY_CACHE_KEY);
-        Cache::forget(StartupService::PRODUCT_OF_DAY_RECORDED_ID_CACHE_KEY);
         if ($request->expectsJson()) {
             return response()->json([
                 'status' => 'ok',

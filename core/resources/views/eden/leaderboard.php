@@ -112,14 +112,6 @@ $sortLabel = $sortLabels[$sortBy] ?? 'Upvotes';
           <td class="col-metric"><?= e($metricVal) ?></td>
           <td class="col-launched"><?= $s->launch_date ? $s->launch_date->format('Y') : '—' ?></td>
         </tr>
-        <?php if ($rank % 10 === 0): ?>
-        <tr class="leaderboard-ad-row">
-          <td colspan="5" style="text-align:center; padding:12px 0;">
-            <div class="MainAdverTiseMentDiv" data-publisher="eyJpdiI6ImwxcHg2Wm1oOEZTRENvbzV1OVFyTnc9PSIsInZhbHVlIjoiZkVpQ0FDclU4Q0hvcXFCK3I0QzdFdz09IiwibWFjIjoiZjZkYjJhMmE5OTIzZTZlODg0OTg4YzNiZDVmMjUzYjA3MzAwN2Q5MTIwNmY3OTczOTZmNTg0ZDdiZmY4M2E3NyIsInRhZyI6IiJ9" data-adsize="728x90"></div>
-            <script class="adScriptClass" src="https://zimadsense.com/assets/ads/ad.js"></script>
-          </td>
-        </tr>
-        <?php endif; ?>
         <?php endforeach; ?>
         <?php else: ?>
         <tr>

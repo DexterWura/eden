@@ -102,7 +102,7 @@
         <img src="{{ $badgeBaseUrl }}/product-of-day?theme={{ $defaultTheme }}" alt="Product of the day on {{ $siteName }}" width="220" height="52" style="border: 0; display: block; opacity: 0.55;" class="badge-preview-image" data-badge-src="{{ $badgeBaseUrl }}/product-of-day">
         <span class="dash-badge dash-badge-muted">Not product of the day</span>
       </div>
-      <p class="badge-hint">This badge appears when your startup is product of the day (top by upvotes).</p>
+      <p class="badge-hint">This badge appears when your startup is product of the day (most upvotes that day).</p>
     </div>
     @endif
   </div>
