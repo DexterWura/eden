@@ -59,6 +59,18 @@ final class AdSpotOffers
             'paypal_desc' => 'Homepage sidebar ad — 1 month',
             'paynow_title' => 'Homepage sidebar ad — 1 month',
         ],
+        'startup-sidebar' => [
+            'placement' => 'startup_sidebar_1',
+            'label' => 'Startup pages — sidebar',
+            'description' => '300×250 placement beside startup profiles. Reach visitors researching products and founders.',
+            'width' => 300,
+            'height' => 250,
+            'price' => 5.00,
+            'currency' => 'USD',
+            'storage_dir' => 'startup-sidebar',
+            'paypal_desc' => 'Startup profile sidebar ad — 1 month',
+            'paynow_title' => 'Startup profile sidebar ad — 1 month',
+        ],
         'leaderboard' => [
             'placement' => 'leaderboard_banner_1',
             'label' => 'Leaderboard — top banner',
@@ -164,7 +176,7 @@ final class AdSpotOffers
 
         return match ($segment) {
             'blog' => '/blog',
-            'home', 'home-sidebar', 'home-bottom' => '/',
+            'home', 'home-sidebar', 'home-bottom', 'startup-sidebar' => '/',
             'leaderboard' => '/leaderboard',
             'launching' => '/launching-today',
             'raising' => '/raising',

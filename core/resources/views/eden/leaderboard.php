@@ -1,6 +1,7 @@
 <?php
 $startups = $startups ?? null;
 $sortBy = $sortBy ?? 'upvotes';
+$period = $period ?? 'all';
 $productOfDayId = $productOfDayId ?? null;
 $sortLabels = [
   'upvotes' => 'Upvotes',
@@ -11,11 +12,18 @@ $sortLabels = [
   'newest' => 'Newest',
 ];
 $sortLabel = $sortLabels[$sortBy] ?? 'Upvotes';
+$periodLabels = [
+  'all' => 'All time',
+  'week' => 'This week',
+  'month' => 'This month',
+  'year' => 'This year',
+];
+$periodLabel = $periodLabels[$period] ?? 'All time';
 ?>
 <section class="page-head">
   <div class="wrap">
     <h1>Leaderboard</h1>
-    <p>Top startups. Sort by upvotes, views, clicks, MRR, or revenue.</p>
+    <p>Compare the startups making the biggest impact across each time period.</p>
   </div>
 </section>
 
@@ -34,17 +42,27 @@ $sortLabel = $sortLabels[$sortBy] ?? 'Upvotes';
 
   <div class="leaderboard-wrap">
     <div class="leaderboard-header">
-      <h2 class="leaderboard-title">Leaderboard</h2>
-      <div class="leaderboard-filters">
-        <label for="leaderboardSort" class="leaderboard-filter-label">Sort by</label>
-        <select id="leaderboardSort" aria-label="Sort by">
-          <option value="upvotes"<?= $sortBy === 'upvotes' ? ' selected' : '' ?>>Upvotes</option>
-          <option value="views"<?= $sortBy === 'views' ? ' selected' : '' ?>>Views</option>
-          <option value="clicks"<?= $sortBy === 'clicks' ? ' selected' : '' ?>>Clicks</option>
-          <option value="mrr"<?= $sortBy === 'mrr' ? ' selected' : '' ?>>MRR</option>
-          <option value="revenue"<?= $sortBy === 'revenue' ? ' selected' : '' ?>>Revenue</option>
-          <option value="newest"<?= $sortBy === 'newest' ? ' selected' : '' ?>>Newest</option>
-        </select>
+      <div class="leaderboard-heading">
+        <h2 class="leaderboard-title"><?= e($periodLabel) ?> leaderboard</h2>
+        <p>Ranking startups listed <?= $period === 'all' ? 'since Eden launched' : strtolower($periodLabel) ?>.</p>
+      </div>
+      <div class="leaderboard-controls">
+        <nav class="leaderboard-periods" aria-label="Leaderboard time period">
+          <?php foreach ($periodLabels as $periodValue => $label): ?>
+          <a href="<?= e(route('leaderboard', ['sort' => $sortBy, 'period' => $periodValue])) ?>" class="<?= $period === $periodValue ? 'is-active' : '' ?>"<?= $period === $periodValue ? ' aria-current="page"' : '' ?>><?= e($label) ?></a>
+          <?php endforeach; ?>
+        </nav>
+        <div class="leaderboard-filters">
+          <label for="leaderboardSort" class="leaderboard-filter-label">Rank by</label>
+          <select id="leaderboardSort" aria-label="Rank startups by">
+            <option value="upvotes"<?= $sortBy === 'upvotes' ? ' selected' : '' ?>>Upvotes</option>
+            <option value="views"<?= $sortBy === 'views' ? ' selected' : '' ?>>Views</option>
+            <option value="clicks"<?= $sortBy === 'clicks' ? ' selected' : '' ?>>Clicks</option>
+            <option value="mrr"<?= $sortBy === 'mrr' ? ' selected' : '' ?>>MRR</option>
+            <option value="revenue"<?= $sortBy === 'revenue' ? ' selected' : '' ?>>Revenue</option>
+            <option value="newest"<?= $sortBy === 'newest' ? ' selected' : '' ?>>Newest</option>
+          </select>
+        </div>
       </div>
     </div>
     <table class="leaderboard-table">
@@ -115,7 +133,7 @@ $sortLabel = $sortLabels[$sortBy] ?? 'Upvotes';
         <?php endforeach; ?>
         <?php else: ?>
         <tr>
-          <td colspan="5" style="padding: 40px; text-align: center; color: var(--text-muted);">No startups yet. <a href="<?= e(url('/submit')) ?>">Submit your startup</a>.</td>
+          <td colspan="5" style="padding: 40px; text-align: center; color: var(--text-muted);">No startups were listed in this period. <a href="<?= e(url('/submit')) ?>">Submit your startup</a>.</td>
         </tr>
         <?php endif; ?>
       </tbody>
@@ -132,6 +150,7 @@ $sortLabel = $sortLabels[$sortBy] ?? 'Upvotes';
 document.getElementById('leaderboardSort')?.addEventListener('change', function() {
   var url = new URL(window.location.href);
   url.searchParams.set('sort', this.value);
+  url.searchParams.delete('page');
   window.location.href = url.toString();
 });
 </script>

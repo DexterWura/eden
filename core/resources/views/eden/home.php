@@ -92,84 +92,14 @@
 <div class="wrap discovery-layout">
   <div class="discovery-main">
   <?php $sortNewest = $sortNewest ?? false; ?>
-  <?php $launchingToday = $launchingToday ?? collect(); ?>
-  <?php if (!$sortNewest && $launchingToday->isNotEmpty()): ?>
-  <section class="section-block" aria-labelledby="products-launching-heading">
-    <header class="section-header">
-      <div>
-        <h2 id="products-launching-heading" class="section-heading">Products launching today</h2>
-        <p class="section-sub">Fresh launches. Be the first to discover them.</p>
-      </div>
-      <a href="<?= e(url('/launching-today')) ?>" class="section-link-all">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
-    </header>
-    <div class="section-cards-row" tabindex="0">
-      <?php foreach ($launchingToday as $startup):
-        $rank = null;
-        $showRank = false;
-        $cardVariant = 'feed';
-        include __DIR__ . '/_startup-card.php';
-      endforeach; ?>
-    </div>
-    <p class="section-browse-all"><a href="<?= e(url('/launching-today')) ?>">Browse all on Launching today</a></p>
-  </section>
-  <?php endif; ?>
-
-  <?php if (!($sortNewest ?? false)): ?>
-  <?php endif; ?>
-
-  <?php $featuredProducts = $featuredProducts ?? collect(); ?>
-  <?php if (!$sortNewest && $featuredProducts->isNotEmpty()): ?>
-  <section class="section-block" aria-labelledby="featured-heading">
-    <header class="section-header">
-      <div>
-        <h2 id="featured-heading" class="section-heading">Featured products</h2>
-        <p class="section-sub">Hand-picked startups to watch.</p>
-      </div>
-      <a href="<?= e(url('/?featured=1')) ?>" class="section-link-all">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
-    </header>
-    <div class="section-cards-row" tabindex="0">
-      <?php foreach ($featuredProducts as $startup):
-        $rank = null;
-        $showRank = false;
-        $cardVariant = 'feed';
-        include __DIR__ . '/_startup-card.php';
-      endforeach; ?>
-    </div>
-    <p class="section-browse-all"><a href="<?= e(url('/?featured=1')) ?>">Browse all featured startups</a></p>
-  </section>
-  <?php endif; ?>
-
-  <?php $justListed = $justListed ?? collect(); ?>
-  <?php if (!$sortNewest && $justListed->isNotEmpty()): ?>
-  <section class="section-block" aria-labelledby="just-listed-heading">
-    <header class="section-header">
-      <div>
-        <h2 id="just-listed-heading" class="section-heading">Just listed</h2>
-        <p class="section-sub">Newest additions to the directory.</p>
-      </div>
-      <a href="<?= e(url('/?sort=newest')) ?>" class="section-link-all">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
-    </header>
-    <div class="section-cards-row" tabindex="0">
-      <?php foreach ($justListed as $startup):
-        $rank = null;
-        $showRank = false;
-        $cardVariant = 'feed';
-        include __DIR__ . '/_startup-card.php';
-      endforeach; ?>
-    </div>
-    <p class="section-browse-all"><a href="<?= e(url('/?sort=newest')) ?>">Browse all just listed</a></p>
-  </section>
-  <?php endif; ?>
-
   <section class="section-block" aria-labelledby="startups-heading">
     <header class="section-header">
-      <h2 id="startups-heading" class="section-heading"><?= ($searchQuery ?? '') !== '' ? 'Search results for “' . e($searchQuery) . '”' : (($sortNewest ?? false) ? 'Just listed' : (($featuredOnly ?? false) ? 'Featured startups' : 'All Startups')) ?></h2>
+      <div>
+        <h2 id="startups-heading" class="section-heading"><?= ($searchQuery ?? '') !== '' ? 'Search results for “' . e($searchQuery) . '”' : (($sortNewest ?? false) ? 'Newest startups' : (($featuredOnly ?? false) ? 'Featured startups' : 'All startups')) ?></h2>
+        <?php if (($searchQuery ?? '') === '' && !($featuredOnly ?? false)): ?><p class="section-sub">Newest additions first, with upvotes breaking ties.</p><?php endif; ?>
+      </div>
       <?php if (($searchQuery ?? '') !== ''): ?>
       <a href="<?= e(url('/')) ?>" class="section-link-all">Clear search <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
-      <?php elseif ($sortNewest ?? false): ?>
-      <a href="<?= e(url('/leaderboard?sort=newest')) ?>" class="section-link-all">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
-      <?php else: ?>
-      <a href="<?= e(url('/launching-today')) ?>" class="section-link-all">Launching today <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
       <?php endif; ?>
     </header>
     <?php
@@ -231,31 +161,18 @@
     </section>
     <?php endif; ?>
 
-    <section class="sidebar-panel sidebar-newsletter">
-      <span class="sidebar-eyebrow">Weekly digest</span>
-      <h2>What Zimbabwe is building</h2>
-      <p>New launches and founder stories, once a week.</p>
-      <form action="<?= e(url('/subscribe')) ?>" method="POST">
-        <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
-        <label class="visually-hidden" for="sidebarEmail">Email address</label>
-        <input id="sidebarEmail" type="email" name="email" placeholder="you@example.com" required>
-        <button type="submit" class="btn btn-primary">Subscribe</button>
-      </form>
-    </section>
-
-    <?php if (($homeSidebarAd ?? null) !== null): ?>
     <section class="sidebar-panel sidebar-sponsored" aria-label="Sponsored">
       <span class="sponsored-label">Sponsored</span>
       <?php
-        $ad = $homeSidebarAd;
+        $ad = $homeSidebarAd ?? null;
         $buyUrl = url('/advertise/home-sidebar');
-        $emptyTitle = 'Reach startup builders';
-        $emptyCopy = 'Sponsor this discovery page.';
+        $emptyTitle = 'Advertise here';
+        $emptyCopy = 'Put your product in front of founders, builders and investors for one month.';
         $maxWidth = 320;
+        $showEmptyPromotion = true;
         include __DIR__ . '/partials/ad-spot.php';
       ?>
     </section>
-    <?php endif; ?>
   </aside>
 </div>
 

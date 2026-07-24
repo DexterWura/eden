@@ -12,6 +12,9 @@ $buildPublicContactUrl = static function (array $params = []) {
 $isProductOfDay = $isProductOfDay ?? false;
 $productOfDayDate = $productOfDayDate ?? null;
 $isProductOfDayToday = $isProductOfDayToday ?? false;
+$productOfMonthDate = $s->product_of_month_at;
+$productOfYear = $s->product_of_year_at;
+$hasAwards = $productOfDayDate || $productOfMonthDate || $productOfYear;
 $hasUpvoted = $hasUpvoted ?? false;
 $hasSaved = $hasSaved ?? false;
 $showClaimButton = empty($s->user_id) && empty($s->founder_email);
@@ -41,9 +44,6 @@ $showClaimButton = empty($s->user_id) && empty($s->founder_email);
           <div class="product-header-title-row">
             <h1><?= e($s->name) ?></h1>
             <div class="startup-hero-badges">
-          <?php if ($productOfDayDate): ?>
-          <?php include __DIR__ . '/partials/potd-seal.php'; ?>
-          <?php endif; ?>
           <?php if ($fundingRound): ?><span class="badge badge-funding"><i class="fa-solid fa-hand-holding-dollar"></i> Raising</span><?php endif; ?>
           <?php if ($s->for_sale && !$s->sold_at && $s->flipit_listing_id): ?>
           <?php $flipitUrl = $s->getFlipitListingUrl(); ?>
@@ -355,6 +355,46 @@ $showClaimButton = empty($s->user_id) && empty($s->founder_email);
   </div>
 
   <aside class="startup-detail-sidebar" aria-label="<?= e($s->name) ?> facts">
+    <?php if ($hasAwards): ?>
+    <section class="startup-facts-card startup-awards-card" aria-labelledby="startup-awards-heading">
+      <div class="startup-awards-heading">
+        <span class="startup-awards-icon"><i class="fa-solid fa-trophy" aria-hidden="true"></i></span>
+        <div>
+          <span class="sidebar-eyebrow" id="startup-awards-heading">Eden awards</span>
+          <p>Recognition earned from the Eden community.</p>
+        </div>
+      </div>
+      <div class="startup-awards-list">
+        <?php if ($productOfDayDate): ?>
+        <div class="startup-award-row">
+          <span class="startup-award-medal"><i class="fa-solid fa-award" aria-hidden="true"></i></span>
+          <div>
+            <strong>Product of the day</strong>
+            <time datetime="<?= e($productOfDayDate->toDateString()) ?>"><?= e($productOfDayDate->format('F j, Y')) ?></time>
+          </div>
+        </div>
+        <?php endif; ?>
+        <?php if ($productOfMonthDate): ?>
+        <div class="startup-award-row">
+          <span class="startup-award-medal"><i class="fa-solid fa-medal" aria-hidden="true"></i></span>
+          <div>
+            <strong>Product of the month</strong>
+            <time datetime="<?= e($productOfMonthDate->format('Y-m')) ?>"><?= e($productOfMonthDate->format('F Y')) ?></time>
+          </div>
+        </div>
+        <?php endif; ?>
+        <?php if ($productOfYear): ?>
+        <div class="startup-award-row">
+          <span class="startup-award-medal"><i class="fa-solid fa-crown" aria-hidden="true"></i></span>
+          <div>
+            <strong>Product of the year</strong>
+            <time datetime="<?= (int)$productOfYear ?>"><?= (int)$productOfYear ?></time>
+          </div>
+        </div>
+        <?php endif; ?>
+      </div>
+    </section>
+    <?php endif; ?>
     <section class="startup-facts-card">
       <span class="sidebar-eyebrow">At a glance</span>
       <dl>
@@ -364,9 +404,18 @@ $showClaimButton = empty($s->user_id) && empty($s->founder_email);
         <?php if ($s->pricing_model): ?><div><dt>Pricing</dt><dd><?= e($s->pricing_model) ?></dd></div><?php endif; ?>
         <?php if ($s->launch_date): ?><div><dt>Launched</dt><dd><?= e($s->launch_date->format('F Y')) ?></dd></div><?php endif; ?>
       </dl>
-      <?php if ($s->website): ?>
-      <a href="<?= e(url('/startup/' . $s->slug . '/out')) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-block">Visit <?= e($s->name) ?></a>
-      <?php endif; ?>
+    </section>
+    <section class="startup-facts-card startup-sidebar-sponsored" aria-label="Sponsored">
+      <span class="sponsored-label">Sponsored</span>
+      <?php
+        $ad = $startupSidebarAd ?? null;
+        $buyUrl = url('/advertise/startup-sidebar');
+        $emptyTitle = 'Advertise on startup pages';
+        $emptyCopy = 'Reach founders, customers and investors while they research products.';
+        $maxWidth = 300;
+        $showEmptyPromotion = true;
+        include __DIR__ . '/partials/ad-spot.php';
+      ?>
     </section>
     <section class="startup-facts-card">
       <span class="sidebar-eyebrow">Profile quality</span>

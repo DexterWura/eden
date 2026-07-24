@@ -25,15 +25,8 @@ class HomeController extends EdenController
         if ($searchQuery !== null && trim($searchQuery) !== '') {
             $searchResults = $this->startupService->search(trim($searchQuery), $categoryFilter, $locationFilter, 50);
             $allStartups = $searchResults;
-            $launchingToday = collect();
-            $featuredProducts = collect();
-            $justListed = collect();
         } else {
             $searchResults = null;
-            $launchingToday = $this->startupService->getLaunchingToday($categoryFilter, $featuredOnly, 0, $locationFilter);
-            $featuredProducts = $this->startupService->getFeatured($categoryFilter, 10, $locationFilter);
-            $justListed = $this->startupService->getJustListed($categoryFilter, $featuredOnly, 8, $locationFilter);
-
             if ($featuredOnly) {
                 $allStartups = $this->startupService->getFeaturedPaginated($categoryFilter, 50, $locationFilter);
             } elseif ($sortNewest) {
@@ -48,20 +41,6 @@ class HomeController extends EdenController
         $browseCategories = $this->startupService->getCategoriesWithCounts()
             ->take(12)
             ->map(fn ($c) => (object) ['name' => $c->category]);
-        if ($searchResults === null) {
-            $hotThisWeekIds = $this->startupService
-                ->getTopPerforming($categoryFilter, $featuredOnly, 6, $locationFilter)
-                ->pluck('id')
-                ->map(fn ($id) => (int) $id)
-                ->values()
-                ->all();
-        } else {
-            $hotThisWeekIds = [];
-        }
-        if ($sortNewest) {
-            $hotThisWeekIds = [];
-        }
-
         $heroStartups = Startup::where('featured_on_hero', true)->orderBy('name')->limit(20)->get();
         $featuredFounders = collect();
         foreach ($heroStartups as $hs) {
@@ -83,16 +62,12 @@ class HomeController extends EdenController
 
         $itemListSchema = EdenSeo::startupItemList($allStartups instanceof \Illuminate\Contracts\Pagination\Paginator ? collect($allStartups->items())->take(20) : $allStartups->take(20), 'Startups on ' . (function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden'));
 
-        $homeAd = AdSpot::activeForPlacement('home_leaderboard_1')->first();
         $homeSidebarAd = AdSpot::activeForPlacement('home_sidebar_1')->first();
         $homeBottomAd = AdSpot::activeForPlacement('home_bottom_banner_1')->first();
 
         $seo = EdenSeo::forHome($request);
 
         return $this->page('home', null, 'scripts-home', [
-            'launchingToday' => $launchingToday,
-            'featuredProducts' => $featuredProducts,
-            'justListed' => $justListed,
             'allStartups' => $allStartups,
             'categories' => $categories,
             'browseCategories' => $browseCategories,
@@ -101,12 +76,10 @@ class HomeController extends EdenController
             'sortNewest' => $sortNewest,
             'searchQuery' => $searchQuery,
             'searchResults' => $searchResults,
-            'hotThisWeekIds' => $hotThisWeekIds ?? [],
             'productOfDayId' => $this->startupService->getProductOfDayId(),
             'showTrustedByBlock' => $showTrustedByBlock,
             'featuredFounders' => $featuredFounders,
             'savedStartupIds' => $savedStartupIds,
-            'homeAd' => $homeAd,
             'homeSidebarAd' => $homeSidebarAd,
             'homeBottomAd' => $homeBottomAd,
         ], array_merge($itemListSchema ? ['structuredData' => [$itemListSchema]] : [], $seo));
@@ -118,7 +91,11 @@ class HomeController extends EdenController
         if (! in_array($sortBy, ['upvotes', 'views', 'clicks', 'mrr', 'revenue', 'newest'], true)) {
             $sortBy = 'upvotes';
         }
-        $startups = $this->startupService->getLeaderboard($sortBy, 50);
+        $period = $request->query('period', 'all');
+        if (! in_array($period, ['all', 'week', 'month', 'year'], true)) {
+            $period = 'all';
+        }
+        $startups = $this->startupService->getLeaderboard($sortBy, 50, period: $period);
 
         $itemListSchema = EdenSeo::startupItemList($startups, 'Startup leaderboard');
         $leaderboardAd = AdSpot::activeForPlacement('leaderboard_banner_1')->first();
@@ -128,6 +105,7 @@ class HomeController extends EdenController
         return $this->page('leaderboard', 'Leaderboard', null, [
             'startups' => $startups,
             'sortBy' => $sortBy,
+            'period' => $period,
             'productOfDayId' => $this->startupService->getProductOfDayId(),
             'leaderboardAd' => $leaderboardAd,
         ], array_merge($itemListSchema ? ['structuredData' => [$itemListSchema]] : [], $seo));

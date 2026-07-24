@@ -11,6 +11,7 @@ use App\Services\StartupApprovalNotificationService;
 use App\Services\StartupActivationService;
 use App\Services\StartupAwardService;
 use App\Services\StartupFundingRoundService;
+use App\Services\StartupService;
 use App\Support\StartupContentPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -35,6 +36,9 @@ class EdenRedesignTest extends TestCase
         $response->assertSee($startup->name);
         $response->assertDontSee('id="leaderboard-heading"', false);
         $response->assertDontSee('Top startups');
+        $response->assertDontSee('Products launching today');
+        $response->assertDontSee('Featured products');
+        $response->assertDontSee('Just listed');
 
         $this->get('/leaderboard')
             ->assertOk()
@@ -65,6 +69,11 @@ class EdenRedesignTest extends TestCase
     public function test_startup_detail_uses_product_discovery_layout(): void
     {
         $startup = $this->createRichStartup();
+        $startup->update([
+            'product_of_day_at' => '2026-07-10',
+            'product_of_month_at' => '2026-07-01',
+            'product_of_year_at' => 2026,
+        ]);
 
         $response = $this->get('/startup/' . $startup->slug);
 
@@ -72,6 +81,12 @@ class EdenRedesignTest extends TestCase
         $response->assertSee('product-header', false);
         $response->assertSee('product-upvote-button', false);
         $response->assertSee('product-page-tabs', false);
+        $response->assertSee('startup-awards-card', false);
+        $response->assertSee('Product of the month');
+        $response->assertSee('Product of the year');
+        $response->assertDontSee('potd-seal', false);
+        $response->assertSee('/advertise/startup-sidebar', false);
+        $response->assertSee('Advertise on startup pages');
         $response->assertSee('About ' . $startup->name);
     }
 
@@ -288,6 +303,33 @@ class EdenRedesignTest extends TestCase
 
         $fundingService->sync($raisingStartup->fresh(), $input);
         Mail::assertSentCount(1);
+    }
+
+    public function test_leaderboard_defaults_to_all_time_and_filters_recent_listings(): void
+    {
+        $olderStartup = $this->createRichStartup();
+        $olderStartup->timestamps = false;
+        $olderStartup->update([
+            'created_at' => now()->subMonths(2),
+            'updated_at' => now()->subMonths(2),
+        ]);
+        $recentStartup = $olderStartup->replicate();
+        $recentStartup->fill([
+            'name' => 'RecentPay',
+            'slug' => 'recentpay',
+            'website' => 'https://recentpay.test',
+            'upvotes' => 20,
+        ]);
+        $recentStartup->save();
+
+        $startupService = app(StartupService::class);
+        $allTimeIds = collect($startupService->getLeaderboard('upvotes', 50)->items())->pluck('id');
+        $weeklyIds = collect($startupService->getLeaderboard('upvotes', 50, period: 'week')->items())->pluck('id');
+
+        $this->assertTrue($allTimeIds->contains($olderStartup->id));
+        $this->assertTrue($allTimeIds->contains($recentStartup->id));
+        $this->assertFalse($weeklyIds->contains($olderStartup->id));
+        $this->assertTrue($weeklyIds->contains($recentStartup->id));
     }
 
     private function createRichStartup(): Startup

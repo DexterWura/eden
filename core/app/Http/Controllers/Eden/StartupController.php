@@ -98,6 +98,7 @@ class StartupController extends EdenController
         $isProductOfDay = $this->startupService->getProductOfDayId() === $startup->id;
         $productOfDayDate = $startup->product_of_day_at;
         $isProductOfDayToday = $isProductOfDay;
+        $startupSidebarAd = AdSpot::activeForPlacement('startup_sidebar_1')->first();
 
         return $this->page('startup-show', $pageTitle, null, [
             'startup' => $startup,
@@ -111,6 +112,7 @@ class StartupController extends EdenController
             'trafficTotal' => $trafficTotal,
             'similarStartups' => $similarStartups,
             'savedStartupIds' => $savedStartupIds,
+            'startupSidebarAd' => $startupSidebarAd,
             'reportReasons' => StartupReport::reasonLabels(),
         ], $layoutData);
     }

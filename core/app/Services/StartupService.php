@@ -94,7 +94,9 @@ class StartupService
 
     public function getAllStartupsPaginated(?string $category = null, ?string $location = null, int $perPage = 50)
     {
-        $query = $this->baseActiveQuery()->orderByDesc('upvotes');
+        $query = $this->baseActiveQuery()
+            ->orderByDesc('created_at')
+            ->orderByDesc('upvotes');
         $this->applyDiscoveryFilters($query, $category, $location);
         return $query->paginate($perPage)->withQueryString();
     }
@@ -257,7 +259,14 @@ class StartupService
             ->get();
     }
 
-    public function getLeaderboard(string $sortBy = 'upvotes', int $perPage = 20, ?string $category = null, bool $featuredOnly = false, ?string $location = null)
+    public function getLeaderboard(
+        string $sortBy = 'upvotes',
+        int $perPage = 20,
+        ?string $category = null,
+        bool $featuredOnly = false,
+        ?string $location = null,
+        string $period = 'all'
+    )
     {
         $query = $this->baseActiveQuery();
         if ($category !== null && $category !== '') {
@@ -268,6 +277,15 @@ class StartupService
         }
         if ($location !== null && trim($location) !== '') {
             $query->where('location', 'like', '%' . trim($location) . '%');
+        }
+        $periodStart = match ($period) {
+            'week' => now()->startOfWeek(),
+            'month' => now()->startOfMonth(),
+            'year' => now()->startOfYear(),
+            default => null,
+        };
+        if ($periodStart !== null) {
+            $query->where('created_at', '>=', $periodStart);
         }
         $sortColumn = match ($sortBy) {
             'views' => 'views',
