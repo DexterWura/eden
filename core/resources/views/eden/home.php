@@ -168,7 +168,26 @@
       </div>
       <div class="sidebar-featured-startups">
         <?php foreach ($featuredStartups as $startup): ?>
-        <a href="<?= e(url('/startups/' . $startup->slug)) ?>"><?= e($startup->name) ?></a>
+        <?php
+          $featuredLogoPath = $startup->logo_path ?? null;
+          $featuredLogoLetters = $startup->logo_letters ?? strtoupper(mb_substr($startup->name, 0, 2));
+          $featuredBlurb = $startup->tagline ?: ($startup->short_description ?? '');
+        ?>
+        <a href="<?= e(url('/startup/' . $startup->slug)) ?>" class="sidebar-featured-startup">
+          <span class="sidebar-featured-logo" aria-hidden="true">
+            <?php if ($featuredLogoPath): ?>
+            <img src="<?= e(asset($featuredLogoPath)) ?>" alt="" width="36" height="36" loading="lazy" decoding="async">
+            <?php else: ?>
+            <?= e($featuredLogoLetters) ?>
+            <?php endif; ?>
+          </span>
+          <span class="sidebar-featured-copy">
+            <strong><?= e($startup->name) ?></strong>
+            <?php if ($featuredBlurb !== ''): ?>
+            <small><?= e(\Illuminate\Support\Str::limit($featuredBlurb, 64)) ?></small>
+            <?php endif; ?>
+          </span>
+        </a>
         <?php endforeach; ?>
       </div>
     </section>
