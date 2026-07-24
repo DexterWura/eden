@@ -4,9 +4,9 @@
   $formMethod = $isEdit ? 'PUT' : 'POST';
 @endphp
 
-<h1 class="dash-page-title">{{ $isEdit ? 'Edit startup' : 'Add startup' }}</h1>
+<h1 class="dash-page-title">{{ $isEdit ? 'Edit app' : 'Add app' }}</h1>
 <div class="dash-welcome">
-  {{ $isEdit ? 'Update your startup details and links.' : 'Add a new startup to your account.' }}
+  {{ $isEdit ? 'Update your app details and links.' : 'Add a new app to your account.' }}
 </div>
 
 <section class="startup-backlink-offer {{ ($hasDofollowBacklink ?? false) ? 'startup-backlink-offer--active' : '' }}" aria-labelledby="backlink-offer-title">
@@ -14,7 +14,7 @@
   <div class="startup-backlink-offer__copy">
     <h2 id="backlink-offer-title">{{ ($hasDofollowBacklink ?? false) ? 'Your Pro dofollow backlink is active' : 'Get a dofollow backlink with Pro' }}</h2>
     @if($hasDofollowBacklink ?? false)
-      <p>Your startup website link can be followed by visitors and search engines while the listing owner remains a Pro member.</p>
+      <p>Your app website link can be followed by visitors and search engines while the listing owner remains a Pro member.</p>
     @else
       <p>Submitting is still free. Free listings use nofollow website links; Pro listings receive a dofollow website backlink.</p>
     @endif
@@ -146,7 +146,7 @@
   </div>
 
   <div class="dash-card" style="margin-bottom: 20px;">
-    <div class="dash-card-header"><span class="dash-card-title">Startup links</span></div>
+    <div class="dash-card-header"><span class="dash-card-title">App links</span></div>
     <div class="dash-card-body" style="display: flex; flex-direction: column; gap: 16px;">
       <div>
         <label for="website" class="dash-label">Website</label>
@@ -155,14 +155,14 @@
       </div>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
         <div>
-          <label for="twitter_url" class="dash-label">Startup X (Twitter) handle</label>
+          <label for="twitter_url" class="dash-label">App X (Twitter) handle</label>
           @php $startupTw = old('twitter_url', $startup->twitter_url); if ($startupTw && preg_match('#(?:x\.com|twitter\.com)/([a-zA-Z0-9_]+)#i', $startupTw, $m)) { $startupTw = $m[1]; } @endphp
           <input type="text" id="twitter_url" name="twitter_url" value="{{ $startupTw }}" class="dash-input" placeholder="e.g. @dxtwura">
           @error('twitter_url') <span class="dash-error">{{ $message }}</span> @enderror
           <span class="dash-hint" style="display: block; margin-top: 4px; font-size: 0.8rem; color: var(--d-text-secondary);">We'll add x.com/ for you.</span>
         </div>
         <div>
-          <label for="linkedin_url" class="dash-label">Startup LinkedIn</label>
+          <label for="linkedin_url" class="dash-label">App LinkedIn</label>
           <input type="url" id="linkedin_url" name="linkedin_url" value="{{ old('linkedin_url', $startup->linkedin_url) }}" class="dash-input" placeholder="https://linkedin.com/company/...">
           @error('linkedin_url') <span class="dash-error">{{ $message }}</span> @enderror
         </div>
@@ -179,7 +179,7 @@
         >
         @error('search_console_property') <span class="dash-error">{{ $message }}</span> @enderror
         <p class="dash-hint" style="margin-top: 4px; font-size: 0.8rem; color: var(--d-text-secondary);">
-          Enter the exact Search Console property for this startup. Eden will validate it using the configured Google Search Console API key.
+          Enter the exact Search Console property for this app. Eden will validate it using the configured Google Search Console API key.
         </p>
       </div>
     </div>
@@ -215,7 +215,7 @@
           <input type="checkbox" name="traffic_tracking_enabled" value="1" id="traffic_tracking_enabled" {{ old('traffic_tracking_enabled', $startup->traffic_tracking_enabled) ? 'checked' : '' }}>
           <span class="dash-label">Enable website traffic tracking</span>
         </label>
-        <p class="dash-hint" style="margin: 8px 0 0; font-size: 0.8rem; color: var(--d-text-secondary);">Add a script to your site to track visits. Stats are shown on your startup page.</p>
+        <p class="dash-hint" style="margin: 8px 0 0; font-size: 0.8rem; color: var(--d-text-secondary);">Add a script to your site to track visits. Stats are shown on your app page.</p>
         @if($isEdit && $startup->traffic_tracking_enabled)
         @php $trafficScript = '<script async src="' . url('/api/eden/v1/track.js') . '?slug=' . e($startup->slug) . '"></script>'; @endphp
         <div id="traffic-script-snippet" style="margin-top: 12px; padding: 12px; background: var(--d-surface); border: 1px solid var(--d-border); border-radius: var(--d-radius);">
@@ -236,7 +236,7 @@
       <span class="dash-card-subtitle">{{ $fundingRound ? $fundingRound->round_type_label . ' · live' : 'No active round' }}</span>
     </div>
     <div class="dash-card-body">
-      <p style="font-size:.875rem;color:var(--d-text-secondary);">Fundraising details are managed in one place so your startup profile and investor listing stay consistent.</p>
+      <p style="font-size:.875rem;color:var(--d-text-secondary);">Fundraising details are managed in one place so your app profile and investor listing stay consistent.</p>
       <a href="{{ route('founder.fundraising.index') }}" class="dash-btn dash-btn-secondary" style="text-decoration:none;">Manage fundraising</a>
     </div>
   </div>
@@ -260,13 +260,13 @@
       <div class="founder-card-head">
         <span class="founder-card-num">List for sale</span>
       </div>
-      <p style="font-size: 0.875rem; color: var(--d-text-secondary); margin-bottom: 16px;">Link this startup to a FLIPit listing. When the listing sells on FLIPit, Eden will automatically remove the "For sale" badge.</p>
+      <p style="font-size: 0.875rem; color: var(--d-text-secondary); margin-bottom: 16px;">Link this app to a FLIPit listing. When the listing sells on FLIPit, Eden will automatically remove the "For sale" badge.</p>
       <div class="dash-form" style="display: flex; flex-direction: column; gap: 14px;">
         <div>
           <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
             <input type="hidden" name="for_sale" value="0">
             <input type="checkbox" name="for_sale" value="1" {{ old('for_sale', $startup->for_sale) ? 'checked' : '' }}>
-            <span class="dash-label">Mark this startup as for sale</span>
+            <span class="dash-label">Mark this app as for sale</span>
           </label>
         </div>
         <div>
@@ -290,12 +290,12 @@
   @if(!$isEdit)
   <div style="background:var(--surface-hover,#1a1d28);border:1px solid var(--border,#2a2e3d);border-left:4px solid var(--accent,#00d4aa);border-radius:8px;padding:14px 18px;margin-bottom:16px;font-size:0.92rem;color:var(--text-muted,#8b90a0)">
     <i class="fa-solid fa-info-circle" style="color:var(--accent,#00d4aa);margin-right:6px"></i>
-    Your startup will be reviewed by our team before going live. This usually takes less than 24 hours.
+    Your app will be reviewed by our team before going live. This usually takes less than 24 hours.
   </div>
   @endif
   <div style="display: flex; gap: 12px; flex-wrap: wrap;">
     <button type="submit" class="dash-btn dash-btn-primary">
-      <i class="fa-solid fa-check"></i> {{ $isEdit ? 'Save changes' : 'Submit startup' }}
+      <i class="fa-solid fa-check"></i> {{ $isEdit ? 'Save changes' : 'Submit app' }}
     </button>
     <a href="{{ route('founder.startups.index') }}" class="dash-btn dash-btn-secondary" style="text-decoration: none;">Cancel</a>
   </div>

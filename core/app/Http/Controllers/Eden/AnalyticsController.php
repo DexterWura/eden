@@ -136,7 +136,7 @@ class AnalyticsController extends EdenController
             fputcsv($out, ['Total MRR', $startupMetrics ? array_sum(array_column($startupMetrics, 'mrr')) : 0]);
             fputcsv($out, []);
             fputcsv($out, ['Per-startup metrics']);
-            fputcsv($out, ['Startup', 'Views', 'Clicks', 'Upvotes', 'Comments', 'Revenue', 'MRR']);
+            fputcsv($out, ['App', 'Views', 'Clicks', 'Upvotes', 'Comments', 'Revenue', 'MRR']);
             foreach ($startupMetrics as $m) {
                 fputcsv($out, [$m['name'], $m['views'], $m['clicks'], $m['upvotes'], $m['comments'], $m['revenue'], $m['mrr']]);
             }

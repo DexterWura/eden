@@ -5,15 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <?php
     $siteName = function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden';
-    $pageTitleFinal = isset($pageTitle) ? $pageTitle : (isset($title) ? $title . ' | ' . $siteName : $siteName . ' | Startup Directory');
-    $metaDesc = isset($metaDescription) ? $metaDescription : (function_exists('gs') && gs('meta_description') ? gs('meta_description') : (function_exists('gs') && gs('social_description') ? gs('social_description') : 'Startup directory for discoverability and growth.'));
+    $pageTitleFinal = isset($pageTitle) ? $pageTitle : (isset($title) ? $title . ' | ' . $siteName : $siteName . ' | App Directory');
+    $metaDesc = isset($metaDescription) ? $metaDescription : (function_exists('gs') && gs('meta_description') ? gs('meta_description') : (function_exists('gs') && gs('social_description') ? gs('social_description') : 'App directory for discoverability and growth.'));
     $socialDesc = isset($metaDescription) ? $metaDescription : (function_exists('gs') && gs('social_description') ? gs('social_description') : $metaDesc);
     $metaKeywordsFinal = isset($metaKeywords) ? $metaKeywords : (function_exists('gs') && gs('meta_keywords') ? gs('meta_keywords') : '');
     $seoImageUrl = isset($metaImage) ? $metaImage : (function_exists('gs') && gs('seo_image') ? url(asset(gs('seo_image'))) : '');
     $canonicalUrl = isset($canonicalUrl) ? $canonicalUrl : url()->current();
     $metaRobots = isset($metaRobots) ? $metaRobots : null;
     $ogType = isset($ogType) ? $ogType : 'website';
-    $ogImageAlt = isset($ogImageAlt) ? $ogImageAlt : ($siteName . ' – Startup directory');
+    $ogImageAlt = isset($ogImageAlt) ? $ogImageAlt : ($siteName . ' – App directory');
     $baseUrl = rtrim(url('/'), '/');
     $hasSearchQuery = request()->filled('q') && trim((string) request()->query('q')) !== '';
     $includeDefaultSiteGraph = isset($includeDefaultSiteGraph)
@@ -153,7 +153,7 @@
       <a href="<?= e(url('/')) ?>" class="logo"><?= e(function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden') ?></a>
       <form action="<?= e(url('/')) ?>" method="get" class="header-search" role="search">
         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-        <input type="search" name="q" value="<?= e(request()->query('q', '')) ?>" placeholder="Search startups" aria-label="Search startups">
+        <input type="search" name="q" value="<?= e(request()->query('q', '')) ?>" placeholder="Search apps" aria-label="Search apps">
       </form>
       <nav class="nav-main">
         <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle light or dark mode" aria-pressed="false" title="Toggle theme">
@@ -376,7 +376,7 @@
     <div class="wrap site-footer__wrap">
       <section class="site-footer__categories" aria-labelledby="footer-categories-title">
         <div class="site-footer__section-head">
-          <h2 id="footer-categories-title">Top startup categories</h2>
+          <h2 id="footer-categories-title">Top app categories</h2>
           <a href="<?= e(url('/categories')) ?>">See all categories <span aria-hidden="true">&rarr;</span></a>
         </div>
         <div class="site-footer__category-grid">
@@ -389,21 +389,21 @@
       <div class="site-footer__directory">
         <nav class="site-footer__group" aria-label="Discover">
           <h2>Discover</h2>
-          <a href="<?= e(url('/feed/new')) ?>">New startups</a>
+          <a href="<?= e(url('/feed/new')) ?>">New apps</a>
           <a href="<?= e(url('/feed/featured')) ?>">Featured products</a>
           <a href="<?= e(url('/launching-today')) ?>">Launching today</a>
           <a href="<?= e(url('/leaderboard')) ?>">Leaderboard</a>
           <a href="<?= e(url('/raising')) ?>">Raising funding</a>
-          <a href="<?= e(url('/for-sale')) ?>">Startups for sale</a>
+          <a href="<?= e(url('/for-sale')) ?>">Apps for sale</a>
         </nav>
         <nav class="site-footer__group" aria-label="Founder resources">
           <h2>For founders</h2>
-          <a href="<?= e(url('/submit')) ?>">Submit a startup</a>
+          <a href="<?= e(url('/submit')) ?>">Submit an app</a>
           <a href="<?= e(url('/pricing')) ?>">Founder plans</a>
           <a href="<?= e(url('/advertise')) ?>">Advertise on Eden</a>
           <a href="<?= e(url('/blog')) ?>">Founder stories</a>
           <?php if (auth()->check()): ?><a href="<?= e(url('/founder')) ?>">Founder dashboard</a><?php endif; ?>
-          <?php if (auth()->check()): ?><a href="<?= e(url('/saved')) ?>">Saved startups</a><?php endif; ?>
+          <?php if (auth()->check()): ?><a href="<?= e(url('/saved')) ?>">Saved apps</a><?php endif; ?>
         </nav>
         <nav class="site-footer__group" aria-label="Company">
           <h2>Company</h2>
@@ -423,7 +423,7 @@
       </div>
 
       <div class="site-footer__bottom">
-        <p><a class="site-footer__brand" href="<?= e(url('/')) ?>"><?= e(function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden') ?></a> &copy; <?= date('Y') ?>. Discover and launch African startups.</p>
+        <p><a class="site-footer__brand" href="<?= e(url('/')) ?>"><?= e(function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden') ?></a> &copy; <?= date('Y') ?>. Discover and launch African apps.</p>
         <div class="site-footer__bottom-links">
           <a href="<?= e(url('/privacy')) ?>">Privacy</a>
           <a href="<?= e(url('/terms')) ?>">Terms</a>
@@ -659,7 +659,7 @@
           e.preventDefault();
           e.stopPropagation();
           if (typeof edenPromoToast === 'function') {
-            edenPromoToast({ message: 'Sign in to save startups and get personalized recommendations.', ctaText: 'Log in', ctaHref: loginUrl });
+            edenPromoToast({ message: 'Sign in to save apps and get personalized recommendations.', ctaText: 'Log in', ctaHref: loginUrl });
           }
         }
       });

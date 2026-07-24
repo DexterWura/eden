@@ -18,8 +18,8 @@ class FeedController extends Controller
             ->get();
 
         return $this->rssResponse(
-            'New startups on ' . $this->siteName(),
-            'Latest startups added to the directory.',
+            'New apps on ' . $this->siteName(),
+            'Latest apps added to the directory.',
             url('/'),
             $startups,
             'new'
@@ -37,7 +37,7 @@ class FeedController extends Controller
             ->get();
 
         return $this->rssResponse(
-            'Featured startups on ' . $this->siteName(),
+            'Featured apps on ' . $this->siteName(),
             'Hand-picked featured startups.',
             url('/?featured=1'),
             $startups,

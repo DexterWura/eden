@@ -106,7 +106,7 @@ class UserController extends Controller
         ])->render();
 
         return response()->view('eden.layout-dashboard', $this->dashboardVars(
-            'Startups: ' . $user->name,
+            'Apps: ' . $user->name,
             'users',
             $content
         ));

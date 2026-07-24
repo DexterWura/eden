@@ -72,7 +72,7 @@ class AdminDashboardTest extends TestCase
         $this->actingAs($admin, 'admin')
             ->get(route('admin.dashboard'))
             ->assertOk()
-            ->assertSee('Pending startups')
+            ->assertSee('Pending apps')
             ->assertDontSee('Pending ads &amp; payments', false)
             ->assertDontSee('Money over time')
             ->assertDontSee('Users over time')

@@ -2,7 +2,7 @@
   <div class="dash-card-header"><span class="dash-card-title">Basics</span></div>
   <div class="dash-card-body startup-form-stack">
     <div>
-      <label for="name" class="dash-label">Startup name <span class="dash-required">*</span></label>
+      <label for="name" class="dash-label">App name <span class="dash-required">*</span></label>
       <input type="text" id="name" name="name" value="{{ old('name', $startup->name) }}" required class="dash-input" placeholder="e.g. Nexus Pay">
       @error('name') <span class="dash-error">{{ $message }}</span> @enderror
     </div>
@@ -13,7 +13,7 @@
     </div>
     <div>
       <label for="description" class="dash-label">Description</label>
-      <textarea id="description" name="description" rows="6" @if($requiresEditorialContent) required minlength="250" @endif class="dash-input" placeholder="What does the startup do?">{{ old('description', $startup->description) }}</textarea>
+      <textarea id="description" name="description" rows="6" @if($requiresEditorialContent) required minlength="250" @endif class="dash-input" placeholder="What does the app do?">{{ old('description', $startup->description) }}</textarea>
       @error('description') <span class="dash-error">{{ $message }}</span> @enderror
     </div>
     <div class="startup-form-grid">
@@ -39,7 +39,7 @@
       @error('launch_date') <span class="dash-error">{{ $message }}</span> @enderror
     </div>
     <div>
-      <label for="logo_path" class="dash-label">Startup logo</label>
+      <label for="logo_path" class="dash-label">App logo</label>
       <p class="dash-hint startup-form-hint-top">80×80 px or smaller, square.</p>
       <input type="file" id="logo_path" name="logo" accept="image/jpeg,image/png,image/gif,image/webp" class="dash-input">
       @error('logo') <span class="dash-error">{{ $message }}</span> @enderror

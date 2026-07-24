@@ -107,7 +107,7 @@
     <span class="dash-card-title">Robots.txt</span>
   </div>
   <div class="dash-card-body">
-    <p style="margin-bottom: 16px; color: #5f6368;">Control what search engines crawl. The system recommends allowing public pages (home, about, categories, startups, sitemap) and disallowing backoffice, founder dashboard, login/register, and API. Edit below and save to update <code>public/robots.txt</code>.</p>
+    <p style="margin-bottom: 16px; color: #5f6368;">Control what search engines crawl. The system recommends allowing public pages (home, about, categories, apps, sitemap) and disallowing backoffice, founder dashboard, login/register, and API. Edit below and save to update <code>public/robots.txt</code>.</p>
     <form action="{{ route('admin.settings.robots') }}" method="post" class="dash-form">
       @csrf
       <div style="display: flex; flex-direction: column; gap: 16px;">

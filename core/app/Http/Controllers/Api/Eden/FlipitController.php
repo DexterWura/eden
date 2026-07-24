@@ -42,7 +42,7 @@ class FlipitController extends Controller
         if ($startup === null) {
             return response()->json([
                 'error' => 'not_found',
-                'message' => 'No startup linked to this FLIPit listing ID.',
+                'message' => 'No app linked to this FLIPit listing ID.',
             ], 404, ['Content-Type' => 'application/json']);
         }
 
@@ -52,7 +52,7 @@ class FlipitController extends Controller
         ]);
 
         $payload = [
-            'message' => 'Startup marked as sold.',
+            'message' => 'App marked as sold.',
             'startup_id' => $startup->id,
             'listing_id' => $listingId,
         ];

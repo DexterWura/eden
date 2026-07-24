@@ -58,13 +58,13 @@ $isFeed = $cardVariant === 'feed';
       <?php else: ?>
       <form action="<?= e(route('startup.save', $s->slug)) ?>" method="post" style="display:inline;" onsubmit="event.stopPropagation();">
         <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
-        <button type="submit" class="save-btn" aria-label="Save startup"><i class="fa-regular fa-bookmark" aria-hidden="true"></i></button>
+        <button type="submit" class="save-btn" aria-label="Save app"><i class="fa-regular fa-bookmark" aria-hidden="true"></i></button>
       </form>
       <?php endif; ?>
     </div>
     <?php else: ?>
     <div class="save-ui" style="margin-left: 6px;">
-      <button type="button" class="save-btn eden-guest-save" aria-label="Save startup"><i class="fa-regular fa-bookmark" aria-hidden="true"></i></button>
+      <button type="button" class="save-btn eden-guest-save" aria-label="Save app"><i class="fa-regular fa-bookmark" aria-hidden="true"></i></button>
     </div>
     <?php endif; ?>
   </div>

@@ -98,12 +98,12 @@ class ClaimController extends EdenController
         $method = $request->input('method');
         if ($method === StartupClaimVerification::METHOD_FILE && ! $startup->website) {
             throw ValidationException::withMessages([
-                'method' => ['File verification requires the startup to have a website URL.'],
+                'method' => ['File verification requires the app to have a website URL.'],
             ]);
         }
         if ($method === StartupClaimVerification::METHOD_DNS && ! $this->claimService->getDomainFromWebsite($startup->website)) {
             throw ValidationException::withMessages([
-                'method' => ['DNS verification requires the startup to have a website URL.'],
+                'method' => ['DNS verification requires the app to have a website URL.'],
             ]);
         }
 

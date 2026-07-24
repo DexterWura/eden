@@ -1,6 +1,6 @@
 <h1 class="dash-page-title">Analytics</h1>
 <div class="dash-welcome" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;">
-  <span><strong>Pro Analytics</strong> — Track views, revenue, upvotes, comments, and more across your startups. Stock-market style charts for quick insights.</span>
+  <span><strong>Pro Analytics</strong> — Track views, revenue, upvotes, comments, and more across your apps. Stock-market style charts for quick insights.</span>
   <div class="analytics-export-wrap" style="display: flex; align-items: center; gap: 8px;">
     <a href="{{ route('founder.analytics.investor-update') }}" class="dash-btn dash-btn-secondary" style="text-decoration: none; font-size: 0.875rem;"><i class="fa-solid fa-envelope-open-text"></i> Investor update</a>
     <a href="{{ route('founder.analytics.export.csv') }}" class="dash-btn dash-btn-secondary" style="text-decoration: none; font-size: 0.875rem;"><i class="fa-solid fa-file-csv"></i> CSV</a>
@@ -86,8 +86,8 @@
 @if(count($startupMetrics) === 0)
 <div class="dash-card">
   <div class="dash-card-body" style="text-align: center; padding: 48px 24px;">
-    <p style="color: var(--d-text-secondary); font-size: 1rem; margin-bottom: 16px;">Add a startup to see analytics.</p>
-    <a href="{{ url('/founder/startups/create') }}" class="dash-btn dash-btn-primary" style="text-decoration: none;"><i class="fa-solid fa-plus"></i> Add startup</a>
+    <p style="color: var(--d-text-secondary); font-size: 1rem; margin-bottom: 16px;">Add an app to see analytics.</p>
+    <a href="{{ url('/founder/startups/create') }}" class="dash-btn dash-btn-primary" style="text-decoration: none;"><i class="fa-solid fa-plus"></i> Add app</a>
   </div>
 </div>
 @else
@@ -123,23 +123,23 @@
 
   <div class="dash-card analytics-chart-card">
     <div class="dash-card-header">
-      <span class="dash-card-title"><i class="fa-solid fa-bars-progress"></i> Per-startup comparison</span>
+      <span class="dash-card-title"><i class="fa-solid fa-bars-progress"></i> Per-app comparison</span>
     </div>
     <div class="dash-card-body">
-      <div id="startupComparisonChart" class="analytics-chart" role="img" aria-label="Per-startup engagement comparison chart"></div>
+      <div id="startupComparisonChart" class="analytics-chart" role="img" aria-label="Per-app engagement comparison chart"></div>
     </div>
   </div>
 
   <div class="dash-card analytics-chart-card">
     <div class="dash-card-header">
-      <span class="dash-card-title"><i class="fa-solid fa-table"></i> Metrics by startup</span>
+      <span class="dash-card-title"><i class="fa-solid fa-table"></i> Metrics by app</span>
     </div>
     <div class="dash-card-body" style="padding: 0;">
       <div class="dash-table-wrap">
         <table class="dash-table analytics-metrics-table">
           <thead>
             <tr>
-              <th>Startup</th>
+              <th>App</th>
               <th>Views</th>
               <th>Clicks</th>
               <th>Upvotes</th>

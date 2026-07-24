@@ -28,11 +28,11 @@
   <div class="kpi-row"><span>Total MRR</span><span class="val">${{ number_format($totalMrr ?? 0, 2) }}</span></div>
 
   @if(!empty($startupMetrics))
-  <h2 style="font-size: 14px; margin: 24px 0 10px;">Metrics by startup</h2>
+  <h2 style="font-size: 14px; margin: 24px 0 10px;">Metrics by app</h2>
   <table>
     <thead>
       <tr>
-        <th>Startup</th>
+        <th>App</th>
         <th>Views</th>
         <th>Clicks</th>
         <th>Upvotes</th>

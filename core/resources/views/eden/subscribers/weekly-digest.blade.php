@@ -1,9 +1,9 @@
 <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #1a1a1a;">
   <h1 style="font-size: 1.25rem; margin-bottom: 8px;">New on {{ $siteName }} this week</h1>
-  <p style="color: #666; font-size: 0.9375rem; margin-bottom: 20px;">Here are the startups that joined the directory in the last 7 days.</p>
+  <p style="color: #666; font-size: 0.9375rem; margin-bottom: 20px;">Here are the apps that joined the directory in the last 7 days.</p>
   @if($startups->isEmpty())
-  <p style="line-height: 1.6;">No new startups this week. Check back next time!</p>
-  <p style="margin-top: 16px;"><a href="{{ url('/') }}" style="color: #2563eb;">Browse all startups →</a></p>
+  <p style="line-height: 1.6;">No new apps this week. Check back next time!</p>
+  <p style="margin-top: 16px;"><a href="{{ url('/') }}" style="color: #2563eb;">Browse all apps →</a></p>
   @else
   <ul style="list-style: none; padding: 0; margin: 0;">
     @foreach($startups as $s)
@@ -16,7 +16,7 @@
     </li>
     @endforeach
   </ul>
-  <p style="margin-top: 24px;"><a href="{{ url('/') }}" style="color: #2563eb;">Browse all startups →</a></p>
+  <p style="margin-top: 24px;"><a href="{{ url('/') }}" style="color: #2563eb;">Browse all apps →</a></p>
   @endif
   <p style="margin-top: 32px; font-size: 0.8125rem; color: #888;">You received this because you subscribed at {{ $siteName }}. No spam, just weekly updates.</p>
 </div>

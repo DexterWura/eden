@@ -23,7 +23,7 @@ $periodLabel = $periodLabels[$period] ?? 'All time';
 <section class="page-head">
   <div class="wrap">
     <h1>Leaderboard</h1>
-    <p>Compare the startups making the biggest impact across each time period.</p>
+    <p>Compare the apps making the biggest impact across each time period.</p>
   </div>
 </section>
 
@@ -44,7 +44,7 @@ $periodLabel = $periodLabels[$period] ?? 'All time';
     <div class="leaderboard-header">
       <div class="leaderboard-heading">
         <h2 class="leaderboard-title"><?= e($periodLabel) ?> leaderboard</h2>
-        <p>Ranking startups listed <?= $period === 'all' ? 'since Eden launched' : strtolower($periodLabel) ?>.</p>
+        <p>Ranking apps listed <?= $period === 'all' ? 'since Eden launched' : strtolower($periodLabel) ?>.</p>
       </div>
       <div class="leaderboard-controls">
         <nav class="leaderboard-periods" aria-label="Leaderboard time period">
@@ -54,7 +54,7 @@ $periodLabel = $periodLabels[$period] ?? 'All time';
         </nav>
         <div class="leaderboard-filters">
           <label for="leaderboardSort" class="leaderboard-filter-label">Rank by</label>
-          <select id="leaderboardSort" aria-label="Rank startups by">
+          <select id="leaderboardSort" aria-label="Rank apps by">
             <option value="upvotes"<?= $sortBy === 'upvotes' ? ' selected' : '' ?>>Upvotes</option>
             <option value="views"<?= $sortBy === 'views' ? ' selected' : '' ?>>Views</option>
             <option value="clicks"<?= $sortBy === 'clicks' ? ' selected' : '' ?>>Clicks</option>
@@ -69,7 +69,7 @@ $periodLabel = $periodLabels[$period] ?? 'All time';
       <thead>
         <tr>
           <th class="col-rank">#</th>
-          <th class="col-startup">Startup</th>
+          <th class="col-startup">App</th>
           <th class="col-founder">Founder</th>
           <th class="col-metric"><?= e($sortLabel) ?></th>
           <th class="col-launched">Launched</th>
@@ -133,7 +133,7 @@ $periodLabel = $periodLabels[$period] ?? 'All time';
         <?php endforeach; ?>
         <?php else: ?>
         <tr>
-          <td colspan="5" style="padding: 40px; text-align: center; color: var(--text-muted);">No startups were listed in this period. <a href="<?= e(url('/submit')) ?>">Submit your startup</a>.</td>
+          <td colspan="5" style="padding: 40px; text-align: center; color: var(--text-muted);">No apps were listed in this period. <a href="<?= e(url('/submit')) ?>">Submit your app</a>.</td>
         </tr>
         <?php endif; ?>
       </tbody>

@@ -24,7 +24,7 @@ class StartupController extends EdenController
     {
         $startups = $this->startupService->getLaunchingToday();
         $savedStartupIds = auth()->user()?->savedStartupIds() ?? [];
-        $itemListSchema = EdenSeo::startupItemList($startups, 'Startups launching today');
+        $itemListSchema = EdenSeo::startupItemList($startups, 'Apps launching today');
         $launchingAd = AdSpot::activeForPlacement('launching_today_banner_1')->first();
 
         return $this->page('launching-today', 'Launching today', 'scripts-launching-today', [
@@ -51,7 +51,7 @@ class StartupController extends EdenController
         ]);
 
         $similarStartups = $this->startupService->getSimilar($startup, 6);
-        $similarSchema = EdenSeo::startupItemList($similarStartups, 'Similar startups');
+        $similarSchema = EdenSeo::startupItemList($similarStartups, 'Similar apps');
         if ($similarSchema !== null) {
             $structuredData[] = $similarSchema;
         }
@@ -120,7 +120,7 @@ class StartupController extends EdenController
     {
         $startup = Startup::where('slug', $slug)->first();
         if (! $startup || ! $startup->isActive() || empty($startup->website)) {
-            return redirect()->to(url('/startup/' . $slug))->with('error', 'Startup or website not found.');
+            return redirect()->to(url('/startup/' . $slug))->with('error', 'App or website not found.');
         }
         $startup->increment('clicks');
         $website = $startup->website;
@@ -135,10 +135,10 @@ class StartupController extends EdenController
             if ($request->expectsJson()) {
                 return response()->json([
                     'error' => 'not_found',
-                    'message' => 'Startup not found.',
+                    'message' => 'App not found.',
                 ], 404);
             }
-            return redirect()->back()->with('error', 'Startup not found.');
+            return redirect()->back()->with('error', 'App not found.');
         }
         if (!auth()->check()) {
             if ($request->expectsJson()) {
@@ -154,22 +154,22 @@ class StartupController extends EdenController
             if ($request->expectsJson()) {
                 return response()->json([
                     'error' => 'forbidden',
-                    'message' => 'This startup is not available.',
+                    'message' => 'This app is not available.',
                 ], 403);
             }
-            return redirect()->back()->with('error', 'This startup is not available.');
+            return redirect()->back()->with('error', 'This app is not available.');
         }
         $exists = StartupUpvote::where('user_id', auth()->id())->where('startup_id', $startup->id)->exists();
         if ($exists) {
             if ($request->expectsJson()) {
                 return response()->json([
                     'status' => 'ok',
-                    'message' => 'You already upvoted this startup.',
+                    'message' => 'You already upvoted this app.',
                     'already' => true,
                     'upvotes' => (int) $startup->upvotes,
                 ], 200);
             }
-            return redirect()->back()->with('info', 'You already upvoted this startup.');
+            return redirect()->back()->with('info', 'You already upvoted this app.');
         }
         StartupUpvote::create(['user_id' => auth()->id(), 'startup_id' => $startup->id]);
         $startup->increment('upvotes');

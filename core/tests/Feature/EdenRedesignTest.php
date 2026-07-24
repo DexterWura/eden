@@ -30,12 +30,14 @@ class EdenRedesignTest extends TestCase
         $response = $this->get('/');
 
         $response->assertOk();
-        $response->assertSee('Discover the next wave of startups');
+        $response->assertSee('Don’t miss the next breakout app');
+        $response->assertSee('placeholder="Search for apps"', false);
+        $response->assertSee('Submit your app');
         $response->assertSee('discovery-layout', false);
         $response->assertSee('startup-card--feed', false);
         $response->assertSee($startup->name);
         $response->assertDontSee('id="leaderboard-heading"', false);
-        $response->assertDontSee('Top startups');
+        $response->assertDontSee('Top apps');
         $response->assertDontSee('Products launching today');
         $response->assertDontSee('Featured products');
         $response->assertDontSee('Just listed');

@@ -36,16 +36,16 @@ class SettingsController extends Controller
         $siteName = function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden';
         return [
             'head_title' => 'About ' . $siteName,
-            'head_subtitle' => 'The startup directory for discoverability and growth.',
+            'head_subtitle' => 'The app directory for discoverability and growth.',
             'what_we_do_title' => 'What we do',
             'what_we_do_body' => $siteName . ' is a curated directory of startups. We help founders get discovered by investors, customers, and partners—and help everyone else find the next wave of innovation.',
             'for_founders_title' => 'For founders',
-            'for_founders_body' => 'Submit your startup once. It appears in search, categories, and—if you\'re launching today—on the Launching today page. No paywall for a basic listing.',
+            'for_founders_body' => 'Submit your app once. It appears in search, categories, and—if you\'re launching today—on the Launching today page. No paywall for a basic listing.',
             'for_visitors_title' => 'For visitors',
             'for_visitors_body' => 'Browse by category, search by name or tag, and check the Launching today page for fresh launches. Subscribe to the weekly digest to stay updated.',
             'guidelines_title' => 'Guidelines',
             'guidelines_items' => [
-                'Your startup must be real and operational (no placeholders).',
+                'Your app must be real and operational (no placeholders).',
                 'Provide a clear description and link.',
                 'One listing per startup. Updates are free.',
             ],

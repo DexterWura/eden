@@ -33,7 +33,7 @@ class AuthenticateRevenueApi
         if ($startup->status !== Startup::STATUS_ACTIVE) {
             return response()->json([
                 'error' => 'forbidden',
-                'message' => 'Startup is not active. Revenue cannot be recorded.',
+                'message' => 'App is not active. Revenue cannot be recorded.',
             ], 403, ['Content-Type' => 'application/json']);
         }
 

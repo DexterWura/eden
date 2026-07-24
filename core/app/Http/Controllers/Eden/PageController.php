@@ -76,7 +76,7 @@ class PageController extends EdenController
     public function submit()
     {
         $categories = Category::orderBy('sort_order')->get();
-        return $this->page('submit', 'Submit your startup', null, ['categories' => $categories], EdenSeo::forStaticPath('/submit'));
+        return $this->page('submit', 'Submit your app', null, ['categories' => $categories], EdenSeo::forStaticPath('/submit'));
     }
 
     public function submitStore(Request $request): RedirectResponse
@@ -105,7 +105,7 @@ class PageController extends EdenController
                     return;
                 }
                 if ($value && Startup::websiteExistsForAnother($value)) {
-                    $fail('A startup with this website link already exists.');
+                    $fail('An app with this website link already exists.');
                 }
             }],
             'location' => ['nullable', 'string', 'max:255', new SensibleShortText(255)],
@@ -185,7 +185,7 @@ class PageController extends EdenController
         $startup->save();
         $this->startupFormService->processUploadedFiles($request, $startup);
 
-        return redirect()->to(url('/startup/' . $startup->slug))->with('success', __('Your startup has been submitted and is pending review by our team. It will go live once approved.'));
+        return redirect()->to(url('/startup/' . $startup->slug))->with('success', __('Your app has been submitted and is pending review by our team. It will go live once approved.'));
     }
 
     public function categories()

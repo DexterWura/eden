@@ -61,7 +61,7 @@ class HomeController extends EdenController
         $showTrustedByBlock = $featuredFounders->isNotEmpty();
         $savedStartupIds = auth()->user()?->savedStartupIds() ?? [];
 
-        $itemListSchema = EdenSeo::startupItemList($allStartups instanceof \Illuminate\Contracts\Pagination\Paginator ? collect($allStartups->items())->take(20) : $allStartups->take(20), 'Startups on ' . (function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden'));
+        $itemListSchema = EdenSeo::startupItemList($allStartups instanceof \Illuminate\Contracts\Pagination\Paginator ? collect($allStartups->items())->take(20) : $allStartups->take(20), 'Apps on ' . (function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden'));
 
         $homeSidebarAd = AdSpot::activeForPlacement('home_sidebar_1')->first();
         $homeBottomAd = AdSpot::activeForPlacement('home_bottom_banner_1')->first();
@@ -99,7 +99,7 @@ class HomeController extends EdenController
         }
         $startups = $this->startupService->getLeaderboard($sortBy, 50, period: $period);
 
-        $itemListSchema = EdenSeo::startupItemList($startups, 'Startup leaderboard');
+        $itemListSchema = EdenSeo::startupItemList($startups, 'App leaderboard');
         $leaderboardAd = AdSpot::activeForPlacement('leaderboard_banner_1')->first();
 
         $seo = EdenSeo::forLeaderboard($request);
@@ -120,12 +120,12 @@ class HomeController extends EdenController
         $categories = $this->startupService->getCategoriesWithCounts();
 
         $savedStartupIds = auth()->user()?->savedStartupIds() ?? [];
-        $itemListSchema = EdenSeo::startupItemList($startups, 'Startups raising funding');
+        $itemListSchema = EdenSeo::startupItemList($startups, 'Apps raising funding');
         $raisingAd = AdSpot::activeForPlacement('raising_banner_1')->first();
 
         $seo = EdenSeo::forRaising($request);
 
-        return $this->page('raising', 'Startups raising funding', null, [
+        return $this->page('raising', 'Apps raising funding', null, [
             'startups' => $startups,
             'categories' => $categories,
             'categoryFilter' => $categoryFilter,
@@ -140,12 +140,12 @@ class HomeController extends EdenController
         $startups = $this->startupService->getForSale();
 
         $savedStartupIds = auth()->user()?->savedStartupIds() ?? [];
-        $itemListSchema = EdenSeo::startupItemList($startups, 'Startups for sale');
+        $itemListSchema = EdenSeo::startupItemList($startups, 'Apps for sale');
         $forSaleAd = AdSpot::activeForPlacement('for_sale_banner_1')->first();
 
         $seo = EdenSeo::forStaticPath('/for-sale');
 
-        return $this->page('for-sale', 'Startups for sale', null, [
+        return $this->page('for-sale', 'Apps for sale', null, [
             'startups' => $startups,
             'productOfDayId' => $this->startupService->getProductOfDayId(),
             'savedStartupIds' => $savedStartupIds,

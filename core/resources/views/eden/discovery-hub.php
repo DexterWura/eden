@@ -12,14 +12,14 @@ $categoryCounts = $categoryCounts ?? collect();
 <section class="page-head discovery-hub-head">
   <div class="wrap">
     <nav class="hub-breadcrumb" aria-label="Breadcrumb">
-      <a href="<?= e(url('/')) ?>">Startups</a>
+      <a href="<?= e(url('/')) ?>">Apps</a>
       <span>/</span>
       <a href="<?= e($hubType === 'category' ? url('/categories') : url('/')) ?>"><?= e($hubType === 'category' ? 'Categories' : 'Locations') ?></a>
     </nav>
     <div class="hub-title-row">
       <span class="hub-icon"><i class="<?= e($hubIcon ?: 'fa-solid fa-layer-group') ?>" aria-hidden="true"></i></span>
       <div>
-        <span class="sidebar-eyebrow"><?= e($hubType === 'category' ? 'Startup category' : 'Startup ecosystem') ?></span>
+        <span class="sidebar-eyebrow"><?= e($hubType === 'category' ? 'App category' : 'App ecosystem') ?></span>
         <h1><?= e($hubType === 'category' ? $hubName . ' startups' : 'Startups in ' . $hubName) ?></h1>
         <p><?= number_format((int) $startups->total()) ?> active <?= $startups->total() === 1 ? 'listing' : 'listings' ?></p>
       </div>
@@ -57,7 +57,7 @@ $categoryCounts = $categoryCounts ?? collect();
       <?php if ($startups->isEmpty()): ?>
       <div class="hub-empty">
         <h3>No active products yet</h3>
-        <p>Know a startup that belongs here?</p>
+        <p>Know an app that belongs here?</p>
         <a href="<?= e(url('/submit')) ?>" class="btn btn-primary">Submit it to Eden</a>
       </div>
       <?php endif; ?>
@@ -108,7 +108,7 @@ $categoryCounts = $categoryCounts ?? collect();
       <span class="sidebar-eyebrow">Build the directory</span>
       <h2>Launching something?</h2>
       <p>Add a detailed profile and reach customers, founders and investors.</p>
-      <a href="<?= e(url('/submit')) ?>" class="btn btn-primary btn-block">Submit your startup</a>
+      <a href="<?= e(url('/submit')) ?>" class="btn btn-primary btn-block">Submit your app</a>
     </section>
   </aside>
 </div>

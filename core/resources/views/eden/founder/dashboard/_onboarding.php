@@ -2,10 +2,10 @@
   <div class="founder-onboarding-copy">
     <span class="founder-onboarding-icon" aria-hidden="true"><i class="fa-solid fa-rocket"></i></span>
     <p class="founder-home-eyebrow">Your first launch</p>
-    <h2 id="founder-onboarding-title">Put your startup on Eden</h2>
+    <h2 id="founder-onboarding-title">Put your app on Eden</h2>
     <p>Create a useful profile to join discovery, earn community upvotes, and start building your leaderboard position.</p>
     <a href="<?= e(route('founder.startups.create')) ?>" class="dash-btn dash-btn-primary">
-      Create your startup profile <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+      Create your app profile <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
     </a>
   </div>
   <ol class="founder-onboarding-steps" aria-label="Getting started steps">
@@ -27,7 +27,7 @@
 <div class="founder-empty-actions">
   <a href="<?= e(route('saved')) ?>" class="founder-action-tile">
     <i class="fa-regular fa-bookmark" aria-hidden="true"></i>
-    <span><strong>Saved startups</strong><small>Revisit products that caught your eye</small></span>
+    <span><strong>Saved apps</strong><small>Revisit products that caught your eye</small></span>
   </a>
   <a href="<?= e(url('/leaderboard')) ?>" class="founder-action-tile">
     <i class="fa-solid fa-ranking-star" aria-hidden="true"></i>

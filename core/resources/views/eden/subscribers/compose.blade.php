@@ -26,7 +26,7 @@
           <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 8px;">
             <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
               <input type="radio" name="audience" value="founders" {{ old('audience', 'subscribers') === 'founders' ? 'checked' : '' }}>
-              Founders (users with at least one startup)
+              Founders (users with at least one app)
             </label>
             <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
               <input type="radio" name="audience" value="subscribers" {{ old('audience', 'subscribers') === 'subscribers' ? 'checked' : '' }}>

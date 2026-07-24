@@ -61,15 +61,15 @@ final class AdSpotOffers
         ],
         'startup-sidebar' => [
             'placement' => 'startup_sidebar_1',
-            'label' => 'Startup pages — sidebar',
-            'description' => '300×250 placement beside startup profiles. Reach visitors researching products and founders.',
+            'label' => 'App pages — sidebar',
+            'description' => '300×250 placement beside app profiles. Reach visitors researching products and founders.',
             'width' => 300,
             'height' => 250,
             'price' => 5.00,
             'currency' => 'USD',
             'storage_dir' => 'startup-sidebar',
-            'paypal_desc' => 'Startup profile sidebar ad — 1 month',
-            'paynow_title' => 'Startup profile sidebar ad — 1 month',
+            'paypal_desc' => 'App profile sidebar ad — 1 month',
+            'paynow_title' => 'App profile sidebar ad — 1 month',
         ],
         'leaderboard' => [
             'placement' => 'leaderboard_banner_1',
@@ -109,7 +109,7 @@ final class AdSpotOffers
         ],
         'for-sale' => [
             'placement' => 'for_sale_banner_1',
-            'label' => 'Startups for sale — banner',
+            'label' => 'Apps for sale — banner',
             'description' => '728×90 on the “For sale” page — buyers and sellers of startups.',
             'width' => 728,
             'height' => 90,

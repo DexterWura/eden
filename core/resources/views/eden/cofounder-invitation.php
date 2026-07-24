@@ -4,7 +4,7 @@ $metaRobots = 'noindex,nofollow';
 $content = function () use ($invitation, $token) { ?>
 <main class="wrap" style="max-width:720px;padding:80px 20px;">
   <h1>Join <?= e($invitation->startup->name) ?></h1>
-  <p>You were invited to help manage this startup on Eden. Invitations are tied to the invited email address and can only be used once.</p>
+  <p>You were invited to help manage this app on Eden. Invitations are tied to the invited email address and can only be used once.</p>
   <?php if (auth()->check()): ?>
     <?php if (mb_strtolower(auth()->user()->email) === mb_strtolower($invitation->email)): ?>
     <form method="post" action="<?= e(route('cofounder-invitations.accept', ['token' => $token])) ?>">

@@ -93,7 +93,7 @@ class CategoryController extends Controller
     {
         $used = Startup::where('category', $category->name)->exists();
         if ($used) {
-            return redirect()->route('admin.categories.index')->with('notify', [['error', 'Cannot delete: startups are using this category. Change their category first.']]);
+            return redirect()->route('admin.categories.index')->with('notify', [['error', 'Cannot delete: apps are using this category. Change their category first.']]);
         }
         $category->delete();
         return redirect()->route('admin.categories.index')->with('notify', [['success', 'Category deleted.']]);

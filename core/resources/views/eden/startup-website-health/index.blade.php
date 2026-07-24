@@ -1,12 +1,12 @@
-<h1 class="dash-page-title">Startup website health</h1>
+<h1 class="dash-page-title">App website health</h1>
 <div class="dash-welcome">
-  All startups and whether their website URL is reachable. The system pings each startup&rsquo;s website every {{ \App\Services\StartupWebsiteHealthService::CHECK_INTERVAL_DAYS }} days, trying multiple URL variants (http/https, www) with a browser-like request.
-  After {{ \App\Services\StartupWebsiteHealthService::CONSECUTIVE_FAILURES_BEFORE_DORMANT }} consecutive ping failures, a startup is marked <strong>dormant</strong>. Dormant startups are re-checked and reactivated automatically if the site comes back. They are deleted after {{ \App\Services\StartupWebsiteHealthService::DORMANT_DAYS_BEFORE_DELETE }} days if still dormant.
+  All apps and whether their website URL is reachable. The system pings each app&rsquo;s website every {{ \App\Services\StartupWebsiteHealthService::CHECK_INTERVAL_DAYS }} days, trying multiple URL variants (http/https, www) with a browser-like request.
+  After {{ \App\Services\StartupWebsiteHealthService::CONSECUTIVE_FAILURES_BEFORE_DORMANT }} consecutive ping failures, an app is marked <strong>dormant</strong>. Dormant apps are re-checked and reactivated automatically if the site comes back. They are deleted after {{ \App\Services\StartupWebsiteHealthService::DORMANT_DAYS_BEFORE_DELETE }} days if still dormant.
 </div>
 
 <div class="dash-card" style="margin-top: 20px;">
   <div class="dash-card-header" style="flex-wrap: wrap; gap: 12px;">
-    <span class="dash-card-title">All startups</span>
+    <span class="dash-card-title">All apps</span>
     <form action="{{ route('admin.startup-websites.run-check') }}" method="post" style="display: inline;">
       @csrf
       <button type="submit" class="dash-btn dash-btn-secondary">Check due now</button>
@@ -20,7 +20,7 @@
   <div class="dash-card-body">
     <form method="get" action="{{ route('admin.startup-websites.index') }}" style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
       <select name="filter" class="dash-search" style="max-width: 200px;">
-        <option value="">All startups</option>
+        <option value="">All apps</option>
         <option value="with-website" {{ $filter === 'with-website' ? 'selected' : '' }}>With website only</option>
         <option value="active" {{ $filter === 'active' ? 'selected' : '' }}>Active only</option>
         <option value="dormant" {{ $filter === 'dormant' ? 'selected' : '' }}>Dormant only</option>
@@ -31,7 +31,7 @@
       <table class="dash-table">
         <thead>
           <tr>
-            <th>Startup</th>
+            <th>App</th>
             <th>Website</th>
             <th>List status</th>
             <th>Website status</th>
@@ -91,7 +91,7 @@
           </tr>
           @empty
           <tr>
-            <td colspan="6" class="dash-placeholder">No startups found.</td>
+            <td colspan="6" class="dash-placeholder">No apps found.</td>
           </tr>
           @endforelse
         </tbody>

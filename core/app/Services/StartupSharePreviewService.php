@@ -35,7 +35,7 @@ class StartupSharePreviewService
                 $startup->name,
                 $startup->category,
                 $startup->location,
-                $siteName . ' startup directory',
+                $siteName . ' app directory',
             ])),
             'structuredData' => $this->structuredData($startup, $canonicalUrl, $imageUrl),
             'ogImageAlt' => $startup->name,
@@ -56,7 +56,7 @@ class StartupSharePreviewService
     public function description(Startup $startup, int $maxLength = 160): string
     {
         $siteName = function_exists('gs') && gs('site_name') ? (string) gs('site_name') : 'Eden';
-        $raw = $startup->description ?: $startup->tagline ?: $startup->name . ' – startup listed on ' . $siteName;
+        $raw = $startup->description ?: $startup->tagline ?: $startup->name . ' – app listed on ' . $siteName;
         $text = strip_tags(preg_replace('/\s+/', ' ', (string) $raw));
 
         return mb_strlen($text) <= $maxLength

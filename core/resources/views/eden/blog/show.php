@@ -47,7 +47,7 @@ if (!$post) return;
   <?php $relatedStartups = $relatedStartups ?? collect(); ?>
   <?php if ($relatedStartups->isNotEmpty()): ?>
   <section class="blog-related" aria-labelledby="related-startups-heading">
-    <h2 id="related-startups-heading">Startups mentioned by this topic</h2>
+    <h2 id="related-startups-heading">Apps mentioned by this topic</h2>
     <div class="startup-list hub-startup-list">
       <?php foreach ($relatedStartups as $startup):
         $cardVariant = 'feed';

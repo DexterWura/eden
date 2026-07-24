@@ -1,42 +1,26 @@
 <section class="hero">
   <div class="hero-bg" aria-hidden="true">
-    <span class="hero-bg-orb hero-bg-orb--1"></span>
-    <span class="hero-bg-orb hero-bg-orb--2"></span>
-    <span class="hero-bg-orb hero-bg-orb--3"></span>
-    <span class="hero-bg-orb hero-bg-orb--4"></span>
-    <span class="hero-bg-mesh"></span>
     <span class="hero-bg-grid"></span>
-    <div class="hero-bg-floating-icons">
-      <span class="hero-float-icon hero-float-icon--1"><i class="fa-solid fa-rocket"></i></span>
-      <span class="hero-float-icon hero-float-icon--2"><i class="fa-solid fa-chart-line"></i></span>
-      <span class="hero-float-icon hero-float-icon--3"><i class="fa-solid fa-lightbulb"></i></span>
-      <span class="hero-float-icon hero-float-icon--4"><i class="fa-solid fa-code"></i></span>
-      <span class="hero-float-icon hero-float-icon--5"><i class="fa-solid fa-seedling"></i></span>
-      <span class="hero-float-icon hero-float-icon--6"><i class="fa-solid fa-globe"></i></span>
-      <span class="hero-float-icon hero-float-icon--7"><i class="fa-solid fa-coins"></i></span>
-      <span class="hero-float-icon hero-float-icon--8"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
-      <span class="hero-float-icon hero-float-icon--9"><i class="fa-solid fa-layer-group"></i></span>
-      <span class="hero-float-icon hero-float-icon--10"><i class="fa-solid fa-arrow-trend-up"></i></span>
-      <span class="hero-float-icon hero-float-icon--11"><i class="fa-solid fa-laptop-code"></i></span>
-      <span class="hero-float-icon hero-float-icon--12"><i class="fa-solid fa-bullhorn"></i></span>
-      <span class="hero-float-icon hero-float-icon--13"><i class="fa-solid fa-handshake"></i></span>
-      <span class="hero-float-icon hero-float-icon--14"><i class="fa-solid fa-star"></i></span>
-      <span class="hero-float-icon hero-float-icon--15"><i class="fa-solid fa-bolt"></i></span>
-      <span class="hero-float-icon hero-float-icon--16"><i class="fa-solid fa-compass"></i></span>
-    </div>
-    <span class="hero-bg-scanline"></span>
   </div>
-  <div class="wrap">
-    <h1 class="hero-reveal hero-reveal--1">Discover the next wave of startups</h1>
-    <p class="hero-reveal hero-reveal--2">Explore, search, and connect. One directory. Zero noise.</p>
+  <div class="wrap hero-inner">
+    <span class="hero-kicker hero-reveal hero-reveal--1">Explore what builders are shipping</span>
+    <h1 class="hero-reveal hero-reveal--1">Don’t miss the next breakout app</h1>
+    <p class="hero-reveal hero-reveal--2">Be the first to try rising tools before they go mainstream.</p>
     <div class="hero-actions hero-reveal hero-reveal--3">
       <form action="<?= e(url('/')) ?>" method="get" class="search-wrap hero-search" role="search">
         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-        <input type="search" name="q" class="search-input" placeholder="Search startups, founders, categories…" aria-label="Search" id="homeSearch" value="<?= e($searchQuery ?? '') ?>">
+        <input type="search" name="q" class="search-input" placeholder="Search for apps" aria-label="Search apps" id="homeSearch" value="<?= e($searchQuery ?? '') ?>">
         <?php if (isset($categoryFilter) && $categoryFilter !== null && $categoryFilter !== ''): ?><input type="hidden" name="category" value="<?= e($categoryFilter) ?>"><?php endif; ?>
+        <button type="submit" class="hero-search-submit" aria-label="Search apps"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
       </form>
-      <a href="<?= e(url('/submit')) ?>" class="btn btn-primary btn-add"><i class="fa-solid fa-plus" aria-hidden="true"></i> Submit your startup</a>
+      <a href="<?= e(url('/submit')) ?>" class="btn btn-primary btn-add"><i class="fa-solid fa-plus" aria-hidden="true"></i> Submit your app</a>
     </div>
+    <svg class="hero-accent hero-accent--squiggle" viewBox="0 0 150 76" aria-hidden="true">
+      <path d="M5 55c17 12 20-38 37-29 11 6 2 37 15 39 15 3 24-39 40-35 12 3 9 30 24 30 11 0 18-12 24-22" />
+    </svg>
+    <svg class="hero-accent hero-accent--spark" viewBox="0 0 92 78" aria-hidden="true">
+      <path d="M18 42 8 24M42 34 39 8M60 43 77 25M65 59 88 60" />
+    </svg>
     <?php
     $showTrustedByBlock = $showTrustedByBlock ?? false;
     $featuredFounders = $featuredFounders ?? collect();
@@ -95,8 +79,8 @@
   <section class="section-block" aria-labelledby="startups-heading">
     <header class="section-header">
       <div>
-        <h2 id="startups-heading" class="section-heading"><?= ($searchQuery ?? '') !== '' ? 'Search results for “' . e($searchQuery) . '”' : (($sortNewest ?? false) ? 'Newest startups' : (($featuredOnly ?? false) ? 'Featured startups' : 'All startups')) ?></h2>
-        <?php if (($searchQuery ?? '') === '' && !($featuredOnly ?? false)): ?><p class="section-sub">Most upvoted startups first, with recent listings breaking ties.</p><?php endif; ?>
+        <h2 id="startups-heading" class="section-heading"><?= ($searchQuery ?? '') !== '' ? 'Search results for “' . e($searchQuery) . '”' : (($sortNewest ?? false) ? 'Newest apps' : (($featuredOnly ?? false) ? 'Featured apps' : 'All apps')) ?></h2>
+        <?php if (($searchQuery ?? '') === '' && !($featuredOnly ?? false)): ?><p class="section-sub">Most upvoted apps first, with recent listings breaking ties.</p><?php endif; ?>
       </div>
       <?php if (($searchQuery ?? '') !== ''): ?>
       <a href="<?= e(url('/')) ?>" class="section-link-all">Clear search <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
@@ -137,7 +121,7 @@
       endforeach;
       ?>
       <?php if ($allStartups instanceof \Illuminate\Support\Collection && $allStartups->isEmpty()): ?>
-      <p class="section-empty"><?= ($searchQuery ?? '') !== '' ? 'No startups match your search. Try different keywords.' : 'No startups yet. <a href="' . e(url('/submit')) . '">Submit your startup</a>.' ?></p>
+      <p class="section-empty"><?= ($searchQuery ?? '') !== '' ? 'No apps match your search. Try different keywords.' : 'No apps yet. <a href="' . e(url('/submit')) . '">Submit your app</a>.' ?></p>
       <?php endif; ?>
     </div>
     <?php if ($allStartups instanceof \Illuminate\Contracts\Pagination\Paginator && $allStartups->hasPages()): ?>
@@ -164,7 +148,7 @@
     <?php if ($featuredStartups->isNotEmpty()): ?>
     <section class="sidebar-panel">
       <div class="sidebar-panel-head">
-        <h2>Featured startups</h2>
+        <h2>Featured apps</h2>
       </div>
       <div class="sidebar-featured-startups">
         <?php foreach ($featuredStartups as $startup): ?>
@@ -234,8 +218,8 @@
 
   <div class="wrap cta-strip" id="submit">
     <h3>Launching something?</h3>
-    <p>Get your startup in front of investors and customers. Submit in under 2 minutes.</p>
-    <a href="<?= e(url('/submit')) ?>" class="btn btn-primary">Submit your startup</a>
+    <p>Get your app in front of investors and customers. Submit in under 2 minutes.</p>
+    <a href="<?= e(url('/submit')) ?>" class="btn btn-primary">Submit your app</a>
     <a href="<?= e(url('/about')) ?>" class="btn btn-ghost">View guidelines</a>
   </div>
 
@@ -245,5 +229,5 @@
       <input type="email" name="email" placeholder="Your email" aria-label="Email" required>
       <button type="submit" class="btn btn-primary">Subscribe</button>
     </form>
-    <p class="newsletter-note">Stay updated on new startups. No spam.</p>
+    <p class="newsletter-note">Stay updated on new apps. No spam.</p>
   </div>

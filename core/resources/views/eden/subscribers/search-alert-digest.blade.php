@@ -1,6 +1,6 @@
 <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #1a1a1a;">
   <h1 style="font-size: 1.25rem; margin-bottom: 8px;">New listings on {{ $siteName }}</h1>
-  <p style="color: #666; font-size: 0.9375rem; margin-bottom: 20px;">These startups match your saved search: {{ $subscription->summaryLabel() }}</p>
+  <p style="color: #666; font-size: 0.9375rem; margin-bottom: 20px;">These apps match your saved search: {{ $subscription->summaryLabel() }}</p>
   @if($startups->isEmpty())
   <p style="line-height: 1.6;">No new matches in this period.</p>
   @else

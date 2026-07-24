@@ -16,7 +16,7 @@ class StartupCommentController extends EdenController
     {
         $startup = Startup::where('slug', $slug)->first();
         if (! $startup || ! $startup->isActive()) {
-            return redirect()->back()->with('error', 'Startup not found or not available.');
+            return redirect()->back()->with('error', 'App not found or not available.');
         }
 
         $user = auth()->user();

@@ -29,7 +29,7 @@ $messageValue = old('message', $contactPrefill['message'] ?? null);
       <label class="form-label" for="subject">Subject</label>
       <select id="subject" name="subject" class="form-select">
         <option value="">Choose...</option>
-        <option value="listing" <?= ($subjectValue === 'listing') ? 'selected' : '' ?>>Listing / startup</option>
+        <option value="listing" <?= ($subjectValue === 'listing') ? 'selected' : '' ?>>Listing / app</option>
         <option value="partnership" <?= ($subjectValue === 'partnership') ? 'selected' : '' ?>>Partnership</option>
         <option value="press" <?= ($subjectValue === 'press') ? 'selected' : '' ?>>Press</option>
         <option value="other" <?= ($subjectValue === 'other') ? 'selected' : '' ?>>Other</option>
@@ -37,7 +37,7 @@ $messageValue = old('message', $contactPrefill['message'] ?? null);
     </div>
     <?php if ($prefillStartup): ?>
     <div class="form-group">
-      <label class="form-label" for="startupContext">Startup</label>
+      <label class="form-label" for="startupContext">App</label>
       <input type="text" id="startupContext" class="form-input" value="<?= e($prefillStartup) ?>" readonly>
     </div>
     <?php endif; ?>

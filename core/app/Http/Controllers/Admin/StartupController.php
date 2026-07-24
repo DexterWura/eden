@@ -80,12 +80,12 @@ class StartupController extends Controller
         ])->render();
 
         return response()->view('eden.layout-dashboard', [
-            'title' => 'Startups',
+            'title' => 'Apps',
             'sidebar' => 'admin',
             'activeNav' => 'startups',
             'dashboardLogo' => (function_exists('gs') && gs('site_name') ? (string) gs('site_name') : 'Eden') . ' Admin',
-            'dashboardTopbar' => '<button type="button" class="dash-account" title="Property">All startups</button>',
-            'searchPlaceholder' => "Try searching 'startups by category'",
+            'dashboardTopbar' => '<button type="button" class="dash-account" title="Property">All apps</button>',
+            'searchPlaceholder' => "Try searching 'apps by category'",
             'avatarTitle' => 'Admin',
             'avatarLetter' => 'A',
             'content' => $content,
@@ -97,7 +97,7 @@ class StartupController extends Controller
     public function create()
     {
         $startup = new Startup(['status' => Startup::STATUS_ACTIVE]);
-        return $this->formResponse('Add startup', $startup);
+        return $this->formResponse('Add app', $startup);
     }
 
     public function store(Request $request): RedirectResponse
@@ -118,12 +118,12 @@ class StartupController extends Controller
         $startup = Startup::create($data);
         $this->startupFormService->processUploadedFiles($request, $startup);
         return redirect()->route('admin.startups.index')
-            ->with('notify', [['success', 'Startup created.']]);
+            ->with('notify', [['success', 'App created.']]);
     }
 
     public function edit(Startup $startup)
     {
-        return $this->formResponse('Edit startup', $startup);
+        return $this->formResponse('Edit app', $startup);
     }
 
     public function update(Request $request, Startup $startup): RedirectResponse
@@ -149,13 +149,13 @@ class StartupController extends Controller
         $startup->refresh();
         $startup->promoteContentQualityIfReady();
         return redirect()->route('admin.startups.index')
-            ->with('notify', [['success', 'Startup updated.']]);
+            ->with('notify', [['success', 'App updated.']]);
     }
 
     public function disable(Startup $startup)
     {
         $startup->update(['status' => Startup::STATUS_DISABLED]);
-        return response()->json(['status' => 'success', 'message' => 'Startup disabled.']);
+        return response()->json(['status' => 'success', 'message' => 'App disabled.']);
     }
 
     public function activate(Startup $startup)
@@ -174,20 +174,20 @@ class StartupController extends Controller
     public function ban(Startup $startup)
     {
         $startup->update(['status' => Startup::STATUS_BANNED]);
-        return response()->json(['status' => 'success', 'message' => 'Startup banned.']);
+        return response()->json(['status' => 'success', 'message' => 'App banned.']);
     }
 
     public function unban(Startup $startup)
     {
         $startup->update(['status' => Startup::STATUS_ACTIVE]);
-        return response()->json(['status' => 'success', 'message' => 'Startup unbanned.']);
+        return response()->json(['status' => 'success', 'message' => 'App unbanned.']);
     }
 
     public function toggleFeatured(Startup $startup)
     {
         $startup->update(['is_featured' => !$startup->is_featured]);
         $label = $startup->is_featured ? 'Featured' : 'Unfeatured';
-        return response()->json(['status' => 'success', 'message' => "Startup {$label}.", 'is_featured' => $startup->is_featured]);
+        return response()->json(['status' => 'success', 'message' => "App {$label}.", 'is_featured' => $startup->is_featured]);
     }
 
     public function addUpvotes(Request $request, Startup $startup): JsonResponse
@@ -272,7 +272,7 @@ class StartupController extends Controller
                         ->implode(', ');
 
                     return redirect()->route('admin.startups.index')
-                        ->with('notify', [['error', ($names ?: 'A founder') . ' is already featured on hero via another startup.']]);
+                        ->with('notify', [['error', ($names ?: 'A founder') . ' is already featured on hero via another app.']]);
                 }
             }
         }
@@ -286,11 +286,11 @@ class StartupController extends Controller
     public function destroy(Startup $startup): JsonResponse
     {
         if (!$startup->isDisabled()) {
-            return response()->json(['status' => 'error', 'message' => 'Only disabled startups can be deleted.'], 422);
+            return response()->json(['status' => 'error', 'message' => 'Only disabled apps can be deleted.'], 422);
         }
         StartupUpvote::where('startup_id', $startup->id)->delete();
         $startup->delete();
-        return response()->json(['status' => 'success', 'message' => 'Startup deleted.']);
+        return response()->json(['status' => 'success', 'message' => 'App deleted.']);
     }
 
     private function formResponse(string $title, Startup $startup)
@@ -306,8 +306,8 @@ class StartupController extends Controller
             'sidebar' => 'admin',
             'activeNav' => 'startups',
             'dashboardLogo' => (function_exists('gs') && gs('site_name') ? (string) gs('site_name') : 'Eden') . ' Admin',
-            'dashboardTopbar' => '<button type="button" class="dash-account" title="Property">All startups</button>',
-            'searchPlaceholder' => "Try searching 'startups by category'",
+            'dashboardTopbar' => '<button type="button" class="dash-account" title="Property">All apps</button>',
+            'searchPlaceholder' => "Try searching 'apps by category'",
             'avatarTitle' => 'Admin',
             'avatarLetter' => 'A',
             'content' => $content,
@@ -366,7 +366,7 @@ class StartupController extends Controller
             'category' => ['nullable', 'string', 'exists:categories,name'],
             'website' => ['nullable', 'string', 'max:500', 'url', function ($attr, $value, $fail) use ($excludeId) {
                 if ($value && Startup::websiteExistsForAnother($value, $excludeId)) {
-                    $fail('A startup with this website link already exists.');
+                    $fail('An app with this website link already exists.');
                 }
             }],
             'location' => ['nullable', 'string', 'max:255', new SensibleShortText(255)],

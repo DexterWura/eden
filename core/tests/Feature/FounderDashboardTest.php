@@ -40,8 +40,8 @@ class FounderDashboardTest extends TestCase
             ->get(route('founder.dashboard'))
             ->assertOk()
             ->assertSee(route('logout'), false)
-            ->assertSee('Put your startup on Eden')
-            ->assertSee('Create your startup profile');
+            ->assertSee('Put your app on Eden')
+            ->assertSee('Create your app profile');
     }
 
     public function test_dashboard_shows_profile_health_ranks_awards_activity_and_claim_state(): void
@@ -104,7 +104,7 @@ class FounderDashboardTest extends TestCase
             ->assertSee('New upvote')
             ->assertSee('New comment')
             ->assertSee('Revenue recorded')
-            ->assertSee('Startup launched')
+            ->assertSee('App launched')
             ->assertSee('Saved Studio');
     }
 

@@ -1,7 +1,7 @@
 <section class="founder-metrics" aria-label="Portfolio overview">
   <?php
     $metricCards = [
-      ['label' => 'Startups', 'value' => $myStartups->count(), 'icon' => 'fa-building-user'],
+      ['label' => 'Apps', 'value' => $myStartups->count(), 'icon' => 'fa-building-user'],
       ['label' => 'Upvotes', 'value' => number_format($totals['upvotes'] ?? 0), 'icon' => 'fa-arrow-up'],
       ['label' => 'Comments', 'value' => number_format($totals['comments'] ?? 0), 'icon' => 'fa-comments'],
       ['label' => 'Community saves', 'value' => number_format($totals['saves'] ?? 0), 'icon' => 'fa-bookmark'],

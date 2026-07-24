@@ -19,7 +19,7 @@
       <p style="margin:0 0 22px;line-height:1.7"><?= nl2br(e($fundingRound->description)) ?></p>
       <?php endif; ?>
       <p style="margin:0 0 22px"><a href="<?= e($startupUrl) ?>" style="display:inline-block;padding:12px 18px;border-radius:8px;background:#ff6154;color:#fff;text-decoration:none;font-weight:700">View the opportunity</a></p>
-      <p style="margin:0;color:#667085;font-size:12px;line-height:1.6">This is a founder-to-founder introduction, not investment advice or an endorsement by <?= e($siteName) ?>. Review the business and conduct your own due diligence before investing. You received this because you have an active startup and investment opportunity emails are enabled in your notification preferences.</p>
+      <p style="margin:0;color:#667085;font-size:12px;line-height:1.6">This is a founder-to-founder introduction, not investment advice or an endorsement by <?= e($siteName) ?>. Review the business and conduct your own due diligence before investing. You received this because you have an active app and investment opportunity emails are enabled in your notification preferences.</p>
     </div>
   </div>
 </body>

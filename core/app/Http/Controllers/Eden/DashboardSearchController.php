@@ -32,10 +32,10 @@ class DashboardSearchController extends Controller
         return response()->json([
             'groups' => [
                 [
-                    'label' => 'My startups',
+                    'label' => 'My apps',
                     'items' => $startups->map(fn (Startup $startup) => [
                         'label' => $startup->name,
-                        'description' => $startup->tagline ?: 'Manage startup',
+                        'description' => $startup->tagline ?: 'Manage app',
                         'url' => route('founder.startups.edit', $startup),
                     ])->values(),
                 ],
@@ -98,7 +98,7 @@ class DashboardSearchController extends Controller
             ->get();
 
         return [
-            'label' => 'Startups',
+            'label' => 'Apps',
             'items' => $items->map(fn (Startup $startup) => [
                 'label' => $startup->name,
                 'description' => trim(($startup->category ?: 'Uncategorized') . ' · ' . $startup->status),

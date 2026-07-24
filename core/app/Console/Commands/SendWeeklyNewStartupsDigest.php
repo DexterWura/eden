@@ -28,7 +28,7 @@ class SendWeeklyNewStartupsDigest extends Command
             ->get();
 
         $siteName = function_exists('gs') && gs('site_name') ? (string) gs('site_name') : 'Eden';
-        $subject = $siteName . ' – New startups this week (' . $startups->count() . ')';
+        $subject = $siteName . ' – New apps this week (' . $startups->count() . ')';
 
         $html = view('eden.subscribers.weekly-digest', [
             'startups' => $startups,

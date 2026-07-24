@@ -25,7 +25,7 @@
   <div class="dash-card-header">
     <div>
       <h2 id="founder-hero-title" class="dash-card-title">Homepage feature</h2>
-      <p class="dash-card-subtitle">Highlight an eligible startup.</p>
+      <p class="dash-card-subtitle">Highlight an eligible app.</p>
     </div>
   </div>
   <div class="founder-hero-list">

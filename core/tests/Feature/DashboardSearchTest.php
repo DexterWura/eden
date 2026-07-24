@@ -42,7 +42,7 @@ class DashboardSearchTest extends TestCase
             ->getJson(route('founder.search', ['q' => 'Shared Search']));
 
         $response->assertOk()
-            ->assertJsonPath('groups.0.label', 'My startups')
+            ->assertJsonPath('groups.0.label', 'My apps')
             ->assertJsonCount(1, 'groups.0.items')
             ->assertJsonPath('groups.0.items.0.label', 'Shared Search Alpha');
     }
@@ -74,7 +74,7 @@ class DashboardSearchTest extends TestCase
 
         $response->assertOk()
             ->assertJsonCount(1, 'groups')
-            ->assertJsonPath('groups.0.label', 'Startups')
+            ->assertJsonPath('groups.0.label', 'Apps')
             ->assertJsonPath('groups.0.items.0.label', 'Permission Search');
     }
 

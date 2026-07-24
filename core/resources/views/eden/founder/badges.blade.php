@@ -1,6 +1,6 @@
 <h1 class="dash-page-title">Badges</h1>
 <div class="dash-welcome">
-  Embed these badges on your site to show that your startup is listed on {{ $siteName }}. Copy the HTML and paste it where you want the badge to appear. Each badge links to your startup page.
+  Embed these badges on your site to show that your app is listed on {{ $siteName }}. Copy the HTML and paste it where you want the badge to appear. Each badge links to your app page.
 </div>
 <div class="badge-dofollow-note">All embed snippets below are generated as dofollow links.</div>
 @php
@@ -10,7 +10,7 @@
 @if($startups->isEmpty())
 <div class="dash-card badge-card">
   <div class="dash-card-body">
-    <p class="dash-placeholder">You have no startups yet. <a href="{{ route('founder.startups.create') }}">Add a startup</a> to get badges.</p>
+    <p class="dash-placeholder">You have no apps yet. <a href="{{ route('founder.startups.create') }}">Add an app</a> to get badges.</p>
   </div>
 </div>
 @else
@@ -74,7 +74,7 @@
         <img src="{{ $badgeBaseUrl }}/featured?theme={{ $defaultTheme }}" alt="Featured on {{ $siteName }}" width="220" height="52" class="badge-preview-image badge-preview-image--unavailable" data-badge-src="{{ $badgeBaseUrl }}/featured">
         <span class="dash-badge dash-badge-muted">Not featured</span>
       </div>
-      <p class="badge-hint">This badge appears when your startup is featured by {{ $siteName }}.</p>
+      <p class="badge-hint">This badge appears when your app is featured by {{ $siteName }}.</p>
     </div>
     @endif
 
@@ -99,7 +99,7 @@
         <img src="{{ $badgeBaseUrl }}/product-of-day?theme={{ $defaultTheme }}" alt="Product of the day on {{ $siteName }}" width="220" height="52" class="badge-preview-image badge-preview-image--unavailable" data-badge-src="{{ $badgeBaseUrl }}/product-of-day">
         <span class="dash-badge dash-badge-muted">Not product of the day</span>
       </div>
-      <p class="badge-hint">This badge appears when your startup is product of the day (most upvotes that day).</p>
+      <p class="badge-hint">This badge appears when your app is product of the day (most upvotes that day).</p>
     </div>
     @endif
   </div>

@@ -12,7 +12,7 @@ $hasWebsite = !empty($startup->website);
 </section>
 <div class="wrap content-block form-max">
   <?php if (!$hasWebsite): ?>
-  <p class="form-hint" style="margin-bottom: 16px; color: var(--text-muted, #64748b);">This startup has no website URL. Please ask the site admin to add a website for this startup before you can prove ownership.</p>
+  <p class="form-hint" style="margin-bottom: 16px; color: var(--text-muted, #64748b);">This app has no website URL. Please ask the site admin to add a website for this app before you can prove ownership.</p>
   <?php endif; ?>
   <form action="<?= e(route('startup.claim.start', $startup->slug)) ?>" method="POST">
     <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">

@@ -32,8 +32,8 @@ class StartupActivationService
             'activated' => true,
             'was_pending' => $previousStatus === Startup::STATUS_PENDING,
             'message' => $previousStatus === Startup::STATUS_PENDING
-                ? 'Startup approved and is now live.'
-                : 'Startup activated.',
+                ? 'App approved and is now live.'
+                : 'App activated.',
         ];
     }
 

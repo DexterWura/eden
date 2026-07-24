@@ -1,6 +1,6 @@
 <section class="page-head page-head--submit">
   <div class="wrap">
-    <h1>Submit your startup</h1>
+    <h1>Submit your app</h1>
     <p>Get listed in under 2 minutes. Free for a basic listing.</p>
   </div>
 </section>
@@ -13,7 +13,7 @@
       <div class="submit-backlink-offer__copy">
         <h2 id="submit-backlink-offer-title"><?= $submitterHasPro ? 'Your Pro dofollow backlink is active' : 'Add a dofollow backlink with Pro' ?></h2>
         <p><?= $submitterHasPro
-          ? 'Your startup website link will be dofollow while your account remains Pro.'
+          ? 'Your app website link will be dofollow while your account remains Pro.'
           : 'A basic listing is free and uses a nofollow website link. Pro is optional and unlocks a dofollow backlink.' ?></p>
       </div>
       <?php if (!$submitterHasPro): ?>
@@ -26,12 +26,12 @@
       <div class="submit-form-section">
         <h2 class="submit-form-section-title">Basics</h2>
         <div class="form-group">
-          <label class="form-label" for="startup-name">Startup name</label>
+          <label class="form-label" for="startup-name">App name</label>
           <input type="text" id="startup-name" name="name" class="form-input" placeholder="e.g. Nexus Pay" value="<?= e(old('name')) ?>" required>
         </div>
         <div class="form-group">
           <label class="form-label" for="tagline">Short tagline</label>
-          <input type="text" id="tagline" name="tagline" class="form-input" placeholder="One line that describes your startup" maxlength="255" value="<?= e(old('tagline')) ?>">
+          <input type="text" id="tagline" name="tagline" class="form-input" placeholder="One line that describes your app" maxlength="255" value="<?= e(old('tagline')) ?>">
           <p class="form-hint">Max 255 characters. Shown on your card.</p>
         </div>
         <div class="form-group">
@@ -125,7 +125,7 @@
         <h2 class="submit-form-section-title">Media <span class="submit-form-optional">optional</span></h2>
         <div class="form-row form-row--2">
           <div class="form-group">
-            <label class="form-label" for="logo">Startup logo</label>
+            <label class="form-label" for="logo">App logo</label>
             <p class="form-hint" style="margin-top: 0; margin-bottom: 8px;">80×80 px or smaller, square.</p>
             <input type="file" id="logo" name="logo" accept="image/jpeg,image/png,image/gif,image/webp" class="form-input form-input--file">
           </div>
@@ -151,14 +151,14 @@
             <option value="">No</option>
             <option value="today"<?= old('launch_today') === 'today' ? ' selected' : '' ?>>Yes, we're launching today</option>
           </select>
-          <p class="form-hint">If yes, your startup will appear on the Launching today page.</p>
+          <p class="form-hint">If yes, your app will appear on the Launching today page.</p>
         </div>
       </div>
 
       <?php if (!auth()->check()): ?>
       <div class="submit-form-section">
         <h2 class="submit-form-section-title">Your account</h2>
-        <p class="form-hint" style="margin-bottom: 14px;">Create an account to manage your startup, or log in if you already have one.</p>
+        <p class="form-hint" style="margin-bottom: 14px;">Create an account to manage your app, or log in if you already have one.</p>
 
         <div style="display:flex;gap:0;margin-bottom:18px;border:1px solid var(--border,#e2e8f0);border-radius:8px;overflow:hidden">
           <button type="button" id="auth-tab-register" class="btn" style="flex:1;border:none;border-radius:0;padding:10px;font-size:0.9rem;font-weight:600;background:var(--accent,#00d4aa);color:#fff;cursor:pointer" onclick="toggleAuthTab('register')">
@@ -206,10 +206,10 @@
 
       <div style="background:var(--surface-hover,#f8fafc);border:1px solid var(--border,#e2e8f0);border-left:4px solid var(--accent,#00d4aa);border-radius:8px;padding:14px 18px;margin-bottom:16px;font-size:0.92rem;color:var(--text-muted,#64748b)">
         <i class="fa-solid fa-info-circle" style="color:var(--accent,#00d4aa);margin-right:6px"></i>
-        Your startup will be reviewed by our team before going live. This usually takes less than 24 hours.
+        Your app will be reviewed by our team before going live. This usually takes less than 24 hours.
       </div>
       <div class="submit-form-actions">
-        <button type="submit" class="btn btn-primary btn--submit"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Submit startup</button>
+        <button type="submit" class="btn btn-primary btn--submit"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Submit app</button>
         <a href="<?= e(url('/')) ?>" class="btn btn-ghost">Cancel</a>
       </div>
     </form>

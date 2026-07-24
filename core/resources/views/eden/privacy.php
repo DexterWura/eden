@@ -13,12 +13,12 @@ $siteUrl = url('/');
   <p><strong>Last updated:</strong> July 24, 2026</p>
 
   <h2>1. Who we are</h2>
-  <p><?= e($siteName) ?> (“we”, “our”, or “the site”) is a startup directory at <?= e($siteUrl) ?>. This privacy policy explains how we handle your information when you use our website.</p>
+  <p><?= e($siteName) ?> (“we”, “our”, or “the site”) is an app directory at <?= e($siteUrl) ?>. This privacy policy explains how we handle your information when you use our website.</p>
 
   <h2>2. Information we collect</h2>
   <p>We may collect:</p>
   <ul>
-    <li><strong>Information you provide:</strong> When you submit a startup, create an account, subscribe to our newsletter, or contact us, we collect the information you give (e.g. name, email, startup details).</li>
+    <li><strong>Information you provide:</strong> When you submit an app, create an account, subscribe to our newsletter, or contact us, we collect the information you give (e.g. name, email, app details).</li>
     <li><strong>Usage data:</strong> We may collect how you use the site (e.g. pages visited) to improve our service.</li>
     <li><strong>Cookies and similar technologies:</strong> As described below.</li>
   </ul>
@@ -44,7 +44,7 @@ $siteUrl = url('/');
   <h2>5. How we use your information</h2>
   <p>We use the information we collect to:</p>
   <ul>
-    <li>Run and improve the directory (e.g. displaying startups, sending the weekly digest if you subscribed).</li>
+    <li>Run and improve the directory (e.g. displaying apps, sending the weekly digest if you subscribed).</li>
     <li>Respond to your messages and support your use of the site.</li>
     <li>Comply with the law and protect our rights.</li>
   </ul>

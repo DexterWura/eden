@@ -156,7 +156,7 @@
         </div>
         <div class="dash-search-wrap">
           <i class="fa-solid fa-magnifying-glass dash-search-icon" aria-hidden="true"></i>
-          <input type="search" class="dash-search" id="dashGlobalSearch" placeholder="<?= e($searchPlaceholder ?? 'Search') ?>" aria-label="<?= ($sidebar ?? '') === 'admin' ? 'Search permitted admin modules' : 'Search your startups' ?>" aria-controls="dashSearchResults" aria-expanded="false" autocomplete="off" data-search-url="<?= e(($sidebar ?? '') === 'admin' ? route('admin.search') : route('founder.search')) ?>">
+          <input type="search" class="dash-search" id="dashGlobalSearch" placeholder="<?= e($searchPlaceholder ?? 'Search') ?>" aria-label="<?= ($sidebar ?? '') === 'admin' ? 'Search permitted admin modules' : 'Search your apps' ?>" aria-controls="dashSearchResults" aria-expanded="false" autocomplete="off" data-search-url="<?= e(($sidebar ?? '') === 'admin' ? route('admin.search') : route('founder.search')) ?>">
           <div class="dash-search-results" id="dashSearchResults" role="listbox" aria-label="Search results" hidden></div>
         </div>
         <div class="dash-topbar-right">

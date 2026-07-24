@@ -29,7 +29,7 @@ class StartupWebsiteHealthController extends Controller
         ])->render();
 
         return response()->view('eden.layout-dashboard', [
-            'title' => 'Startup website health',
+            'title' => 'App website health',
             'sidebar' => 'admin',
             'activeNav' => 'startup-websites',
             'dashboardLogo' => (function_exists('gs') && gs('site_name') ? (string) gs('site_name') : 'Eden') . ' Admin',
@@ -46,7 +46,7 @@ class StartupWebsiteHealthController extends Controller
     {
         $force = $request->boolean('force');
         Artisan::call('startups:check-websites', ['--force' => $force]);
-        $message = $force ? 'Website check completed (all startups with a website).' : 'Website check completed (startups due for check).';
+        $message = $force ? 'Website check completed (all apps with a website).' : 'Website check completed (apps due for check).';
         return redirect()->route('admin.startup-websites.index')
             ->with('notify', [['success', $message]]);
     }

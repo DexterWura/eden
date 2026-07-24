@@ -3,11 +3,11 @@
   $revenueByDay = $revenueByDay ?? [];
   $usersByDay = $usersByDay ?? [];
   $queues = [
-    ['Pending startups', $pendingStartups ?? collect(), 'admin.startups.index', 'startups', 'fa-rocket', 'Review submissions waiting for approval.'],
+    ['Pending apps', $pendingStartups ?? collect(), 'admin.startups.index', 'startups', 'fa-rocket', 'Review submissions waiting for approval.'],
     ['Hero requests', $heroRequests ?? collect(), 'admin.dashboard', 'hero', 'fa-star', 'Approve or decline homepage hero requests.'],
     ['Pending reports', $pendingReports ?? collect(), 'admin.startup-reports.index', 'reports', 'fa-flag', 'Resolve reports submitted by the community.'],
     ['Unread messages', $unreadMessages ?? collect(), 'admin.contact-messages.index', 'messages', 'fa-message', 'Open and reply to new contact messages.'],
-    ['Failed website checks', $failedWebsiteChecks ?? collect(), 'admin.startup-websites.index', 'websites', 'fa-triangle-exclamation', 'Investigate repeatedly unreachable startup websites.'],
+    ['Failed website checks', $failedWebsiteChecks ?? collect(), 'admin.startup-websites.index', 'websites', 'fa-triangle-exclamation', 'Investigate repeatedly unreachable app websites.'],
     ['Failed tasks', $failedTasks ?? collect(), 'admin.scheduled-tasks.index', 'tasks', 'fa-clock-rotate-left', 'Review failed scheduled operations.'],
     ['Pending ads & payments', $pendingAds ?? collect(), 'admin.ad-spots.index', 'ads', 'fa-rectangle-ad', 'Validate payment details and activate ad placements.'],
   ];
@@ -59,7 +59,7 @@
   </div>
   <div class="dash-table-wrap">
     <table class="dash-table">
-      <thead><tr><th>Startup</th><th>Founder links</th><th>Requested</th><th><span class="visually-hidden">Actions</span></th></tr></thead>
+      <thead><tr><th>App</th><th>Founder links</th><th>Requested</th><th><span class="visually-hidden">Actions</span></th></tr></thead>
       <tbody>
       <?php foreach ($heroRequests as $request): ?>
         <?php $linkedinFounders = collect($request->founders_display)->filter(fn ($founder) => trim($founder['linkedin_url'] ?? '') !== ''); ?>
@@ -93,12 +93,12 @@
 <div class="dash-command-grid">
   <?php if (!empty($canManageStartups)): ?>
   <section class="dash-card" aria-labelledby="pendingStartupsHeading">
-    <div class="dash-card-header"><h2 class="dash-card-title" id="pendingStartupsHeading">Pending startups</h2><a href="<?= e(route('admin.startups.index')) ?>">Open queue</a></div>
+    <div class="dash-card-header"><h2 class="dash-card-title" id="pendingStartupsHeading">Pending apps</h2><a href="<?= e(route('admin.startups.index')) ?>">Open queue</a></div>
     <div class="dash-list">
       <?php foreach ($pendingStartups as $startup): ?>
         <a href="<?= e(route('admin.startups.edit', $startup)) ?>" class="dash-list-item"><span><strong><?= e($startup->name) ?></strong><small><?= e($startup->category ?: 'Uncategorized') ?> · submitted <?= e($startup->created_at->diffForHumans()) ?></small></span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
       <?php endforeach; ?>
-      <?php if ($pendingStartups->isEmpty()): ?><p class="dash-empty-state"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><strong>Queue clear</strong><span>No startups are awaiting review.</span></p><?php endif; ?>
+      <?php if ($pendingStartups->isEmpty()): ?><p class="dash-empty-state"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><strong>Queue clear</strong><span>No apps are awaiting review.</span></p><?php endif; ?>
     </div>
   </section>
   <?php endif; ?>
@@ -120,7 +120,7 @@
     <div class="dash-card-header"><h2 class="dash-card-title" id="reportsHeading">Pending reports</h2><a href="<?= e(route('admin.startup-reports.index')) ?>">Resolve reports</a></div>
     <div class="dash-list">
       <?php foreach ($pendingReports as $report): ?>
-        <a href="<?= e(route('admin.startup-reports.index') . '#report-' . $report->id) ?>" class="dash-list-item"><span><strong><?= e($report->startup?->name ?? 'Deleted startup') ?></strong><small><?= e(\App\Models\StartupReport::reasonLabels()[$report->reason] ?? ucfirst($report->reason)) ?> · <?= e($report->created_at->diffForHumans()) ?></small></span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+        <a href="<?= e(route('admin.startup-reports.index') . '#report-' . $report->id) ?>" class="dash-list-item"><span><strong><?= e($report->startup?->name ?? 'Deleted app') ?></strong><small><?= e(\App\Models\StartupReport::reasonLabels()[$report->reason] ?? ucfirst($report->reason)) ?> · <?= e($report->created_at->diffForHumans()) ?></small></span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
       <?php endforeach; ?>
       <?php if ($pendingReports->isEmpty()): ?><p class="dash-empty-state"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><strong>No pending reports</strong><span>Community moderation is up to date.</span></p><?php endif; ?>
     </div>

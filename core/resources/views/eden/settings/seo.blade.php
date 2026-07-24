@@ -13,7 +13,7 @@
       <div style="display: flex; flex-direction: column; gap: 16px;">
         <div>
           <label for="meta_keywords" class="dash-label">Meta keywords</label>
-          <input type="text" id="meta_keywords" name="meta_keywords" value="{{ old('meta_keywords', $seo->meta_keywords ?? '') }}" class="dash-input" placeholder="startup directory, startups, launch, ...">
+          <input type="text" id="meta_keywords" name="meta_keywords" value="{{ old('meta_keywords', $seo->meta_keywords ?? '') }}" class="dash-input" placeholder="app directory, apps, launch, ...">
           @error('meta_keywords') <span class="dash-error">{{ $message }}</span> @enderror
           <span class="dash-hint">Comma-separated keywords for search engines.</span>
         </div>

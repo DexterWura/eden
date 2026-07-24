@@ -1,11 +1,11 @@
-<h1 class="dash-page-title">Startups</h1>
+<h1 class="dash-page-title">Apps</h1>
 <div class="dash-welcome">
-  Startups associated with <strong>{{ $user->name }}</strong> ({{ $user->email }}).
+  Apps associated with <strong>{{ $user->name }}</strong> ({{ $user->email }}).
 </div>
 
 <div class="dash-card" style="margin-top: 20px;">
   <div class="dash-card-header" style="flex-wrap: wrap; gap: 12px;">
-    <span class="dash-card-title">Startups ({{ $startups->count() }})</span>
+    <span class="dash-card-title">Apps ({{ $startups->count() }})</span>
     <a href="{{ route('admin.users.index') }}" class="dash-btn dash-btn-secondary" style="margin-left: auto; text-decoration: none;"><i class="fa-solid fa-arrow-left"></i> Back to users</a>
   </div>
   <div class="dash-card-body" style="padding: 0;">
@@ -13,7 +13,7 @@
       <table class="dash-table">
         <thead>
           <tr>
-            <th>Startup</th>
+            <th>App</th>
             <th>Category</th>
             <th>Status</th>
             <th>Actions</th>
@@ -46,7 +46,7 @@
           </tr>
           @empty
           <tr>
-            <td colspan="4" class="dash-placeholder">This user has no startups.</td>
+            <td colspan="4" class="dash-placeholder">This user has no apps.</td>
           </tr>
           @endforelse
         </tbody>

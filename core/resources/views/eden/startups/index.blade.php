@@ -1,6 +1,6 @@
-<h1 class="dash-page-title">Startups</h1>
+<h1 class="dash-page-title">Apps</h1>
 <div class="dash-welcome">
-  Manage startups: view founders, disable, ban, activate, set featured, and edit details.
+  Manage apps: view founders, disable, ban, activate, set featured, and edit details.
 </div>
 
 <div class="dash-kpi-row">
@@ -36,9 +36,9 @@
 
 <div class="dash-card">
   <div class="dash-card-header" style="flex-wrap: wrap; gap: 12px;">
-    <span class="dash-card-title">All startups</span>
+    <span class="dash-card-title">All apps</span>
     <a href="{{ route('admin.startups.create') }}" class="dash-btn dash-btn-primary" style="margin-left: auto;">
-      <i class="fa-solid fa-plus"></i> Add startup
+      <i class="fa-solid fa-plus"></i> Add app
     </a>
   </div>
   <div class="dash-card-body">
@@ -63,7 +63,7 @@
       <table class="dash-table">
         <thead>
           <tr>
-            <th>Startup</th>
+            <th>App</th>
             <th>Founder</th>
             <th>Category</th>
             <th>Status</th>
@@ -153,7 +153,7 @@
           </tr>
           @empty
           <tr>
-            <td colspan="8" class="dash-placeholder">No startups found.</td>
+            <td colspan="8" class="dash-placeholder">No apps found.</td>
           </tr>
           @endforelse
         </tbody>
@@ -171,10 +171,10 @@
   <div class="dash-dialog-backdrop"></div>
   <div class="dash-dialog-box">
     <div class="dash-dialog-header">
-      <h2 id="deleteStartupDialogTitle" class="dash-dialog-title">Delete startup</h2>
+      <h2 id="deleteStartupDialogTitle" class="dash-dialog-title">Delete app</h2>
     </div>
     <div class="dash-dialog-content">
-      <p class="dash-dialog-body" id="deleteStartupDialogMessage">Are you sure you want to delete this startup? This cannot be undone.</p>
+      <p class="dash-dialog-body" id="deleteStartupDialogMessage">Are you sure you want to delete this app? This cannot be undone.</p>
     </div>
     <div class="dash-dialog-actions">
       <button type="button" class="dash-btn dash-btn-secondary" id="deleteStartupDialogCancel" data-dialog-initial-focus>Cancel</button>
@@ -239,7 +239,7 @@
 
   function openDeleteDialog(url, name, trigger) {
     pendingDeleteUrl = url;
-    if (deleteDialogMessage) deleteDialogMessage.textContent = 'Are you sure you want to delete “' + (name || 'this startup') + '”? This cannot be undone.';
+    if (deleteDialogMessage) deleteDialogMessage.textContent = 'Are you sure you want to delete “' + (name || 'this app') + '”? This cannot be undone.';
     if (deleteDialog && window.EdenDashboardDialog) {
       window.EdenDashboardDialog.open(deleteDialog, trigger);
     }
@@ -302,7 +302,7 @@
   document.querySelectorAll('.startup-add-upvotes').forEach(function(btn) {
     btn.addEventListener('click', function() {
       var url = this.getAttribute('data-url');
-      var name = this.getAttribute('data-startup') || 'this startup';
+      var name = this.getAttribute('data-startup') || 'this app';
       if (!url) return;
       pendingUpvoteUrl = url;
       pendingUpvoteTrigger = this;

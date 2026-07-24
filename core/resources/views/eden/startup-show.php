@@ -25,7 +25,7 @@ $showClaimButton = empty($s->user_id) && empty($s->founder_email);
     <?php if (($s->status ?? '') === 'pending'): ?>
     <div class="startup-launch-notice">
       <i class="fa-solid fa-clock"></i>
-      This startup is pending review and is not yet visible to the public.
+      This app is pending review and is not yet visible to the public.
       <br>Share this link so people can get notified when you launch: <a href="<?= e(route('launch-notify.show', $s->slug)) ?>"><?= e(route('launch-notify.show', $s->slug)) ?></a>
     </div>
     <?php endif; ?>
@@ -67,12 +67,12 @@ $showClaimButton = empty($s->user_id) && empty($s->founder_email);
           <?php if ($hasSaved): ?>
           <form action="<?= e(route('startup.unsave', $s->slug)) ?>" method="post">
             <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
-            <button type="submit" class="product-icon-button" aria-label="Remove from saved startups"><i class="fa-solid fa-bookmark" aria-hidden="true"></i></button>
+            <button type="submit" class="product-icon-button" aria-label="Remove from saved apps"><i class="fa-solid fa-bookmark" aria-hidden="true"></i></button>
           </form>
           <?php else: ?>
           <form action="<?= e(route('startup.save', $s->slug)) ?>" method="post">
             <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
-            <button type="submit" class="product-icon-button" aria-label="Save startup"><i class="fa-regular fa-bookmark" aria-hidden="true"></i></button>
+            <button type="submit" class="product-icon-button" aria-label="Save app"><i class="fa-regular fa-bookmark" aria-hidden="true"></i></button>
           </form>
           <?php endif; ?>
           <?php endif; ?>
@@ -136,7 +136,7 @@ $showClaimButton = empty($s->user_id) && empty($s->founder_email);
 <div class="wrap startup-detail-layout">
   <div class="startup-detail-main">
   <?php if ($s->for_sale && !$s->sold_at && $s->flipit_listing_id): ?>
-  <p class="startup-sale-note">This startup is listed for sale on <a href="https://flipit.co.zw" target="_blank" rel="noopener noreferrer">FLIPit</a>.</p>
+  <p class="startup-sale-note">This app is listed for sale on <a href="https://flipit.co.zw" target="_blank" rel="noopener noreferrer">FLIPit</a>.</p>
   <?php endif; ?>
   <?php if ($s->description): ?>
   <section class="startup-section startup-prose" id="about">
@@ -299,7 +299,7 @@ $showClaimButton = empty($s->user_id) && empty($s->founder_email);
   <?php $similarStartups = $similarStartups ?? collect(); ?>
   <?php if ($similarStartups->isNotEmpty()): ?>
   <section class="startup-section" aria-labelledby="similar-heading">
-    <h2 id="similar-heading">Similar startups</h2>
+    <h2 id="similar-heading">Similar apps</h2>
     <?php
     $similarBlurb = 'You might also like.';
     if (!empty($s->category) && !empty($s->location)) {
@@ -421,7 +421,7 @@ $showClaimButton = empty($s->user_id) && empty($s->founder_email);
       <?php
         $ad = $startupSidebarAd ?? null;
         $buyUrl = url('/advertise/startup-sidebar');
-        $emptyTitle = 'Advertise on startup pages';
+        $emptyTitle = 'Advertise on app pages';
         $emptyCopy = 'Reach founders, customers and investors while they research products.';
         $maxWidth = 300;
         $showEmptyPromotion = true;
@@ -478,10 +478,10 @@ $showClaimButton = empty($s->user_id) && empty($s->founder_email);
 
   <div class="cta-strip">
     <?php if ($showClaimButton ?? (empty($s->user_id) && empty($s->founder_email))): ?>
-    <a href="<?= e(route('startup.claim', $s->slug)) ?>" class="btn btn-primary"><i class="fa-solid fa-hand-holding-hand" aria-hidden="true"></i> Claim this startup</a>
+    <a href="<?= e(route('startup.claim', $s->slug)) ?>" class="btn btn-primary"><i class="fa-solid fa-hand-holding-hand" aria-hidden="true"></i> Claim this app</a>
     <?php endif; ?>
-    <a href="<?= e(url('/')) ?>" class="btn btn-ghost">Browse more startups</a>
-    <a href="<?= e(url('/submit')) ?>" class="btn btn-primary">Submit your startup</a>
+    <a href="<?= e(url('/')) ?>" class="btn btn-ghost">Browse more apps</a>
+    <a href="<?= e(url('/submit')) ?>" class="btn btn-primary">Submit your app</a>
   </div>
 </div>
 

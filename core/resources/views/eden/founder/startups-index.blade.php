@@ -1,18 +1,18 @@
-<h1 class="dash-page-title">My startups</h1>
+<h1 class="dash-page-title">My apps</h1>
 <div class="dash-welcome">
-  Startups linked to your account. Add a new one or edit details.
+  Apps linked to your account. Add a new one or edit details.
 </div>
 
 <div class="dash-card">
   <div class="dash-card-header" style="flex-wrap: wrap; gap: 12px;">
-    <span class="dash-card-title">Your startups</span>
+    <span class="dash-card-title">Your apps</span>
     @if($canAddStartup ?? true)
     <a href="{{ route('founder.startups.create') }}" class="dash-btn dash-btn-primary" style="margin-left: auto; text-decoration: none;">
-      <i class="fa-solid fa-plus"></i> Add startup
+      <i class="fa-solid fa-plus"></i> Add app
     </a>
     @else
     <a href="{{ url('/pricing') }}" class="dash-btn dash-btn-primary" style="margin-left: auto; text-decoration: none;">
-      <i class="fa-solid fa-crown"></i> Upgrade to Pro for more startups
+      <i class="fa-solid fa-crown"></i> Upgrade to Pro for more apps
     </a>
     @endif
   </div>
@@ -21,7 +21,7 @@
       <table class="dash-table">
         <thead>
           <tr>
-            <th>Startup</th>
+            <th>App</th>
             <th>Category</th>
             <th>Upvotes</th>
             <th>Status</th>
@@ -66,11 +66,11 @@
               @if(auth()->user()->isPro())
               <form action="{{ route('founder.startups.toggle-featured', $s) }}" method="POST" style="display:inline">
                 @csrf
-                <button type="submit" class="dash-btn {{ $s->is_featured ? 'dash-btn-primary' : 'dash-btn-secondary' }}" style="padding:4px 10px;font-size:0.8rem" title="{{ $s->is_featured ? 'Remove from featured' : 'Feature this startup' }}">
+                <button type="submit" class="dash-btn {{ $s->is_featured ? 'dash-btn-primary' : 'dash-btn-secondary' }}" style="padding:4px 10px;font-size:0.8rem" title="{{ $s->is_featured ? 'Remove from featured' : 'Feature this app' }}">
                   <i class="fa-solid fa-star"></i> {{ $s->is_featured ? 'Featured' : 'Feature' }}
                 </button>
               </form>
-              <form action="{{ route('founder.startups.destroy', $s) }}" method="POST" style="display:inline" onsubmit="return confirm('Are you sure you want to delete this startup? This cannot be undone.')">
+              <form action="{{ route('founder.startups.destroy', $s) }}" method="POST" style="display:inline" onsubmit="return confirm('Are you sure you want to delete this app? This cannot be undone.')">
                 @csrf @method('DELETE')
                 <button type="submit" class="dash-btn dash-btn-danger" style="padding:4px 10px;font-size:0.8rem"><i class="fa-solid fa-trash"></i> Delete</button>
               </form>
@@ -94,7 +94,7 @@
           </tr>
           @empty
           <tr>
-            <td colspan="6" class="dash-placeholder">No startups yet. @if($canAddStartup ?? true)<a href="{{ route('founder.startups.create') }}">Add your first startup</a>@else<a href="{{ url('/pricing') }}">Upgrade to Pro</a> to add startups.@endif</td>
+            <td colspan="6" class="dash-placeholder">No apps yet. @if($canAddStartup ?? true)<a href="{{ route('founder.startups.create') }}">Add your first app</a>@else<a href="{{ url('/pricing') }}">Upgrade to Pro</a> to add apps.@endif</td>
           </tr>
           @endforelse
         </tbody>

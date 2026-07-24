@@ -1,10 +1,10 @@
 <section class="dash-card founder-profile-card" aria-labelledby="founder-profile-title">
   <div class="dash-card-header">
     <div>
-      <h2 id="founder-profile-title" class="dash-card-title">Startup health</h2>
+      <h2 id="founder-profile-title" class="dash-card-title">App health</h2>
       <p class="dash-card-subtitle">Complete profiles are easier to discover and trust.</p>
     </div>
-    <a href="<?= e(route('founder.startups.index')) ?>" class="founder-text-link">Manage startups</a>
+    <a href="<?= e(route('founder.startups.index')) ?>" class="founder-text-link">Manage apps</a>
   </div>
   <div class="founder-profile-list">
     <?php foreach ($startupProfiles as $profile): ?>

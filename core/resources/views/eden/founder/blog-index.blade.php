@@ -1,6 +1,6 @@
 <h1 class="dash-page-title">My blog posts</h1>
 <div class="dash-welcome">
-  Share updates, milestones, and stories about your startup.
+  Share updates, milestones, and stories about your app.
 </div>
 
 <div class="dash-card">

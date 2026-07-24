@@ -11,10 +11,10 @@
   <div>
     <p class="founder-home-eyebrow">Founder workspace</p>
     <h1 class="dash-page-title">Welcome, <?= e(auth()->user()->name ?? 'founder') ?></h1>
-    <p class="founder-home-lede">Track your startup presence, community momentum, and next best actions.</p>
+    <p class="founder-home-lede">Track your app presence, community momentum, and next best actions.</p>
   </div>
   <a href="<?= e(route('founder.startups.create')) ?>" class="dash-btn dash-btn-primary founder-home-primary-action">
-    <i class="fa-solid fa-plus" aria-hidden="true"></i> Add startup
+    <i class="fa-solid fa-plus" aria-hidden="true"></i> Add app
   </a>
 </header>
 
@@ -26,7 +26,7 @@
   <?php include __DIR__ . '/founder/dashboard/_metrics.php'; ?>
 
   <div class="founder-dashboard-grid">
-    <section class="founder-dashboard-main" aria-label="Startup performance">
+    <section class="founder-dashboard-main" aria-label="App performance">
       <?php include __DIR__ . '/founder/dashboard/_startup-profiles.php'; ?>
       <?php include __DIR__ . '/founder/dashboard/_activity.php'; ?>
     </section>

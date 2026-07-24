@@ -27,7 +27,7 @@ class SavedStartupController extends EdenController
             ->orderByPivot('created_at', 'desc')
             ->get();
 
-        return $this->page('saved', 'My saved startups', null, [
+        return $this->page('saved', 'My saved apps', null, [
             'startups' => $startups,
             'productOfDayId' => $this->startupService->getProductOfDayId(),
         ], EdenSeo::forPrivatePage('/saved'));
@@ -47,7 +47,7 @@ class SavedStartupController extends EdenController
         if ($request->expectsJson()) {
             return response()->json(['saved' => true, 'message' => 'Saved.']);
         }
-        return redirect()->back()->with('success', 'Startup saved.');
+        return redirect()->back()->with('success', 'App saved.');
     }
 
     public function unsave(Request $request, string $slug): JsonResponse|RedirectResponse

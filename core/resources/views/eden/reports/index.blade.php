@@ -5,11 +5,11 @@
 
 <div class="dash-kpi-row">
   <div class="dash-kpi-card">
-    <div class="dash-kpi-label">Total startups</div>
+    <div class="dash-kpi-label">Total apps</div>
     <div class="dash-kpi-value">{{ $totalStartups }}</div>
   </div>
   <div class="dash-kpi-card">
-    <div class="dash-kpi-label">Active startups</div>
+    <div class="dash-kpi-label">Active apps</div>
     <div class="dash-kpi-value">{{ $activeStartups }}</div>
   </div>
   <div class="dash-kpi-card">
@@ -35,7 +35,7 @@
 
 <div class="dash-card" style="margin-top: 20px;">
   <div class="dash-card-header">
-    <span class="dash-card-title">Startups by category</span>
+    <span class="dash-card-title">Apps by category</span>
     <a href="{{ route('admin.startups.index') }}" class="dash-table-link">View all</a>
   </div>
   <div class="dash-card-body" style="padding: 0;">
@@ -66,7 +66,7 @@
 
 <div class="dash-card" style="margin-top: 20px;">
   <div class="dash-card-header">
-    <span class="dash-card-title">Recent startups</span>
+    <span class="dash-card-title">Recent apps</span>
     <a href="{{ route('admin.startups.index') }}" class="dash-table-link">View all</a>
   </div>
   <div class="dash-card-body" style="padding: 0;">
@@ -74,7 +74,7 @@
       <table class="dash-table">
         <thead>
           <tr>
-            <th>Startup</th>
+            <th>App</th>
             <th>Category</th>
             <th>Status</th>
             <th>Created</th>
@@ -90,7 +90,7 @@
           </tr>
           @empty
           <tr>
-            <td colspan="4" class="dash-placeholder">No startups yet.</td>
+            <td colspan="4" class="dash-placeholder">No apps yet.</td>
           </tr>
           @endforelse
         </tbody>

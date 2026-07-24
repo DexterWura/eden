@@ -1,6 +1,6 @@
 <h1 class="dash-page-title">Listing reports</h1>
 <div class="dash-welcome">
-  Visitor reports about startup listings (spam, wrong category, impersonation, etc.).
+  Visitor reports about app listings (spam, wrong category, impersonation, etc.).
 </div>
 
 <div class="dash-card">
@@ -22,7 +22,7 @@
         <thead>
           <tr>
             <th>Date</th>
-            <th>Startup</th>
+            <th>App</th>
             <th>Reason</th>
             <th>Reporter</th>
             <th>Details</th>
@@ -35,7 +35,7 @@
           <tr id="report-{{ $r->id }}">
             <td style="white-space: nowrap;">{{ $r->created_at->format('M j, Y H:i') }}</td>
             <td>
-              @if($r->startup)
+              @if($r->app)
                 <a href="{{ url('/startup/' . $r->startup->slug) }}" target="_blank" rel="noopener noreferrer" class="dash-table-link">{{ $r->startup->name }}</a>
               @else
                 —

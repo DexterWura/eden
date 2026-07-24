@@ -101,7 +101,7 @@ class StartupAwardNotificationService
                 'notifiable_type' => User::class,
                 'notifiable_id' => $recipient['user_id'],
                 'data' => json_encode([
-                    'title' => "Your startup won {$awardName}!",
+                    'title' => "Your app won {$awardName}!",
                     'message' => "{$startup->name} was selected as {$awardName} for {$periodLabel}.",
                     'url' => url('/startup/' . $startup->slug),
                 ]),

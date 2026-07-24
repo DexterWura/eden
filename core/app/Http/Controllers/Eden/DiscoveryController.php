@@ -46,7 +46,7 @@ class DiscoveryController extends EdenController
 
         $canonicalUrl = url('/categories/' . $category->slug);
         $structuredData = $this->hubStructuredData(
-            $category->name . ' startups',
+            $category->name . ' apps',
             $canonicalUrl,
             collect($startups->items())
         );
@@ -71,7 +71,7 @@ class DiscoveryController extends EdenController
             ];
         }
 
-        return $this->page('discovery-hub', $category->name . ' startups', null, [
+        return $this->page('discovery-hub', $category->name . ' apps', null, [
             'hubType' => 'category',
             'hubName' => $category->name,
             'hubIcon' => $category->icon,
@@ -81,10 +81,10 @@ class DiscoveryController extends EdenController
             'startups' => $startups,
             'relatedCategories' => $relatedCategories,
         ], [
-            'pageTitle' => $category->name . ' Startups | Eden',
+            'pageTitle' => $category->name . ' Apps | Eden',
             'metaDescription' => $this->hubMetaDescription(
                 $category->introduction,
-                'Discover ' . $startups->total() . ' ' . $category->name . ' startups listed on Eden.'
+                'Discover ' . $startups->total() . ' ' . $category->name . ' apps listed on Eden.'
             ),
             'canonicalUrl' => $canonicalUrl,
             'metaRobots' => StartupContentPolicy::categoryHubIsIndexable(
@@ -131,19 +131,19 @@ class DiscoveryController extends EdenController
             ->filter(fn (Startup $startup) => $startup->hasSubstantiveContent())
             ->count();
         $topCategoryNames = $categoryCounts->take(4)->pluck('category')->implode(', ');
-        $introduction = $startups->total() . ' startups in ' . $location
+        $introduction = $startups->total() . ' apps in ' . $location
             . ' are currently tracked on Eden'
             . ($topCategoryNames !== '' ? ', spanning ' . $topCategoryNames : '')
             . '. Browse verified product links, founder information, launches and community activity.';
 
         $canonicalUrl = url('/locations/' . $slug);
         $structuredData = $this->hubStructuredData(
-            'Startups in ' . $location,
+            'Apps in ' . $location,
             $canonicalUrl,
             collect($startups->items())
         );
 
-        return $this->page('discovery-hub', 'Startups in ' . $location, null, [
+        return $this->page('discovery-hub', 'Apps in ' . $location, null, [
             'hubType' => 'location',
             'hubName' => $location,
             'hubIcon' => 'fa-solid fa-location-dot',
@@ -154,8 +154,8 @@ class DiscoveryController extends EdenController
             'categoryCounts' => $categoryCounts,
             'relatedCategories' => collect(),
         ], [
-            'pageTitle' => 'Startups in ' . $location . ' | Eden',
-            'metaDescription' => $this->hubMetaDescription($introduction, 'Discover startups in ' . $location . '.'),
+            'pageTitle' => 'Apps in ' . $location . ' | Eden',
+            'metaDescription' => $this->hubMetaDescription($introduction, 'Discover apps in ' . $location . '.'),
             'canonicalUrl' => $canonicalUrl,
             'metaRobots' => StartupContentPolicy::locationHubIsIndexable(
                 $startups->total(),

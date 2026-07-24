@@ -26,7 +26,7 @@ class LaunchNotifyController extends EdenController
     {
         $startup = Startup::where('slug', $slug)->firstOrFail();
         if ($startup->isActive()) {
-            return redirect()->route('startup.show', $startup->slug)->with('info', 'This startup is already live.');
+            return redirect()->route('startup.show', $startup->slug)->with('info', 'This app is already live.');
         }
         $request->validate([
             'email' => ['required', 'email', 'max:255'],

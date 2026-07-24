@@ -29,7 +29,7 @@ class DashboardController extends EdenController
         $siteName = $this->siteName();
 
         return response()->view('eden.layout-dashboard', [
-            'title' => 'Startup dashboard',
+            'title' => 'App dashboard',
             'sidebar' => 'founder',
             'activeNav' => 'home',
             'dashboardLogo' => $siteName,
@@ -202,9 +202,9 @@ class DashboardController extends EdenController
             'activeNav' => 'home',
             'dashboardLogo' => $siteName . ' Admin',
             'dashboardTopbar' => $canManageStartups
-                ? '<a class="dash-account" href="' . e(route('admin.startups.index')) . '">All startups</a>'
+                ? '<a class="dash-account" href="' . e(route('admin.startups.index')) . '">All apps</a>'
                 : '<span class="dash-account">Command center</span>',
-            'searchPlaceholder' => "Try searching 'startups by category'",
+            'searchPlaceholder' => "Try searching 'apps by category'",
             'avatarTitle' => $admin?->name ?? 'Admin',
             'avatarLetter' => strtoupper(mb_substr($admin?->name ?? 'A', 0, 1)),
             'scriptDeps' => '<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>',

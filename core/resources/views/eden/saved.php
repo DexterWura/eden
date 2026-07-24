@@ -5,8 +5,8 @@ $savedStartupIds = $startups->pluck('id')->toArray();
 ?>
 <section class="page-head">
   <div class="wrap">
-    <h1>My saved startups</h1>
-    <p>Startups you've saved for later. Remove any time.</p>
+    <h1>My saved apps</h1>
+    <p>Apps you've saved for later. Remove any time.</p>
   </div>
 </section>
 
@@ -21,6 +21,6 @@ $savedStartupIds = $startups->pluck('id')->toArray();
     endforeach; ?>
   </div>
   <?php else: ?>
-  <p class="section-empty">You haven't saved any startups yet. Browse the <a href="<?= e(url('/')) ?>">directory</a> and click the bookmark to save.</p>
+  <p class="section-empty">You haven't saved any apps yet. Browse the <a href="<?= e(url('/')) ?>">directory</a> and click the bookmark to save.</p>
   <?php endif; ?>
 </div>

@@ -17,13 +17,13 @@
 @endif
 
 <div class="dash-card" style="margin-bottom: 24px;">
-  <div class="dash-card-header"><span class="dash-card-title">API keys per startup</span></div>
+  <div class="dash-card-header"><span class="dash-card-title">API keys per app</span></div>
   <div class="dash-card-body" style="padding: 0;">
     <div class="dash-table-wrap">
       <table class="dash-table">
         <thead>
           <tr>
-            <th>Startup</th>
+            <th>App</th>
             <th>API key</th>
             <th>Last used</th>
             <th>Actions</th>
@@ -65,7 +65,7 @@
           </tr>
           @empty
           <tr>
-            <td colspan="4" class="dash-placeholder">No startups yet. <a href="{{ route('founder.startups.create') }}">Add a startup</a> first, then create an API key.</td>
+            <td colspan="4" class="dash-placeholder">No apps yet. <a href="{{ route('founder.startups.create') }}">Add an app</a> first, then create an API key.</td>
           </tr>
           @endforelse
         </tbody>
@@ -126,7 +126,7 @@
       </div>
     </div>
     @empty
-    <p class="dash-placeholder">No startups yet. <a href="{{ route('founder.startups.create') }}">Add a startup</a> first.</p>
+    <p class="dash-placeholder">No apps yet. <a href="{{ route('founder.startups.create') }}">Add an app</a> first.</p>
     @endforelse
   </div>
 </div>
@@ -135,7 +135,7 @@
   <div class="dash-card-header"><span class="dash-card-title">Documentation</span></div>
   <div class="dash-card-body revenue-api-docs">
     <h3 style="font-size: 1rem; margin: 0 0 12px;">Endpoint</h3>
-    <p style="margin: 0 0 8px; font-size: 0.875rem; color: var(--d-text-secondary);">Record a payment so Eden updates your startup&rsquo;s revenue (and optionally MRR).</p>
+    <p style="margin: 0 0 8px; font-size: 0.875rem; color: var(--d-text-secondary);">Record a payment so Eden updates your app&rsquo;s revenue (and optionally MRR).</p>
     <pre class="revenue-api-code">POST {{ $apiBaseUrl }}/revenue</pre>
 
     <h3 style="font-size: 1rem; margin: 24px 0 12px;">Authentication</h3>
@@ -144,7 +144,7 @@
       <li><strong>Authorization header:</strong> <code>Authorization: Bearer YOUR_API_KEY</code></li>
       <li><strong>Custom header:</strong> <code>X-Eden-API-Key: YOUR_API_KEY</code></li>
     </ul>
-    <p style="margin: 0 0 12px; font-size: 0.875rem; color: var(--d-text-secondary);">The key is tied to one startup. Never expose it in client-side code or public repos.</p>
+    <p style="margin: 0 0 12px; font-size: 0.875rem; color: var(--d-text-secondary);">The key is tied to one app. Never expose it in client-side code or public repos.</p>
 
     <h3 style="font-size: 1rem; margin: 24px 0 12px;">Request body (JSON)</h3>
     <table class="revenue-api-params">
@@ -213,7 +213,7 @@ $response = curl_exec($ch);
       <li><strong>201 Created</strong> — Payment recorded. Body includes <code>event_id</code>, <code>revenue_total</code>.</li>
       <li><strong>200 OK</strong> — Duplicate <code>external_id</code> (idempotent). No double-count.</li>
       <li><strong>401 Unauthorized</strong> — Missing or invalid API key.</li>
-      <li><strong>403 Forbidden</strong> — Startup not active.</li>
+      <li><strong>403 Forbidden</strong> — App not active.</li>
       <li><strong>422 Unprocessable Entity</strong> — Validation error (e.g. missing <code>amount</code> or <code>currency</code>).</li>
       <li><strong>429 Too Many Requests</strong> — Rate limit exceeded.</li>
     </ul>

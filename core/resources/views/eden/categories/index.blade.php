@@ -1,6 +1,6 @@
 <h1 class="dash-page-title">Categories</h1>
 <div class="dash-welcome">
-  Manage startup categories. These appear in the submit form, filters, and category browse page.
+  Manage app categories. These appear in the submit form, filters, and category browse page.
 </div>
 
 <div class="dash-card">
@@ -17,7 +17,7 @@
             <th>Name</th>
             <th>Slug</th>
             <th>Icon</th>
-            <th>Startups</th>
+            <th>Apps</th>
             <th>Editorial completeness</th>
             <th>Actions</th>
           </tr>

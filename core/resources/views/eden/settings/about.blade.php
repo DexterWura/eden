@@ -51,12 +51,12 @@
         </div>
         <div>
           <label for="about_guidelines_items" class="dash-label">Guidelines (one per line)</label>
-          <textarea id="about_guidelines_items" name="guidelines_items" rows="4" class="dash-input" placeholder="Your startup must be real and operational...">{{ old('guidelines_items', isset($about['guidelines_items']) && is_array($about['guidelines_items']) ? implode("\n", $about['guidelines_items']) : '') }}</textarea>
+          <textarea id="about_guidelines_items" name="guidelines_items" rows="4" class="dash-input" placeholder="Your app must be real and operational...">{{ old('guidelines_items', isset($about['guidelines_items']) && is_array($about['guidelines_items']) ? implode("\n", $about['guidelines_items']) : '') }}</textarea>
           <span class="dash-hint">Each line becomes one bullet point.</span>
         </div>
         <div>
           <label for="about_cta_title" class="dash-label">CTA strip title</label>
-          <input type="text" id="about_cta_title" name="cta_title" value="{{ old('cta_title', $about['cta_title'] ?? '') }}" class="dash-input" placeholder="Ready to list your startup?">
+          <input type="text" id="about_cta_title" name="cta_title" value="{{ old('cta_title', $about['cta_title'] ?? '') }}" class="dash-input" placeholder="Ready to list your app?">
         </div>
         <div>
           <label for="about_cta_subtitle" class="dash-label">CTA strip subtitle</label>

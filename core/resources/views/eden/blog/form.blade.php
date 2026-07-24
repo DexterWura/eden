@@ -59,7 +59,7 @@
 
         <div>
           <label for="meta_keywords" class="dash-label">Meta keywords</label>
-          <input type="text" id="meta_keywords" name="meta_keywords" class="dash-input" value="{{ old('meta_keywords', $post->meta_keywords) }}" placeholder="startup, launch, tips" maxlength="255">
+          <input type="text" id="meta_keywords" name="meta_keywords" class="dash-input" value="{{ old('meta_keywords', $post->meta_keywords) }}" placeholder="app, launch, tips" maxlength="255">
           @error('meta_keywords') <span class="dash-error">{{ $message }}</span> @enderror
         </div>
 

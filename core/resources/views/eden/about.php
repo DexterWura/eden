@@ -10,7 +10,7 @@ $forVisitorsTitle = $about['for_visitors_title'] ?? 'For visitors';
 $forVisitorsBody = $about['for_visitors_body'] ?? '';
 $guidelinesTitle = $about['guidelines_title'] ?? 'Guidelines';
 $guidelinesItems = $about['guidelines_items'] ?? [];
-$ctaTitle = $about['cta_title'] ?? 'Ready to list your startup?';
+$ctaTitle = $about['cta_title'] ?? 'Ready to list your app?';
 $ctaSubtitle = $about['cta_subtitle'] ?? 'Submit in under 2 minutes.';
 ?>
 <section class="page-head">
@@ -50,7 +50,7 @@ $ctaSubtitle = $about['cta_subtitle'] ?? 'Submit in under 2 minutes.';
   <div class="cta-strip">
     <h3><?= e($ctaTitle) ?></h3>
     <?php if ($ctaSubtitle !== ''): ?><p><?= e($ctaSubtitle) ?></p><?php endif; ?>
-    <a href="<?= e(url('/submit')) ?>" class="btn btn-primary">Submit your startup</a>
+    <a href="<?= e(url('/submit')) ?>" class="btn btn-primary">Submit your app</a>
     <a href="<?= e(url('/contact')) ?>" class="btn btn-ghost">Contact us</a>
   </div>
 </div>

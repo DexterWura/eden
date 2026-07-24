@@ -39,13 +39,13 @@ $gateways = $gateways ?? [];
         <p class="pricing-period">forever</p>
       </div>
       <ul class="pricing-features">
-        <li><i class="fa-solid fa-check"></i> 1 startup</li>
+        <li><i class="fa-solid fa-check"></i> 1 app</li>
         <li><i class="fa-solid fa-check"></i> Submit &amp; appear in search &amp; categories</li>
-        <li><i class="fa-solid fa-check"></i> Upvote other startups</li>
+        <li><i class="fa-solid fa-check"></i> Upvote other apps</li>
         <li><i class="fa-solid fa-check"></i> Basic founder profile</li>
         
-        <li class="pricing-feature--disabled"><i class="fa-solid fa-xmark"></i> Unlimited startups</li>
-        <li class="pricing-feature--disabled"><i class="fa-solid fa-xmark"></i> Raise funds for your startup</li>
+        <li class="pricing-feature--disabled"><i class="fa-solid fa-xmark"></i> Unlimited apps</li>
+        <li class="pricing-feature--disabled"><i class="fa-solid fa-xmark"></i> Raise funds for your app</li>
         <li class="pricing-feature--disabled"><i class="fa-solid fa-xmark"></i> Featured placement</li>
         <li class="pricing-feature--disabled"><i class="fa-solid fa-xmark"></i> Embed listing badge</li>
         <li class="pricing-feature--disabled"><i class="fa-solid fa-xmark"></i> Publish blog posts</li>
@@ -66,10 +66,10 @@ $gateways = $gateways ?? [];
       </div>
       <ul class="pricing-features">
         <li><i class="fa-solid fa-check"></i> Everything in Free</li>
-        <li class="pricing-feature--highlight"><i class="fa-solid fa-layer-group"></i> Unlimited startups</li>
-        <li class="pricing-feature--highlight"><i class="fa-solid fa-hand-holding-dollar"></i> Raise funds for your startup</li>
-        <li class="pricing-feature--highlight"><i class="fa-solid fa-star"></i> Feature your startup on homepage</li>
-        <li class="pricing-feature--highlight"><i class="fa-solid fa-arrow-up"></i> Priority placement in the startup feed</li>
+        <li class="pricing-feature--highlight"><i class="fa-solid fa-layer-group"></i> Unlimited apps</li>
+        <li class="pricing-feature--highlight"><i class="fa-solid fa-hand-holding-dollar"></i> Raise funds for your app</li>
+        <li class="pricing-feature--highlight"><i class="fa-solid fa-star"></i> Feature your app on homepage</li>
+        <li class="pricing-feature--highlight"><i class="fa-solid fa-arrow-up"></i> Priority placement in the app feed</li>
         <li class="pricing-feature--highlight"><i class="fa-solid fa-pen-nib"></i> Publish blog posts</li>
         <li class="pricing-feature--highlight"><i class="fa-solid fa-chart-line"></i> Analytics dashboard (views, clicks)</li>
         <li class="pricing-feature--highlight"><i class="fa-solid fa-headset"></i> Priority support</li>
@@ -121,11 +121,11 @@ $gateways = $gateways ?? [];
       </div>
       <div class="pricing-faq-item">
         <h3>What does "featured" mean?</h3>
-        <p>Your startup appears in the Featured section on the homepage, giving you extra visibility to every visitor.</p>
+        <p>Your app appears in the Featured section on the homepage, giving you extra visibility to every visitor.</p>
       </div>
       <div class="pricing-faq-item">
         <h3>Can I write blog posts?</h3>
-        <p>Pro members can publish blog posts linked to their startup, sharing updates, launches, and milestones with the community.</p>
+        <p>Pro members can publish blog posts linked to their app, sharing updates, launches, and milestones with the community.</p>
       </div>
       <div class="pricing-faq-item">
         <h3>What if I need a refund?</h3>

@@ -6,8 +6,8 @@ $productOfDayId = $productOfDayId ?? null;
 ?>
 <section class="page-head">
   <div class="wrap">
-    <h1>Startups raising funding</h1>
-    <p>Discover startups currently raising or looking for investors. Filter by category.</p>
+    <h1>Apps raising funding</h1>
+    <p>Discover apps currently raising or looking for investors. Filter by category.</p>
   </div>
 </section>
 
@@ -42,6 +42,6 @@ $productOfDayId = $productOfDayId ?? null;
     endforeach; ?>
   </div>
   <?php else: ?>
-  <p class="section-empty">No startups raising right now. <a href="<?= e(url('/submit')) ?>">Submit your startup</a> and add a funding round in your dashboard.</p>
+  <p class="section-empty">No apps raising right now. <a href="<?= e(url('/submit')) ?>">Submit your app</a> and add a funding round in your dashboard.</p>
   <?php endif; ?>
 </div>

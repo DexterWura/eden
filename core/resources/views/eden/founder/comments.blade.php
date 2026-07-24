@@ -1,5 +1,5 @@
 <h1 class="dash-page-title">Comment inbox</h1>
-<p class="dash-welcome">Reply to comments on startups you manage and track what still needs attention.</p>
+<p class="dash-welcome">Reply to comments on apps you manage and track what still needs attention.</p>
 
 <div style="display:flex;flex-direction:column;gap:14px;">
 @forelse($comments as $comment)
@@ -37,7 +37,7 @@
     </div>
   </article>
 @empty
-  <div class="dash-card"><div class="dash-card-body"><p class="dash-placeholder">No comments on your startups yet.</p></div></div>
+  <div class="dash-card"><div class="dash-card-body"><p class="dash-placeholder">No comments on your apps yet.</p></div></div>
 @endforelse
 </div>
 

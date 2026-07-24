@@ -1,6 +1,6 @@
 <h1 class="dash-page-title">Fund raising</h1>
 <div class="dash-welcome">
-  Manage investor-facing fund raising details for each startup you own. Open a round, update the ask, or close it when you are done.
+  Manage investor-facing fund raising details for each app you own. Open a round, update the ask, or close it when you are done.
 </div>
 
 @php
@@ -11,8 +11,8 @@
 @if($startups->isEmpty())
 <div class="dash-card">
   <div class="dash-card-body" style="text-align:center; padding: 40px 24px;">
-    <p style="color: var(--d-text-secondary); font-size: 1rem; margin-bottom: 16px;">Add a startup first before managing fund raising.</p>
-    <a href="{{ route('founder.startups.create') }}" class="dash-btn dash-btn-primary" style="text-decoration: none;"><i class="fa-solid fa-plus"></i> Add startup</a>
+    <p style="color: var(--d-text-secondary); font-size: 1rem; margin-bottom: 16px;">Add an app first before managing fund raising.</p>
+    <a href="{{ route('founder.startups.create') }}" class="dash-btn dash-btn-primary" style="text-decoration: none;"><i class="fa-solid fa-plus"></i> Add app</a>
   </div>
 </div>
 @else
@@ -38,7 +38,7 @@
         <span class="dash-card-title"><i class="fa-solid fa-hand-holding-dollar"></i> {{ $startup->name }}</span>
         <div class="dash-card-subtitle" style="margin-top:4px;">
           @if($round)
-            Live on <a href="{{ url('/startup/' . $startup->slug) }}" target="_blank" class="dash-table-link">your public startup page</a>.
+            Live on <a href="{{ url('/startup/' . $startup->slug) }}" target="_blank" class="dash-table-link">your public app page</a>.
           @else
             Not currently shown as raising on the public listing.
           @endif
@@ -53,7 +53,7 @@
         @if($round)
         <span style="display:inline-block;padding:3px 10px;font-size:0.78rem;border-radius:4px;background:#dcfce7;color:#166534;font-weight:600">{{ $round->round_type_label }}</span>
         @endif
-        <a href="{{ route('founder.startups.edit', $startup) }}" class="dash-btn dash-btn-secondary" style="text-decoration:none; padding:4px 10px; font-size:0.8rem;"><i class="fa-solid fa-pen"></i> Edit startup</a>
+        <a href="{{ route('founder.startups.edit', $startup) }}" class="dash-btn dash-btn-secondary" style="text-decoration:none; padding:4px 10px; font-size:0.8rem;"><i class="fa-solid fa-pen"></i> Edit app</a>
       </div>
     </div>
     <div class="dash-card-body">

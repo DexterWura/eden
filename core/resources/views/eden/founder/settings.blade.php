@@ -70,7 +70,7 @@
 <div class="dash-card dash-danger-zone" id="danger-zone">
   <div class="dash-card-header"><span class="dash-card-title">Danger zone</span></div>
   <div class="dash-card-body" style="display: flex; flex-direction: column; gap: 14px;">
-    <p style="margin: 0; color: var(--d-text-secondary); font-size: 0.875rem;">Delete your founder account and remove your owned startups/posts permanently.</p>
+    <p style="margin: 0; color: var(--d-text-secondary); font-size: 0.875rem;">Delete your founder account and remove your owned apps/posts permanently.</p>
     <form action="{{ route('founder.settings.destroy-data') }}" method="post" class="dash-danger-form" onsubmit="return confirm('This is permanent. Delete your data?');">
       @csrf
       @method('DELETE')

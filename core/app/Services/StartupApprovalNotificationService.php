@@ -66,7 +66,7 @@ class StartupApprovalNotificationService
                 'notifiable_type' => User::class,
                 'notifiable_id' => $userId,
                 'data' => json_encode([
-                    'title' => 'Your startup is live!',
+                    'title' => 'Your app is live!',
                     'message' => "{$startup->name} is approved. Add your Eden badge from the Badges page to support the community.",
                     'url' => url('/founder/badges'),
                 ]),

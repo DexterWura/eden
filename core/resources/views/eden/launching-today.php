@@ -1,6 +1,6 @@
 <section class="page-head">
   <div class="wrap">
-    <h1>Startups launching today</h1>
+    <h1>Apps launching today</h1>
     <p>Fresh launches. Upvote your favourites and be the first to discover them.</p>
   </div>
 </section>
@@ -28,14 +28,14 @@
     endforeach;
     ?>
     <?php if ($startups->isEmpty()): ?>
-    <p class="text-muted">No startups launching today. <a href="<?= e(url('/submit')) ?>">Submit your startup</a>.</p>
+    <p class="text-muted">No apps launching today. <a href="<?= e(url('/submit')) ?>">Submit your app</a>.</p>
     <?php endif; ?>
   </div>
 
   <div class="cta-strip">
     <h3>Launching soon?</h3>
-    <p>List your startup and get featured on this page. Upvotes help you reach Product of the day at the end of each day.</p>
-    <a href="<?= e(url('/submit')) ?>" class="btn btn-primary">Submit your startup</a>
+    <p>List your app and get featured on this page. Upvotes help you reach Product of the day at the end of each day.</p>
+    <a href="<?= e(url('/submit')) ?>" class="btn btn-primary">Submit your app</a>
   </div>
 
   <div class="newsletter">
@@ -44,6 +44,6 @@
       <input type="email" name="email" placeholder="Your email" aria-label="Email" required>
       <button type="submit" class="btn btn-primary">Subscribe</button>
     </form>
-    <p class="newsletter-note">Get notified when new startups launch.</p>
+    <p class="newsletter-note">Get notified when new apps launch.</p>
   </div>
 </div>

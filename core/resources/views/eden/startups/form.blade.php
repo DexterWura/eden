@@ -4,9 +4,9 @@
   $formMethod = $isEdit ? 'PUT' : 'POST';
 @endphp
 
-<h1 class="dash-page-title">{{ $isEdit ? 'Edit startup' : 'Add startup' }}</h1>
+<h1 class="dash-page-title">{{ $isEdit ? 'Edit app' : 'Add app' }}</h1>
 <div class="dash-welcome">
-  {{ $isEdit ? 'Update startup details, founder, links and status.' : 'Create a new startup and set the founder, socials and details.' }}
+  {{ $isEdit ? 'Update app details, founder, links and status.' : 'Create a new app and set the founder, socials and details.' }}
 </div>
 
 <form action="{{ $formAction }}" method="post" class="dash-form startup-form" enctype="multipart/form-data">
@@ -145,7 +145,7 @@
   </div>
 
   <div class="dash-card" style="margin-bottom: 20px;">
-    <div class="dash-card-header"><span class="dash-card-title">Startup links</span></div>
+    <div class="dash-card-header"><span class="dash-card-title">App links</span></div>
     <div class="dash-card-body" style="display: flex; flex-direction: column; gap: 16px;">
       <div>
         <label for="website" class="dash-label">Website</label>
@@ -154,14 +154,14 @@
       </div>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
         <div>
-          <label for="twitter_url" class="dash-label">Startup X (Twitter) handle</label>
+          <label for="twitter_url" class="dash-label">App X (Twitter) handle</label>
           @php $startupTw = old('twitter_url', $startup->twitter_url); if ($startupTw && preg_match('#(?:x\.com|twitter\.com)/([a-zA-Z0-9_]+)#i', $startupTw, $m)) { $startupTw = $m[1]; } @endphp
           <input type="text" id="twitter_url" name="twitter_url" value="{{ $startupTw }}" class="dash-input" placeholder="e.g. @dxtwura">
           @error('twitter_url') <span class="dash-error">{{ $message }}</span> @enderror
           <span class="dash-hint" style="display: block; margin-top: 4px; font-size: 0.8rem; color: var(--d-text-secondary);">We'll add x.com/ for you.</span>
         </div>
         <div>
-          <label for="linkedin_url" class="dash-label">Startup LinkedIn</label>
+          <label for="linkedin_url" class="dash-label">App LinkedIn</label>
           <input type="url" id="linkedin_url" name="linkedin_url" value="{{ old('linkedin_url', $startup->linkedin_url) }}" class="dash-input" placeholder="https://linkedin.com/company/...">
           @error('linkedin_url') <span class="dash-error">{{ $message }}</span> @enderror
         </div>
@@ -187,7 +187,7 @@
       @if($isEdit)
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
         <div>
-          <label for="views" class="dash-label">Views (tracked when startup page is viewed)</label>
+          <label for="views" class="dash-label">Views (tracked when app page is viewed)</label>
           <input type="number" id="views" name="views" value="{{ old('views', $startup->views ?? 0) }}" class="dash-input" min="0">
           @error('views') <span class="dash-error">{{ $message }}</span> @enderror
         </div>
@@ -226,7 +226,7 @@
 
   <div style="display: flex; gap: 12px; flex-wrap: wrap;">
     <button type="submit" class="dash-btn dash-btn-primary">
-      <i class="fa-solid fa-check"></i> {{ $isEdit ? 'Save changes' : 'Create startup' }}
+      <i class="fa-solid fa-check"></i> {{ $isEdit ? 'Save changes' : 'Create app' }}
     </button>
     <a href="{{ route('admin.startups.index') }}" class="dash-btn dash-btn-secondary" style="text-decoration: none;">Cancel</a>
   </div>

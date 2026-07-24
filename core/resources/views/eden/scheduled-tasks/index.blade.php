@@ -191,7 +191,7 @@
 <div class="dash-card" style="margin-top: 20px;">
   <div class="dash-card-header"><span class="dash-card-title">Sitemap</span></div>
   <div class="dash-card-body">
-    <p style="margin: 0 0 8px; font-size: 0.875rem; color: var(--d-text-secondary);">When the Sitemap task runs, it generates <code>public/sitemap.xml</code> with the homepage, about, contact, submit, categories, launching-today, leaderboard, and all active startup URLs. Serve it at <a href="{{ url('/sitemap.xml') }}" target="_blank" rel="noopener">{{ url('/sitemap.xml') }}</a>.</p>
+    <p style="margin: 0 0 8px; font-size: 0.875rem; color: var(--d-text-secondary);">When the Sitemap task runs, it generates <code>public/sitemap.xml</code> with the homepage, about, contact, submit, categories, launching-today, leaderboard, and all active app URLs. Serve it at <a href="{{ url('/sitemap.xml') }}" target="_blank" rel="noopener">{{ url('/sitemap.xml') }}</a>.</p>
   </div>
 </div>
 

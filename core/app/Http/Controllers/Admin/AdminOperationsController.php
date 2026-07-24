@@ -210,7 +210,7 @@ class AdminOperationsController extends Controller
                 $status = Startup::STATUS_DISABLED;
                 $startup->update(['status' => $status]);
             }
-            admin_audit_log("moderation.startup.{$action}", "Startup {$action}: {$startup->name}", $startup, ['status' => $old], ['status' => $status]);
+            admin_audit_log("moderation.startup.{$action}", "App {$action}: {$startup->name}", $startup, ['status' => $old], ['status' => $status]);
             return true;
         }
 
@@ -234,7 +234,7 @@ class AdminOperationsController extends Controller
             }
             $status = $action === 'approve' ? StartupReport::STATUS_REVIEWED : StartupReport::STATUS_DISMISSED;
             $report->update(['status' => $status, 'reviewed_at' => now()]);
-            admin_audit_log("moderation.report.{$action}", "Startup report {$action}.", $report, ['status' => StartupReport::STATUS_PENDING], ['status' => $status]);
+            admin_audit_log("moderation.report.{$action}", "App report {$action}.", $report, ['status' => StartupReport::STATUS_PENDING], ['status' => $status]);
             return true;
         }
 

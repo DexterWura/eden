@@ -2,10 +2,10 @@
 <p class="dash-welcome">Review each queue independently. Bulk operations revalidate every selected record and skip stale items.</p>
 
 @foreach([
-  ['startups', 'Pending startups', $pendingStartups, fn($item) => $item->name],
+  ['startups', 'Pending apps', $pendingStartups, fn($item) => $item->name],
   ['hero', 'Hero requests', $heroRequests, fn($item) => $item->name],
-  ['reports', 'Listing reports', $reports, fn($item) => ($item->startup?->name ?? 'Deleted startup').' — '.$item->reason],
-  ['claims', 'Ownership claims', $claims, fn($item) => ($item->startup?->name ?? 'Deleted startup').' — '.($item->user?->email ?? 'Deleted user')],
+  ['reports', 'Listing reports', $reports, fn($item) => ($item->app?->name ?? 'Deleted app').' — '.$item->reason],
+  ['claims', 'Ownership claims', $claims, fn($item) => ($item->app?->name ?? 'Deleted app').' — '.($item->user?->email ?? 'Deleted user')],
 ] as [$queue, $heading, $items, $label])
 <form method="post" action="{{ route('admin.operations.moderation.bulk') }}" class="dash-card" style="margin-bottom:18px">
   @csrf

@@ -54,7 +54,7 @@ class RevenueApiController extends Controller
 
         $existing = StartupRevenueApiKey::where('startup_id', $startup->id)->first();
         if ($existing) {
-            return redirect()->route('founder.revenue-api')->with('notify', [['error', 'This startup already has an API key. Use Regenerate to replace it.']]);
+            return redirect()->route('founder.revenue-api')->with('notify', [['error', 'This app already has an API key. Use Regenerate to replace it.']]);
         }
 
         $token = StartupRevenueApiKey::generateToken();

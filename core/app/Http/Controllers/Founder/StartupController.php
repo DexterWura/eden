@@ -37,14 +37,14 @@ class StartupController extends Controller
             'canAddStartup' => $this->canAddStartup($user),
         ])->render();
 
-        return $this->layoutResponse('My startups', 'startups', $content);
+        return $this->layoutResponse('My apps', 'startups', $content);
     }
 
     public function create()
     {
         if (! $this->canAddStartup(auth()->user())) {
             return redirect()->route('pricing')
-                ->with('info', 'Free accounts get one startup. Go Pro for unlimited startups, analytics, hero featuring, and more.');
+                ->with('info', 'Free accounts get one app. Go Pro for unlimited apps, analytics, hero featuring, and more.');
         }
         $startup = new Startup(['status' => Startup::STATUS_ACTIVE]);
         $categories = Category::orderBy('sort_order')->get();
@@ -54,14 +54,14 @@ class StartupController extends Controller
             'requiresEditorialContent' => $startup->requiresEditorialContent(),
             'hasDofollowBacklink' => auth()->user()->isPro(),
         ])->render();
-        return $this->layoutResponse('Add startup', 'startups', $content, true);
+        return $this->layoutResponse('Add app', 'startups', $content, true);
     }
 
     public function store(Request $request): RedirectResponse
     {
         if (! $this->canAddStartup(auth()->user())) {
             return redirect()->route('pricing')
-                ->with('info', 'Free accounts get one startup. Go Pro for unlimited startups, analytics, hero featuring, and more.');
+                ->with('info', 'Free accounts get one app. Go Pro for unlimited apps, analytics, hero featuring, and more.');
         }
         $validator = Validator::make($request->all(), $this->rules());
         if ($validator->fails()) {
@@ -82,7 +82,7 @@ class StartupController extends Controller
         $data['content_quality_version'] = 1;
         $startup = Startup::create($data);
         $this->startupFormService->processUploadedFiles($request, $startup);
-        return redirect()->route('founder.startups.index')->with('notify', [['success', 'Startup submitted! It will go live once reviewed by our team.']]);
+        return redirect()->route('founder.startups.index')->with('notify', [['success', 'App submitted! It will go live once reviewed by our team.']]);
     }
 
     public function edit(Startup $startup)
@@ -96,7 +96,7 @@ class StartupController extends Controller
             'requiresEditorialContent' => $startup->requiresEditorialContent(),
             'hasDofollowBacklink' => $startup->hasDofollowBacklink(),
         ])->render();
-        return $this->layoutResponse('Edit startup', 'startups', $content, true);
+        return $this->layoutResponse('Edit app', 'startups', $content, true);
     }
 
     public function update(Request $request, Startup $startup): RedirectResponse
@@ -120,28 +120,28 @@ class StartupController extends Controller
         $this->startupFormService->processUploadedFiles($request, $startup);
         $startup->refresh();
         $startup->promoteContentQualityIfReady();
-        return redirect()->route('founder.startups.index')->with('notify', [['success', 'Startup updated.']]);
+        return redirect()->route('founder.startups.index')->with('notify', [['success', 'App updated.']]);
     }
 
     public function destroy(Startup $startup): RedirectResponse
     {
         $this->authorize('manage', $startup);
         if (!auth()->user()->isPro()) {
-            abort(403, 'Pro membership required to delete startups.');
+            abort(403, 'Pro membership required to delete apps.');
         }
         $startup->delete();
-        return redirect()->route('founder.startups.index')->with('notify', [['success', 'Startup deleted.']]);
+        return redirect()->route('founder.startups.index')->with('notify', [['success', 'App deleted.']]);
     }
 
     public function toggleFeatured(Startup $startup): RedirectResponse
     {
         $this->authorize('manage', $startup);
         if (!auth()->user()->isPro()) {
-            abort(403, 'Pro membership required to feature startups.');
+            abort(403, 'Pro membership required to feature apps.');
         }
         $startup->update(['is_featured' => !$startup->is_featured]);
         $label = $startup->is_featured ? 'featured' : 'unfeatured';
-        return redirect()->route('founder.startups.index')->with('notify', [['success', "Startup {$label}."]]);
+        return redirect()->route('founder.startups.index')->with('notify', [['success', "App {$label}."]]);
     }
 
     private function canAddStartup(\App\Models\User $user): bool
@@ -198,7 +198,7 @@ class StartupController extends Controller
             'category' => ['nullable', 'string', 'exists:categories,name'],
             'website' => ['nullable', 'string', 'max:500', 'url', function ($attr, $value, $fail) use ($excludeId) {
                 if ($value && Startup::websiteExistsForAnother($value, $excludeId)) {
-                    $fail('A startup with this website link already exists.');
+                    $fail('An app with this website link already exists.');
                 }
             }],
             'location' => ['nullable', 'string', 'max:255', new SensibleShortText(255)],

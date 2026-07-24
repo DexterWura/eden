@@ -78,7 +78,7 @@ class CronjobController extends Controller
             ],
             [
                 'name' => 'Product of the Day',
-                'description' => 'Selects yesterday’s top startup by eligible upvotes and notifies its founders',
+                'description' => 'Selects yesterday’s top app by eligible upvotes and notifies its founders',
                 'schedule' => 'Daily at 00:05',
                 'log_file' => 'eden-product-of-day.log',
                 'command' => 'eden:select-product-of-day',
@@ -86,7 +86,7 @@ class CronjobController extends Controller
             ],
             [
                 'name' => 'Product of the Month',
-                'description' => 'Selects the previous month’s top startup by eligible upvotes and notifies its founders',
+                'description' => 'Selects the previous month’s top app by eligible upvotes and notifies its founders',
                 'schedule' => 'Monthly on day 1 at 00:10',
                 'log_file' => 'eden-product-of-month.log',
                 'command' => 'eden:select-product-of-month',
@@ -94,7 +94,7 @@ class CronjobController extends Controller
             ],
             [
                 'name' => 'Product of the Year',
-                'description' => 'Selects the previous year’s top startup by eligible upvotes and notifies its founders',
+                'description' => 'Selects the previous year’s top app by eligible upvotes and notifies its founders',
                 'schedule' => 'Yearly on January 1 at 00:15',
                 'log_file' => 'eden-product-of-year.log',
                 'command' => 'eden:select-product-of-year',
@@ -109,8 +109,8 @@ class CronjobController extends Controller
                 'type' => 'important',
             ],
             [
-                'name' => 'Startup Website Check',
-                'description' => 'Pings startup websites (every 3 days per startup); marks dormant after 6 consecutive failures; reactivates when reachable; deletes after 30 days dormant',
+                'name' => 'App Website Check',
+                'description' => 'Pings app websites (every 3 days per app); marks dormant after 6 consecutive failures; reactivates when reachable; deletes after 30 days dormant',
                 'schedule' => 'Daily',
                 'log_file' => 'startup-website-check.log',
                 'command' => 'startups:check-websites',
