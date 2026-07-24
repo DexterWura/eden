@@ -20,11 +20,13 @@ use App\Http\Controllers\Admin\StartupReportController as AdminStartupReportCont
 use App\Http\Controllers\Eden\AuthController;
 use App\Http\Controllers\Eden\ClaimController;
 use App\Http\Controllers\Eden\DashboardController;
+use App\Http\Controllers\Eden\DiscoveryController;
 use App\Http\Controllers\Eden\HomeController;
 use App\Http\Controllers\Eden\PageController;
 use App\Http\Controllers\Eden\BlogController;
 use App\Http\Controllers\Eden\AdController;
 use App\Http\Controllers\Eden\StartupController;
+use App\Http\Controllers\Eden\TechnicalSeoController;
 use App\Http\Controllers\Eden\SearchAlertController;
 use App\Http\Controllers\Eden\StartupReportController as PublicStartupReportController;
 use App\Http\Controllers\Eden\StartupCommentController;
@@ -86,6 +88,9 @@ Route::get('/cron', function () {
 })->middleware('throttle:60,1')->name('cron');
 
 Route::get('/', [HomeController::class, 'index']);
+Route::get('/sitemap.xml', [TechnicalSeoController::class, 'sitemap'])->name('sitemap');
+Route::get('/robots.txt', [TechnicalSeoController::class, 'robots'])->name('robots');
+Route::get('/ads.txt', [TechnicalSeoController::class, 'ads'])->name('ads');
 Route::get('/leaderboard', [HomeController::class, 'leaderboard'])->name('leaderboard');
 Route::get('/raising', [HomeController::class, 'raising'])->name('raising');
 Route::get('/for-sale', [HomeController::class, 'forSale'])->name('for-sale');
@@ -99,6 +104,8 @@ Route::post('/contact', [PageController::class, 'contactStore'])->middleware('th
 Route::get('/submit', [PageController::class, 'submit']);
 Route::post('/submit', [PageController::class, 'submitStore'])->middleware('throttle:5,1');
 Route::get('/categories', [PageController::class, 'categories']);
+Route::get('/categories/{slug}', [DiscoveryController::class, 'category'])->name('categories.show');
+Route::get('/locations/{slug}', [DiscoveryController::class, 'location'])->name('locations.show');
 Route::post('/subscribe', [PageController::class, 'subscribe'])->middleware('throttle:10,1');
 Route::post('/search-alerts', [SearchAlertController::class, 'store'])->middleware('throttle:10,1')->name('search-alerts.store');
 Route::get('/search-alerts/unsubscribe/{token}', [SearchAlertController::class, 'unsubscribe'])->name('search-alerts.unsubscribe');

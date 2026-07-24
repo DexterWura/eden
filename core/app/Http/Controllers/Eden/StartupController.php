@@ -75,6 +75,7 @@ class StartupController extends EdenController
             'structuredData' => $structuredData,
             'ogImageAlt' => $startup->name,
             'includeDefaultSiteGraph' => false,
+            'metaRobots' => $startup->shouldBeIndexed() ? null : 'noindex,follow',
         ];
 
         $comments = $startup->comments()->with('user:id,name')->get();
@@ -172,22 +173,27 @@ class StartupController extends EdenController
             'url' => url('/'),
         ];
 
-        $product = [
-            '@context' => 'https://schema.org',
-            '@type' => 'SoftwareApplication',
-            'name' => $startup->name,
-            'description' => $this->startupMetaDescription($startup, 500),
-            'url' => $url,
-            'applicationCategory' => $startup->category ?: 'BusinessApplication',
-        ];
-        if ($imageUrl) {
-            $product['image'] = $imageUrl;
-        }
-        if ($startup->website) {
-            $product['offers'] = ['@type' => 'Offer', 'url' => $startup->website];
+        $schemas = [$organization];
+        $softwareCategories = ['SaaS', 'Developer Tools', 'Artificial Intelligence', 'Mobile Apps', 'Productivity'];
+        if (in_array($startup->category, $softwareCategories, true)) {
+            $application = [
+                '@context' => 'https://schema.org',
+                '@type' => 'SoftwareApplication',
+                'name' => $startup->name,
+                'description' => $this->startupMetaDescription($startup, 500),
+                'url' => $url,
+                'applicationCategory' => $startup->category,
+            ];
+            if ($imageUrl) {
+                $application['image'] = $imageUrl;
+            }
+            if ($startup->website) {
+                $application['offers'] = ['@type' => 'Offer', 'url' => $startup->website];
+            }
+            $schemas[] = $application;
         }
 
-        return [$organization, $product];
+        return $schemas;
     }
 
     private function buildStartupItemListSchema($startups, string $name): ?array

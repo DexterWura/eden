@@ -11,6 +11,7 @@ use App\Rules\SensibleDisplayName;
 use App\Rules\SensiblePersonName;
 use App\Rules\SensibleShortText;
 use App\Services\LaunchNotificationService;
+use App\Services\StartupApprovalNotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -43,6 +44,18 @@ class StartupController extends Controller
                     ->orWhere('category', 'like', '%' . $search . '%');
             });
         }
+        $qualityFilter = $request->get('quality', '');
+        if ($qualityFilter === 'needs-enrichment') {
+            $query->where(function ($builder) {
+                $builder->whereNull('description')
+                    ->orWhereRaw('LENGTH(description) < 250')
+                    ->orWhereNull('problem_solved')
+                    ->orWhereNull('target_customer')
+                    ->orWhereNull('key_features');
+            });
+        } elseif ($qualityFilter === 'reviewed') {
+            $query->whereNotNull('editorial_reviewed_at');
+        }
         $startups = $query->paginate(20)->withQueryString();
 
         foreach ($startups as $s) {
@@ -54,6 +67,7 @@ class StartupController extends Controller
         $content = view('eden.startups.index', [
             'startups' => $startups,
             'statusFilter' => $statusFilter,
+            'qualityFilter' => $qualityFilter,
             'search' => $search,
             'countPending' => Startup::pending()->count(),
             'countActive' => Startup::active()->count(),
@@ -61,6 +75,15 @@ class StartupController extends Controller
             'countBanned' => Startup::banned()->count(),
             'countDormant' => Startup::dormant()->count(),
             'countFeatured' => Startup::featured()->count(),
+            'countNeedsEnrichment' => Startup::query()
+                ->where(function ($builder) {
+                    $builder->whereNull('description')
+                        ->orWhereRaw('LENGTH(description) < 250')
+                        ->orWhereNull('problem_solved')
+                        ->orWhereNull('target_customer')
+                        ->orWhereNull('key_features');
+                })
+                ->count(),
         ])->render();
 
         return response()->view('eden.layout-dashboard', [
@@ -111,6 +134,7 @@ class StartupController extends Controller
         $data['founder_twitter_url'] = $first['twitter_url'] ?? null;
         $data['founder_linkedin_url'] = $first['linkedin_url'] ?? null;
         $data['twitter_url'] = $this->normalizeTwitterInput($data['twitter_url'] ?? null);
+        $data['content_quality_version'] = 1;
         $startup = Startup::create($data);
         $this->processStartupFiles($request, $startup);
         return redirect()->route('admin.startups.index')
@@ -152,12 +176,21 @@ class StartupController extends Controller
         if (($data['status'] ?? $startup->status) === Startup::STATUS_ACTIVE) {
             $data['dormant_at'] = null;
         }
+        $wasPending = $startup->isPending();
         $becameActive = $startup->status !== Startup::STATUS_ACTIVE && ($data['status'] ?? $startup->status) === Startup::STATUS_ACTIVE;
         $startup->update($data);
         if ($becameActive) {
-            app(LaunchNotificationService::class)->sendLaunchEmails($startup->fresh());
+            $approvedStartup = $startup->fresh();
+            if ($wasPending) {
+                app(StartupApprovalNotificationService::class)->send($approvedStartup);
+            }
+            app(LaunchNotificationService::class)->sendLaunchEmails($approvedStartup);
         }
         $this->processStartupFiles($request, $startup);
+        $startup->refresh();
+        if ((int) $startup->content_quality_version === 0 && $startup->hasSubstantiveContent()) {
+            $startup->update(['content_quality_version' => 1]);
+        }
         return redirect()->route('admin.startups.index')
             ->with('notify', [['success', 'Startup updated.']]);
     }
@@ -288,12 +321,19 @@ class StartupController extends Controller
     public function activate(Startup $startup)
     {
         $wasPending = $startup->isPending();
+        $qualityGateApplies = (int) $startup->content_quality_version >= 1;
+        if ($wasPending && $qualityGateApplies && ! $startup->hasSubstantiveContent()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Enrich or editorially review this profile before publishing it.',
+            ], 422);
+        }
         $startup->update([
             'status' => Startup::STATUS_ACTIVE,
             'dormant_at' => null,
         ]);
         if ($wasPending) {
-            $this->notifyFounderApproved($startup);
+            app(StartupApprovalNotificationService::class)->send($startup->fresh());
         }
         app(LaunchNotificationService::class)->sendLaunchEmails($startup);
         return response()->json(['status' => 'success', 'message' => $wasPending ? 'Startup approved and is now live.' : 'Startup activated.']);
@@ -366,38 +406,6 @@ class StartupController extends Controller
             'added' => $added,
             'upvotes' => (int) $startup->upvotes,
         ]);
-    }
-
-    private function notifyFounderApproved(Startup $startup): void
-    {
-        $userIds = [];
-        if ($startup->user_id) {
-            $userIds[] = $startup->user_id;
-        }
-        foreach ($startup->founders ?? [] as $f) {
-            $email = is_array($f) ? ($f['email'] ?? null) : ($f->email ?? null);
-            if ($email && trim($email) !== '') {
-                $user = User::where('email', strtolower(trim($email)))->first();
-                if ($user) {
-                    $userIds[] = $user->id;
-                }
-            }
-        }
-        foreach (array_unique($userIds) as $uid) {
-            DB::table('notifications')->insert([
-                'id' => Str::uuid()->toString(),
-                'type' => 'App\\Notifications\\StartupApproved',
-                'notifiable_type' => 'App\\Models\\User',
-                'notifiable_id' => $uid,
-                'data' => json_encode([
-                    'title' => 'Startup approved!',
-                    'message' => "Your startup \"{$startup->name}\" has been reviewed and is now live on the directory.",
-                ]),
-                'read_at' => null,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        }
     }
 
     public function toggleFeaturedOnHero(Startup $startup): RedirectResponse
@@ -513,14 +521,27 @@ class StartupController extends Controller
 
     private function validationRules(?int $excludeId = null): array
     {
+        $requiresEditorialContent = $excludeId === null
+            || (int) Startup::query()->whereKey($excludeId)->value('content_quality_version') >= 1;
+        $editorialPresenceRule = $requiresEditorialContent ? 'required' : 'nullable';
+
         return [
             'name' => ['required', 'string', 'max:120', new SensibleDisplayName(), function ($attr, $value, $fail) use ($excludeId) {
                 if ($value && Startup::listingNameExistsForAnother($value, $excludeId)) {
                     $fail(__('A listing with this name already exists.'));
                 }
             }],
-            'tagline' => ['nullable', 'string', 'max:255', new SensibleShortText(255)],
-            'description' => ['nullable', 'string'],
+            'tagline' => [$editorialPresenceRule, 'string', ...($requiresEditorialContent ? ['min:12'] : []), 'max:255', new SensibleShortText(255)],
+            'description' => [$editorialPresenceRule, 'string', ...($requiresEditorialContent ? ['min:250'] : []), 'max:10000'],
+            'problem_solved' => [$editorialPresenceRule, 'string', ...($requiresEditorialContent ? ['min:80'] : []), 'max:3000'],
+            'target_customer' => [$editorialPresenceRule, 'string', ...($requiresEditorialContent ? ['min:40'] : []), 'max:1500'],
+            'key_features' => [$editorialPresenceRule, 'array', 'min:3', 'max:8'],
+            'key_features.*' => [$editorialPresenceRule, 'string', ...($requiresEditorialContent ? ['min:5'] : []), 'max:180', new SensibleShortText(180)],
+            'pricing_model' => ['nullable', 'string', 'max:120', new SensibleShortText(120)],
+            'markets_served' => ['nullable', 'string', 'max:500', new SensibleShortText(500)],
+            'traction' => ['nullable', 'string', 'max:3000'],
+            'founder_story' => ['nullable', 'string', 'max:5000'],
+            'editorial_reviewed_at' => ['nullable', 'date'],
             'category' => ['nullable', 'string', 'exists:categories,name'],
             'website' => ['nullable', 'string', 'max:500', 'url', function ($attr, $value, $fail) use ($excludeId) {
                 if ($value && Startup::websiteExistsForAnother($value, $excludeId)) {

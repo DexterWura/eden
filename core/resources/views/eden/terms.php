@@ -10,7 +10,7 @@ $siteUrl = url('/');
 </section>
 
 <div class="wrap content-block">
-  <p><strong>Last updated:</strong> <?= date('F j, Y') ?></p>
+  <p><strong>Last updated:</strong> July 24, 2026</p>
 
   <h2>1. Acceptance</h2>
   <p>By using <?= e($siteUrl) ?> (“the site”), you agree to these terms. If you do not agree, please do not use the site.</p>

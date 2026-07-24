@@ -14,17 +14,22 @@ class BlogPost extends Model
         'slug',
         'excerpt',
         'body',
+        'source_urls',
         'meta_title',
         'meta_description',
         'meta_keywords',
         'og_image_path',
         'status',
         'published_at',
+        'editorial_reviewed_at',
         'author_id',
+        'author_type',
     ];
 
     protected $casts = [
         'published_at' => 'datetime',
+        'editorial_reviewed_at' => 'datetime',
+        'source_urls' => 'array',
     ];
 
     public function scopePublished($query)
@@ -44,6 +49,20 @@ class BlogPost extends Model
     public function author()
     {
         return $this->belongsTo(\App\Models\Admin::class, 'author_id');
+    }
+
+    public function getAuthorNameAttribute(): string
+    {
+        if ($this->author_type === 'user') {
+            return (string) (\App\Models\User::query()->whereKey($this->author_id)->value('name') ?: 'Eden contributor');
+        }
+        if ($this->author_type === 'admin') {
+            return (string) (\App\Models\Admin::query()->whereKey($this->author_id)->value('name') ?: 'Eden editorial');
+        }
+
+        $adminName = \App\Models\Admin::query()->whereKey($this->author_id)->value('name');
+
+        return (string) ($adminName ?: 'Eden editorial');
     }
 
     public function getPageTitleAttribute(): string
@@ -79,6 +98,10 @@ class BlogPost extends Model
             'publisher' => [
                 '@type' => 'Organization',
                 'name' => $siteName,
+            ],
+            'author' => [
+                '@type' => 'Person',
+                'name' => $this->author_name,
             ],
         ];
         $og = $this->og_image_url;

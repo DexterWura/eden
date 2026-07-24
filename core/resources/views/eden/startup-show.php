@@ -44,7 +44,7 @@ $buildPublicContactUrl = static function (array $params = []) {
         <?php if ($s->tagline): ?><p class="tagline"><?= e($s->tagline) ?></p><?php endif; ?>
         <div class="startup-meta">
           <?php if ($s->category): ?><span><?= e($s->category) ?></span><?php endif; ?>
-          <?php if ($s->location): ?><span><?= e($s->location) ?></span><?php endif; ?>
+          <?php if ($s->location): ?><span><a href="<?= e(url('/locations/' . \Illuminate\Support\Str::slug($s->location))) ?>"><?= e($s->location) ?></a></span><?php endif; ?>
           <?php if ($s->launch_date): ?><span><?= $s->launch_date->format('F Y') ?></span><?php endif; ?>
         </div>
         <div class="startup-hero-actions">
@@ -103,7 +103,8 @@ $buildPublicContactUrl = static function (array $params = []) {
   </div>
 </section>
 
-<div class="wrap">
+<div class="wrap startup-detail-layout">
+  <div class="startup-detail-main">
   <?php if ($s->for_sale && !$s->sold_at && $s->flipit_listing_id): ?>
   <p style="font-size: 0.875rem; color: var(--text-muted, #64748b); margin-bottom: 16px;">This startup is listed for sale on <a href="https://flipit.co.zw" target="_blank" rel="noopener noreferrer">FLIPit</a>.</p>
   <?php endif; ?>
@@ -119,9 +120,56 @@ $buildPublicContactUrl = static function (array $params = []) {
   <?php endif; ?>
 
   <?php if ($s->description): ?>
-  <section class="startup-section">
+  <section class="startup-section startup-prose">
     <h2>About</h2>
     <p><?= nl2br(e($s->description)) ?></p>
+  </section>
+  <?php endif; ?>
+
+  <?php if ($s->problem_solved || $s->target_customer): ?>
+  <section class="startup-section startup-story-grid" aria-labelledby="product-story-heading">
+    <h2 id="product-story-heading">Why it exists</h2>
+    <div class="startup-story-cards">
+      <?php if ($s->problem_solved): ?>
+      <article>
+        <span class="startup-story-icon"><i class="fa-regular fa-lightbulb" aria-hidden="true"></i></span>
+        <h3>The problem</h3>
+        <p><?= nl2br(e($s->problem_solved)) ?></p>
+      </article>
+      <?php endif; ?>
+      <?php if ($s->target_customer): ?>
+      <article>
+        <span class="startup-story-icon"><i class="fa-solid fa-users" aria-hidden="true"></i></span>
+        <h3>Who it is for</h3>
+        <p><?= nl2br(e($s->target_customer)) ?></p>
+      </article>
+      <?php endif; ?>
+    </div>
+  </section>
+  <?php endif; ?>
+
+  <?php if (count(array_filter($s->key_features ?? [])) > 0): ?>
+  <section class="startup-section" aria-labelledby="features-heading">
+    <h2 id="features-heading">Key features</h2>
+    <ul class="startup-feature-list">
+      <?php foreach (array_filter($s->key_features ?? []) as $feature): ?>
+      <li><i class="fa-solid fa-check" aria-hidden="true"></i><span><?= e($feature) ?></span></li>
+      <?php endforeach; ?>
+    </ul>
+  </section>
+  <?php endif; ?>
+
+  <?php if ($s->traction || $s->founder_story): ?>
+  <section class="startup-section startup-prose" aria-labelledby="progress-heading">
+    <h2 id="progress-heading">Progress and story</h2>
+    <?php if ($s->traction): ?>
+    <h3>Traction</h3>
+    <p><?= nl2br(e($s->traction)) ?></p>
+    <?php endif; ?>
+    <?php if ($s->founder_story): ?>
+    <h3>Founder story</h3>
+    <p><?= nl2br(e($s->founder_story)) ?></p>
+    <?php endif; ?>
   </section>
   <?php endif; ?>
 
@@ -286,7 +334,33 @@ $buildPublicContactUrl = static function (array $params = []) {
     </p>
     <?php endif; ?>
   </section>
+  </div>
 
+  <aside class="startup-detail-sidebar" aria-label="<?= e($s->name) ?> facts">
+    <section class="startup-facts-card">
+      <span class="sidebar-eyebrow">At a glance</span>
+      <dl>
+        <?php if ($s->category): ?><div><dt>Category</dt><dd><a href="<?= e(url('/categories/' . \Illuminate\Support\Str::slug($s->category))) ?>"><?= e($s->category) ?></a></dd></div><?php endif; ?>
+        <?php if ($s->location): ?><div><dt>Location</dt><dd><?= e($s->location) ?></dd></div><?php endif; ?>
+        <?php if ($s->markets_served): ?><div><dt>Markets</dt><dd><?= e($s->markets_served) ?></dd></div><?php endif; ?>
+        <?php if ($s->pricing_model): ?><div><dt>Pricing</dt><dd><?= e($s->pricing_model) ?></dd></div><?php endif; ?>
+        <?php if ($s->launch_date): ?><div><dt>Launched</dt><dd><?= e($s->launch_date->format('F Y')) ?></dd></div><?php endif; ?>
+      </dl>
+      <?php if ($s->website): ?>
+      <a href="<?= e(url('/startup/' . $s->slug . '/out')) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-block">Visit <?= e($s->name) ?></a>
+      <?php endif; ?>
+    </section>
+    <section class="startup-facts-card">
+      <span class="sidebar-eyebrow">Profile quality</span>
+      <div class="profile-completeness" role="img" aria-label="Profile <?= (int)$s->content_completeness_score ?> percent complete">
+        <span style="width: <?= (int)$s->content_completeness_score ?>%"></span>
+      </div>
+      <p><?= $s->editorial_reviewed_at ? 'Reviewed by Eden on ' . e($s->editorial_reviewed_at->format('F j, Y')) . '.' : 'Founder-provided information. Report anything that looks inaccurate.' ?></p>
+    </section>
+  </aside>
+</div>
+
+<div class="wrap">
   <?php $reportReasons = $reportReasons ?? []; ?>
   <?php if (!empty($reportReasons)): ?>
   <details class="startup-report-box" style="margin-top: 28px; padding: 16px 18px 22px; border: 1px solid var(--border, #e2e8f0); border-radius: 10px; background: var(--surface, rgba(15,23,42,0.35));">

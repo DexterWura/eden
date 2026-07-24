@@ -15,7 +15,12 @@
       $label = $count === 1 ? '1 startup' : $count . ' startups';
       $name = $cat->name ?? $cat->category ?? '';
     ?>
-    <a href="<?= e(url('/?category=' . urlencode($name))) ?>" class="category-card"><strong><?= e($name) ?></strong><span><?= e($label) ?></span></a>
+    <a href="<?= e(url('/categories/' . ($cat->slug ?? \Illuminate\Support\Str::slug($name)))) ?>" class="category-card">
+      <span class="category-card-icon"><i class="<?= e($cat->icon ?: 'fa-solid fa-layer-group') ?>" aria-hidden="true"></i></span>
+      <strong><?= e($name) ?></strong>
+      <span><?= e($label) ?></span>
+      <?php if (!empty($cat->introduction)): ?><small><?= e(\Illuminate\Support\Str::limit($cat->introduction, 100)) ?></small><?php endif; ?>
+    </a>
     <?php endforeach; ?>
     <?php if ($categories->isEmpty()): ?>
     <p class="text-muted">No categories yet. <a href="<?= e(url('/submit')) ?>">Submit your startup</a> to create the first.</p>

@@ -112,7 +112,8 @@
   </div>
 </section>
 
-<div class="wrap">
+<div class="wrap discovery-layout">
+  <div class="discovery-main">
   <?php $sortNewest = $sortNewest ?? false; ?>
   <?php $launchingToday = $launchingToday ?? collect(); ?>
   <?php if (!$sortNewest && $launchingToday->isNotEmpty()): ?>
@@ -128,7 +129,7 @@
       <?php foreach ($launchingToday as $startup):
         $rank = null;
         $showRank = false;
-        $cardVariant = 'row';
+        $cardVariant = 'feed';
         include __DIR__ . '/_startup-card.php';
       endforeach; ?>
     </div>
@@ -153,7 +154,7 @@
       <?php foreach ($featuredProducts as $startup):
         $rank = null;
         $showRank = false;
-        $cardVariant = 'row';
+        $cardVariant = 'feed';
         include __DIR__ . '/_startup-card.php';
       endforeach; ?>
     </div>
@@ -280,7 +281,7 @@
       <?php foreach ($justListed as $startup):
         $rank = null;
         $showRank = false;
-        $cardVariant = 'row';
+        $cardVariant = 'feed';
         include __DIR__ . '/_startup-card.php';
       endforeach; ?>
     </div>
@@ -329,7 +330,7 @@
       foreach ($allStartups as $startup):
         $rank = null;
         $showRank = false;
-        $cardVariant = null;
+        $cardVariant = 'feed';
         include __DIR__ . '/_startup-card.php';
       endforeach;
       ?>
@@ -341,9 +342,73 @@
     <div class="pagination-container" style="margin-top: 24px;"><?= $allStartups->withQueryString()->links() ?></div>
     <?php endif; ?>
   </section>
+  </div>
+
+  <aside class="discovery-sidebar" aria-label="Discover more">
+    <?php if ($leaderboardPreview && count($leaderboardPreview->items()) > 0): ?>
+    <section class="sidebar-panel">
+      <div class="sidebar-panel-head">
+        <h2>Top startups</h2>
+        <a href="<?= e(url('/leaderboard')) ?>">See all</a>
+      </div>
+      <ol class="sidebar-ranking">
+        <?php foreach (array_slice($leaderboardPreview->items(), 0, 5) as $index => $startup): ?>
+        <li>
+          <span class="sidebar-rank"><?= $index + 1 ?></span>
+          <a href="<?= e(url('/startup/' . $startup->slug)) ?>">
+            <strong><?= e($startup->name) ?></strong>
+            <small><?= (int)$startup->upvotes ?> upvotes</small>
+          </a>
+        </li>
+        <?php endforeach; ?>
+      </ol>
+    </section>
+    <?php endif; ?>
+
+    <?php if (count($browseCategories) > 0): ?>
+    <section class="sidebar-panel">
+      <div class="sidebar-panel-head">
+        <h2>Explore categories</h2>
+        <a href="<?= e(url('/categories')) ?>">All</a>
+      </div>
+      <div class="sidebar-categories">
+        <?php foreach (array_slice(is_array($browseCategories) ? $browseCategories : $browseCategories->all(), 0, 8) as $cat): ?>
+        <a href="<?= e(url('/categories/' . \Illuminate\Support\Str::slug($cat->name))) ?>"><?= e($cat->name) ?></a>
+        <?php endforeach; ?>
+      </div>
+    </section>
+    <?php endif; ?>
+
+    <section class="sidebar-panel sidebar-newsletter">
+      <span class="sidebar-eyebrow">Weekly digest</span>
+      <h2>What Zimbabwe is building</h2>
+      <p>New launches and founder stories, once a week.</p>
+      <form action="<?= e(url('/subscribe')) ?>" method="POST">
+        <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
+        <label class="visually-hidden" for="sidebarEmail">Email address</label>
+        <input id="sidebarEmail" type="email" name="email" placeholder="you@example.com" required>
+        <button type="submit" class="btn btn-primary">Subscribe</button>
+      </form>
+    </section>
+
+    <?php if (($homeSidebarAd ?? null) !== null): ?>
+    <section class="sidebar-panel sidebar-sponsored" aria-label="Sponsored">
+      <span class="sponsored-label">Sponsored</span>
+      <?php
+        $ad = $homeSidebarAd;
+        $buyUrl = url('/advertise/home-sidebar');
+        $emptyTitle = 'Reach startup builders';
+        $emptyCopy = 'Sponsor this discovery page.';
+        $maxWidth = 320;
+        include __DIR__ . '/partials/ad-spot.php';
+      ?>
+    </section>
+    <?php endif; ?>
+  </aside>
+</div>
 
   <?php $homeBottomAd = $homeBottomAd ?? null; ?>
-  <div class="home-ad-spot home-ad-spot--bottom" style="margin: 24px 0 32px;">
+  <div class="wrap home-ad-spot home-ad-spot--bottom" style="margin-top: 24px; margin-bottom: 32px;">
     <?php
       $ad = $homeBottomAd;
       $buyUrl = url('/advertise/home-bottom');
@@ -354,14 +419,14 @@
     ?>
   </div>
 
-  <div class="cta-strip" id="submit">
+  <div class="wrap cta-strip" id="submit">
     <h3>Launching something?</h3>
     <p>Get your startup in front of investors and customers. Submit in under 2 minutes.</p>
     <a href="<?= e(url('/submit')) ?>" class="btn btn-primary">Submit your startup</a>
     <a href="<?= e(url('/about')) ?>" class="btn btn-ghost">View guidelines</a>
   </div>
 
-  <div class="newsletter">
+  <div class="wrap newsletter">
     <form action="<?= e(url('/subscribe')) ?>" method="POST" class="newsletter-form">
       <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
       <input type="email" name="email" placeholder="Your email" aria-label="Email" required>
@@ -369,4 +434,3 @@
     </form>
     <p class="newsletter-note">Stay updated on new startups. No spam.</p>
   </div>
-</div>

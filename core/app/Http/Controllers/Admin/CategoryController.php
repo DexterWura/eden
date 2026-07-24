@@ -30,6 +30,9 @@ class CategoryController extends Controller
         $request->validate([
             'name' => 'required|string|max:64',
             'icon' => 'nullable|string|max:64',
+            'introduction' => 'nullable|string|max:10000',
+            'market_context' => 'nullable|string|max:10000',
+            'faq_lines' => 'nullable|string|max:10000',
             'sort_order' => 'nullable|integer|min:0',
         ]);
         $name = trim($request->input('name'));
@@ -41,6 +44,9 @@ class CategoryController extends Controller
             'name' => $name,
             'slug' => $slug,
             'icon' => trim($request->input('icon')) ?: null,
+            'introduction' => trim((string) $request->input('introduction')) ?: null,
+            'market_context' => trim((string) $request->input('market_context')) ?: null,
+            'frequently_asked_questions' => $this->parseFaqLines($request->input('faq_lines')),
             'sort_order' => (int) ($request->input('sort_order') ?? Category::max('sort_order') + 1),
         ]);
         return redirect()->route('admin.categories.index')->with('notify', [['success', 'Category created.']]);
@@ -57,6 +63,9 @@ class CategoryController extends Controller
         $request->validate([
             'name' => 'required|string|max:64',
             'icon' => 'nullable|string|max:64',
+            'introduction' => 'nullable|string|max:10000',
+            'market_context' => 'nullable|string|max:10000',
+            'faq_lines' => 'nullable|string|max:10000',
             'sort_order' => 'nullable|integer|min:0',
         ]);
         $name = trim($request->input('name'));
@@ -69,6 +78,9 @@ class CategoryController extends Controller
             'name' => $name,
             'slug' => $slug,
             'icon' => trim($request->input('icon')) ?: null,
+            'introduction' => trim((string) $request->input('introduction')) ?: null,
+            'market_context' => trim((string) $request->input('market_context')) ?: null,
+            'frequently_asked_questions' => $this->parseFaqLines($request->input('faq_lines')),
             'sort_order' => (int) ($request->input('sort_order') ?? $category->sort_order),
         ]);
         if ($oldName !== $name) {
@@ -85,6 +97,19 @@ class CategoryController extends Controller
         }
         $category->delete();
         return redirect()->route('admin.categories.index')->with('notify', [['success', 'Category deleted.']]);
+    }
+
+    private function parseFaqLines(?string $input): array
+    {
+        $items = [];
+        foreach (preg_split('/\r\n|\r|\n/', trim((string) $input)) as $line) {
+            [$question, $answer] = array_pad(array_map('trim', explode('|', $line, 2)), 2, '');
+            if ($question !== '' && $answer !== '') {
+                $items[] = ['question' => $question, 'answer' => $answer];
+            }
+        }
+
+        return $items;
     }
 
     private function dashboardVars(string $title, string $activeNav, string $content): array

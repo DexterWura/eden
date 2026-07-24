@@ -85,10 +85,23 @@ class PageController extends EdenController
                     $fail(__('A listing with this name already exists.'));
                 }
             }],
-            'tagline' => ['nullable', 'string', 'max:255', new SensibleShortText(255)],
-            'description' => 'nullable|string|max:10000',
-            'category' => 'nullable|string|exists:categories,name',
+            'tagline' => ['required', 'string', 'min:12', 'max:255', new SensibleShortText(255)],
+            'description' => ['required', 'string', 'min:250', 'max:10000'],
+            'problem_solved' => ['required', 'string', 'min:80', 'max:3000'],
+            'target_customer' => ['required', 'string', 'min:40', 'max:1500'],
+            'key_features' => ['required', 'array', 'min:3', 'max:8'],
+            'key_features.*' => ['required', 'string', 'min:5', 'max:180', new SensibleShortText(180)],
+            'pricing_model' => ['nullable', 'string', 'max:120', new SensibleShortText(120)],
+            'markets_served' => ['nullable', 'string', 'max:500', new SensibleShortText(500)],
+            'traction' => ['nullable', 'string', 'max:3000'],
+            'founder_story' => ['nullable', 'string', 'max:5000'],
+            'category' => 'required|string|exists:categories,name',
             'website' => ['nullable', 'url', 'max:500', function ($attr, $value, $fail) {
+                $host = strtolower((string) parse_url((string) $value, PHP_URL_HOST));
+                if ($host === '' || str_ends_with($host, '.example') || $host === 'example.com') {
+                    $fail('Enter the real, public website for this startup.');
+                    return;
+                }
                 if ($value && Startup::websiteExistsForAnother($value)) {
                     $fail('A startup with this website link already exists.');
                 }
@@ -161,6 +174,13 @@ class PageController extends EdenController
         $startup->slug = $slug;
         $startup->tagline = $validated['tagline'] ?? null;
         $startup->description = $validated['description'] ?? null;
+        $startup->problem_solved = $validated['problem_solved'] ?? null;
+        $startup->target_customer = $validated['target_customer'] ?? null;
+        $startup->key_features = array_values($validated['key_features'] ?? []);
+        $startup->pricing_model = $validated['pricing_model'] ?? null;
+        $startup->markets_served = $validated['markets_served'] ?? null;
+        $startup->traction = $validated['traction'] ?? null;
+        $startup->founder_story = $validated['founder_story'] ?? null;
         $startup->category = $validated['category'] ?: null;
         $startup->website = $validated['website'] ?? null;
         $startup->location = $validated['location'] ?? null;
@@ -171,6 +191,7 @@ class PageController extends EdenController
         $startup->upvotes = 0;
         $startup->status = Startup::STATUS_PENDING;
         $startup->user_id = auth()->id();
+        $startup->content_quality_version = 1;
         $startup->save();
 
         $baseDir = public_path('images/startups/' . $startup->id);

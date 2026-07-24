@@ -2,6 +2,7 @@
   $isEdit = $startup->exists;
   $formAction = $isEdit ? route('admin.startups.update', $startup) : route('admin.startups.store');
   $formMethod = $isEdit ? 'PUT' : 'POST';
+  $requiresEditorialContent = !$isEdit || (int) $startup->content_quality_version >= 1;
 @endphp
 
 <h1 class="dash-page-title">{{ $isEdit ? 'Edit startup' : 'Add startup' }}</h1>
@@ -23,12 +24,12 @@
       </div>
       <div>
         <label for="tagline" class="dash-label">Tagline</label>
-        <input type="text" id="tagline" name="tagline" value="{{ old('tagline', $startup->tagline) }}" class="dash-input" placeholder="Short one-liner">
+        <input type="text" id="tagline" name="tagline" value="{{ old('tagline', $startup->tagline) }}" @if($requiresEditorialContent) required minlength="12" @endif class="dash-input" placeholder="Short one-liner">
         @error('tagline') <span class="dash-error">{{ $message }}</span> @enderror
       </div>
       <div>
         <label for="description" class="dash-label">Description</label>
-        <textarea id="description" name="description" rows="4" class="dash-input" placeholder="What does the startup do?">{{ old('description', $startup->description) }}</textarea>
+        <textarea id="description" name="description" rows="6" @if($requiresEditorialContent) required minlength="250" @endif class="dash-input" placeholder="What does the startup do?">{{ old('description', $startup->description) }}</textarea>
         @error('description') <span class="dash-error">{{ $message }}</span> @enderror
       </div>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
@@ -71,6 +72,57 @@
         <button type="button" id="add-more-product-images" class="dash-btn dash-btn-secondary" style="margin-top: 10px; font-size: 0.875rem;"><i class="fa-solid fa-plus"></i> Add more images</button>
         <p id="product-images-summary" class="dash-hint" style="margin-top: 8px; display: none;"></p>
         @error('product_images') <span class="dash-error">{{ $message }}</span> @enderror
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-card" style="margin-bottom: 20px;">
+    <div class="dash-card-header">
+      <span class="dash-card-title">Editorial profile</span>
+      <span style="font-size:.8rem;color:var(--d-text-secondary)">Completeness: {{ $startup->exists ? $startup->content_completeness_score : 0 }}%</span>
+    </div>
+    <div class="dash-card-body" style="display:flex;flex-direction:column;gap:16px;">
+      <div>
+        <label for="problem_solved" class="dash-label">Problem solved</label>
+        <textarea id="problem_solved" name="problem_solved" rows="4" maxlength="3000" @if($requiresEditorialContent) required minlength="80" @endif class="dash-input">{{ old('problem_solved', $startup->problem_solved) }}</textarea>
+        @error('problem_solved') <span class="dash-error">{{ $message }}</span> @enderror
+      </div>
+      <div>
+        <label for="target_customer" class="dash-label">Target customer</label>
+        <textarea id="target_customer" name="target_customer" rows="3" maxlength="1500" @if($requiresEditorialContent) required minlength="40" @endif class="dash-input">{{ old('target_customer', $startup->target_customer) }}</textarea>
+        @error('target_customer') <span class="dash-error">{{ $message }}</span> @enderror
+      </div>
+      <div>
+        <label class="dash-label">Key features</label>
+        @php $profileFeatures = old('key_features', $startup->key_features ?: ['', '', '']); @endphp
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;">
+          @for($featureIndex = 0; $featureIndex < max(3, count($profileFeatures)); $featureIndex++)
+          <input type="text" name="key_features[]" maxlength="180" @if($requiresEditorialContent) required minlength="5" @endif class="dash-input" placeholder="Feature {{ $featureIndex + 1 }}" value="{{ $profileFeatures[$featureIndex] ?? '' }}">
+          @endfor
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <label for="pricing_model" class="dash-label">Pricing or business model</label>
+          <input id="pricing_model" name="pricing_model" maxlength="120" class="dash-input" value="{{ old('pricing_model', $startup->pricing_model) }}">
+        </div>
+        <div>
+          <label for="markets_served" class="dash-label">Markets served</label>
+          <input id="markets_served" name="markets_served" maxlength="500" class="dash-input" value="{{ old('markets_served', $startup->markets_served) }}">
+        </div>
+      </div>
+      <div>
+        <label for="traction" class="dash-label">Traction or proof</label>
+        <textarea id="traction" name="traction" rows="3" maxlength="3000" class="dash-input">{{ old('traction', $startup->traction) }}</textarea>
+      </div>
+      <div>
+        <label for="founder_story" class="dash-label">Founder story</label>
+        <textarea id="founder_story" name="founder_story" rows="4" maxlength="5000" class="dash-input">{{ old('founder_story', $startup->founder_story) }}</textarea>
+      </div>
+      <div>
+        <label for="editorial_reviewed_at" class="dash-label">Editorially reviewed at</label>
+        <input type="datetime-local" id="editorial_reviewed_at" name="editorial_reviewed_at" class="dash-input" value="{{ old('editorial_reviewed_at', $startup->editorial_reviewed_at?->format('Y-m-d\\TH:i')) }}">
+        <p class="dash-hint">Set this only after checking the claims, links and originality of the profile.</p>
       </div>
     </div>
   </div>

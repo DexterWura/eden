@@ -73,6 +73,7 @@ class StartupController extends Controller
         $data['founder_linkedin_url'] = $first['linkedin_url'] ?? null;
         $data['twitter_url'] = $this->normalizeTwitterInput($data['twitter_url'] ?? null);
         $this->applyFlipitForSaleFromRequest($request, $data);
+        $data['content_quality_version'] = 1;
         $startup = Startup::create($data);
         $this->processStartupFiles($request, $startup);
         return redirect()->route('founder.startups.index')->with('notify', [['success', 'Startup submitted! It will go live once reviewed by our team.']]);
@@ -120,6 +121,10 @@ class StartupController extends Controller
         $startup->update($data);
         $this->processStartupFiles($request, $startup);
         $this->applyFundingRoundFromRequest($request, $startup);
+        $startup->refresh();
+        if ((int) $startup->content_quality_version === 0 && $startup->hasSubstantiveContent()) {
+            $startup->update(['content_quality_version' => 1]);
+        }
         return redirect()->route('founder.startups.index')->with('notify', [['success', 'Startup updated.']]);
     }
 
@@ -292,6 +297,9 @@ class StartupController extends Controller
     private function rules(?int $excludeId = null): array
     {
         $gscService = app(GoogleSearchConsoleService::class);
+        $requiresEditorialContent = $excludeId === null
+            || (int) Startup::query()->whereKey($excludeId)->value('content_quality_version') >= 1;
+        $editorialPresenceRule = $requiresEditorialContent ? 'required' : 'nullable';
 
         return [
             'name' => ['required', 'string', 'max:120', new SensibleDisplayName(), function ($attr, $value, $fail) use ($excludeId) {
@@ -299,8 +307,16 @@ class StartupController extends Controller
                     $fail(__('A listing with this name already exists.'));
                 }
             }],
-            'tagline' => ['nullable', 'string', 'max:255', new SensibleShortText(255)],
-            'description' => ['nullable', 'string'],
+            'tagline' => [$editorialPresenceRule, 'string', ...($requiresEditorialContent ? ['min:12'] : []), 'max:255', new SensibleShortText(255)],
+            'description' => [$editorialPresenceRule, 'string', ...($requiresEditorialContent ? ['min:250'] : []), 'max:10000'],
+            'problem_solved' => [$editorialPresenceRule, 'string', ...($requiresEditorialContent ? ['min:80'] : []), 'max:3000'],
+            'target_customer' => [$editorialPresenceRule, 'string', ...($requiresEditorialContent ? ['min:40'] : []), 'max:1500'],
+            'key_features' => [$editorialPresenceRule, 'array', 'min:3', 'max:8'],
+            'key_features.*' => [$editorialPresenceRule, 'string', ...($requiresEditorialContent ? ['min:5'] : []), 'max:180', new SensibleShortText(180)],
+            'pricing_model' => ['nullable', 'string', 'max:120', new SensibleShortText(120)],
+            'markets_served' => ['nullable', 'string', 'max:500', new SensibleShortText(500)],
+            'traction' => ['nullable', 'string', 'max:3000'],
+            'founder_story' => ['nullable', 'string', 'max:5000'],
             'category' => ['nullable', 'string', 'exists:categories,name'],
             'website' => ['nullable', 'string', 'max:500', 'url', function ($attr, $value, $fail) use ($excludeId) {
                 if ($value && Startup::websiteExistsForAnother($value, $excludeId)) {

@@ -3,14 +3,28 @@
 namespace App\Services;
 
 use App\Models\BlogPost;
+use App\Models\Category;
 use App\Models\Startup;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class SitemapService
 {
     public function generate(string $path = null): string
     {
         $path = $path ?? public_path('sitemap.xml');
+        File::put($path, $this->render());
+
+        return $path;
+    }
+
+    public function render(): string
+    {
+        return $this->buildXml($this->collectUrls());
+    }
+
+    private function collectUrls(): array
+    {
         $baseUrl = rtrim(url('/'), '/');
         $urls = [];
 
@@ -40,11 +54,48 @@ class SitemapService
             ];
         }
 
-        $startups = Startup::active()->orderBy('updated_at')->get(['slug', 'updated_at']);
+        $startups = Startup::active()
+            ->orderBy('updated_at')
+            ->get()
+            ->filter(fn (Startup $startup) => $startup->shouldBeIndexed());
         foreach ($startups as $startup) {
             $urls[] = [
                 'loc' => $baseUrl . '/startup/' . $startup->slug,
                 'lastmod' => $startup->updated_at?->toAtomString() ?? $now,
+                'changefreq' => 'weekly',
+                'priority' => '0.7',
+            ];
+        }
+
+        $categories = Category::query()
+            ->withCount(['startups' => fn ($query) => $query->active()])
+            ->get()
+            ->filter(fn (Category $category) => $category->startups_count > 0 && $category->hasEditorialDepth());
+        foreach ($categories as $category) {
+            $urls[] = [
+                'loc' => $baseUrl . '/categories/' . $category->slug,
+                'lastmod' => $category->updated_at?->toAtomString() ?? $now,
+                'changefreq' => 'weekly',
+                'priority' => '0.8',
+            ];
+        }
+
+        $locationGroups = Startup::query()
+            ->active()
+            ->whereNotNull('location')
+            ->get()
+            ->groupBy('location');
+        foreach ($locationGroups as $location => $locationStartups) {
+            $substantiveCount = $locationStartups
+                ->filter(fn (Startup $startup) => $startup->hasSubstantiveContent())
+                ->count();
+            if ($locationStartups->count() < 5 || $substantiveCount < 3) {
+                continue;
+            }
+            $lastUpdated = $locationStartups->sortByDesc('updated_at')->first()?->updated_at;
+            $urls[] = [
+                'loc' => $baseUrl . '/locations/' . Str::slug($location),
+                'lastmod' => $lastUpdated?->toAtomString() ?? $now,
                 'changefreq' => 'weekly',
                 'priority' => '0.7',
             ];
@@ -61,10 +112,7 @@ class SitemapService
             ];
         }
 
-        $xml = $this->buildXml($urls);
-        File::put($path, $xml);
-
-        return $path;
+        return $urls;
     }
 
     private function buildXml(array $urls): string

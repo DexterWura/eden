@@ -33,6 +33,20 @@ If you deploy without `core/vendor` (e.g. it is in `.gitignore`):
 
 The install wizard step 1 requires `core/vendor/autoload.php` to be present before you can continue.
 
+### Production release checklist
+
+Run these commands from `core/` after deploying code and before switching traffic:
+
+```shell
+php artisan migrate --force
+php artisan optimize
+php artisan sitemap:generate
+```
+
+Verify that `/sitemap.xml` and `/robots.txt` return HTTP 200. Eden also serves both dynamically if a generated public file is missing. `/ads.txt` remains HTTP 404 until a real `ca-pub-*` AdSense account is configured, preventing placeholder publisher records.
+
+Before enabling AdSense, enrich and review thin startup profiles in **Backoffice → Startups → Needs enrichment**, publish original editorial/category content, verify the consent choices, and confirm that direct ads and Google ads do not occupy the same placement.
+
 ---
 
 ## Roadmap

@@ -23,7 +23,8 @@
         </div>
         <div class="form-group">
           <label class="form-label" for="description">Description</label>
-          <textarea id="description" name="description" class="form-textarea" placeholder="What does your startup do? Who is it for?" rows="4" required><?= e(old('description')) ?></textarea>
+          <textarea id="description" name="description" class="form-textarea" placeholder="Give visitors a useful overview of what the product does and how it works." rows="6" minlength="250" required><?= e(old('description')) ?></textarea>
+          <p class="form-hint">At least 250 characters. Original, specific profiles are more likely to be discovered.</p>
         </div>
         <div class="form-group">
           <label class="form-label" for="category">Category</label>
@@ -33,6 +34,46 @@
             <option value="<?= e($cat->name) ?>"<?= old('category') === $cat->name ? ' selected' : '' ?>><?= e($cat->name) ?></option>
             <?php endforeach; ?>
           </select>
+        </div>
+      </div>
+
+      <div class="submit-form-section">
+        <h2 class="submit-form-section-title">Product story</h2>
+        <p class="form-hint" style="margin-bottom: 16px;">Help customers and search visitors understand why your product matters.</p>
+        <div class="form-group">
+          <label class="form-label" for="problem_solved">What problem do you solve?</label>
+          <textarea id="problem_solved" name="problem_solved" class="form-textarea" rows="4" minlength="80" maxlength="3000" required><?= e(old('problem_solved')) ?></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="target_customer">Who is it for?</label>
+          <textarea id="target_customer" name="target_customer" class="form-textarea" rows="3" minlength="40" maxlength="1500" required><?= e(old('target_customer')) ?></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Key features</label>
+          <div class="form-row form-row--2">
+            <?php $submittedFeatures = old('key_features', ['', '', '']); ?>
+            <?php for ($featureIndex = 0; $featureIndex < 3; $featureIndex++): ?>
+            <input type="text" name="key_features[]" class="form-input" minlength="5" maxlength="180" placeholder="Feature <?= $featureIndex + 1 ?>" value="<?= e($submittedFeatures[$featureIndex] ?? '') ?>" required>
+            <?php endfor; ?>
+          </div>
+        </div>
+        <div class="form-row form-row--2">
+          <div class="form-group">
+            <label class="form-label" for="pricing_model">Pricing or business model</label>
+            <input type="text" id="pricing_model" name="pricing_model" class="form-input" maxlength="120" placeholder="Free, subscription, transaction fee…" value="<?= e(old('pricing_model')) ?>">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="markets_served">Markets served</label>
+            <input type="text" id="markets_served" name="markets_served" class="form-input" maxlength="500" placeholder="Zimbabwe, Southern Africa, global…" value="<?= e(old('markets_served')) ?>">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="traction">Traction or proof <span class="submit-form-optional">optional</span></label>
+          <textarea id="traction" name="traction" class="form-textarea" rows="3" maxlength="3000" placeholder="Customers, milestones, partnerships, revenue or usage."><?= e(old('traction')) ?></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="founder_story">Founder story <span class="submit-form-optional">optional</span></label>
+          <textarea id="founder_story" name="founder_story" class="form-textarea" rows="4" maxlength="5000" placeholder="Why did the team decide to build this?"><?= e(old('founder_story')) ?></textarea>
         </div>
       </div>
 

@@ -18,6 +18,15 @@ class Startup extends Model
         'slug',
         'tagline',
         'description',
+        'problem_solved',
+        'target_customer',
+        'key_features',
+        'pricing_model',
+        'markets_served',
+        'traction',
+        'founder_story',
+        'editorial_reviewed_at',
+        'content_quality_version',
         'category',
         'website',
         'website_last_checked_at',
@@ -71,6 +80,9 @@ class Startup extends Model
         'traffic_tracking_enabled' => 'boolean',
         'founders' => 'array',
         'product_images' => 'array',
+        'key_features' => 'array',
+        'editorial_reviewed_at' => 'datetime',
+        'content_quality_version' => 'integer',
         'mrr' => 'decimal:2',
         'revenue' => 'decimal:2',
     ];
@@ -185,6 +197,46 @@ class Startup extends Model
             return $desc;
         }
         return mb_substr($desc, 0, $maxLength - 3) . '...';
+    }
+
+    public function getContentCompletenessScoreAttribute(): int
+    {
+        $checks = [
+            mb_strlen(trim((string) $this->description)) >= 250,
+            mb_strlen(trim((string) $this->problem_solved)) >= 80,
+            mb_strlen(trim((string) $this->target_customer)) >= 40,
+            count(array_filter($this->key_features ?? [])) >= 3,
+            trim((string) $this->pricing_model) !== '',
+            trim((string) $this->markets_served) !== '',
+            mb_strlen(trim((string) $this->traction)) >= 40,
+            mb_strlen(trim((string) $this->founder_story)) >= 80,
+            trim((string) $this->category) !== '',
+            trim((string) $this->website) !== '',
+            trim((string) $this->logo_path) !== '' || count($this->product_images ?? []) > 0,
+        ];
+
+        $completed = count(array_filter($checks));
+
+        return (int) round(($completed / count($checks)) * 100);
+    }
+
+    public function hasSubstantiveContent(): bool
+    {
+        $hasEditorialReview = $this->editorial_reviewed_at !== null;
+        $hasStrongProfile = $this->content_completeness_score >= 65
+            && mb_strlen(trim((string) $this->description)) >= 250;
+
+        return $hasEditorialReview || $hasStrongProfile;
+    }
+
+    public function shouldBeIndexed(): bool
+    {
+        $migrationGracePeriodEnds = \Illuminate\Support\Carbon::create(2026, 8, 24)->endOfDay();
+        if (now()->lessThanOrEqualTo($migrationGracePeriodEnds)) {
+            return $this->isActive();
+        }
+
+        return $this->isActive() && $this->hasSubstantiveContent();
     }
 
     public function scopeFeatured($query)

@@ -10,12 +10,13 @@ $logoLetters = $s->logo_letters ?? strtoupper(mb_substr($s->name, 0, 2));
 $foundersDisplay = $s->founders_display ?? [];
 $searchText = implode(' ', array_filter([$s->name, $s->tagline, $s->category, $s->location, $s->founder_name, implode(' ', array_column($foundersDisplay, 'name'))], fn($v) => $v !== null && $v !== ''));
 $isRow = $cardVariant === 'row';
+$isFeed = $cardVariant === 'feed';
 ?>
-<div class="startup-card<?= $s->is_featured ? ' featured' : '' ?><?= $isRow ? ' startup-card--row' : '' ?>" data-search="<?= e(mb_strtolower($searchText)) ?>">
+<article class="startup-card<?= $s->is_featured ? ' featured' : '' ?><?= $isRow ? ' startup-card--row' : '' ?><?= $isFeed ? ' startup-card--feed' : '' ?>" data-search="<?= e(mb_strtolower($searchText)) ?>">
   <?php if ($showRank && $rank !== null): ?><span class="card-rank"><?= (int)$rank ?></span><?php endif; ?>
   <div class="card-top">
     <div class="card-logo">
-      <?php if ($logoPath): ?><img src="<?= e(asset($logoPath)) ?>" alt="" class="card-logo-img"><?php else: ?><?= e($logoLetters) ?><?php endif; ?>
+      <?php if ($logoPath): ?><img src="<?= e(asset($logoPath)) ?>" alt="" class="card-logo-img" width="52" height="52" loading="lazy" decoding="async"><?php else: ?><?= e($logoLetters) ?><?php endif; ?>
     </div>
     <div class="card-badges">
       <?php $productOfDayId = $productOfDayId ?? null; ?>
@@ -87,10 +88,16 @@ $isRow = $cardVariant === 'row';
       Founded by <strong><?= e(implode(', ', array_column($foundersDisplay, 'name'))) ?></strong>
     </p>
     <?php endif; ?>
-    <div class="card-links">
-      <?php if ($s->website): ?><a href="<?= e($s->website) ?>" target="_blank" rel="noopener"><i class="fa-solid fa-globe" aria-hidden="true"></i> Website</a><?php endif; ?>
-      <?php if (!empty($s->twitter_url)): ?><a href="<?= e($s->twitter_url) ?>" target="_blank" rel="noopener" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a><?php endif; ?>
-      <?php if (!empty($s->linkedin_url)): ?><a href="<?= e($s->linkedin_url) ?>" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a><?php endif; ?>
+    <?php if ($isFeed): ?>
+    <div class="card-engagement" aria-label="Listing activity">
+      <span><i class="fa-regular fa-comment" aria-hidden="true"></i> <?= (int)($s->comments_count ?? 0) ?></span>
+      <?php if (($s->views ?? 0) > 0): ?><span><i class="fa-regular fa-eye" aria-hidden="true"></i> <?= number_format((int)$s->views) ?></span><?php endif; ?>
     </div>
+    <?php endif; ?>
   </a>
-</div>
+  <div class="card-links">
+    <?php if ($s->website): ?><a href="<?= e($s->website) ?>" target="_blank" rel="noopener"><i class="fa-solid fa-globe" aria-hidden="true"></i> Website</a><?php endif; ?>
+    <?php if (!empty($s->twitter_url)): ?><a href="<?= e($s->twitter_url) ?>" target="_blank" rel="noopener" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a><?php endif; ?>
+    <?php if (!empty($s->linkedin_url)): ?><a href="<?= e($s->linkedin_url) ?>" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a><?php endif; ?>
+  </div>
+</article>

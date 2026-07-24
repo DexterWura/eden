@@ -47,11 +47,7 @@
         <?php $isProFounder = auth()->check() && auth()->user()->isPro(); ?>
         <a href="<?= e(url('/founder')) ?>" class="<?= ($activeNav ?? '') === 'home' ? 'active' : '' ?>" aria-label="Home" title="Home"><i class="fa-solid fa-house"></i><span class="dash-sidebar-label">Home</span></a>
         <a href="<?= e(url('/founder/startups')) ?>" class="<?= ($activeNav ?? '') === 'startups' ? 'active' : '' ?>" aria-label="My startup" title="My startups"><i class="fa-solid fa-building-user"></i><span class="dash-sidebar-label">Startups</span></a>
-        <?php if ($isProFounder): ?>
         <a href="<?= e(url('/founder/badges')) ?>" class="<?= ($activeNav ?? '') === 'badges' ? 'active' : '' ?>" aria-label="Badges" title="Embed badges"><i class="fa-solid fa-certificate"></i><span class="dash-sidebar-label">Badges</span></a>
-        <?php else: ?>
-        <button type="button" class="dash-sidebar-link dash-sidebar-link--pro-gated<?= ($activeNav ?? '') === 'badges' ? ' active' : '' ?>" data-pro-toast="badges" aria-label="Badges (Pro)" title="Badges — Pro feature"><i class="fa-solid fa-certificate"></i><span class="dash-sidebar-label">Badges</span><span class="dash-sidebar-pro-lock" aria-hidden="true"><i class="fa-solid fa-crown"></i></span></button>
-        <?php endif; ?>
         <?php if ($isProFounder): ?>
         <a href="<?= e(url('/founder/fundraising')) ?>" class="<?= ($activeNav ?? '') === 'fundraising' ? 'active' : '' ?>" aria-label="Fund raising" title="Fund raising"><i class="fa-solid fa-hand-holding-dollar"></i><span class="dash-sidebar-label">Fund raising</span></a>
         <?php else: ?>

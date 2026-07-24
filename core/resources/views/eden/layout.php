@@ -102,9 +102,31 @@
   <?php $cssPath = public_path('css/main.css'); $cssVersion = file_exists($cssPath) ? substr(md5_file($cssPath), 0, 12) : ''; ?>
   <link rel="stylesheet" href="<?= e(asset('css/main.css')) ?><?= $cssVersion ? '?v=' . $cssVersion : '' ?>">
   <?php
-  $adsenseScript = (function_exists('gs') && gs('adsense_enabled')) ? trim((string)(gs('adsense_script') ?? '')) : '';
-  echo $adsenseScript !== '' ? "\n  " . $adsenseScript . "\n" : '';
+  $adsenseEnabled = function_exists('gs') && (bool) gs('adsense_enabled');
+  $adsenseScript = $adsenseEnabled ? trim((string)(gs('adsense_script') ?? '')) : '';
+  $advertisingConsent = request()->cookie('eden_ad_consent') === 'granted';
   ?>
+  <?php if ($adsenseEnabled): ?>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('consent', 'default', {
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      analytics_storage: 'denied',
+      wait_for_update: 500
+    });
+    <?php if ($advertisingConsent): ?>
+    gtag('consent', 'update', {
+      ad_storage: 'granted',
+      ad_user_data: 'granted',
+      ad_personalization: 'granted'
+    });
+    <?php endif; ?>
+  </script>
+  <?php endif; ?>
+  <?php echo $adsenseScript !== '' && $advertisingConsent ? "\n  " . $adsenseScript . "\n" : ''; ?>
 </head>
 <body>
   <div class="bg-grid"></div>
@@ -112,8 +134,11 @@
 
   <div id="cookieConsent" class="cookie-consent" role="dialog" aria-label="Cookie notice" aria-live="polite" hidden>
     <div class="cookie-consent-inner wrap">
-      <p class="cookie-consent-text">We use cookies to run the site and for advertising. By continuing you accept our <a href="<?= e(url('/privacy')) ?>">Privacy Policy</a>.</p>
-      <button type="button" class="btn btn-primary cookie-consent-btn" id="cookieConsentAccept" aria-label="Accept cookies">OK</button>
+      <p class="cookie-consent-text">We use necessary cookies to run Eden. With your permission, advertising cookies may also be used. Read our <a href="<?= e(url('/privacy')) ?>">Privacy Policy</a>.</p>
+      <div class="cookie-consent-actions">
+        <button type="button" class="btn btn-ghost cookie-consent-btn" id="cookieConsentReject">Necessary only</button>
+        <button type="button" class="btn btn-primary cookie-consent-btn" id="cookieConsentAccept">Allow advertising</button>
+      </div>
     </div>
   </div>
 
@@ -126,18 +151,28 @@
   <header class="site-header">
     <div class="wrap header-inner">
       <a href="<?= e(url('/')) ?>" class="logo"><?= e(function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden') ?></a>
+      <form action="<?= e(url('/')) ?>" method="get" class="header-search" role="search">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <input type="search" name="q" value="<?= e(request()->query('q', '')) ?>" placeholder="Search startups" aria-label="Search startups">
+      </form>
       <nav class="nav-main">
         <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle light or dark mode" aria-pressed="false" title="Toggle theme">
           <span class="theme-icon-dark" aria-hidden="true"><i class="fa-solid fa-moon"></i></span>
           <span class="theme-icon-light" aria-hidden="true"><i class="fa-solid fa-sun"></i></span>
         </button>
-        <a href="<?= e(url('/launching-today')) ?>">Launching today</a>
+        <a href="<?= e(url('/launching-today')) ?>">Launches</a>
         <a href="<?= e(url('/leaderboard')) ?>">Leaderboard</a>
-        <a href="<?= e(url('/raising')) ?>">Raising</a>
-        <a href="<?= e(url('/for-sale')) ?>">For sale</a>
-        <a href="<?= e(url('/blog')) ?>">Blog</a>
-        <a href="<?= e(url('/submit')) ?>">Submit</a>
-        <a href="<?= e(url('/pricing')) ?>" style="color:var(--accent)"><i class="fa-solid fa-crown" aria-hidden="true"></i> Pro</a>
+        <a href="<?= e(url('/categories')) ?>">Categories</a>
+        <div class="nav-more">
+          <button type="button" class="nav-more-trigger" aria-expanded="false">More <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+          <div class="nav-more-menu">
+            <a href="<?= e(url('/raising')) ?>">Raising</a>
+            <a href="<?= e(url('/for-sale')) ?>">For sale</a>
+            <a href="<?= e(url('/blog')) ?>">Blog</a>
+            <a href="<?= e(url('/pricing')) ?>"><i class="fa-solid fa-crown" aria-hidden="true"></i> Pro</a>
+          </div>
+        </div>
+        <a href="<?= e(url('/submit')) ?>" class="btn btn-primary nav-submit"><i class="fa-solid fa-plus" aria-hidden="true"></i> Submit</a>
         <?php if (auth()->check()): ?>
         <a href="<?= e(url('/founder')) ?>" class="btn btn-ghost"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i> Dashboard</a>
         <form action="<?= e(route('logout')) ?>" method="POST" class="nav-logout-form">
@@ -427,19 +462,18 @@
     })();
     (function() {
       var banner = document.getElementById('cookieConsent');
-      var btn = document.getElementById('cookieConsentAccept');
-      var key = 'eden_cookie_consent';
-      try {
-        if (banner && !localStorage.getItem(key)) {
-          banner.removeAttribute('hidden');
-        }
-        if (btn && banner) {
-          btn.addEventListener('click', function() {
-            try { localStorage.setItem(key, '1'); } catch (e) {}
-            banner.setAttribute('hidden', '');
-          });
-        }
-      } catch (e) {}
+      var accept = document.getElementById('cookieConsentAccept');
+      var reject = document.getElementById('cookieConsentReject');
+      var current = document.cookie.match(/(?:^|;\s*)eden_ad_consent=([^;]+)/);
+      if (banner && !current) banner.removeAttribute('hidden');
+      function saveConsent(value) {
+        var secure = window.location.protocol === 'https:' ? '; Secure' : '';
+        document.cookie = 'eden_ad_consent=' + value + '; Max-Age=31536000; Path=/; SameSite=Lax' + secure;
+        if (banner) banner.setAttribute('hidden', '');
+        if (value === 'granted') window.location.reload();
+      }
+      if (accept) accept.addEventListener('click', function() { saveConsent('granted'); });
+      if (reject) reject.addEventListener('click', function() { saveConsent('denied'); });
     })();
     (function() {
       var navToggle = document.getElementById('navToggle');
@@ -479,6 +513,21 @@
             modal.classList.add('is-open');
             modal.setAttribute('aria-hidden', 'false');
           }
+        });
+      });
+      document.querySelectorAll('.nav-more-trigger').forEach(function(trigger) {
+        trigger.addEventListener('click', function(e) {
+          e.stopPropagation();
+          var open = this.getAttribute('aria-expanded') === 'true';
+          this.setAttribute('aria-expanded', open ? 'false' : 'true');
+          this.parentElement.classList.toggle('is-open', !open);
+        });
+      });
+      document.addEventListener('click', function() {
+        document.querySelectorAll('.nav-more.is-open').forEach(function(menu) {
+          menu.classList.remove('is-open');
+          var trigger = menu.querySelector('.nav-more-trigger');
+          if (trigger) trigger.setAttribute('aria-expanded', 'false');
         });
       });
       document.querySelectorAll('[data-close]').forEach(function(el) {

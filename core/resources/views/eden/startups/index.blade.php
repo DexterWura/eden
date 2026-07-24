@@ -28,6 +28,10 @@
     <div class="dash-kpi-label">Featured</div>
     <div class="dash-kpi-value">{{ $countFeatured }}</div>
   </div>
+  <div class="dash-kpi-card" style="{{ ($countNeedsEnrichment ?? 0) > 0 ? 'border-left:3px solid #8b5cf6' : '' }}">
+    <div class="dash-kpi-label">Needs enrichment</div>
+    <div class="dash-kpi-value">{{ $countNeedsEnrichment ?? 0 }}</div>
+  </div>
 </div>
 
 <div class="dash-card">
@@ -48,6 +52,11 @@
         <option value="banned" {{ $statusFilter === 'banned' ? 'selected' : '' }}>Banned</option>
         <option value="dormant" {{ $statusFilter === 'dormant' ? 'selected' : '' }}>Dormant</option>
       </select>
+      <select name="quality" class="dash-search" style="max-width: 180px;">
+        <option value="">All content quality</option>
+        <option value="needs-enrichment" {{ ($qualityFilter ?? '') === 'needs-enrichment' ? 'selected' : '' }}>Needs enrichment</option>
+        <option value="reviewed" {{ ($qualityFilter ?? '') === 'reviewed' ? 'selected' : '' }}>Editorially reviewed</option>
+      </select>
       <button type="submit" class="dash-btn dash-btn-secondary"><i class="fa-solid fa-magnifying-glass"></i> Filter</button>
     </form>
     <div class="dash-table-wrap">
@@ -58,6 +67,7 @@
             <th>Founder</th>
             <th>Category</th>
             <th>Status</th>
+            <th>Profile</th>
             <th>Featured</th>
             <th>Upvotes</th>
             <th>Actions</th>
@@ -90,6 +100,14 @@
                 <span class="dash-badge dash-badge-info">Dormant</span>
               @else
                 <span class="dash-badge dash-badge-danger">Banned</span>
+              @endif
+            </td>
+            <td>
+              <strong>{{ $startup->content_completeness_score }}%</strong>
+              @if($startup->editorial_reviewed_at)
+                <div style="font-size:.75rem;color:#059669">Reviewed</div>
+              @elseif(!$startup->hasSubstantiveContent())
+                <div style="font-size:.75rem;color:#8b5cf6">Enrich</div>
               @endif
             </td>
             <td>{{ $startup->is_featured ? 'Yes' : '—' }}</td>
@@ -135,7 +153,7 @@
           </tr>
           @empty
           <tr>
-            <td colspan="7" class="dash-placeholder">No startups found.</td>
+            <td colspan="8" class="dash-placeholder">No startups found.</td>
           </tr>
           @endforelse
         </tbody>

@@ -10,7 +10,7 @@ $siteUrl = url('/');
 </section>
 
 <div class="wrap content-block">
-  <p><strong>Last updated:</strong> <?= date('F j, Y') ?></p>
+  <p><strong>Last updated:</strong> July 24, 2026</p>
 
   <h2>1. Who we are</h2>
   <p><?= e($siteName) ?> (“we”, “our”, or “the site”) is a startup directory at <?= e($siteUrl) ?>. This privacy policy explains how we handle your information when you use our website.</p>
@@ -30,10 +30,10 @@ $siteUrl = url('/');
     <li>Understand how the site is used so we can improve it.</li>
     <li>Deliver and measure advertising (see section 4).</li>
   </ul>
-  <p>You can control or delete cookies through your browser settings. Disabling cookies may affect how the site works.</p>
+  <p>Advertising storage is denied by default. You can choose “Allow advertising” or “Necessary only” in Eden’s consent notice. Your choice is stored for one year in the <code>eden_ad_consent</code> cookie; clearing site cookies lets you choose again.</p>
 
   <h2>4. Third-party advertising (Google AdSense)</h2>
-  <p>We may use Google AdSense to show advertisements on <?= e($siteName) ?>. Google and its partners may use cookies and similar technologies to serve ads based on your visits to this site and elsewhere on the web.</p>
+  <p>When AdSense is enabled and you allow advertising, Google and its partners may use cookies and similar technologies to deliver and measure ads. Eden does not load the configured AdSense script before that choice.</p>
   <p><strong>How you can control ad personalisation:</strong></p>
   <ul>
     <li>Google Ad Settings: <a href="https://adssettings.google.com" target="_blank" rel="noopener noreferrer">adssettings.google.com</a> — manage how Google uses your data for ads.</li>

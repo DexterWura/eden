@@ -53,8 +53,12 @@ class BlogPostController extends Controller
         $data = $this->validatePost($request);
         $data['slug'] = $this->uniqueSlug(Str::slug($data['title']));
         $data['author_id'] = auth()->guard('admin')->id();
+        $data['author_type'] = 'admin';
         $data['status'] = $request->input('status', BlogPost::STATUS_DRAFT);
         $data['published_at'] = ($data['status'] === BlogPost::STATUS_PUBLISHED) ? now() : null;
+        $data['editorial_reviewed_at'] = ($data['status'] === BlogPost::STATUS_PUBLISHED) ? now() : null;
+        $data['body'] = $this->sanitizeArticleBody($data['body']);
+        $data['source_urls'] = $this->parseSourceUrls($request->input('source_urls'));
         $post = BlogPost::create($data);
         $this->handleOgImage($request, $post);
         return redirect()->route('admin.blog.index')->with('notify', [['success', 'Post created.']]);
@@ -74,6 +78,9 @@ class BlogPostController extends Controller
         $data['published_at'] = ($data['status'] === BlogPost::STATUS_PUBLISHED && !$post->published_at)
             ? now()
             : $post->published_at;
+        $data['editorial_reviewed_at'] = $data['status'] === BlogPost::STATUS_PUBLISHED ? now() : null;
+        $data['body'] = $this->sanitizeArticleBody($data['body']);
+        $data['source_urls'] = $this->parseSourceUrls($request->input('source_urls'));
         $post->update($data);
         $this->handleOgImage($request, $post);
         return redirect()->route('admin.blog.index')->with('notify', [['success', 'Post updated.']]);
@@ -94,7 +101,34 @@ class BlogPostController extends Controller
             'meta_title' => ['nullable', 'string', 'max:70', new SensibleShortText(70)],
             'meta_description' => ['nullable', 'string', 'max:160', new SensibleShortText(160)],
             'meta_keywords' => ['nullable', 'string', 'max:255', new SensibleShortText(255)],
+            'source_urls' => ['nullable', 'string', 'max:10000'],
         ]);
+    }
+
+    private function sanitizeArticleBody(string $body): string
+    {
+        $config = \HTMLPurifier_Config::createDefault();
+        $config->set(
+            'HTML.Allowed',
+            'p,br,h2,h3,h4,strong,b,em,i,ul,ol,li,blockquote,a[href|title|target|rel],figure,figcaption,img[src|alt|width|height],code,pre'
+        );
+        $config->set('Attr.AllowedFrameTargets', ['_blank']);
+        $purifier = new \HTMLPurifier($config);
+
+        return $purifier->purify($body);
+    }
+
+    private function parseSourceUrls(?string $input): array
+    {
+        $urls = [];
+        foreach (preg_split('/\r\n|\r|\n/', trim((string) $input)) as $line) {
+            $url = trim($line);
+            if ($url !== '' && filter_var($url, FILTER_VALIDATE_URL)) {
+                $urls[] = $url;
+            }
+        }
+
+        return array_values(array_unique($urls));
     }
 
     private function uniqueSlug(string $base, ?int $excludeId = null): string

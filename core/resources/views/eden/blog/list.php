@@ -21,14 +21,6 @@ $blogAd = $blogAd ?? null;
       <img src="<?= e($blogAdSrc) ?>" alt="Sponsored ad">
     </a>
   </div>
-  <?php else: ?>
-  <div class="blog-ad-spot blog-ad-spot--empty">
-    <div>
-      <p class="blog-ad-spot-title">Ad spot available</p>
-      <p class="blog-ad-spot-copy">Place your ad here for $2/month.</p>
-    </div>
-    <a href="<?= e(url('/advertise/blog')) ?>" class="btn btn-primary">Buy blog ad spot</a>
-  </div>
   <?php endif; ?>
 
   <?php if ($posts->isEmpty()): ?>
@@ -52,7 +44,7 @@ $blogAd = $blogAd ?? null;
         <p class="blog-list-item-excerpt"><?= e($post->excerpt) ?></p>
         <?php endif; ?>
         <p class="blog-list-item-meta">
-          <span>by <?= e(optional($post->author)->name ?? 'Admin') ?></span>
+          <span>by <?= e($post->author_name) ?></span>
           <?php if ($post->published_at): ?>
           <span>&middot;</span>
           <span><?= $post->published_at->format('F j, Y') ?></span>

@@ -36,7 +36,7 @@ class BlogController extends Controller
         $this->requirePro();
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:120', new SensibleDisplayName()],
-            'body' => 'required|string|max:100000',
+            'body' => 'required|string|min:500|max:100000',
             'excerpt' => ['nullable', 'string', 'max:500', new SensibleShortText(500)],
             'og_image' => 'nullable|image|mimes:jpeg,png,gif,webp|max:4096',
         ]);
@@ -49,15 +49,17 @@ class BlogController extends Controller
         $post = BlogPost::create([
             'title' => $validated['title'],
             'slug' => $slug,
-            'body' => $validated['body'],
+            'body' => $this->sanitizeArticleBody($validated['body']),
             'excerpt' => $validated['excerpt'] ?? Str::limit(strip_tags($validated['body']), 160),
             'author_id' => auth()->id(),
-            'status' => 'published',
-            'published_at' => now(),
+            'author_type' => 'user',
+            'status' => BlogPost::STATUS_DRAFT,
+            'published_at' => null,
+            'editorial_reviewed_at' => null,
         ]);
         $this->handleOgImage($request, $post);
 
-        return redirect()->route('founder.blog.index')->with('notify', [['success', 'Blog post published.']]);
+        return redirect()->route('founder.blog.index')->with('notify', [['success', 'Blog post submitted for editorial review.']]);
     }
 
     public function edit(BlogPost $post)
@@ -74,19 +76,22 @@ class BlogController extends Controller
         $this->authorizePost($post);
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:120', new SensibleDisplayName()],
-            'body' => 'required|string|max:100000',
+            'body' => 'required|string|min:500|max:100000',
             'excerpt' => ['nullable', 'string', 'max:500', new SensibleShortText(500)],
             'og_image' => 'nullable|image|mimes:jpeg,png,gif,webp|max:4096',
         ]);
 
         $post->update([
             'title' => $validated['title'],
-            'body' => $validated['body'],
+            'body' => $this->sanitizeArticleBody($validated['body']),
             'excerpt' => $validated['excerpt'] ?? Str::limit(strip_tags($validated['body']), 160),
+            'status' => BlogPost::STATUS_DRAFT,
+            'published_at' => null,
+            'editorial_reviewed_at' => null,
         ]);
         $this->handleOgImage($request, $post);
 
-        return redirect()->route('founder.blog.index')->with('notify', [['success', 'Blog post updated.']]);
+        return redirect()->route('founder.blog.index')->with('notify', [['success', 'Changes saved and returned to editorial review.']]);
     }
 
     public function destroy(BlogPost $post): RedirectResponse
@@ -124,6 +129,19 @@ class BlogController extends Controller
         $filename = 'og-' . $post->id . '-' . uniqid() . '.' . $file->getClientOriginalExtension();
         $file->move($dir, $filename);
         $post->update(['og_image_path' => 'images/blog/' . $filename]);
+    }
+
+    private function sanitizeArticleBody(string $body): string
+    {
+        $config = \HTMLPurifier_Config::createDefault();
+        $config->set(
+            'HTML.Allowed',
+            'p,br,h2,h3,h4,strong,b,em,i,ul,ol,li,blockquote,a[href|title|target|rel],figure,figcaption,img[src|alt|width|height],code,pre'
+        );
+        $config->set('Attr.AllowedFrameTargets', ['_blank']);
+        $purifier = new \HTMLPurifier($config);
+
+        return $purifier->purify($body);
     }
 
     private function layoutResponse(string $title, string $activeNav, string $content): \Illuminate\Http\Response

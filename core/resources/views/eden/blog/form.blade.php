@@ -33,6 +33,11 @@
           @error('body') <span class="dash-error">{{ $message }}</span> @enderror
           <p class="dash-hint" style="margin-top: 6px;">You can use simple HTML (e.g. &lt;p&gt;, &lt;h2&gt;, &lt;ul&gt;, &lt;a&gt;).</p>
         </div>
+        <div>
+          <label for="source_urls" class="dash-label">Sources and further reading</label>
+          <textarea id="source_urls" name="source_urls" class="dash-input" rows="4" maxlength="10000" placeholder="https://example.com/source">{{ old('source_urls', implode("\n", $post->source_urls ?? [])) }}</textarea>
+          <p class="dash-hint" style="margin-top:6px;">One full URL per line. Published below the article to support factual claims.</p>
+        </div>
 
         <hr style="border: 0; border-top: 1px solid var(--d-border); margin: 8px 0;">
         <h3 class="dash-card-title" style="margin-bottom: 4px;">SEO</h3>

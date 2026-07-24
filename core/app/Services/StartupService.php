@@ -101,7 +101,7 @@ class StartupService
 
     private function withFunding(): \Illuminate\Database\Eloquent\Builder
     {
-        return Startup::query()->with('activeFundingRound');
+        return Startup::query()->with('activeFundingRound')->withCount('comments');
     }
 
     public function getProductOfDay(?string $category = null, int $limit = 5): Collection
