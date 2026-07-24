@@ -4,7 +4,7 @@
   </div>
   <div class="wrap hero-inner">
     <span class="hero-kicker hero-reveal hero-reveal--1">Explore what builders are shipping</span>
-    <h1 class="hero-reveal hero-reveal--1">Don’t miss the next breakout app</h1>
+    <h1 class="hero-reveal hero-reveal--1">Don't Miss the Next Slack: These SaaS Products Are About to Blow Up.</h1>
     <p class="hero-reveal hero-reveal--2">Be the first to try rising tools before they go mainstream.</p>
     <div class="hero-actions hero-reveal hero-reveal--3">
       <form action="<?= e(url('/')) ?>" method="get" class="hero-search" role="search">
