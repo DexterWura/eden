@@ -20,7 +20,7 @@
     <div class="dash-table-wrap">
       <table class="dash-table">
         <thead>
-          <tr id="report-{{ $r->id }}">
+          <tr>
             <th>Date</th>
             <th>Startup</th>
             <th>Reason</th>
@@ -32,7 +32,7 @@
         </thead>
         <tbody>
           @forelse($reports as $r)
-          <tr>
+          <tr id="report-{{ $r->id }}">
             <td style="white-space: nowrap;">{{ $r->created_at->format('M j, Y H:i') }}</td>
             <td>
               @if($r->startup)
