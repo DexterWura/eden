@@ -404,7 +404,7 @@
         </nav>
         <nav class="site-footer__group" aria-label="Our other products">
           <h2>Also from us</h2>
-          <a href="https://zimadsense.com" target="_blank" rel="noopener noreferrer">ZimAdsense <span aria-hidden="true">&nearr;</span></a>
+          <a href="https://socialplod.com" target="_blank" rel="noopener noreferrer">Socialplod <span aria-hidden="true">&nearr;</span></a>
           <a href="https://flipit.co.zw" target="_blank" rel="noopener noreferrer">FLIPit <span aria-hidden="true">&nearr;</span></a>
           <p>Tools for African founders, publishers and digital entrepreneurs.</p>
         </nav>
