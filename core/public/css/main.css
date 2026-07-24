@@ -1605,6 +1605,22 @@ a.hero-trusted-by-avatar:hover {
 .flash-error { background: #fef2f2; color: #b91c1c; }
 .flash-info { background: #f0f9ff; color: #0369a1; }
 
+.impersonation-banner {
+  border-bottom: 1px solid #fcd34d;
+  background: #fffbeb;
+  color: #92400e;
+}
+.impersonation-banner-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  font-size: 0.9rem;
+}
+.impersonation-banner-inner strong { color: #78350f; }
+
 /* Footer */
 .site-footer {
   border-top: 1px solid var(--border);

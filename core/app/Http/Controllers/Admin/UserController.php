@@ -8,6 +8,7 @@ use App\Models\Startup;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -53,6 +54,34 @@ class UserController extends Controller
 
         $message = $user->is_pro ? 'Pro membership granted to ' . $user->name . '.' : 'Pro membership revoked from ' . $user->name . '.';
         return redirect()->route('admin.users.index')->with('notify', [['success', $message]]);
+    }
+
+    public function loginAs(Request $request, User $user): RedirectResponse
+    {
+        if ((int) ($user->status ?? Status::USER_ACTIVE) !== Status::USER_ACTIVE) {
+            return redirect()->route('admin.users.index')
+                ->with('notify', [['error', 'Cannot sign in as a disabled user.']]);
+        }
+
+        $admin = $request->user('admin');
+        if ($admin === null) {
+            return redirect()->route('admin.users.index')
+                ->with('notify', [['error', 'Admin session required to sign in as a user.']]);
+        }
+
+        Auth::guard('web')->login($user);
+        $request->session()->put('eden_impersonator_admin_id', $admin->id);
+
+        admin_audit_log(
+            'user.login_as',
+            'Signed in as user: ' . $user->email,
+            $user,
+            [],
+            ['user_id' => $user->id, 'admin_id' => $admin->id]
+        );
+
+        return redirect()->route('founder.dashboard')
+            ->with('notify', [['success', 'Viewing as ' . $user->name . '. Use “Return to admin” when finished.']]);
     }
 
     public function startups(User $user)

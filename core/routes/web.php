@@ -28,6 +28,7 @@ use App\Http\Controllers\Eden\DashboardController;
 use App\Http\Controllers\Eden\DashboardSearchController;
 use App\Http\Controllers\Eden\DiscoveryController;
 use App\Http\Controllers\Eden\HomeController;
+use App\Http\Controllers\Eden\ImpersonationController;
 use App\Http\Controllers\Eden\PageController;
 use App\Http\Controllers\Eden\BlogController;
 use App\Http\Controllers\Eden\AdController;
@@ -244,6 +245,7 @@ Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register')->middleware('guest');
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::post('/impersonation/leave', [ImpersonationController::class, 'leave'])->middleware('auth')->name('impersonation.leave');
 Route::get('/auth/social/{provider}', [SocialiteController::class, 'socialLogin'])->name('user.social.login')->where('provider', 'google|facebook|linkedin|twitter');
 Route::get('/auth/social/callback/{provider}', [SocialiteController::class, 'callback'])->name('user.social.login.callback')->where('provider', 'google|facebook|linkedin|twitter');
 Route::get('/auth/linkedin', [LinkedInAuthController::class, 'redirect'])->name('eden.linkedin.redirect')->middleware('guest');
@@ -272,6 +274,7 @@ Route::middleware(['admin', 'admin.2fa', 'admin.module', 'admin.audit'])->prefix
     Route::get('users', [UserController::class, 'index'])->name('users.index');
     Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
     Route::post('users/{user}/gift-pro', [UserController::class, 'giftPro'])->name('users.gift-pro');
+    Route::post('users/{user}/login-as', [UserController::class, 'loginAs'])->name('users.login-as');
     Route::get('users/{user}/startups', [UserController::class, 'startups'])->name('users.startups');
     Route::get('categories', [CategoryController::class, 'index'])->name('categories.index');
     Route::get('categories/create', [CategoryController::class, 'create'])->name('categories.create');

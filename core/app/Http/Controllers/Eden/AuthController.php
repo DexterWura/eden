@@ -75,7 +75,16 @@ class AuthController extends Controller
 
     public function logout(Request $request): RedirectResponse
     {
+        $wasImpersonating = $request->session()->has('eden_impersonator_admin_id');
+
         Auth::guard('web')->logout();
+        $request->session()->forget('eden_impersonator_admin_id');
+
+        if ($wasImpersonating && Auth::guard('admin')->check()) {
+            return redirect()->route('admin.users.index')
+                ->with('notify', [['success', 'Returned to admin. User session ended.']]);
+        }
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect('/');

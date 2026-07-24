@@ -189,6 +189,18 @@
         </div>
       </header>
       <main class="dash-main" id="dashboardMain" tabindex="-1">
+        <?php if (($sidebar ?? '') === 'founder' && auth()->check() && session()->has('eden_impersonator_admin_id')): ?>
+        <div class="dash-impersonation-banner" role="status">
+          <div class="dash-impersonation-banner-copy">
+            <i class="fa-solid fa-user-secret" aria-hidden="true"></i>
+            <span>Viewing as <strong><?= e(auth()->user()->name) ?></strong> (<?= e(auth()->user()->email) ?>). Admin session is still active.</span>
+          </div>
+          <form action="<?= e(route('impersonation.leave')) ?>" method="post" class="dash-inline-form">
+            <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
+            <button type="submit" class="dash-btn dash-btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;">Return to admin</button>
+          </form>
+        </div>
+        <?php endif; ?>
         <div class="dash-content">
           <?= $content ?? '' ?>
         </div>

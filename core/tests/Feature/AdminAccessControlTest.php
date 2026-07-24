@@ -98,6 +98,37 @@ class AdminAccessControlTest extends TestCase
             ->assertServiceUnavailable();
     }
 
+    public function test_admin_can_sign_in_as_user_and_return_to_admin(): void
+    {
+        $admin = $this->createAdmin(true);
+        $user = \App\Models\User::query()->create([
+            'name' => 'Founder View',
+            'email' => 'founder-view@example.test',
+            'password' => Hash::make('password'),
+            'status' => \App\Constants\Status::USER_ACTIVE,
+        ]);
+
+        $this->actingAs($admin, 'admin')
+            ->post(route('admin.users.login-as', $user))
+            ->assertRedirect(route('founder.dashboard'));
+
+        $this->assertAuthenticatedAs($user);
+        $this->assertAuthenticatedAs($admin, 'admin');
+        $this->assertTrue(session()->has('eden_impersonator_admin_id'));
+
+        $this->get(route('founder.dashboard'))
+            ->assertOk()
+            ->assertSee('Viewing as')
+            ->assertSee('Return to admin');
+
+        $this->post(route('impersonation.leave'))
+            ->assertRedirect(route('admin.users.index'));
+
+        $this->assertGuest();
+        $this->assertAuthenticatedAs($admin, 'admin');
+        $this->assertFalse(session()->has('eden_impersonator_admin_id'));
+    }
+
     private function createAdmin(bool $superAdmin, array $modules = []): Admin
     {
         return Admin::query()->create([

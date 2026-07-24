@@ -187,6 +187,18 @@
     </div>
   </header>
 
+  <?php if (auth()->check() && session()->has('eden_impersonator_admin_id')): ?>
+  <div class="impersonation-banner" role="status">
+    <div class="wrap impersonation-banner-inner">
+      <span>Viewing as <strong><?= e(auth()->user()->name) ?></strong>. Admin session is still active.</span>
+      <form action="<?= e(route('impersonation.leave')) ?>" method="post" style="display:inline;margin:0;">
+        <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
+        <button type="submit" class="btn btn-ghost" style="padding:6px 12px;font-size:0.85rem;">Return to admin</button>
+      </form>
+    </div>
+  </div>
+  <?php endif; ?>
+
   <main>
     <?php if (session('success')): ?>
     <div class="wrap" style="padding-top: 16px;">

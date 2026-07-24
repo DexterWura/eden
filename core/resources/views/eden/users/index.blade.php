@@ -64,6 +64,12 @@
                   @endif
                 </form>
                 <a href="{{ route('admin.users.startups', $user) }}" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; text-decoration: none;"><i class="fa-solid fa-rocket"></i> Startups</a>
+                @if($isActive)
+                <form action="{{ route('admin.users.login-as', $user) }}" method="post" style="display: inline;" data-confirm="Sign in as {{ $user->name }}? You will see their founder dashboard and startups." data-confirm-label="Sign in as user">
+                  @csrf
+                  <button type="submit" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;"><i class="fa-solid fa-right-to-bracket"></i> Sign in as user</button>
+                </form>
+                @endif
               </div>
             </td>
           </tr>
