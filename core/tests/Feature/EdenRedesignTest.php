@@ -442,7 +442,7 @@ class EdenRedesignTest extends TestCase
             ->assertDontSee('href="https://proofpay.test" target="_blank" rel="nofollow', false);
     }
 
-    public function test_house_websites_receive_dofollow_and_elevated_visibility_without_pro(): void
+    public function test_house_websites_receive_dofollow_without_pro_but_not_elevated_visibility(): void
     {
         $founder = User::query()->create([
             'name' => 'House Founder',
@@ -470,15 +470,15 @@ class EdenRedesignTest extends TestCase
         $popularFree->save();
 
         $this->assertTrue($house->fresh()->hasDofollowBacklink());
-        $this->assertTrue($house->fresh()->hasElevatedListingVisibility());
+        $this->assertFalse($house->fresh()->hasElevatedListingVisibility());
         $this->assertFalse($popularFree->fresh()->hasDofollowBacklink());
 
         $orderedIds = collect(app(StartupService::class)->getAllStartupsPaginated(perPage: 10)->items())
             ->pluck('id')
             ->values();
 
-        $this->assertSame($house->id, $orderedIds->first());
-        $this->assertTrue($orderedIds->search($popularFree->id) > 0);
+        $this->assertSame($popularFree->id, $orderedIds->first());
+        $this->assertTrue($orderedIds->search($house->id) > 0);
 
         $this->get(route('startup.show', $house->slug))
             ->assertOk()
@@ -488,8 +488,8 @@ class EdenRedesignTest extends TestCase
 
         $this->get('/')
             ->assertOk()
-            ->assertSee('startup-card--pro', false)
-            ->assertSee('badge badge-pro', false);
+            ->assertDontSee('startup-card--pro', false)
+            ->assertDontSee('badge badge-pro', false);
     }
 
     private function createRichStartup(): Startup

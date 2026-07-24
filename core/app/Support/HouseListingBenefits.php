@@ -3,8 +3,8 @@
 namespace App\Support;
 
 /**
- * First-party / sister products that always receive Pro-like listing benefits
- * (dofollow website links + elevated discovery visibility).
+ * First-party / sister products that keep a dofollow website backlink
+ * even when the founder account is not Pro.
  */
 final class HouseListingBenefits
 {
@@ -39,35 +39,6 @@ final class HouseListingBenefits
         }
 
         return false;
-    }
-
-    /**
-     * SQL expression (0/1) for discovery ranking: Pro owner or house website.
-     */
-    public static function elevatedVisibilitySql(string $websiteColumn = 'startups.website', string $userIdColumn = 'startups.user_id'): string
-    {
-        $websiteParts = [];
-        foreach (self::DOMAINS as $domain) {
-            $escaped = str_replace(['\\', '%', '_', "'"], ['\\\\', '\\%', '\\_', "''"], $domain);
-            foreach ([$escaped, 'www.' . $escaped] as $host) {
-                $websiteParts[] = "lower({$websiteColumn}) = '{$host}'";
-                $websiteParts[] = "lower({$websiteColumn}) = 'http://{$host}'";
-                $websiteParts[] = "lower({$websiteColumn}) = 'https://{$host}'";
-                $websiteParts[] = "lower({$websiteColumn}) like '{$host}/%'";
-                $websiteParts[] = "lower({$websiteColumn}) like '{$host}?%'";
-                $websiteParts[] = "lower({$websiteColumn}) like '{$host}#%'";
-                $websiteParts[] = "lower({$websiteColumn}) like 'http://{$host}/%'";
-                $websiteParts[] = "lower({$websiteColumn}) like 'http://{$host}?%'";
-                $websiteParts[] = "lower({$websiteColumn}) like 'http://{$host}#%'";
-                $websiteParts[] = "lower({$websiteColumn}) like 'https://{$host}/%'";
-                $websiteParts[] = "lower({$websiteColumn}) like 'https://{$host}?%'";
-                $websiteParts[] = "lower({$websiteColumn}) like 'https://{$host}#%'";
-            }
-        }
-
-        $websiteMatch = implode(' or ', $websiteParts);
-
-        return "(case when exists (select 1 from users where users.id = {$userIdColumn} and users.is_pro = 1) then 1 when ({$websiteMatch}) then 1 else 0 end)";
     }
 
     private static function hostFromWebsite(?string $website): ?string

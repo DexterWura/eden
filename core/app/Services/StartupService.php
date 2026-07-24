@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\ProductOfDayWinner;
 use App\Models\Startup;
-use App\Support\HouseListingBenefits;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -93,7 +92,7 @@ class StartupService
     public function getAllStartups(?string $category = null, ?string $location = null): Collection
     {
         $query = $this->baseActiveQuery()
-            ->orderByDesc(DB::raw(HouseListingBenefits::elevatedVisibilitySql()))
+            ->orderByDesc(DB::raw('(select is_pro from users where users.id = startups.user_id)'))
             ->orderByDesc('upvotes')
             ->orderByDesc('created_at')
             ->orderByDesc('id');
@@ -104,7 +103,7 @@ class StartupService
     public function getAllStartupsPaginated(?string $category = null, ?string $location = null, int $perPage = 50)
     {
         $query = $this->baseActiveQuery()
-            ->orderByDesc(DB::raw(HouseListingBenefits::elevatedVisibilitySql()))
+            ->orderByDesc(DB::raw('(select is_pro from users where users.id = startups.user_id)'))
             ->orderByDesc('upvotes')
             ->orderByDesc('created_at')
             ->orderByDesc('id');

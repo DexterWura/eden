@@ -380,10 +380,6 @@ class Startup extends Model
 
     public function hasElevatedListingVisibility(): bool
     {
-        if (HouseListingBenefits::matchesWebsite($this->website)) {
-            return true;
-        }
-
         return (bool) $this->user?->is_pro;
     }
 
