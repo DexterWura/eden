@@ -7,7 +7,7 @@
     <h1 class="hero-reveal hero-reveal--1">Don’t miss the next breakout app</h1>
     <p class="hero-reveal hero-reveal--2">Be the first to try rising tools before they go mainstream.</p>
     <div class="hero-actions hero-reveal hero-reveal--3">
-      <form action="<?= e(url('/')) ?>" method="get" class="search-wrap hero-search" role="search">
+      <form action="<?= e(url('/')) ?>" method="get" class="hero-search" role="search">
         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
         <input type="search" name="q" class="search-input" placeholder="Search for apps" aria-label="Search apps" id="homeSearch" value="<?= e($searchQuery ?? '') ?>">
         <?php if (isset($categoryFilter) && $categoryFilter !== null && $categoryFilter !== ''): ?><input type="hidden" name="category" value="<?= e($categoryFilter) ?>"><?php endif; ?>
@@ -26,7 +26,7 @@
     $featuredFounders = $featuredFounders ?? collect();
     if ($showTrustedByBlock && $featuredFounders->isNotEmpty()):
     ?>
-    <div class="hero-trusted-by hero-reveal hero-reveal--4" style="display:flex;flex-direction:row;align-items:center;justify-content:center;gap:12px;margin-top:24px" aria-label="Trusted by founders">
+    <div class="hero-trusted-by hero-reveal hero-reveal--4" style="display:flex;flex-direction:row;align-items:center;justify-content:center;gap:12px" aria-label="Trusted by founders">
       <div class="hero-trusted-by-avatars" style="display:flex;align-items:center">
         <?php foreach ($featuredFounders as $founder):
           $photoUrl = !empty(trim($founder->hero_photo_url ?? '')) ? $founder->hero_photo_url : null;
