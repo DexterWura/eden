@@ -249,6 +249,24 @@ class AppServiceProvider extends ServiceProvider
                 }
             });
 
+            $this->app->make('view')->composer('eden.layout', function ($view) {
+                try {
+                    $footerCategories = cache()->remember('eden:footer-categories', now()->addHour(), function () {
+                        return Category::query()
+                            ->withCount([
+                                'startups as active_startups_count' => fn ($query) => $query->active(),
+                            ])
+                            ->orderByDesc('active_startups_count')
+                            ->orderBy('sort_order')
+                            ->limit(16)
+                            ->get(['id', 'name', 'slug']);
+                    });
+                    $view->with('footerCategories', $footerCategories);
+                } catch (\Exception $e) {
+                    $view->with('footerCategories', collect());
+                }
+            });
+
             $this->app->make('view')->composer('partials.seo', function ($view) {
                 try {
                     $seo = Frontend::where('data_keys', 'seo.data')->first();
