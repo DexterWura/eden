@@ -9,15 +9,12 @@
     <div class="hero-actions hero-reveal hero-reveal--3">
       <form action="<?= e(url('/')) ?>" method="get" class="hero-search" role="search">
         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-        <input type="search" name="q" class="search-input" placeholder="Search for apps" aria-label="Search apps" id="homeSearch" value="<?= e($searchQuery ?? '') ?>">
+        <input type="search" name="q" class="search-input" placeholder="Search SaaS products" aria-label="Search SaaS products" id="homeSearch" value="<?= e($searchQuery ?? '') ?>">
         <?php if (isset($categoryFilter) && $categoryFilter !== null && $categoryFilter !== ''): ?><input type="hidden" name="category" value="<?= e($categoryFilter) ?>"><?php endif; ?>
-        <button type="submit" class="hero-search-submit" aria-label="Search apps"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+        <button type="submit" class="hero-search-submit" aria-label="Search SaaS products"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
       </form>
-      <a href="<?= e(url('/submit')) ?>" class="btn btn-primary btn-add"><i class="fa-solid fa-plus" aria-hidden="true"></i> Submit your app</a>
+      <a href="<?= e(url('/submit')) ?>" class="btn btn-add"><i class="fa-solid fa-plus" aria-hidden="true"></i> Submit your product</a>
     </div>
-    <svg class="hero-accent hero-accent--squiggle" viewBox="0 0 150 76" aria-hidden="true">
-      <path d="M5 55c17 12 20-38 37-29 11 6 2 37 15 39 15 3 24-39 40-35 12 3 9 30 24 30 11 0 18-12 24-22" />
-    </svg>
     <svg class="hero-accent hero-accent--spark" viewBox="0 0 92 78" aria-hidden="true">
       <path d="M18 42 8 24M42 34 39 8M60 43 77 25M65 59 88 60" />
     </svg>
@@ -26,8 +23,11 @@
     $featuredFounders = $featuredFounders ?? collect();
     if ($showTrustedByBlock && $featuredFounders->isNotEmpty()):
     ?>
-    <div class="hero-trusted-by hero-reveal hero-reveal--4" style="display:flex;flex-direction:row;align-items:center;justify-content:center;gap:12px" aria-label="Trusted by founders">
-      <div class="hero-trusted-by-avatars" style="display:flex;align-items:center">
+    <div class="hero-trusted-by hero-reveal hero-reveal--4" aria-label="Trusted by founders">
+      <svg class="hero-accent hero-accent--squiggle" viewBox="0 0 150 76" aria-hidden="true">
+        <path d="M5 55c17 12 20-38 37-29 11 6 2 37 15 39 15 3 24-39 40-35 12 3 9 30 24 30 11 0 18-12 24-22" />
+      </svg>
+      <div class="hero-trusted-by-avatars">
         <?php foreach ($featuredFounders as $founder):
           $photoUrl = !empty(trim($founder->hero_photo_url ?? '')) ? $founder->hero_photo_url : null;
           $linkedinUrl = !empty(trim($founder->hero_linkedin_url ?? '')) ? $founder->hero_linkedin_url : null;
@@ -60,7 +60,7 @@
         <?php endif; ?>
         <?php endforeach; ?>
       </div>
-      <p class="hero-trusted-by-text" style="margin:0;flex:none">100+ founders</p>
+      <p class="hero-trusted-by-text">100+ founders</p>
     </div>
     <?php endif; ?>
     <?php $browseCategories = $browseCategories ?? []; ?>
