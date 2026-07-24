@@ -11,9 +11,8 @@ $foundersDisplay = $s->founders_display ?? [];
 $searchText = implode(' ', array_filter([$s->name, $s->tagline, $s->category, $s->location, $s->founder_name, implode(' ', array_column($foundersDisplay, 'name'))], fn($v) => $v !== null && $v !== ''));
 $isRow = $cardVariant === 'row';
 $isFeed = $cardVariant === 'feed';
-$hasElevatedVisibility = $s->hasElevatedListingVisibility();
 ?>
-<article class="startup-card<?= $s->is_featured ? ' featured' : '' ?><?= $hasElevatedVisibility ? ' startup-card--pro' : '' ?><?= $isRow ? ' startup-card--row' : '' ?><?= $isFeed ? ' startup-card--feed' : '' ?>" data-search="<?= e(mb_strtolower($searchText)) ?>">
+<article class="startup-card<?= $s->is_featured ? ' featured' : '' ?><?= $isRow ? ' startup-card--row' : '' ?><?= $isFeed ? ' startup-card--feed' : '' ?>" data-search="<?= e(mb_strtolower($searchText)) ?>">
   <?php if ($showRank && $rank !== null): ?><span class="card-rank"><?= (int)$rank ?></span><?php endif; ?>
   <div class="card-top">
     <div class="card-logo">
@@ -28,7 +27,6 @@ $hasElevatedVisibility = $s->hasElevatedListingVisibility();
       <span class="badge badge-hot-week" title="Hot this week — most upvoted in the last 7 days"><i class="fa-solid fa-fire" aria-hidden="true"></i><span class="badge-hot-week-label"> Hot</span></span>
       <?php endif; ?>
       <?php if ($productOfDayId && (int)$s->id === (int)$productOfDayId): ?><span class="badge badge-product-of-day">Product of the day</span><?php endif; ?>
-      <?php if ($hasElevatedVisibility): ?><span class="badge badge-pro"><i class="fa-solid fa-crown" aria-hidden="true"></i> Pro</span><?php endif; ?>
       <?php if ($s->is_featured): ?><span class="badge badge-featured">Featured</span><?php endif; ?>
       <?php if ($s->launch_date && $s->launch_date->isToday()): ?><span class="badge launch">Launch</span><?php endif; ?>
       <?php if ($s->activeFundingRound): ?><span class="badge badge-funding"><i class="fa-solid fa-hand-holding-dollar"></i> Raising</span><?php endif; ?>

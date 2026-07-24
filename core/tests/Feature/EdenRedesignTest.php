@@ -107,8 +107,8 @@ class EdenRedesignTest extends TestCase
 
         $this->get('/')
             ->assertOk()
-            ->assertSee('startup-card--pro', false)
-            ->assertSee('badge badge-pro', false);
+            ->assertDontSee('startup-card--pro', false)
+            ->assertDontSee('badge badge-pro', false);
     }
 
     public function test_editorial_category_hub_is_indexable_and_lists_startups(): void

@@ -74,7 +74,7 @@ $gateways = $gateways ?? [];
         <li class="pricing-feature--highlight"><i class="fa-solid fa-chart-line"></i> Analytics dashboard (views, clicks)</li>
         <li class="pricing-feature--highlight"><i class="fa-solid fa-headset"></i> Priority support</li>
         <li class="pricing-feature--highlight"><i class="fa-solid fa-bolt"></i> Early access to new features</li>
-        <li class="pricing-feature--highlight"><i class="fa-solid fa-badge-check"></i> Pro badge on your listing</li>
+        <li class="pricing-feature--highlight"><i class="fa-solid fa-link"></i> Dofollow website backlink</li>
       </ul>
       <div class="pricing-card-footer">
         <?php if (auth()->check()): ?>
