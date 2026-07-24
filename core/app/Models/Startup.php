@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Support\StartupContentPolicy;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Startup extends Model
 {
@@ -202,14 +204,14 @@ class Startup extends Model
     public function getContentCompletenessScoreAttribute(): int
     {
         $checks = [
-            mb_strlen(trim((string) $this->description)) >= 250,
-            mb_strlen(trim((string) $this->problem_solved)) >= 80,
-            mb_strlen(trim((string) $this->target_customer)) >= 40,
-            count(array_filter($this->key_features ?? [])) >= 3,
+            mb_strlen(trim((string) $this->description)) >= StartupContentPolicy::DESCRIPTION_MIN,
+            mb_strlen(trim((string) $this->problem_solved)) >= StartupContentPolicy::PROBLEM_SOLVED_MIN,
+            mb_strlen(trim((string) $this->target_customer)) >= StartupContentPolicy::TARGET_CUSTOMER_MIN,
+            count(array_filter($this->key_features ?? [])) >= StartupContentPolicy::KEY_FEATURES_MIN,
             trim((string) $this->pricing_model) !== '',
             trim((string) $this->markets_served) !== '',
-            mb_strlen(trim((string) $this->traction)) >= 40,
-            mb_strlen(trim((string) $this->founder_story)) >= 80,
+            mb_strlen(trim((string) $this->traction)) >= StartupContentPolicy::TRACTION_MIN,
+            mb_strlen(trim((string) $this->founder_story)) >= StartupContentPolicy::FOUNDER_STORY_MIN,
             trim((string) $this->category) !== '',
             trim((string) $this->website) !== '',
             trim((string) $this->logo_path) !== '' || count($this->product_images ?? []) > 0,
@@ -223,16 +225,15 @@ class Startup extends Model
     public function hasSubstantiveContent(): bool
     {
         $hasEditorialReview = $this->editorial_reviewed_at !== null;
-        $hasStrongProfile = $this->content_completeness_score >= 65
-            && mb_strlen(trim((string) $this->description)) >= 250;
+        $hasStrongProfile = $this->content_completeness_score >= StartupContentPolicy::INDEXING_SCORE_MIN
+            && mb_strlen(trim((string) $this->description)) >= StartupContentPolicy::DESCRIPTION_MIN;
 
         return $hasEditorialReview || $hasStrongProfile;
     }
 
     public function shouldBeIndexed(): bool
     {
-        $migrationGracePeriodEnds = \Illuminate\Support\Carbon::create(2026, 8, 24)->endOfDay();
-        if (now()->lessThanOrEqualTo($migrationGracePeriodEnds)) {
+        if (StartupContentPolicy::indexingGracePeriodIsActive()) {
             return $this->isActive();
         }
 
@@ -262,6 +263,59 @@ class Startup extends Model
     public function scopeActive($query)
     {
         return $query->where('status', self::STATUS_ACTIVE);
+    }
+
+    public function scopeNeedsEnrichment($query)
+    {
+        return $query->where(function ($builder) {
+            $builder->whereNull('description')
+                ->orWhereRaw('LENGTH(description) < ?', [StartupContentPolicy::DESCRIPTION_MIN])
+                ->orWhereNull('problem_solved')
+                ->orWhereNull('target_customer')
+                ->orWhereNull('key_features');
+        });
+    }
+
+    public function requiresEditorialContent(): bool
+    {
+        return ! $this->exists || (int) $this->content_quality_version >= 1;
+    }
+
+    public static function uniqueSlug(string $name, ?int $excludeId = null, bool $useRandomSuffix = false): string
+    {
+        $base = Str::slug($name);
+        $slug = $base;
+        $query = self::query()
+            ->where('slug', $slug)
+            ->when($excludeId !== null, fn ($builder) => $builder->whereKeyNot($excludeId));
+        if (! $query->exists()) {
+            return $slug;
+        }
+        if ($useRandomSuffix) {
+            return $base . '-' . Str::random(4);
+        }
+
+        $suffix = 1;
+        while (self::query()
+            ->where('slug', $slug)
+            ->when($excludeId !== null, fn ($query) => $query->whereKeyNot($excludeId))
+            ->exists()) {
+            $slug = $base . '-' . $suffix;
+            $suffix++;
+        }
+
+        return $slug;
+    }
+
+    public function promoteContentQualityIfReady(): bool
+    {
+        if ((int) $this->content_quality_version !== 0 || ! $this->hasSubstantiveContent()) {
+            return false;
+        }
+
+        $this->update(['content_quality_version' => 1]);
+
+        return true;
     }
 
     public function scopeDisabled($query)

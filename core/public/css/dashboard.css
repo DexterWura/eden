@@ -618,6 +618,107 @@ body.dashboard {
 }
 .dash-form .dash-error { display: block; margin-top: 4px; font-size: 0.8rem; color: #dc2626; }
 
+/* Startup forms */
+.startup-form .dash-input {
+  padding: 10px 14px;
+}
+.dash-form .dash-input:focus {
+  outline: none;
+  border-color: var(--d-primary);
+}
+.startup-form-card {
+  margin-bottom: 20px;
+}
+.startup-form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.startup-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.startup-features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px;
+}
+.startup-form-completeness {
+  font-size: 0.8rem;
+  color: var(--d-text-secondary);
+}
+.startup-form-hint-top {
+  margin-top: 0;
+}
+.startup-current-logo {
+  margin-top: 8px;
+}
+.startup-current-logo img {
+  max-width: 80px;
+  height: auto;
+  border-radius: 8px;
+}
+.startup-form-add-button,
+.startup-form-extra-image {
+  margin-top: 10px;
+}
+.startup-form-add-button {
+  font-size: 0.875rem;
+}
+.startup-form-summary {
+  display: none;
+  margin-top: 8px;
+}
+.dash-required {
+  color: #dc2626;
+}
+.founder-card-block .founder-card {
+  background: var(--d-surface, #1a1d28);
+  border: 1px solid var(--d-border, #2a2e3d);
+  border-radius: var(--d-radius, 12px);
+  padding: 20px;
+}
+.founder-card-block .founder-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--d-border, #2a2e3d);
+}
+.founder-card-block .founder-card-num {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--d-text-secondary, #8b90a0);
+}
+.founder-card-block .founder-card-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.founder-card-block .founder-card-row {
+  display: grid;
+  grid-template-columns: 1fr 180px;
+  gap: 16px;
+  align-items: start;
+}
+.founder-card-block .founder-card-row-2 {
+  grid-template-columns: 1fr 1fr;
+}
+.founder-card-block .founder-field-photo {
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .startup-form-grid,
+  .dash-form [style*="grid-template-columns: 1fr 1fr"],
+  .founder-card-block .founder-card-row,
+  .founder-card-block .founder-card-row-2 {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 /* Analytics dashboard */
 .analytics-kpi-grid {
   display: grid;

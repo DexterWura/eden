@@ -11,19 +11,21 @@ use App\Models\User;
 use App\Rules\SensibleDisplayName;
 use App\Rules\SensiblePersonName;
 use App\Rules\SensibleShortText;
+use App\Services\StartupFormService;
 use App\Services\StartupService;
 use App\Support\Seo\EdenSeo;
+use App\Support\StartupContentPolicy;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 
 class PageController extends EdenController
 {
     public function __construct(
-        private StartupService $startupService
+        private StartupService $startupService,
+        private StartupFormService $startupFormService
     ) {}
 
     public function about()
@@ -86,10 +88,10 @@ class PageController extends EdenController
                 }
             }],
             'tagline' => ['required', 'string', 'min:12', 'max:255', new SensibleShortText(255)],
-            'description' => ['required', 'string', 'min:250', 'max:10000'],
-            'problem_solved' => ['required', 'string', 'min:80', 'max:3000'],
-            'target_customer' => ['required', 'string', 'min:40', 'max:1500'],
-            'key_features' => ['required', 'array', 'min:3', 'max:8'],
+            'description' => ['required', 'string', 'min:' . StartupContentPolicy::DESCRIPTION_MIN, 'max:10000'],
+            'problem_solved' => ['required', 'string', 'min:' . StartupContentPolicy::PROBLEM_SOLVED_MIN, 'max:3000'],
+            'target_customer' => ['required', 'string', 'min:' . StartupContentPolicy::TARGET_CUSTOMER_MIN, 'max:1500'],
+            'key_features' => ['required', 'array', 'min:' . StartupContentPolicy::KEY_FEATURES_MIN, 'max:8'],
             'key_features.*' => ['required', 'string', 'min:5', 'max:180', new SensibleShortText(180)],
             'pricing_model' => ['nullable', 'string', 'max:120', new SensibleShortText(120)],
             'markets_served' => ['nullable', 'string', 'max:500', new SensibleShortText(500)],
@@ -151,22 +153,10 @@ class PageController extends EdenController
             }
         }
 
-        $baseSlug = Str::slug($validated['name']);
-        $slug = $baseSlug;
-        $n = 0;
-        while (Startup::where('slug', $slug)->exists()) {
-            $n++;
-            $slug = $baseSlug . '-' . $n;
-        }
+        $slug = Startup::uniqueSlug($validated['name']);
 
         $founderNames = array_values(array_filter(array_map('trim', $validated['founder_names'] ?? [])));
-        $founders = array_map(fn (string $name) => [
-            'name' => $name,
-            'photo_url' => null,
-            'email' => null,
-            'twitter_url' => null,
-            'linkedin_url' => null,
-        ], $founderNames);
+        $founders = $this->startupFormService->buildPublicFounders($founderNames, auth()->id());
         $founderName = $founders[0]['name'] ?? null;
 
         $startup = new Startup();
@@ -193,32 +183,7 @@ class PageController extends EdenController
         $startup->user_id = auth()->id();
         $startup->content_quality_version = 1;
         $startup->save();
-
-        $baseDir = public_path('images/startups/' . $startup->id);
-        if ($request->hasFile('logo') && $request->file('logo')->isValid()) {
-            @mkdir($baseDir, 0755, true);
-            $ext = allowed_image_extension($request->file('logo'));
-            $request->file('logo')->move($baseDir, 'logo.' . $ext);
-            $startup->update(['logo_path' => 'images/startups/' . $startup->id . '/logo.' . $ext]);
-        }
-        $productFiles = $request->file('product_images', []);
-        if (!empty($productFiles)) {
-            @mkdir($baseDir, 0755, true);
-            $productDir = $baseDir . '/products';
-            @mkdir($productDir, 0755, true);
-            $paths = [];
-            foreach ($productFiles as $file) {
-                if ($file->isValid()) {
-                    $ext = allowed_image_extension($file);
-                    $filename = 'p-' . uniqid() . '.' . $ext;
-                    $file->move($productDir, $filename);
-                    $paths[] = 'images/startups/' . $startup->id . '/products/' . $filename;
-                }
-            }
-            if (!empty($paths)) {
-                $startup->update(['product_images' => $paths]);
-            }
-        }
+        $this->startupFormService->processUploadedFiles($request, $startup);
 
         return redirect()->to(url('/startup/' . $startup->slug))->with('success', __('Your startup has been submitted and is pending review by our team. It will go live once approved.'));
     }

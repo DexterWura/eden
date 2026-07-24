@@ -13,10 +13,10 @@ $buildPublicContactUrl = static function (array $params = []) {
 <section class="page-head">
   <div class="wrap">
     <?php if (($s->status ?? '') === 'pending'): ?>
-    <div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:14px 18px;margin-bottom:16px;font-size:0.92rem;color:#92400e;text-align:center">
-      <i class="fa-solid fa-clock" style="margin-right:6px"></i>
+    <div class="startup-launch-notice">
+      <i class="fa-solid fa-clock"></i>
       This startup is pending review and is not yet visible to the public.
-      <br>Share this link so people can get notified when you launch: <a href="<?= e(route('launch-notify.show', $s->slug)) ?>" style="color:#92400e;text-decoration:underline"><?= e(route('launch-notify.show', $s->slug)) ?></a>
+      <br>Share this link so people can get notified when you launch: <a href="<?= e(route('launch-notify.show', $s->slug)) ?>"><?= e(route('launch-notify.show', $s->slug)) ?></a>
     </div>
     <?php endif; ?>
     <a href="<?= e(url('/')) ?>" class="back-link">&larr; All startups</a>
@@ -51,17 +51,17 @@ $buildPublicContactUrl = static function (array $params = []) {
           <div class="upvote-ui startup-hero-actions-main">
             <?php $hasUpvoted = $hasUpvoted ?? false; ?>
             <?php if ($hasUpvoted): ?>
-            <span class="upvote-btn" style="opacity: 0.8; cursor: default;" aria-label="Upvoted"><i class="fa-solid fa-arrow-up"></i></span>
+            <span class="upvote-btn startup-upvote-complete" aria-label="Upvoted"><i class="fa-solid fa-arrow-up"></i></span>
             <span class="upvote-count"><?= (int)$s->upvotes ?></span>
-            <span style="font-size: 0.875rem; color: var(--text-muted, #64748b);">You upvoted</span>
+            <span class="startup-upvote-status">You upvoted</span>
             <?php else: ?>
-            <form action="<?= e(route('startup.upvote', $s->slug)) ?>" method="POST" style="display: inline;">
+            <form action="<?= e(route('startup.upvote', $s->slug)) ?>" method="POST" class="startup-inline-form">
               <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
               <button type="submit" class="upvote-btn" aria-label="Upvote"><i class="fa-solid fa-arrow-up"></i></button>
             </form>
             <span class="upvote-count"><?= (int)$s->upvotes ?></span>
             <?php if (!auth()->check()): ?>
-            <span style="font-size: 0.875rem; color: var(--text-muted, #64748b);">Log in to upvote</span>
+            <span class="startup-upvote-status">Log in to upvote</span>
             <?php endif; ?>
             <?php endif; ?>
             <?php if (!empty($s->website)): ?>
@@ -73,12 +73,12 @@ $buildPublicContactUrl = static function (array $params = []) {
             <?php if (auth()->check()): ?>
             <?php $hasSaved = $hasSaved ?? false; ?>
             <?php if ($hasSaved): ?>
-            <form action="<?= e(route('startup.unsave', $s->slug)) ?>" method="post" style="display: inline;">
+            <form action="<?= e(route('startup.unsave', $s->slug)) ?>" method="post" class="startup-inline-form">
               <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
               <button type="submit" class="btn btn-ghost"><i class="fa-solid fa-bookmark" aria-hidden="true"></i> Saved</button>
             </form>
             <?php else: ?>
-            <form action="<?= e(route('startup.save', $s->slug)) ?>" method="post" style="display: inline;">
+            <form action="<?= e(route('startup.save', $s->slug)) ?>" method="post" class="startup-inline-form">
               <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
               <button type="submit" class="btn btn-ghost"><i class="fa-regular fa-bookmark" aria-hidden="true"></i> Save</button>
             </form>
@@ -88,7 +88,7 @@ $buildPublicContactUrl = static function (array $params = []) {
             <?php if ($showClaimButton): ?>
             <a href="<?= e(route('startup.claim', $s->slug)) ?>" class="btn btn-primary"><i class="fa-solid fa-hand-holding-hand" aria-hidden="true"></i> Claim this startup</a>
             <?php endif; ?>
-            <div class="share-ui share-ui--inline" style="position: relative; display: inline-block;">
+            <div class="share-ui share-ui--inline">
             <button type="button" class="btn btn-ghost share-btn-trigger" id="shareTrigger" aria-label="Share" aria-expanded="false" aria-haspopup="true"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i> Share</button>
             <div class="share-dropdown" id="shareDropdown" role="menu" aria-label="Share options" hidden>
               <button type="button" class="share-dropdown-item" data-action="copy" data-url="<?= e(url('/startup/' . $s->slug)) ?>"><i class="fa-solid fa-link" aria-hidden="true"></i> Copy link</button>
@@ -106,7 +106,7 @@ $buildPublicContactUrl = static function (array $params = []) {
 <div class="wrap startup-detail-layout">
   <div class="startup-detail-main">
   <?php if ($s->for_sale && !$s->sold_at && $s->flipit_listing_id): ?>
-  <p style="font-size: 0.875rem; color: var(--text-muted, #64748b); margin-bottom: 16px;">This startup is listed for sale on <a href="https://flipit.co.zw" target="_blank" rel="noopener noreferrer">FLIPit</a>.</p>
+  <p class="startup-sale-note">This startup is listed for sale on <a href="https://flipit.co.zw" target="_blank" rel="noopener noreferrer">FLIPit</a>.</p>
   <?php endif; ?>
   <?php if (!empty($productImages)): ?>
   <section class="startup-section startup-product-images" aria-labelledby="product-heading">
@@ -290,7 +290,7 @@ $buildPublicContactUrl = static function (array $params = []) {
         $similarBlurb = 'More from ' . $s->location . '.';
     }
     ?>
-    <p class="section-sub" style="margin-bottom: 16px;"><?= e($similarBlurb) ?></p>
+    <p class="section-sub startup-similar-blurb"><?= e($similarBlurb) ?></p>
     <div class="section-cards-row startup-similar-cards">
       <?php foreach ($similarStartups as $startup):
         $rank = null;
@@ -363,24 +363,24 @@ $buildPublicContactUrl = static function (array $params = []) {
 <div class="wrap">
   <?php $reportReasons = $reportReasons ?? []; ?>
   <?php if (!empty($reportReasons)): ?>
-  <details class="startup-report-box" style="margin-top: 28px; padding: 16px 18px 22px; border: 1px solid var(--border, #e2e8f0); border-radius: 10px; background: var(--surface, rgba(15,23,42,0.35));">
-    <summary style="cursor: pointer; font-size: 0.9rem; font-weight: 600; color: var(--text-muted, #64748b); list-style: none;">
-      <i class="fa-solid fa-flag" style="margin-right: 6px;" aria-hidden="true"></i> Report this listing
+  <details class="startup-report-box">
+    <summary class="startup-report-summary">
+      <i class="fa-solid fa-flag startup-report-icon" aria-hidden="true"></i> Report this listing
     </summary>
-    <p style="margin: 12px 0 14px; font-size: 0.875rem; color: var(--text-muted, #64748b); line-height: 1.5;">
+    <p class="startup-report-intro">
       See something off? Tell us — we review every report. Your email is only used if we need to follow up.
     </p>
-    <form action="<?= e(route('startup.report', $s->slug)) ?>" method="post" style="max-width: 420px;">
+    <form action="<?= e(route('startup.report', $s->slug)) ?>" method="post" class="startup-report-form">
       <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
-      <div style="position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden;" aria-hidden="true">
+      <div class="startup-report-honeypot" aria-hidden="true">
         <label for="reportWebsiteHp">Website</label>
         <input type="text" name="website" id="reportWebsiteHp" tabindex="-1" autocomplete="off">
       </div>
-      <div class="form-group" style="margin-bottom: 12px;">
+      <div class="form-group startup-report-field">
         <label class="form-label" for="reportEmail">Your email</label>
         <input type="email" name="reporter_email" id="reportEmail" class="form-input" required value="<?= e(old('reporter_email', auth()->check() ? auth()->user()->email : '')) ?>" placeholder="you@example.com">
       </div>
-      <div class="form-group" style="margin-bottom: 12px;">
+      <div class="form-group startup-report-field">
         <label class="form-label" for="reportReason">What’s the issue?</label>
         <select name="reason" id="reportReason" class="form-input" required>
           <option value="">Choose a reason</option>
@@ -389,11 +389,11 @@ $buildPublicContactUrl = static function (array $params = []) {
           <?php endforeach; ?>
         </select>
       </div>
-      <div class="form-group" style="margin-bottom: 12px;">
+      <div class="form-group startup-report-field">
         <label class="form-label" for="reportDetails">Details (optional)</label>
         <textarea name="details" id="reportDetails" class="form-input" rows="3" placeholder="Optional context — required if you chose “Other”."><?= e(old('details')) ?></textarea>
       </div>
-      <button type="submit" class="btn btn-ghost" style="font-size: 0.875rem;">Submit report</button>
+      <button type="submit" class="btn btn-ghost startup-report-submit">Submit report</button>
     </form>
   </details>
   <?php endif; ?>
@@ -407,56 +407,6 @@ $buildPublicContactUrl = static function (array $params = []) {
   </div>
 </div>
 
-<style>
-.startup-hero {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 16px;
-  align-items: start;
-  text-align: left;
-}
-.startup-hero-main h1 { margin-bottom: 6px; }
-.startup-hero-main {
-  width: 100%;
-  min-width: 0;
-}
-.startup-hero-badges {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin: 0 0 8px;
-}
-.startup-hero .tagline { margin: 0 0 8px; }
-.startup-hero .startup-meta { margin-bottom: 8px; }
-.startup-hero-actions {
-  margin-top: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.startup-hero-actions-main,
-.startup-hero-actions-side {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.startup-hero-actions-side { margin-left: auto; }
-@media (max-width: 760px) {
-  .startup-hero { grid-template-columns: 1fr; gap: 12px; }
-  .startup-hero-logo { width: 72px; height: 72px; }
-  .startup-hero-main h1 { font-size: clamp(1.4rem, 5.5vw, 1.9rem); line-height: 1.2; }
-  .startup-hero-actions-side { margin-left: 0; }
-}
-.share-ui--inline .share-dropdown { position: absolute; top: 100%; left: 0; margin-top: 4px; min-width: 160px; background: var(--surface, #12141c); border: 1px solid var(--border, #2a2e3d); border-radius: var(--radius-sm, 8px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); z-index: 50; padding: 4px; }
-.share-ui--inline .share-dropdown[hidden] { display: none; }
-.share-dropdown-item { display: flex; align-items: center; gap: 8px; width: 100%; padding: 10px 12px; border: none; background: none; color: var(--text, #e8eaef); font: inherit; font-size: 0.9rem; text-align: left; cursor: pointer; border-radius: 6px; text-decoration: none; }
-.share-dropdown-item:hover { background: var(--surface-hover, #1a1d28); color: var(--accent, #00d4aa); }
-.share-dropdown-item i { width: 18px; opacity: 0.9; }
-</style>
 <script>
 (function() {
   var trigger = document.getElementById('shareTrigger');
@@ -488,18 +438,6 @@ $buildPublicContactUrl = static function (array $params = []) {
 })();
 </script>
 <?php if ($showTraffic ?? false): ?>
-<style>
-.startup-traffic-section { margin-top: 32px; }
-.startup-traffic-card { background: linear-gradient(135deg, var(--surface, #1a1d28) 0%, var(--surface-hover, #22262f) 100%); border: 1px solid var(--border, #2a2e3d); border-radius: 12px; padding: 24px; }
-.startup-traffic-total { display: flex; align-items: baseline; gap: 8px; margin-bottom: 20px; }
-.startup-traffic-number { font-size: 2.5rem; font-weight: 700; color: var(--accent, #00d4aa); line-height: 1; }
-.startup-traffic-label { font-size: 0.9rem; color: var(--text-muted, #64748b); }
-.startup-traffic-chart { display: flex; align-items: flex-end; gap: 6px; height: 80px; margin-bottom: 8px; }
-.startup-traffic-bar-wrap { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; animation: startup-traffic-bar-in 0.5s ease-out forwards; opacity: 0; transform-origin: bottom; }
-.startup-traffic-bar { height: var(--h, 0%); min-height: 2px; background: linear-gradient(to top, var(--accent, #00d4aa), rgba(0, 212, 170, 0.6)); border-radius: 4px 4px 0 0; }
-@keyframes startup-traffic-bar-in { from { opacity: 0; transform: scaleY(0); } to { opacity: 1; transform: scaleY(1); } }
-.startup-traffic-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted, #64748b); }
-</style>
 <script>
 (function(){
 var el=document.querySelector('.startup-traffic-number');

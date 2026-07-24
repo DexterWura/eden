@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Log;
 use Laramin\Utility\Onumoti;
 
 abstract class Controller
 {
+    use AuthorizesRequests;
+
     public function __construct()
     {
         $className = get_called_class();

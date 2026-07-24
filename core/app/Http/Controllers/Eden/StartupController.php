@@ -21,8 +21,8 @@ class StartupController extends EdenController
     public function launchingToday()
     {
         $startups = $this->startupService->getLaunchingToday();
-        $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->select('startups.id')->pluck('id')->toArray() : [];
-        $itemListSchema = $this->buildStartupItemListSchema($startups, 'Startups launching today');
+        $savedStartupIds = auth()->user()?->savedStartupIds() ?? [];
+        $itemListSchema = EdenSeo::startupItemList($startups, 'Startups launching today');
         $launchingAd = AdSpot::activeForPlacement('launching_today_banner_1')->first();
 
         return $this->page('launching-today', 'Launching today', 'scripts-launching-today', [
@@ -61,7 +61,7 @@ class StartupController extends EdenController
         ]);
 
         $similarStartups = $this->startupService->getSimilar($startup, 6);
-        $similarSchema = $this->buildStartupItemListSchema($similarStartups, 'Similar startups');
+        $similarSchema = EdenSeo::startupItemList($similarStartups, 'Similar startups');
         if ($similarSchema !== null) {
             $structuredData[] = $similarSchema;
         }
@@ -93,7 +93,7 @@ class StartupController extends EdenController
             }
         }
 
-        $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->select('startups.id')->pluck('id')->toArray() : [];
+        $savedStartupIds = auth()->user()?->savedStartupIds() ?? [];
 
         $isProductOfDay = $this->startupService->getProductOfDayId() === $startup->id;
         $productOfDayDate = $startup->product_of_day_at;
@@ -194,29 +194,6 @@ class StartupController extends EdenController
         }
 
         return $schemas;
-    }
-
-    private function buildStartupItemListSchema($startups, string $name): ?array
-    {
-        if ($startups->isEmpty()) {
-            return null;
-        }
-        $items = [];
-        foreach ($startups as $i => $s) {
-            $items[] = [
-                '@type' => 'ListItem',
-                'position' => $i + 1,
-                'url' => url('/startup/' . $s->slug),
-                'name' => $s->name,
-            ];
-        }
-        return [
-            '@context' => 'https://schema.org',
-            '@type' => 'ItemList',
-            'name' => $name,
-            'numberOfItems' => $startups->count(),
-            'itemListElement' => $items,
-        ];
     }
 
     private function breadcrumbSchema(array $items): array

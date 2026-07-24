@@ -160,4 +160,28 @@ final class EdenSeo
             'includeDefaultSiteGraph' => false,
         ];
     }
+
+    public static function startupItemList($startups, string $name): ?array
+    {
+        if ($startups->isEmpty()) {
+            return null;
+        }
+        $items = [];
+        foreach ($startups as $index => $startup) {
+            $items[] = [
+                '@type' => 'ListItem',
+                'position' => $index + 1,
+                'url' => url('/startup/' . $startup->slug),
+                'name' => $startup->name,
+            ];
+        }
+
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'ItemList',
+            'name' => $name,
+            'numberOfItems' => $startups->count(),
+            'itemListElement' => $items,
+        ];
+    }
 }

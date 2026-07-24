@@ -10,17 +10,24 @@ use App\Models\User;
 use App\Rules\SensibleDisplayName;
 use App\Rules\SensiblePersonName;
 use App\Rules\SensibleShortText;
-use App\Services\LaunchNotificationService;
-use App\Services\StartupApprovalNotificationService;
+use App\Services\StartupActivationService;
+use App\Services\StartupFormService;
+use App\Support\StartupContentPolicy;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
 class StartupController extends Controller
 {
+    public function __construct(
+        private StartupFormService $startupFormService,
+        private StartupActivationService $startupActivationService
+    ) {
+        parent::__construct();
+    }
+
     public function index(Request $request)
     {
         $query = Startup::query()->orderByDesc('updated_at');
@@ -46,13 +53,7 @@ class StartupController extends Controller
         }
         $qualityFilter = $request->get('quality', '');
         if ($qualityFilter === 'needs-enrichment') {
-            $query->where(function ($builder) {
-                $builder->whereNull('description')
-                    ->orWhereRaw('LENGTH(description) < 250')
-                    ->orWhereNull('problem_solved')
-                    ->orWhereNull('target_customer')
-                    ->orWhereNull('key_features');
-            });
+            $query->needsEnrichment();
         } elseif ($qualityFilter === 'reviewed') {
             $query->whereNotNull('editorial_reviewed_at');
         }
@@ -75,15 +76,7 @@ class StartupController extends Controller
             'countBanned' => Startup::banned()->count(),
             'countDormant' => Startup::dormant()->count(),
             'countFeatured' => Startup::featured()->count(),
-            'countNeedsEnrichment' => Startup::query()
-                ->where(function ($builder) {
-                    $builder->whereNull('description')
-                        ->orWhereRaw('LENGTH(description) < 250')
-                        ->orWhereNull('problem_solved')
-                        ->orWhereNull('target_customer')
-                        ->orWhereNull('key_features');
-                })
-                ->count(),
+            'countNeedsEnrichment' => Startup::query()->needsEnrichment()->count(),
         ])->render();
 
         return response()->view('eden.layout-dashboard', [
@@ -109,34 +102,21 @@ class StartupController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $validator = Validator::make($request->all(), $this->validationRules(null), $this->validationMessages());
+        $validator = Validator::make($request->all(), $this->validationRules(null));
         if ($validator->fails()) {
             return redirect()->route('admin.startups.create')
                 ->withErrors($validator)
                 ->withInput();
         }
-        $data = $validator->validated();
-        unset($data['logo'], $data['founders_names'], $data['founders_emails'], $data['founders_twitter_urls'], $data['founders_linkedin_urls'], $data['founders_photo_urls'], $data['founders_photos'], $data['product_images']);
-        $data['slug'] = Str::slug($data['name']);
-        if (Startup::where('slug', $data['slug'])->exists()) {
-            $data['slug'] = $data['slug'] . '-' . Str::random(4);
-        }
+        $data = $this->startupFormService->prepareValidatedData($validator->validated(), true);
+        $data['slug'] = Startup::uniqueSlug($data['name'], null, true);
         $data['status'] = $data['status'] ?? Startup::STATUS_ACTIVE;
         $data['is_featured'] = $request->boolean('is_featured');
-        $data['founders'] = Startup::attachFounderUserIds(
-            $this->buildFoundersFromRequest($request, null),
-            null,
-            null
-        );
-        $first = $this->firstFounderData($data['founders']);
-        $data['founder_name'] = $first['name'] ?? null;
-        $data['founder_email'] = $first['email'] ?? null;
-        $data['founder_twitter_url'] = $first['twitter_url'] ?? null;
-        $data['founder_linkedin_url'] = $first['linkedin_url'] ?? null;
-        $data['twitter_url'] = $this->normalizeTwitterInput($data['twitter_url'] ?? null);
+        $founders = $this->startupFormService->buildFounders($request, null, null, true);
+        $data = $this->startupFormService->applyFounderColumns($data, $founders);
         $data['content_quality_version'] = 1;
         $startup = Startup::create($data);
-        $this->processStartupFiles($request, $startup);
+        $this->startupFormService->processUploadedFiles($request, $startup);
         return redirect()->route('admin.startups.index')
             ->with('notify', [['success', 'Startup created.']]);
     }
@@ -148,168 +128,28 @@ class StartupController extends Controller
 
     public function update(Request $request, Startup $startup): RedirectResponse
     {
-        $validator = Validator::make($request->all(), $this->validationRules($startup->id), $this->validationMessages());
+        $validator = Validator::make($request->all(), $this->validationRules($startup->id));
         if ($validator->fails()) {
             return redirect()->route('admin.startups.edit', $startup)
                 ->withErrors($validator)
                 ->withInput();
         }
-        $data = $validator->validated();
-        unset($data['logo'], $data['founders_names'], $data['founders_emails'], $data['founders_twitter_urls'], $data['founders_linkedin_urls'], $data['founders_photo_urls'], $data['founders_photos'], $data['product_images']);
-        $data['slug'] = Str::slug($data['name']);
-        $existing = Startup::where('slug', $data['slug'])->where('id', '!=', $startup->id)->exists();
-        if ($existing) {
-            $data['slug'] = $data['slug'] . '-' . Str::random(4);
-        }
+        $data = $this->startupFormService->prepareValidatedData($validator->validated(), true);
+        $data['slug'] = Startup::uniqueSlug($data['name'], $startup->id, true);
         $data['is_featured'] = $request->boolean('is_featured');
-        $data['founders'] = Startup::attachFounderUserIds(
-            $this->buildFoundersFromRequest($request, $startup),
-            $startup,
-            null
-        );
-        $first = $this->firstFounderData($data['founders']);
-        $data['founder_name'] = $first['name'] ?? $startup->founder_name;
-        $data['founder_email'] = $first['email'] ?? $startup->founder_email;
-        $data['founder_twitter_url'] = $first['twitter_url'] ?? $startup->founder_twitter_url;
-        $data['founder_linkedin_url'] = $first['linkedin_url'] ?? $startup->founder_linkedin_url;
-        $data['twitter_url'] = $this->normalizeTwitterInput($data['twitter_url'] ?? null);
+        $founders = $this->startupFormService->buildFounders($request, $startup, null, true);
+        $data = $this->startupFormService->applyFounderColumns($data, $founders, $startup);
         if (($data['status'] ?? $startup->status) === Startup::STATUS_ACTIVE) {
             $data['dormant_at'] = null;
         }
-        $wasPending = $startup->isPending();
-        $becameActive = $startup->status !== Startup::STATUS_ACTIVE && ($data['status'] ?? $startup->status) === Startup::STATUS_ACTIVE;
+        $previousStatus = $startup->status;
         $startup->update($data);
-        if ($becameActive) {
-            $approvedStartup = $startup->fresh();
-            if ($wasPending) {
-                app(StartupApprovalNotificationService::class)->send($approvedStartup);
-            }
-            app(LaunchNotificationService::class)->sendLaunchEmails($approvedStartup);
-        }
-        $this->processStartupFiles($request, $startup);
+        $this->startupActivationService->sendTransitionNotifications($startup->fresh(), $previousStatus);
+        $this->startupFormService->processUploadedFiles($request, $startup);
         $startup->refresh();
-        if ((int) $startup->content_quality_version === 0 && $startup->hasSubstantiveContent()) {
-            $startup->update(['content_quality_version' => 1]);
-        }
+        $startup->promoteContentQualityIfReady();
         return redirect()->route('admin.startups.index')
             ->with('notify', [['success', 'Startup updated.']]);
-    }
-
-    private function buildFoundersFromRequest(Request $request, ?Startup $startup = null): array
-    {
-        $names = $request->input('founders_names', []);
-        $emails = $request->input('founders_emails', []);
-        $twitterUrls = $request->input('founders_twitter_urls', []);
-        $linkedinUrls = $request->input('founders_linkedin_urls', []);
-        $photos = $request->file('founders_photos', []);
-        $photoUrls = $request->input('founders_photo_urls', []);
-        $existing = $startup ? ($startup->founders ?? []) : [];
-        $founders = [];
-        foreach ($names as $i => $name) {
-            $name = trim((string) ($name ?? ''));
-            if ($name === '') {
-                continue;
-            }
-            $photoUrl = null;
-            if (isset($photos[$i]) && $photos[$i]->isValid()) {
-                $dir = public_path('images/startups/founders');
-                if (! is_dir($dir)) {
-                    @mkdir($dir, 0755, true);
-                }
-                $ext = allowed_image_extension($photos[$i]);
-                $filename = 'f-' . uniqid() . '-' . $i . '.' . $ext;
-                $photos[$i]->move($dir, $filename);
-                $photoUrl = 'images/startups/founders/' . $filename;
-            } elseif (! empty(trim($photoUrls[$i] ?? ''))) {
-                $candidate = trim($photoUrls[$i]);
-                if ($this->isSafePhotoUrl($candidate)) {
-                    $photoUrl = $candidate;
-                }
-            } elseif (isset($existing[$i]) && is_array($existing[$i]) && ! empty($existing[$i]['photo_url'])) {
-                $photoUrl = $existing[$i]['photo_url'];
-            }
-            $email = isset($emails[$i]) ? trim((string) $emails[$i]) : null;
-            $twitter = isset($twitterUrls[$i]) ? $this->normalizeTwitterInput(trim((string) $twitterUrls[$i])) : null;
-            $linkedin = isset($linkedinUrls[$i]) ? trim((string) $linkedinUrls[$i]) : null;
-            $founders[] = [
-                'name' => $name,
-                'photo_url' => $photoUrl,
-                'email' => $email !== '' ? $email : null,
-                'twitter_url' => $twitter,
-                'linkedin_url' => $linkedin !== '' ? $linkedin : null,
-            ];
-        }
-        return $founders;
-    }
-
-    private function normalizeTwitterInput(?string $value): ?string
-    {
-        if ($value === null || trim($value) === '') {
-            return null;
-        }
-        $value = trim($value);
-        if (str_starts_with(strtolower($value), 'http://') || str_starts_with(strtolower($value), 'https://')) {
-            return $value;
-        }
-        $handle = ltrim($value, '@');
-        return 'https://x.com/' . $handle;
-    }
-
-    private function firstFounderData(array $founders): array
-    {
-        foreach ($founders as $f) {
-            $name = is_array($f) ? ($f['name'] ?? '') : (is_object($f) ? ($f->name ?? '') : '');
-            if ($name !== '') {
-                return [
-                    'name' => $name,
-                    'email' => is_array($f) ? ($f['email'] ?? null) : (is_object($f) ? ($f->email ?? null) : null),
-                    'twitter_url' => is_array($f) ? ($f['twitter_url'] ?? null) : (is_object($f) ? ($f->twitter_url ?? null) : null),
-                    'linkedin_url' => is_array($f) ? ($f['linkedin_url'] ?? null) : (is_object($f) ? ($f->linkedin_url ?? null) : null),
-                ];
-            }
-        }
-        return [];
-    }
-
-    private function processStartupFiles(Request $request, Startup $startup): void
-    {
-        $baseDir = public_path('images/startups/' . $startup->id);
-        $updates = [];
-
-        if ($request->hasFile('logo') && $request->file('logo')->isValid()) {
-            if (!is_dir($baseDir)) {
-                @mkdir($baseDir, 0755, true);
-            }
-            $ext = allowed_image_extension($request->file('logo'));
-            $request->file('logo')->move($baseDir, 'logo.' . $ext);
-            $updates['logo_path'] = 'images/startups/' . $startup->id . '/logo.' . $ext;
-        }
-
-        $productFiles = $request->file('product_images', []);
-        if (!empty($productFiles)) {
-            if (!is_dir($baseDir)) {
-                @mkdir($baseDir, 0755, true);
-            }
-            $productDir = $baseDir . '/products';
-            if (!is_dir($productDir)) {
-                @mkdir($productDir, 0755, true);
-            }
-            $existing = $startup->product_images ?? [];
-            foreach ($productFiles as $file) {
-                if (!$file->isValid()) {
-                    continue;
-                }
-                $ext = allowed_image_extension($file);
-                $filename = 'p-' . uniqid() . '.' . $ext;
-                $file->move($productDir, $filename);
-                $existing[] = 'images/startups/' . $startup->id . '/products/' . $filename;
-            }
-            $updates['product_images'] = $existing;
-        }
-
-        if (!empty($updates)) {
-            $startup->update($updates);
-        }
     }
 
     public function disable(Startup $startup)
@@ -320,23 +160,15 @@ class StartupController extends Controller
 
     public function activate(Startup $startup)
     {
-        $wasPending = $startup->isPending();
-        $qualityGateApplies = (int) $startup->content_quality_version >= 1;
-        if ($wasPending && $qualityGateApplies && ! $startup->hasSubstantiveContent()) {
+        $result = $this->startupActivationService->activate($startup);
+        if (! $result['activated']) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Enrich or editorially review this profile before publishing it.',
+                'message' => $result['message'],
             ], 422);
         }
-        $startup->update([
-            'status' => Startup::STATUS_ACTIVE,
-            'dormant_at' => null,
-        ]);
-        if ($wasPending) {
-            app(StartupApprovalNotificationService::class)->send($startup->fresh());
-        }
-        app(LaunchNotificationService::class)->sendLaunchEmails($startup);
-        return response()->json(['status' => 'success', 'message' => $wasPending ? 'Startup approved and is now live.' : 'Startup activated.']);
+
+        return response()->json(['status' => 'success', 'message' => $result['message']]);
     }
 
     public function ban(Startup $startup)
@@ -464,7 +296,11 @@ class StartupController extends Controller
     private function formResponse(string $title, Startup $startup)
     {
         $categories = Category::orderBy('sort_order')->get();
-        $content = view('eden.startups.form', ['startup' => $startup, 'categories' => $categories])->render();
+        $content = view('eden.startups.form', [
+            'startup' => $startup,
+            'categories' => $categories,
+            'requiresEditorialContent' => $startup->requiresEditorialContent(),
+        ])->render();
         return response()->view('eden.layout-dashboard', [
             'title' => $title,
             'sidebar' => 'admin',
@@ -478,21 +314,6 @@ class StartupController extends Controller
             'scriptDeps' => '<script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>',
             'notifyPartial' => view('partials.notify')->render(),
         ]);
-    }
-
-    private function isSafePhotoUrl(string $url): bool
-    {
-        $lower = strtolower($url);
-        if (str_starts_with($lower, 'javascript:') || str_starts_with($lower, 'data:')) {
-            return false;
-        }
-        if (str_starts_with($lower, 'http://') || str_starts_with($lower, 'https://')) {
-            return filter_var($url, FILTER_VALIDATE_URL) !== false;
-        }
-        if (str_starts_with($url, '/') && !str_starts_with($url, '//')) {
-            return true;
-        }
-        return false;
     }
 
     private function getFoundersWithLinkedIn(Startup $startup): array
@@ -521,8 +342,8 @@ class StartupController extends Controller
 
     private function validationRules(?int $excludeId = null): array
     {
-        $requiresEditorialContent = $excludeId === null
-            || (int) Startup::query()->whereKey($excludeId)->value('content_quality_version') >= 1;
+        $startup = $excludeId === null ? new Startup() : Startup::query()->find($excludeId);
+        $requiresEditorialContent = $startup?->requiresEditorialContent() ?? true;
         $editorialPresenceRule = $requiresEditorialContent ? 'required' : 'nullable';
 
         return [
@@ -532,10 +353,10 @@ class StartupController extends Controller
                 }
             }],
             'tagline' => [$editorialPresenceRule, 'string', ...($requiresEditorialContent ? ['min:12'] : []), 'max:255', new SensibleShortText(255)],
-            'description' => [$editorialPresenceRule, 'string', ...($requiresEditorialContent ? ['min:250'] : []), 'max:10000'],
-            'problem_solved' => [$editorialPresenceRule, 'string', ...($requiresEditorialContent ? ['min:80'] : []), 'max:3000'],
-            'target_customer' => [$editorialPresenceRule, 'string', ...($requiresEditorialContent ? ['min:40'] : []), 'max:1500'],
-            'key_features' => [$editorialPresenceRule, 'array', 'min:3', 'max:8'],
+            'description' => [$editorialPresenceRule, 'string', ...($requiresEditorialContent ? ['min:' . StartupContentPolicy::DESCRIPTION_MIN] : []), 'max:10000'],
+            'problem_solved' => [$editorialPresenceRule, 'string', ...($requiresEditorialContent ? ['min:' . StartupContentPolicy::PROBLEM_SOLVED_MIN] : []), 'max:3000'],
+            'target_customer' => [$editorialPresenceRule, 'string', ...($requiresEditorialContent ? ['min:' . StartupContentPolicy::TARGET_CUSTOMER_MIN] : []), 'max:1500'],
+            'key_features' => [$editorialPresenceRule, 'array', 'min:' . StartupContentPolicy::KEY_FEATURES_MIN, 'max:8'],
             'key_features.*' => [$editorialPresenceRule, 'string', ...($requiresEditorialContent ? ['min:5'] : []), 'max:180', new SensibleShortText(180)],
             'pricing_model' => ['nullable', 'string', 'max:120', new SensibleShortText(120)],
             'markets_served' => ['nullable', 'string', 'max:500', new SensibleShortText(500)],
@@ -578,8 +399,4 @@ class StartupController extends Controller
         ];
     }
 
-    private function validationMessages(): array
-    {
-        return [];
-    }
 }

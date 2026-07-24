@@ -90,9 +90,9 @@ class HomeController extends EdenController
         }
         $featuredFounders = $featuredFounders->take(10);
         $showTrustedByBlock = $featuredFounders->isNotEmpty();
-        $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->select('startups.id')->pluck('id')->toArray() : [];
+        $savedStartupIds = auth()->user()?->savedStartupIds() ?? [];
 
-        $itemListSchema = $this->buildStartupItemListSchema($allStartups instanceof \Illuminate\Contracts\Pagination\Paginator ? collect($allStartups->items())->take(20) : $allStartups->take(20), 'Startups on ' . (function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden'));
+        $itemListSchema = EdenSeo::startupItemList($allStartups instanceof \Illuminate\Contracts\Pagination\Paginator ? collect($allStartups->items())->take(20) : $allStartups->take(20), 'Startups on ' . (function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden'));
 
         $homeAd = AdSpot::activeForPlacement('home_leaderboard_1')->first();
         $homeSidebarAd = AdSpot::activeForPlacement('home_sidebar_1')->first();
@@ -125,29 +125,6 @@ class HomeController extends EdenController
         ], array_merge($itemListSchema ? ['structuredData' => [$itemListSchema]] : [], $seo));
     }
 
-    private function buildStartupItemListSchema($startups, string $name): ?array
-    {
-        if ($startups->isEmpty()) {
-            return null;
-        }
-        $items = [];
-        foreach ($startups as $i => $s) {
-            $items[] = [
-                '@type' => 'ListItem',
-                'position' => $i + 1,
-                'url' => url('/startup/' . $s->slug),
-                'name' => $s->name,
-            ];
-        }
-        return [
-            '@context' => 'https://schema.org',
-            '@type' => 'ItemList',
-            'name' => $name,
-            'numberOfItems' => $startups->count(),
-            'itemListElement' => $items,
-        ];
-    }
-
     public function leaderboard(Request $request)
     {
         $sortBy = $request->query('sort', 'upvotes');
@@ -156,7 +133,7 @@ class HomeController extends EdenController
         }
         $startups = $this->startupService->getLeaderboard($sortBy, 50);
 
-        $itemListSchema = $this->buildStartupItemListSchema($startups, 'Startup leaderboard');
+        $itemListSchema = EdenSeo::startupItemList($startups, 'Startup leaderboard');
         $leaderboardAd = AdSpot::activeForPlacement('leaderboard_banner_1')->first();
 
         $seo = EdenSeo::forLeaderboard($request);
@@ -175,8 +152,8 @@ class HomeController extends EdenController
         $startups = $this->startupService->getRaising($categoryFilter);
         $categories = $this->startupService->getCategoriesWithCounts();
 
-        $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->select('startups.id')->pluck('id')->toArray() : [];
-        $itemListSchema = $this->buildStartupItemListSchema($startups, 'Startups raising funding');
+        $savedStartupIds = auth()->user()?->savedStartupIds() ?? [];
+        $itemListSchema = EdenSeo::startupItemList($startups, 'Startups raising funding');
         $raisingAd = AdSpot::activeForPlacement('raising_banner_1')->first();
 
         $seo = EdenSeo::forRaising($request);
@@ -195,8 +172,8 @@ class HomeController extends EdenController
     {
         $startups = $this->startupService->getForSale();
 
-        $savedStartupIds = auth()->check() ? auth()->user()->savedStartupsList()->select('startups.id')->pluck('id')->toArray() : [];
-        $itemListSchema = $this->buildStartupItemListSchema($startups, 'Startups for sale');
+        $savedStartupIds = auth()->user()?->savedStartupIds() ?? [];
+        $itemListSchema = EdenSeo::startupItemList($startups, 'Startups for sale');
         $forSaleAd = AdSpot::activeForPlacement('for_sale_banner_1')->first();
 
         $seo = EdenSeo::forStaticPath('/for-sale');

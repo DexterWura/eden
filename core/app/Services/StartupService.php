@@ -99,9 +99,12 @@ class StartupService
         Cache::forget(self::productOfDayCacheKey(now()->toDateString()));
     }
 
-    private function withFunding(): \Illuminate\Database\Eloquent\Builder
+    private function baseActiveQuery(): Builder
     {
-        return Startup::query()->with('activeFundingRound')->withCount('comments');
+        return Startup::query()
+            ->with('activeFundingRound')
+            ->withCount('comments')
+            ->active();
     }
 
     public function getProductOfDay(?string $category = null, int $limit = 5): Collection
@@ -111,7 +114,7 @@ class StartupService
             return new Collection();
         }
 
-        $query = $this->withFunding()->active()->where('id', $winnerId);
+        $query = $this->baseActiveQuery()->where('id', $winnerId);
         if ($category !== null && $category !== '') {
             $query->byCategory($category);
         }
@@ -121,25 +124,15 @@ class StartupService
 
     public function getAllStartups(?string $category = null, ?string $location = null): Collection
     {
-        $query = $this->withFunding()->active()->orderByDesc('upvotes');
-        if ($category !== null && $category !== '') {
-            $query->byCategory($category);
-        }
-        if ($location !== null && trim($location) !== '') {
-            $query->where('location', 'like', '%' . trim($location) . '%');
-        }
+        $query = $this->baseActiveQuery()->orderByDesc('upvotes');
+        $this->applyDiscoveryFilters($query, $category, $location);
         return $query->get();
     }
 
     public function getAllStartupsPaginated(?string $category = null, ?string $location = null, int $perPage = 50)
     {
-        $query = $this->withFunding()->active()->orderByDesc('upvotes');
-        if ($category !== null && $category !== '') {
-            $query->byCategory($category);
-        }
-        if ($location !== null && trim($location) !== '') {
-            $query->where('location', 'like', '%' . trim($location) . '%');
-        }
+        $query = $this->baseActiveQuery()->orderByDesc('upvotes');
+        $this->applyDiscoveryFilters($query, $category, $location);
         return $query->paginate($perPage)->withQueryString();
     }
 
@@ -156,40 +149,22 @@ class StartupService
 
     public function getLaunchingToday(?string $category = null, bool $featuredOnly = false, int $limit = 0, ?string $location = null): Collection
     {
-        $query = $this->withFunding()->active()->launchingToday()->orderByDesc('upvotes');
-        if ($category !== null && $category !== '') {
-            $query->byCategory($category);
-        }
-        if ($featuredOnly) {
-            $query->featured();
-        }
-        if ($location !== null && trim($location) !== '') {
-            $query->where('location', 'like', '%' . trim($location) . '%');
-        }
+        $query = $this->baseActiveQuery()->launchingToday()->orderByDesc('upvotes');
+        $this->applyDiscoveryFilters($query, $category, $location, $featuredOnly);
         return $limit > 0 ? $query->take($limit)->get() : $query->get();
     }
 
     public function getFeatured(?string $category = null, int $limit = 10, ?string $location = null): Collection
     {
-        $query = $this->withFunding()->active()->featured()->orderByDesc('upvotes');
-        if ($category !== null && $category !== '') {
-            $query->byCategory($category);
-        }
-        if ($location !== null && trim($location) !== '') {
-            $query->where('location', 'like', '%' . trim($location) . '%');
-        }
+        $query = $this->baseActiveQuery()->featured()->orderByDesc('upvotes');
+        $this->applyDiscoveryFilters($query, $category, $location);
         return $query->take($limit)->get();
     }
 
     public function getFeaturedPaginated(?string $category = null, int $perPage = 50, ?string $location = null)
     {
-        $query = $this->withFunding()->active()->featured()->orderByDesc('upvotes');
-        if ($category !== null && $category !== '') {
-            $query->byCategory($category);
-        }
-        if ($location !== null && trim($location) !== '') {
-            $query->where('location', 'like', '%' . trim($location) . '%');
-        }
+        $query = $this->baseActiveQuery()->featured()->orderByDesc('upvotes');
+        $this->applyDiscoveryFilters($query, $category, $location);
         return $query->paginate($perPage)->withQueryString();
     }
 
@@ -200,7 +175,7 @@ class StartupService
     {
         $startOfWeek = now()->copy()->startOfWeek();
 
-        $query = $this->withFunding()->active()
+        $query = $this->baseActiveQuery()
             ->selectRaw('startups.*, (SELECT COUNT(*) FROM startup_upvotes WHERE startup_upvotes.startup_id = startups.id AND startup_upvotes.created_at >= ?) AS upvotes_this_week', [$startOfWeek])
             ->orderByDesc('upvotes_this_week')
             ->orderByDesc('upvotes');
@@ -219,37 +194,21 @@ class StartupService
 
     public function getJustListed(?string $category = null, bool $featuredOnly = false, int $limit = 10, ?string $location = null): Collection
     {
-        $query = $this->withFunding()->active()->orderByDesc('created_at');
-        if ($category !== null && $category !== '') {
-            $query->byCategory($category);
-        }
-        if ($featuredOnly) {
-            $query->featured();
-        }
-        if ($location !== null && trim($location) !== '') {
-            $query->where('location', 'like', '%' . trim($location) . '%');
-        }
+        $query = $this->baseActiveQuery()->orderByDesc('created_at');
+        $this->applyDiscoveryFilters($query, $category, $location, $featuredOnly);
         return $query->take($limit)->get();
     }
 
     public function getJustListedPaginated(?string $category = null, bool $featuredOnly = false, int $perPage = 50, ?string $location = null)
     {
-        $query = $this->withFunding()->active()->orderByDesc('created_at');
-        if ($category !== null && $category !== '') {
-            $query->byCategory($category);
-        }
-        if ($featuredOnly) {
-            $query->featured();
-        }
-        if ($location !== null && trim($location) !== '') {
-            $query->where('location', 'like', '%' . trim($location) . '%');
-        }
+        $query = $this->baseActiveQuery()->orderByDesc('created_at');
+        $this->applyDiscoveryFilters($query, $category, $location, $featuredOnly);
         return $query->paginate($perPage)->withQueryString();
     }
 
     public function getRaising(?string $category = null): Collection
     {
-        $query = $this->withFunding()->active()
+        $query = $this->baseActiveQuery()
             ->whereHas('activeFundingRound')
             ->orderByDesc('upvotes');
         if ($category !== null && $category !== '') {
@@ -260,7 +219,7 @@ class StartupService
 
     public function getForSale(): Collection
     {
-        return $this->withFunding()->active()
+        return $this->baseActiveQuery()
             ->forSale()
             ->orderByDesc('upvotes')
             ->get();
@@ -268,7 +227,7 @@ class StartupService
 
     public function search(?string $q, ?string $category = null, ?string $location = null, int $perPage = 50)
     {
-        $query = $this->withFunding()->active();
+        $query = $this->baseActiveQuery();
         $this->applySearchFiltersToQuery($query, $q, $category, $location);
 
         return $query->orderByDesc('upvotes')->paginate($perPage)->withQueryString();
@@ -279,10 +238,27 @@ class StartupService
      */
     public function activeStartupsMatchingFiltersSince(?string $q, ?string $category, ?string $location, mixed $since): Collection
     {
-        $query = $this->withFunding()->active()->where('created_at', '>', $since);
+        $query = $this->baseActiveQuery()->where('created_at', '>', $since);
         $this->applySearchFiltersToQuery($query, $q, $category, $location);
 
         return $query->orderByDesc('created_at')->get();
+    }
+
+    private function applyDiscoveryFilters(
+        Builder $query,
+        ?string $category,
+        ?string $location,
+        bool $featuredOnly = false
+    ): void {
+        if ($category !== null && $category !== '') {
+            $query->byCategory($category);
+        }
+        if ($featuredOnly) {
+            $query->featured();
+        }
+        if ($location !== null && trim($location) !== '') {
+            $query->where('location', 'like', '%' . trim($location) . '%');
+        }
     }
 
     private function applySearchFiltersToQuery(Builder $query, ?string $q, ?string $category, ?string $location): void
@@ -320,7 +296,7 @@ class StartupService
 
     public function getLeaderboard(string $sortBy = 'upvotes', int $perPage = 20, ?string $category = null, bool $featuredOnly = false, ?string $location = null)
     {
-        $query = $this->withFunding()->active();
+        $query = $this->baseActiveQuery();
         if ($category !== null && $category !== '') {
             $query->byCategory($category);
         }
@@ -374,7 +350,7 @@ class StartupService
             }
         };
 
-        $base = fn (): \Illuminate\Database\Eloquent\Builder => $this->withFunding()->active();
+        $base = fn (): Builder => $this->baseActiveQuery();
 
         $category = $startup->category !== null && $startup->category !== '' ? $startup->category : null;
         $location = $startup->location !== null && trim((string) $startup->location) !== '' ? trim((string) $startup->location) : null;

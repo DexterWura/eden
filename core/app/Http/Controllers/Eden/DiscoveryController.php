@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Eden;
 
 use App\Models\Category;
 use App\Models\Startup;
+use App\Support\StartupContentPolicy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -83,11 +84,11 @@ class DiscoveryController extends EdenController
                 'Discover ' . $startups->total() . ' ' . $category->name . ' startups listed on Eden.'
             ),
             'canonicalUrl' => $canonicalUrl,
-            'metaRobots' => $category->hasEditorialDepth()
-                && $startups->total() > 0
-                && $request->integer('page', 1) === 1
-                    ? null
-                    : 'noindex,follow',
+            'metaRobots' => StartupContentPolicy::categoryHubIsIndexable(
+                $category,
+                $startups->total(),
+                $request->integer('page', 1)
+            ) ? null : 'noindex,follow',
             'structuredData' => $structuredData,
             'includeDefaultSiteGraph' => false,
         ]);
@@ -150,11 +151,11 @@ class DiscoveryController extends EdenController
             'pageTitle' => 'Startups in ' . $location . ' | Eden',
             'metaDescription' => $this->hubMetaDescription($introduction, 'Discover startups in ' . $location . '.'),
             'canonicalUrl' => $canonicalUrl,
-            'metaRobots' => $startups->total() >= 5
-                && $substantiveCount >= 3
-                && $request->integer('page', 1) === 1
-                    ? null
-                    : 'noindex,follow',
+            'metaRobots' => StartupContentPolicy::locationHubIsIndexable(
+                $startups->total(),
+                $substantiveCount,
+                $request->integer('page', 1)
+            ) ? null : 'noindex,follow',
             'structuredData' => $structuredData,
             'includeDefaultSiteGraph' => false,
         ]);

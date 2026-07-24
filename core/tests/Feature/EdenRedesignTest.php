@@ -7,6 +7,9 @@ use App\Models\Startup;
 use App\Models\User;
 use App\Services\SitemapService;
 use App\Services\StartupApprovalNotificationService;
+use App\Services\StartupActivationService;
+use App\Services\StartupFundingRoundService;
+use App\Support\StartupContentPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -108,6 +111,64 @@ class EdenRedesignTest extends TestCase
         ]);
         $notification = DB::table('notifications')->where('notifiable_id', $owner->id)->first();
         $this->assertStringContainsString('/founder/badges', (string) $notification->data);
+    }
+
+    public function test_startup_domain_rules_keep_legacy_and_new_profiles_consistent(): void
+    {
+        $legacy = new Startup(['content_quality_version' => 0]);
+        $newStartup = new Startup(['content_quality_version' => 1]);
+        $richStartup = $this->createRichStartup();
+        $owner = User::query()->create([
+            'name' => 'Profile Owner',
+            'email' => 'profile-owner@example.com',
+            'password' => bcrypt('password'),
+        ]);
+        $thinStartup = Startup::query()->create([
+            'user_id' => $owner->id,
+            'name' => 'Thin Profile',
+            'slug' => 'thin-profile',
+            'status' => Startup::STATUS_ACTIVE,
+            'description' => 'Short',
+        ]);
+
+        $this->assertFalse($legacy->requiresEditorialContent());
+        $this->assertTrue($newStartup->requiresEditorialContent());
+        $this->assertGreaterThanOrEqual(StartupContentPolicy::INDEXING_SCORE_MIN, $richStartup->content_completeness_score);
+        $this->assertSame(1, Startup::query()->needsEnrichment()->where('slug', 'thin-profile')->count());
+        $this->assertSame('proofpay-1', Startup::uniqueSlug('ProofPay'));
+        $this->assertMatchesRegularExpression('/^proofpay-[A-Za-z0-9]{4}$/', Startup::uniqueSlug('ProofPay', null, true));
+        $this->assertTrue($owner->can('manage', $thinStartup));
+    }
+
+    public function test_activation_quality_gate_and_funding_round_transitions_are_preserved(): void
+    {
+        $thinStartup = Startup::query()->create([
+            'name' => 'Pending Thin Profile',
+            'slug' => 'pending-thin-profile',
+            'status' => Startup::STATUS_PENDING,
+            'content_quality_version' => 1,
+            'description' => 'Short',
+        ]);
+        $rejected = app(StartupActivationService::class)->activate($thinStartup);
+        $this->assertFalse($rejected['activated']);
+        $this->assertTrue($thinStartup->fresh()->isPending());
+
+        $richStartup = $this->createRichStartup();
+        $richStartup->update(['status' => Startup::STATUS_PENDING]);
+        $activated = app(StartupActivationService::class)->activate($richStartup->fresh());
+        $this->assertTrue($activated['activated']);
+        $this->assertTrue($richStartup->fresh()->isActive());
+
+        $fundingService = app(StartupFundingRoundService::class);
+        $fundingService->sync($richStartup, [
+            'seeking_investors' => '1',
+            'funding_round_type' => 'seed',
+            'funding_amount_seeking' => 50000,
+            'funding_currency' => 'usd',
+        ]);
+        $this->assertSame('USD', $richStartup->fresh()->activeFundingRound->currency);
+        $fundingService->sync($richStartup->fresh(), ['seeking_investors' => '0']);
+        $this->assertNull($richStartup->fresh()->activeFundingRound);
     }
 
     private function createRichStartup(): Startup

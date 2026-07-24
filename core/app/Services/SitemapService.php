@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\BlogPost;
 use App\Models\Category;
 use App\Models\Startup;
+use App\Support\StartupContentPolicy;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
@@ -89,7 +90,7 @@ class SitemapService
             $substantiveCount = $locationStartups
                 ->filter(fn (Startup $startup) => $startup->hasSubstantiveContent())
                 ->count();
-            if ($locationStartups->count() < 5 || $substantiveCount < 3) {
+            if (! StartupContentPolicy::locationHubIsIndexable($locationStartups->count(), $substantiveCount)) {
                 continue;
             }
             $lastUpdated = $locationStartups->sortByDesc('updated_at')->first()?->updated_at;

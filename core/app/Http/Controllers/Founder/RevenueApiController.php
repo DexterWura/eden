@@ -50,9 +50,7 @@ class RevenueApiController extends Controller
 
     public function createKey(Request $request, Startup $startup): RedirectResponse
     {
-        if (! $startup->userCanManage(auth()->user())) {
-            abort(403, 'You cannot manage this startup.');
-        }
+        $this->authorize('manage', $startup);
 
         $existing = StartupRevenueApiKey::where('startup_id', $startup->id)->first();
         if ($existing) {
@@ -71,9 +69,7 @@ class RevenueApiController extends Controller
 
     public function regenerateKey(Request $request, Startup $startup): RedirectResponse
     {
-        if (! $startup->userCanManage(auth()->user())) {
-            abort(403, 'You cannot manage this startup.');
-        }
+        $this->authorize('manage', $startup);
 
         StartupRevenueApiKey::where('startup_id', $startup->id)->delete();
         $token = StartupRevenueApiKey::generateToken();
@@ -88,9 +84,7 @@ class RevenueApiController extends Controller
 
     public function connectIntegration(Request $request, Startup $startup): RedirectResponse
     {
-        if (! $startup->userCanManage(auth()->user())) {
-            abort(403);
-        }
+        $this->authorize('manage', $startup);
 
         $validated = Validator::make($request->all(), [
             'gateway' => ['required', 'string', 'in:stripe,polar,lemonsqueezy'],
@@ -117,9 +111,7 @@ class RevenueApiController extends Controller
 
     public function disconnectIntegration(Startup $startup, string $gateway): RedirectResponse
     {
-        if (! $startup->userCanManage(auth()->user())) {
-            abort(403);
-        }
+        $this->authorize('manage', $startup);
 
         if (! in_array($gateway, ['stripe', 'polar', 'lemonsqueezy'], true)) {
             abort(404);
@@ -132,9 +124,7 @@ class RevenueApiController extends Controller
 
     public function syncNow(Startup $startup): RedirectResponse
     {
-        if (! $startup->userCanManage(auth()->user())) {
-            abort(403);
-        }
+        $this->authorize('manage', $startup);
 
         $integrations = StartupRevenueIntegration::where('startup_id', $startup->id)->get();
         $syncService = app(RevenueSyncService::class);

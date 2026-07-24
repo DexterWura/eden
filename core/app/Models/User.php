@@ -162,6 +162,13 @@ class User extends Authenticatable
         return $this->belongsToMany(Startup::class, 'saved_startups')->withTimestamps();
     }
 
+    public function savedStartupIds(): array
+    {
+        $ids = $this->savedStartupsList()->select('startups.id')->pluck('id');
+
+        return $ids->map(fn ($id) => (int) $id)->all();
+    }
+
     public function watchlist()
     {
         return $this->hasMany(Watchlist::class);
