@@ -148,8 +148,30 @@ nav a:hover { color: var(--accent); }
   transition: background 0.2s, box-shadow 0.2s;
   font-family: inherit;
 }
-.btn-primary { background: var(--accent); color: var(--bg); }
-.btn-primary:hover { box-shadow: 0 0 24px var(--accent-dim); }
+.btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+}
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+a.btn-primary:link,
+a.btn-primary:visited,
+a.btn-primary:hover,
+a.btn-primary:focus,
+a.btn-primary:active {
+  background: var(--accent);
+  color: var(--bg);
+  text-decoration: none;
+  box-shadow: 0 0 24px var(--accent-dim);
+}
+nav a.btn-primary:hover,
+nav a.btn-primary:focus,
+.nav-drawer-links a.btn-primary:hover,
+.nav-drawer-links a.btn-primary:focus {
+  background: var(--accent);
+  color: var(--bg);
+}
 .btn-ghost { background: transparent; color: var(--text-muted); }
 .btn-ghost:hover { background: var(--surface-hover); color: var(--text); }
 .btn-block { width: 100%; }

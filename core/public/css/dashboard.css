@@ -536,14 +536,14 @@ body.dashboard {
   border-top: 1px solid var(--d-border);
   font-size: 0.875rem;
 }
-.dash-card-footer a {
+.dash-card-footer a:not(.dash-btn):not(.page-link) {
   color: var(--d-primary);
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: 4px;
 }
-.dash-card-footer a:hover { text-decoration: underline; }
+.dash-card-footer a:not(.dash-btn):not(.page-link):hover { text-decoration: underline; }
 
 /* Pagination (Bootstrap 5 markup, dashboard styling) */
 .dash-card-footer > nav {
@@ -718,7 +718,29 @@ body.dashboard {
   border-color: var(--d-primary);
   color: #fff;
 }
-.dash-btn-primary:hover:not(:disabled) {
+.dash-btn-primary:hover:not(:disabled),
+a.dash-btn-primary,
+a.dash-btn-primary:link,
+a.dash-btn-primary:visited,
+a.dash-btn-primary:hover,
+a.dash-btn-primary:focus,
+a.dash-btn-primary:active,
+.dash-card-header > a.dash-btn-primary,
+.dash-card-header > a.dash-btn-primary:hover,
+.dash-card-footer a.dash-btn-primary,
+.dash-card-footer a.dash-btn-primary:hover,
+.dash-actions a.dash-btn-primary,
+.dash-actions a.dash-btn-primary:hover {
+  background: var(--d-primary);
+  border-color: var(--d-primary);
+  color: #fff;
+  text-decoration: none;
+}
+a.dash-btn-primary:hover:not(:disabled),
+.dash-btn-primary:hover:not(:disabled),
+.dash-card-header > a.dash-btn-primary:hover,
+.dash-card-footer a.dash-btn-primary:hover,
+.dash-actions a.dash-btn-primary:hover {
   background: var(--d-primary-hover);
   border-color: var(--d-primary-hover);
   color: #fff;
@@ -728,9 +750,11 @@ body.dashboard {
   border-color: var(--d-border);
   color: var(--d-text-secondary);
 }
-.dash-btn-secondary:hover:not(:disabled) {
+.dash-btn-secondary:hover:not(:disabled),
+a.dash-btn-secondary:hover {
   background: var(--d-bg);
   color: var(--d-text);
+  text-decoration: none;
 }
 
 /* Shared dashboard dialogs */
@@ -1673,7 +1697,7 @@ body.dashboard {
 .dash-chart-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
 .dash-card--priority { border-left: 4px solid #f59e0b; }
 .dash-card-header h2 { margin: 0; }
-.dash-card-header > a { color: var(--d-primary); font-size: 0.8rem; font-weight: 600; text-decoration: none; }
+.dash-card-header > a:not(.dash-btn) { color: var(--d-primary); font-size: 0.8rem; font-weight: 600; text-decoration: none; }
 .dash-list { display: flex; flex-direction: column; }
 .dash-list-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 16px; border-bottom: 1px solid var(--d-border); color: var(--d-text); text-decoration: none; }
 .dash-list-item:last-child { border-bottom: 0; }
