@@ -21,7 +21,7 @@
     <div class="dash-table-wrap">
       <table class="dash-table">
         <thead>
-          <tr id="ad-{{ $ad->id }}">
+          <tr>
             <th>ID</th>
             <th>Placement</th>
             <th>Status</th>
@@ -34,7 +34,7 @@
         </thead>
         <tbody>
           @forelse($ads as $ad)
-          <tr>
+          <tr id="ad-{{ $ad->id }}">
             <td>#{{ $ad->id }}</td>
             <td><code>{{ $ad->placement }}</code></td>
             <td>
