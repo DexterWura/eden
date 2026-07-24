@@ -17,12 +17,18 @@
     <div>
       <label class="dash-label">Key features</label>
       @php $profileFeatures = old('key_features', $startup->key_features ?: ['', '', '']); @endphp
-      <div class="startup-features-grid">
+      <div id="startup-features-list" class="startup-features-grid" data-min-features="3" data-max-features="8">
         @for($featureIndex = 0; $featureIndex < max(3, count($profileFeatures)); $featureIndex++)
-        <input type="text" name="key_features[]" maxlength="180" @if($requiresEditorialContent) required minlength="5" @endif class="dash-input" placeholder="Feature {{ $featureIndex + 1 }}" value="{{ $profileFeatures[$featureIndex] ?? '' }}">
+        <div class="startup-feature-field">
+          <input type="text" name="key_features[]" maxlength="180" @if($requiresEditorialContent) required minlength="5" @endif class="dash-input" placeholder="Feature {{ $featureIndex + 1 }}" aria-label="Feature {{ $featureIndex + 1 }}" value="{{ $profileFeatures[$featureIndex] ?? '' }}">
+          <button type="button" class="startup-feature-remove" aria-label="Remove feature {{ $featureIndex + 1 }}" title="Remove feature"><i class="fa-solid fa-xmark"></i></button>
+        </div>
         @endfor
       </div>
+      <button type="button" id="startup-feature-add" class="dash-btn dash-btn-secondary startup-feature-add"><i class="fa-solid fa-plus"></i> Add feature</button>
+      <p class="dash-hint">Add up to 8 key features.</p>
       @error('key_features') <span class="dash-error">{{ $message }}</span> @enderror
+      @error('key_features.*') <span class="dash-error">{{ $message }}</span> @enderror
     </div>
     <div class="startup-form-grid">
       <div>

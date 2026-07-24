@@ -42,6 +42,49 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  var featuresList = document.getElementById('startup-features-list');
+  var featureAddButton = document.getElementById('startup-feature-add');
+  if (featuresList && featureAddButton) {
+    var minimumFeatures = Number(featuresList.dataset.minFeatures || 3);
+    var maximumFeatures = Number(featuresList.dataset.maxFeatures || 8);
+
+    function updateFeatureControls() {
+      var featureFields = featuresList.querySelectorAll('.startup-feature-field');
+      featureFields.forEach(function (field, index) {
+        var input = field.querySelector('input[name="key_features[]"]');
+        var removeButton = field.querySelector('.startup-feature-remove');
+        var featureNumber = index + 1;
+        input.placeholder = 'Feature ' + featureNumber;
+        input.setAttribute('aria-label', 'Feature ' + featureNumber);
+        removeButton.setAttribute('aria-label', 'Remove feature ' + featureNumber);
+        removeButton.disabled = featureFields.length <= minimumFeatures;
+      });
+      featureAddButton.disabled = featureFields.length >= maximumFeatures;
+    }
+
+    featureAddButton.addEventListener('click', function () {
+      var featureFields = featuresList.querySelectorAll('.startup-feature-field');
+      if (!featureFields.length || featureFields.length >= maximumFeatures) {
+        return;
+      }
+      var newField = featureFields[0].cloneNode(true);
+      newField.querySelector('input[name="key_features[]"]').value = '';
+      featuresList.appendChild(newField);
+      updateFeatureControls();
+      newField.querySelector('input[name="key_features[]"]').focus();
+    });
+
+    featuresList.addEventListener('click', function (event) {
+      var removeButton = event.target.closest('.startup-feature-remove');
+      if (removeButton && featuresList.children.length > minimumFeatures) {
+        removeButton.closest('.startup-feature-field').remove();
+        updateFeatureControls();
+      }
+    });
+
+    updateFeatureControls();
+  }
+
   var seekingCheck = document.getElementById('seeking_investors');
   var fundingFields = document.getElementById('funding-round-fields');
   if (seekingCheck && fundingFields) {

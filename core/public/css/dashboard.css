@@ -644,6 +644,36 @@ body.dashboard {
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 10px;
 }
+.startup-feature-field {
+  position: relative;
+}
+.startup-feature-field .dash-input {
+  padding-right: 40px;
+}
+.startup-feature-remove {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--d-text-secondary);
+  cursor: pointer;
+}
+.startup-feature-remove:hover:not(:disabled) {
+  background: var(--d-bg);
+  color: #dc2626;
+}
+.startup-feature-remove:disabled {
+  display: none;
+}
+.startup-feature-add {
+  margin-top: 10px;
+}
 .startup-form-completeness {
   font-size: 0.8rem;
   color: var(--d-text-secondary);
