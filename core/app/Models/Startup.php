@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\HouseListingBenefits;
 use App\Support\StartupContentPolicy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -366,11 +367,24 @@ class Startup extends Model
 
     public function hasDofollowBacklink(): bool
     {
+        if (HouseListingBenefits::matchesWebsite($this->website)) {
+            return true;
+        }
+
         if ($this->user === null) {
             return false;
         }
 
         return $this->user->isPro();
+    }
+
+    public function hasElevatedListingVisibility(): bool
+    {
+        if (HouseListingBenefits::matchesWebsite($this->website)) {
+            return true;
+        }
+
+        return (bool) $this->user?->is_pro;
     }
 
     /**

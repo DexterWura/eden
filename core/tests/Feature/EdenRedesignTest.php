@@ -442,6 +442,56 @@ class EdenRedesignTest extends TestCase
             ->assertDontSee('href="https://proofpay.test" target="_blank" rel="nofollow', false);
     }
 
+    public function test_house_websites_receive_dofollow_and_elevated_visibility_without_pro(): void
+    {
+        $founder = User::query()->create([
+            'name' => 'House Founder',
+            'email' => 'house-founder@example.test',
+            'password' => bcrypt('password'),
+            'is_pro' => false,
+        ]);
+
+        $house = $this->createRichStartup();
+        $house->update([
+            'user_id' => $founder->id,
+            'name' => 'SocialPlod',
+            'slug' => 'socialplod-house',
+            'website' => 'https://socialplod.com/',
+            'upvotes' => 5,
+        ]);
+
+        $popularFree = $house->replicate();
+        $popularFree->fill([
+            'name' => 'Popular Free Rival',
+            'slug' => 'popular-free-rival',
+            'website' => 'https://popular-free-rival.test',
+            'upvotes' => 500,
+        ]);
+        $popularFree->save();
+
+        $this->assertTrue($house->fresh()->hasDofollowBacklink());
+        $this->assertTrue($house->fresh()->hasElevatedListingVisibility());
+        $this->assertFalse($popularFree->fresh()->hasDofollowBacklink());
+
+        $orderedIds = collect(app(StartupService::class)->getAllStartupsPaginated(perPage: 10)->items())
+            ->pluck('id')
+            ->values();
+
+        $this->assertSame($house->id, $orderedIds->first());
+        $this->assertTrue($orderedIds->search($popularFree->id) > 0);
+
+        $this->get(route('startup.show', $house->slug))
+            ->assertOk()
+            ->assertSee('href="' . url('/startup/' . $house->slug . '/out') . '" target="_blank" rel="noopener noreferrer"', false)
+            ->assertSee('href="https://socialplod.com/" target="_blank" rel="noopener noreferrer"', false)
+            ->assertDontSee('href="https://socialplod.com/" target="_blank" rel="nofollow', false);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('startup-card--pro', false)
+            ->assertSee('badge badge-pro', false);
+    }
+
     private function createRichStartup(): Startup
     {
         $category = Category::query()->firstOrCreate(
