@@ -45,8 +45,15 @@ class EdenRedesignTest extends TestCase
             ->assertSee('Leaderboard');
     }
 
-    public function test_homepage_feed_prioritizes_upvotes_then_recency(): void
+    public function test_homepage_feed_prioritizes_pro_owners_then_upvotes_and_recency(): void
     {
+        $proFounder = User::query()->create([
+            'name' => 'Pro Founder',
+            'email' => 'pro-founder@example.test',
+            'password' => bcrypt('password'),
+            'is_pro' => true,
+        ]);
+
         $olderPopular = $this->createRichStartup();
         $olderPopular->update(['upvotes' => 100]);
         $olderPopular->timestamps = false;
@@ -74,6 +81,19 @@ class EdenRedesignTest extends TestCase
         $recentLowerVotes->timestamps = true;
         $recentLowerVotes->save();
 
+        $popularFree = $olderPopular->replicate();
+        $popularFree->fill([
+            'name' => 'Popular Free',
+            'slug' => 'popular-free',
+            'website' => 'https://popular-free.test',
+            'upvotes' => 200,
+        ]);
+        $popularFree->timestamps = true;
+        $popularFree->save();
+
+        $olderPopular->update(['user_id' => $proFounder->id]);
+        $recentPopular->update(['user_id' => $proFounder->id]);
+
         $orderedIds = collect(app(StartupService::class)->getAllStartupsPaginated(perPage: 10)->items())
             ->pluck('id')
             ->values();
@@ -81,8 +101,14 @@ class EdenRedesignTest extends TestCase
         $this->assertSame([
             $recentPopular->id,
             $olderPopular->id,
+            $popularFree->id,
             $recentLowerVotes->id,
         ], $orderedIds->all());
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('startup-card--pro', false)
+            ->assertSee('badge badge-pro', false);
     }
 
     public function test_editorial_category_hub_is_indexable_and_lists_startups(): void

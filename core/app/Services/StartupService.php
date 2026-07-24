@@ -8,6 +8,7 @@ use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class StartupService
 {
@@ -90,7 +91,11 @@ class StartupService
 
     public function getAllStartups(?string $category = null, ?string $location = null): Collection
     {
-        $query = $this->baseActiveQuery()->orderByDesc('upvotes');
+        $query = $this->baseActiveQuery()
+            ->orderByDesc(DB::raw('(select is_pro from users where users.id = startups.user_id)'))
+            ->orderByDesc('upvotes')
+            ->orderByDesc('created_at')
+            ->orderByDesc('id');
         $this->applyDiscoveryFilters($query, $category, $location);
         return $query->get();
     }
@@ -98,6 +103,7 @@ class StartupService
     public function getAllStartupsPaginated(?string $category = null, ?string $location = null, int $perPage = 50)
     {
         $query = $this->baseActiveQuery()
+            ->orderByDesc(DB::raw('(select is_pro from users where users.id = startups.user_id)'))
             ->orderByDesc('upvotes')
             ->orderByDesc('created_at')
             ->orderByDesc('id');

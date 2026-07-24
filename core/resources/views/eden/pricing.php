@@ -69,6 +69,7 @@ $gateways = $gateways ?? [];
         <li class="pricing-feature--highlight"><i class="fa-solid fa-layer-group"></i> Unlimited startups</li>
         <li class="pricing-feature--highlight"><i class="fa-solid fa-hand-holding-dollar"></i> Raise funds for your startup</li>
         <li class="pricing-feature--highlight"><i class="fa-solid fa-star"></i> Feature your startup on homepage</li>
+        <li class="pricing-feature--highlight"><i class="fa-solid fa-arrow-up"></i> Priority placement in the startup feed</li>
         <li class="pricing-feature--highlight"><i class="fa-solid fa-pen-nib"></i> Publish blog posts</li>
         <li class="pricing-feature--highlight"><i class="fa-solid fa-chart-line"></i> Analytics dashboard (views, clicks)</li>
         <li class="pricing-feature--highlight"><i class="fa-solid fa-headset"></i> Priority support</li>

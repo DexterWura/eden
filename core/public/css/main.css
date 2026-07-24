@@ -1323,6 +1323,8 @@ a.hero-trusted-by-avatar:hover {
 .badge.sponsored { background: rgba(255,71,103,0.15); color: var(--danger); }
 .badge.launch { background: rgba(0,212,170,0.25); color: var(--accent); }
 .badge.badge-product-of-day { background: rgba(251,191,36,0.25); color: #b45309; }
+.badge.badge-pro { display: inline-flex; align-items: center; gap: 4px; background: rgba(14,165,233,0.18); color: #0284c7; }
+.startup-card--pro { border-color: var(--accent); background: linear-gradient(135deg, var(--surface) 0%, var(--accent-dim) 100%); }
 
 /* Product of the day award seal (startup detail — inspired by laurel badge) */
 .potd-seal-group {
@@ -2977,7 +2979,20 @@ a.hero-trusted-by-avatar:hover {
   box-shadow: none;
   transform: none;
 }
+.startup-card--feed.startup-card--pro {
+  border-color: var(--border);
+  background: linear-gradient(90deg, rgba(14,165,233,0.12), transparent 72%);
+  box-shadow: inset 3px 0 0 #0ea5e9;
+}
+.startup-card--feed.startup-card--pro:hover {
+  background: linear-gradient(90deg, rgba(14,165,233,0.18), var(--surface) 72%);
+  box-shadow: inset 3px 0 0 #0ea5e9;
+}
 .startup-card--feed.featured { border-color: var(--border); background: linear-gradient(90deg, var(--accent-dim), transparent 65%); box-shadow: none; }
+.startup-card--feed.featured.startup-card--pro {
+  background: linear-gradient(90deg, rgba(14,165,233,0.14), var(--accent-dim) 58%, transparent 82%);
+  box-shadow: inset 3px 0 0 #0ea5e9;
+}
 .startup-card--feed .card-top { display: contents; }
 .startup-card--feed .card-logo { grid-column: 1; grid-row: 1 / span 2; width: 52px; height: 52px; border-radius: 12px; }
 .startup-card--feed .card-badges { grid-column: 2; grid-row: 2; align-self: end; margin-top: 8px; }
