@@ -9,8 +9,14 @@ $productImages = $s->product_images ?? [];
 $buildPublicContactUrl = static function (array $params = []) {
   return url('/contact') . '?' . http_build_query(array_filter($params, static fn ($value) => $value !== null && $value !== ''));
 };
+$isProductOfDay = $isProductOfDay ?? false;
+$productOfDayDate = $productOfDayDate ?? null;
+$isProductOfDayToday = $isProductOfDayToday ?? false;
+$hasUpvoted = $hasUpvoted ?? false;
+$hasSaved = $hasSaved ?? false;
+$showClaimButton = empty($s->user_id) && empty($s->founder_email);
 ?>
-<section class="page-head">
+<section class="product-page-head">
   <div class="wrap">
     <?php if (($s->status ?? '') === 'pending'): ?>
     <div class="startup-launch-notice">
@@ -19,19 +25,22 @@ $buildPublicContactUrl = static function (array $params = []) {
       <br>Share this link so people can get notified when you launch: <a href="<?= e(route('launch-notify.show', $s->slug)) ?>"><?= e(route('launch-notify.show', $s->slug)) ?></a>
     </div>
     <?php endif; ?>
-    <a href="<?= e(url('/')) ?>" class="back-link">&larr; All startups</a>
-    <div class="startup-hero">
-      <div class="startup-hero-logo" role="img" aria-label="<?= e($s->name) ?> logo">
-        <?php if ($logoPath): ?><img src="<?= e(asset($logoPath)) ?>" alt="<?= e($s->name) ?> – logo" class="startup-hero-logo-img" width="80" height="80" loading="eager"><?php else: ?><?= e($logoLetters) ?><?php endif; ?>
-      </div>
-      <div class="startup-hero-main">
-        <h1><?= e($s->name) ?></h1>
-        <?php
-        $isProductOfDay = $isProductOfDay ?? false;
-        $productOfDayDate = $productOfDayDate ?? null;
-        $isProductOfDayToday = $isProductOfDayToday ?? false;
-        ?>
-        <div class="startup-hero-badges">
+    <nav class="product-breadcrumb" aria-label="Breadcrumb">
+      <a href="<?= e(url('/')) ?>">Home</a>
+      <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+      <?php if ($s->category): ?><a href="<?= e(url('/categories/' . \Illuminate\Support\Str::slug($s->category))) ?>"><?= e($s->category) ?></a><i class="fa-solid fa-chevron-right" aria-hidden="true"></i><?php endif; ?>
+      <span aria-current="page"><?= e($s->name) ?></span>
+    </nav>
+
+    <div class="product-header">
+      <div class="product-header-identity">
+        <div class="product-header-logo" role="img" aria-label="<?= e($s->name) ?> logo">
+          <?php if ($logoPath): ?><img src="<?= e(asset($logoPath)) ?>" alt="<?= e($s->name) ?> – logo" width="96" height="96" loading="eager"><?php else: ?><?= e($logoLetters) ?><?php endif; ?>
+        </div>
+        <div class="product-header-copy">
+          <div class="product-header-title-row">
+            <h1><?= e($s->name) ?></h1>
+            <div class="startup-hero-badges">
           <?php if ($productOfDayDate): ?>
           <?php include __DIR__ . '/partials/potd-seal.php'; ?>
           <?php endif; ?>
@@ -40,88 +49,97 @@ $buildPublicContactUrl = static function (array $params = []) {
           <?php $flipitUrl = $s->getFlipitListingUrl(); ?>
           <?php if ($flipitUrl): ?><a href="<?= e($flipitUrl) ?>" target="_blank" rel="noopener noreferrer" class="badge badge-for-sale"><i class="fa-solid fa-tag" aria-hidden="true"></i> For sale</a><?php endif; ?>
           <?php endif; ?>
-        </div>
-        <?php if ($s->tagline): ?><p class="tagline"><?= e($s->tagline) ?></p><?php endif; ?>
-        <div class="startup-meta">
-          <?php if ($s->category): ?><span><?= e($s->category) ?></span><?php endif; ?>
-          <?php if ($s->location): ?><span><a href="<?= e(url('/locations/' . \Illuminate\Support\Str::slug($s->location))) ?>"><?= e($s->location) ?></a></span><?php endif; ?>
-          <?php if ($s->launch_date): ?><span><?= $s->launch_date->format('F Y') ?></span><?php endif; ?>
-        </div>
-        <div class="startup-hero-actions">
-          <div class="upvote-ui startup-hero-actions-main">
-            <?php $hasUpvoted = $hasUpvoted ?? false; ?>
-            <?php if ($hasUpvoted): ?>
-            <span class="upvote-btn startup-upvote-complete" aria-label="Upvoted"><i class="fa-solid fa-arrow-up"></i></span>
-            <span class="upvote-count"><?= (int)$s->upvotes ?></span>
-            <span class="startup-upvote-status">You upvoted</span>
-            <?php else: ?>
-            <form action="<?= e(route('startup.upvote', $s->slug)) ?>" method="POST" class="startup-inline-form">
-              <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
-              <button type="submit" class="upvote-btn" aria-label="Upvote"><i class="fa-solid fa-arrow-up"></i></button>
-            </form>
-            <span class="upvote-count"><?= (int)$s->upvotes ?></span>
-            <?php if (!auth()->check()): ?>
-            <span class="startup-upvote-status">Log in to upvote</span>
-            <?php endif; ?>
-            <?php endif; ?>
-            <?php if (!empty($s->website)): ?>
-            <a href="<?= e(url('/startup/' . $s->slug . '/out')) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Visit website</a>
-            <?php endif; ?>
+            </div>
           </div>
+          <?php if ($s->tagline): ?><p class="product-header-tagline"><?= e($s->tagline) ?></p><?php endif; ?>
+          <div class="product-header-topics">
+            <?php if ($s->category): ?><a href="<?= e(url('/categories/' . \Illuminate\Support\Str::slug($s->category))) ?>"><?= e($s->category) ?></a><?php endif; ?>
+            <?php if ($s->location): ?><a href="<?= e(url('/locations/' . \Illuminate\Support\Str::slug($s->location))) ?>"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> <?= e($s->location) ?></a><?php endif; ?>
+            <?php if ($s->launch_date): ?><span><i class="fa-regular fa-calendar" aria-hidden="true"></i> Launched <?= e($s->launch_date->format('M Y')) ?></span><?php endif; ?>
+          </div>
+        </div>
+      </div>
 
-          <div class="startup-hero-actions-side">
-            <?php if (auth()->check()): ?>
-            <?php $hasSaved = $hasSaved ?? false; ?>
-            <?php if ($hasSaved): ?>
-            <form action="<?= e(route('startup.unsave', $s->slug)) ?>" method="post" class="startup-inline-form">
-              <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
-              <button type="submit" class="btn btn-ghost"><i class="fa-solid fa-bookmark" aria-hidden="true"></i> Saved</button>
-            </form>
-            <?php else: ?>
-            <form action="<?= e(route('startup.save', $s->slug)) ?>" method="post" class="startup-inline-form">
-              <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
-              <button type="submit" class="btn btn-ghost"><i class="fa-regular fa-bookmark" aria-hidden="true"></i> Save</button>
-            </form>
-            <?php endif; ?>
-            <?php endif; ?>
-            <?php $showClaimButton = empty($s->user_id) && empty($s->founder_email); ?>
-            <?php if ($showClaimButton): ?>
-            <a href="<?= e(route('startup.claim', $s->slug)) ?>" class="btn btn-primary"><i class="fa-solid fa-hand-holding-hand" aria-hidden="true"></i> Claim this startup</a>
-            <?php endif; ?>
-            <div class="share-ui share-ui--inline">
-            <button type="button" class="btn btn-ghost share-btn-trigger" id="shareTrigger" aria-label="Share" aria-expanded="false" aria-haspopup="true"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i> Share</button>
+      <div class="product-header-actions">
+        <div class="product-header-utility-actions">
+          <?php if (auth()->check()): ?>
+          <?php if ($hasSaved): ?>
+          <form action="<?= e(route('startup.unsave', $s->slug)) ?>" method="post">
+            <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
+            <button type="submit" class="product-icon-button" aria-label="Remove from saved startups"><i class="fa-solid fa-bookmark" aria-hidden="true"></i></button>
+          </form>
+          <?php else: ?>
+          <form action="<?= e(route('startup.save', $s->slug)) ?>" method="post">
+            <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
+            <button type="submit" class="product-icon-button" aria-label="Save startup"><i class="fa-regular fa-bookmark" aria-hidden="true"></i></button>
+          </form>
+          <?php endif; ?>
+          <?php endif; ?>
+          <div class="share-ui share-ui--inline">
+            <button type="button" class="product-icon-button share-btn-trigger" id="shareTrigger" aria-label="Share" aria-expanded="false" aria-haspopup="true"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i></button>
             <div class="share-dropdown" id="shareDropdown" role="menu" aria-label="Share options" hidden>
               <button type="button" class="share-dropdown-item" data-action="copy" data-url="<?= e(url('/startup/' . $s->slug)) ?>"><i class="fa-solid fa-link" aria-hidden="true"></i> Copy link</button>
               <a href="https://twitter.com/intent/tweet?url=<?= e(rawurlencode(url('/startup/' . $s->slug))) ?>&text=<?= e(rawurlencode(($s->tagline ?: $s->name) . ' — ' . $s->name)) ?>" target="_blank" rel="noopener noreferrer" class="share-dropdown-item"><i class="fa-brands fa-x-twitter" aria-hidden="true"></i> Share on X</a>
               <a href="https://www.linkedin.com/sharing/share-offsite/?url=<?= e(rawurlencode(url('/startup/' . $s->slug))) ?>" target="_blank" rel="noopener noreferrer" class="share-dropdown-item"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i> Share on LinkedIn</a>
             </div>
           </div>
-          </div>
         </div>
+
+        <div class="product-header-primary-actions">
+          <?php if (!empty($s->website)): ?>
+          <a href="<?= e(url('/startup/' . $s->slug . '/out')) ?>" target="_blank" rel="noopener noreferrer" class="product-visit-button"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Visit</a>
+          <?php endif; ?>
+          <?php if ($hasUpvoted): ?>
+          <div class="product-upvote-button is-upvoted" aria-label="Upvoted">
+            <i class="fa-solid fa-caret-up" aria-hidden="true"></i>
+            <span>UPVOTED</span>
+            <strong><?= (int)$s->upvotes ?></strong>
+          </div>
+          <?php else: ?>
+          <form action="<?= e(route('startup.upvote', $s->slug)) ?>" method="POST">
+              <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
+              <button type="submit" class="product-upvote-button" aria-label="Upvote <?= e($s->name) ?>">
+                <i class="fa-solid fa-caret-up" aria-hidden="true"></i>
+                <span>UPVOTE</span>
+                <strong><?= (int)$s->upvotes ?></strong>
+              </button>
+          </form>
+          <?php endif; ?>
+        </div>
+        <?php if (!auth()->check() && !$hasUpvoted): ?><a href="<?= e(route('login')) ?>" class="product-login-hint">Log in to upvote</a><?php endif; ?>
+        <?php if ($showClaimButton): ?><a href="<?= e(route('startup.claim', $s->slug)) ?>" class="product-claim-link">Is this your product? Claim it</a><?php endif; ?>
       </div>
     </div>
+
+    <nav class="product-page-tabs" aria-label="Product sections">
+      <a href="#about">Overview</a>
+      <?php if (!empty($productImages)): ?><a href="#gallery">Gallery</a><?php endif; ?>
+      <?php if (count($foundersDisplay) > 0): ?><a href="#makers">Makers</a><?php endif; ?>
+      <a href="#comments">Comments<?= isset($comments) && $comments->count() > 0 ? ' ' . $comments->count() : '' ?></a>
+    </nav>
   </div>
 </section>
+
+<?php if (!empty($productImages)): ?>
+<div class="wrap product-gallery-shell" id="gallery">
+  <div class="product-gallery" aria-label="<?= e($s->name) ?> product images">
+    <?php foreach ($productImages as $i => $img): ?>
+    <a href="<?= e(asset($img)) ?>" target="_blank" rel="noopener" class="product-gallery-item" aria-label="Open product image <?= (int)$i + 1 ?>">
+      <img src="<?= e(asset($img)) ?>" alt="<?= e($s->name) ?> – product<?= count($productImages) > 1 ? ' ' . ((int)$i + 1) : '' ?>" width="640" height="420" loading="<?= $i === 0 ? 'eager' : 'lazy' ?>">
+    </a>
+    <?php endforeach; ?>
+  </div>
+</div>
+<?php endif; ?>
 
 <div class="wrap startup-detail-layout">
   <div class="startup-detail-main">
   <?php if ($s->for_sale && !$s->sold_at && $s->flipit_listing_id): ?>
   <p class="startup-sale-note">This startup is listed for sale on <a href="https://flipit.co.zw" target="_blank" rel="noopener noreferrer">FLIPit</a>.</p>
   <?php endif; ?>
-  <?php if (!empty($productImages)): ?>
-  <section class="startup-section startup-product-images" aria-labelledby="product-heading">
-    <h2 id="product-heading">Product</h2>
-    <div class="product-images-grid">
-      <?php foreach ($productImages as $i => $img): ?>
-      <div class="product-image-wrap"><img src="<?= e(asset($img)) ?>" alt="<?= e($s->name) ?> – product<?= count($productImages) > 1 ? ' ' . ((int)$i + 1) : '' ?>" width="400" height="300" loading="lazy"></div>
-      <?php endforeach; ?>
-    </div>
-  </section>
-  <?php endif; ?>
-
   <?php if ($s->description): ?>
-  <section class="startup-section startup-prose">
-    <h2>About</h2>
+  <section class="startup-section startup-prose" id="about">
+    <h2>About <?= e($s->name) ?></h2>
     <p><?= nl2br(e($s->description)) ?></p>
   </section>
   <?php endif; ?>
@@ -174,7 +192,7 @@ $buildPublicContactUrl = static function (array $params = []) {
   <?php endif; ?>
 
   <?php if (count($foundersDisplay) > 0): ?>
-  <section class="startup-section">
+  <section class="startup-section" id="makers">
     <h2>Founder<?= count($foundersDisplay) > 1 ? 's' : '' ?></h2>
     <div class="startup-founders startup-founders--detailed">
       <?php foreach ($foundersDisplay as $f): ?>
@@ -306,7 +324,7 @@ $buildPublicContactUrl = static function (array $params = []) {
   $comments = $comments ?? collect();
   $canComment = auth()->check();
   ?>
-  <section class="startup-section startup-comments" aria-labelledby="comments-heading">
+  <section class="startup-section startup-comments" id="comments" aria-labelledby="comments-heading">
     <h2 id="comments-heading">Comments <?= $comments->count() > 0 ? '(' . $comments->count() . ')' : '' ?></h2>
     <?php if ($comments->count() > 0): ?>
     <ul class="startup-comments-list" aria-label="Comments on <?= e($s->name) ?>">

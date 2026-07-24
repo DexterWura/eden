@@ -27,10 +27,12 @@ class StartupFundingRound extends Model
         'description',
         'contact_email',
         'status',
+        'opportunity_announced_at',
     ];
 
     protected $casts = [
         'amount_seeking' => 'decimal:2',
+        'opportunity_announced_at' => 'datetime',
     ];
 
     public function startup()

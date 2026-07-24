@@ -8,11 +8,14 @@ use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 
 class StartupService
 {
     public const PRODUCT_OF_DAY_CACHE_KEY = 'eden_product_of_day_id';
+
+    public function __construct(
+        private StartupAwardService $startupAwardService
+    ) {}
 
     public function getProductOfDayId(): ?int
     {
@@ -43,50 +46,10 @@ class StartupService
      */
     public function selectProductOfDayForDate(CarbonInterface $awardDate): ?array
     {
-        $dateString = $awardDate->toDateString();
-
-        if (ProductOfDayWinner::query()->where('award_date', $dateString)->exists()) {
-            return null;
-        }
-
-        $dayStart = $awardDate->copy()->startOfDay();
-        $dayEnd = $awardDate->copy()->endOfDay();
-
-        $winner = Startup::active()
-            ->selectRaw(
-                'startups.*, (SELECT COUNT(*) FROM startup_upvotes WHERE startup_upvotes.startup_id = startups.id AND startup_upvotes.created_at >= ? AND startup_upvotes.created_at <= ?) AS upvotes_that_day',
-                [$dayStart, $dayEnd]
-            )
-            ->orderByDesc('upvotes_that_day')
-            ->orderByDesc('upvotes')
-            ->orderBy('id')
-            ->first();
-
-        if ($winner === null || (int) $winner->upvotes_that_day < 1) {
-            return null;
-        }
-
-        $startupId = (int) $winner->id;
-        $upvoteCount = (int) $winner->upvotes_that_day;
-
-        DB::transaction(function () use ($dateString, $startupId, $upvoteCount) {
-            ProductOfDayWinner::query()->create([
-                'award_date' => $dateString,
-                'startup_id' => $startupId,
-                'upvote_count' => $upvoteCount,
-            ]);
-
-            Startup::query()
-                ->where('id', $startupId)
-                ->update(['product_of_day_at' => $dateString]);
-        });
-
+        $result = $this->startupAwardService->selectProductOfDay($awardDate);
         self::clearProductOfDayCache();
 
-        return [
-            'startup_id' => $startupId,
-            'upvote_count' => $upvoteCount,
-        ];
+        return $result;
     }
 
     public static function productOfDayCacheKey(string $displayDate): string

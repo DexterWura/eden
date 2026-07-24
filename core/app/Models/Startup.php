@@ -46,6 +46,8 @@ class Startup extends Model
         'is_featured',
         'upvotes',
         'product_of_day_at',
+        'product_of_month_at',
+        'product_of_year_at',
         'views',
         'clicks',
         'traffic_tracking_enabled',
@@ -72,6 +74,8 @@ class Startup extends Model
     protected $casts = [
         'launch_date' => 'date',
         'product_of_day_at' => 'date',
+        'product_of_month_at' => 'date',
+        'product_of_year_at' => 'integer',
         'dormant_at' => 'datetime',
         'website_last_checked_at' => 'datetime',
         'website_is_reachable' => 'boolean',

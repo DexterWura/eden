@@ -79,36 +79,13 @@
       <p class="hero-trusted-by-text" style="margin:0;flex:none">100+ founders</p>
     </div>
     <?php endif; ?>
-    <nav class="hero-quick-nav hero-reveal hero-reveal--5" aria-label="Quick links">
-      <a href="<?= e(url('/launching-today')) ?>">Launching today</a>
-      <span class="hero-quick-nav-sep" aria-hidden="true">·</span>
-      <a href="<?= e(url('/leaderboard')) ?>">Leaderboard</a>
-      <span class="hero-quick-nav-sep" aria-hidden="true">·</span>
-      <a href="<?= e(url('/categories')) ?>">Categories</a>
-      <span class="hero-quick-nav-sep" aria-hidden="true">·</span>
-      <a href="<?= e(url('/submit')) ?>">Submit</a>
-    </nav>
     <?php $browseCategories = $browseCategories ?? []; ?>
     <?php
     $categoryFilter = $categoryFilter ?? null;
     $featuredOnly = $featuredOnly ?? false;
     $sortNewest = $sortNewest ?? false;
     $searchQuery = $searchQuery ?? null;
-    $baseQuery = array_filter(['q' => $searchQuery && trim($searchQuery) !== '' ? trim($searchQuery) : null, 'featured' => $featuredOnly ? '1' : null, 'sort' => $sortNewest ? 'newest' : null]);
     ?>
-    <?php if (count($browseCategories) > 0): ?>
-    <div class="hero-categories hero-reveal hero-reveal--6" id="heroCategories">
-      <h2 class="hero-categories-title">Browse by category</h2>
-      <div class="filters filters--categories">
-        <?php $urlAll = url('/') . ($baseQuery ? '?' . http_build_query($baseQuery) : ''); ?>
-        <a href="<?= e($urlAll) ?>" class="pill<?= $categoryFilter === null || $categoryFilter === '' ? ' active' : '' ?>">All</a>
-        <?php foreach ($browseCategories as $cat): ?>
-        <?php $query = array_merge($baseQuery, ['category' => $cat->name]); ?>
-        <a href="<?= e(url('/') . '?' . http_build_query($query)) ?>" class="pill<?= $categoryFilter === $cat->name ? ' active' : '' ?>"><?= e($cat->name) ?></a>
-        <?php endforeach; ?>
-      </div>
-    </div>
-    <?php endif; ?>
   </div>
 </section>
 
@@ -159,111 +136,6 @@
       endforeach; ?>
     </div>
     <p class="section-browse-all"><a href="<?= e(url('/?featured=1')) ?>">Browse all featured startups</a></p>
-  </section>
-  <?php endif; ?>
-
-  <?php
-  $leaderboardPreview = $leaderboardPreview ?? null;
-  $leaderboardSort = $leaderboardSort ?? 'upvotes';
-  $leaderboardSortLabels = ['upvotes' => 'Upvotes', 'views' => 'Views', 'clicks' => 'Clicks', 'mrr' => 'MRR', 'revenue' => 'Revenue', 'newest' => 'Newest'];
-  ?>
-  <?php if (!$sortNewest && $leaderboardPreview && count($leaderboardPreview->items()) > 0): ?>
-  <section class="section-block" aria-labelledby="leaderboard-heading">
-    <div class="leaderboard-wrap">
-      <div class="leaderboard-header">
-        <h2 id="leaderboard-heading" class="leaderboard-title">Leaderboard</h2>
-        <div class="leaderboard-header-actions" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-          <label for="home-leaderboard-sort" class="leaderboard-filter-label" style="font-size: 0.875rem; color: var(--text-muted, #64748b);">Sort by</label>
-          <select id="home-leaderboard-sort" aria-label="Sort leaderboard by" style="padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border, #e2e8f0); font-size: 0.875rem;">
-            <?php foreach ($leaderboardSortLabels as $value => $label): ?>
-            <option value="<?= e($value) ?>"<?= $leaderboardSort === $value ? ' selected' : '' ?>><?= e($label) ?></option>
-            <?php endforeach; ?>
-          </select>
-          <a href="<?= e(url('/leaderboard?' . http_build_query(['sort' => $leaderboardSort]))) ?>" class="leaderboard-view-all">View all <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
-        </div>
-      </div>
-      <table class="leaderboard-table">
-        <thead>
-          <tr>
-            <th class="col-rank">#</th>
-            <th class="col-startup">Startup</th>
-            <th class="col-founder">Founder</th>
-            <th class="col-upvotes"><?= e($leaderboardSortLabels[$leaderboardSort] ?? 'Upvotes') ?></th>
-            <th class="col-launched">Launched</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php
-          $foundersDisplay = null;
-          foreach ($leaderboardPreview as $index => $s):
-            $rank = (int)($leaderboardPreview->firstItem() + $index);
-            $logoPath = $s->logo_path ?? null;
-            $logoLetters = $s->logo_letters ?? strtoupper(mb_substr($s->name, 0, 2));
-            $foundersDisplay = $s->founders_display ?? [];
-            $founderName = count($foundersDisplay) > 0 ? implode(', ', array_column($foundersDisplay, 'name')) : ($s->founder_name ?? '—');
-            $founderPhoto = count($foundersDisplay) > 0 && !empty($foundersDisplay[0]['photo_url']) ? $foundersDisplay[0]['photo_url'] : null;
-            $founderInitials = count($foundersDisplay) > 0 ? \App\Models\Startup::founderInitials($foundersDisplay[0]['name']) : '?';
-            if ($leaderboardSort === 'mrr') { $metricVal = $s->mrr !== null && $s->mrr !== '' ? number_format((float)$s->mrr, 0) : '—'; }
-            elseif ($leaderboardSort === 'revenue') { $metricVal = $s->revenue !== null && $s->revenue !== '' ? number_format((float)$s->revenue, 0) : '—'; }
-            elseif ($leaderboardSort === 'views') { $metricVal = (int)($s->views ?? 0); }
-            elseif ($leaderboardSort === 'clicks') { $metricVal = (int)($s->clicks ?? 0); }
-            elseif ($leaderboardSort === 'newest') { $metricVal = $s->created_at ? $s->created_at->format('M Y') : '—'; }
-            else { $metricVal = (int)$s->upvotes; }
-          ?>
-          <tr>
-            <td class="col-rank">
-              <?php if ($rank <= 3): ?><span class="leaderboard-rank-medal leaderboard-rank-medal--<?= $rank ?>"><?= $rank ?></span><?php else: ?><?= $rank ?><?php endif; ?>
-            </td>
-            <td class="col-startup">
-              <a href="<?= e(url('/startup/' . $s->slug)) ?>" class="leaderboard-startup">
-                <div class="leaderboard-startup-logo">
-                  <?php if ($logoPath): ?><img src="<?= e(asset($logoPath)) ?>" alt=""><?php else: ?><?= e($logoLetters) ?><?php endif; ?>
-                </div>
-                <div class="leaderboard-startup-info">
-                  <p class="leaderboard-startup-name"><?= e($s->name) ?></p>
-                  <p class="leaderboard-startup-desc"><?= e($s->short_description) ?></p>
-                </div>
-              </a>
-            </td>
-            <td class="col-founder">
-              <div class="leaderboard-founder">
-                <div class="leaderboard-founder-avatars">
-                <?php foreach (array_slice($foundersDisplay, 0, 4) as $fi => $fd):
-                  $fdPhoto = !empty($fd['photo_url']) ? $fd['photo_url'] : null;
-                  $fdInitials = \App\Models\Startup::founderInitials($fd['name'] ?? 'Founder');
-                  $fdIsExternal = $fdPhoto && (str_starts_with($fdPhoto, 'http://') || str_starts_with($fdPhoto, 'https://'));
-                  $fdSrc = $fdPhoto ? ($fdIsExternal ? $fdPhoto : asset($fdPhoto)) : null;
-                ?>
-                  <div class="leaderboard-founder-avatar<?= $fi > 0 ? ' leaderboard-founder-avatar--overlap' : '' ?>" title="<?= e($fd['name'] ?? '') ?>">
-                    <?php if ($fdSrc): ?>
-                    <img src="<?= e($fdSrc) ?>" alt="<?= e($fd['name'] ?? '') ?>" onerror="this.style.display='none';this.nextElementSibling.style.display=''">
-                    <span class="leaderboard-founder-initials" style="display:none"><?= e($fdInitials) ?></span>
-                    <?php else: ?>
-                    <span class="leaderboard-founder-initials"><?= e($fdInitials) ?></span>
-                    <?php endif; ?>
-                  </div>
-                <?php endforeach; ?>
-                </div>
-                <span class="leaderboard-founder-name"><?= e($founderName) ?></span>
-              </div>
-            </td>
-            <td class="col-upvotes"><?= $metricVal ?></td>
-            <td class="col-launched"><?= $s->launch_date ? $s->launch_date->format('Y') : '—' ?></td>
-          </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
-    </div>
-    <script>
-    (function() {
-      var sel = document.getElementById('home-leaderboard-sort');
-      if (sel) sel.addEventListener('change', function() {
-        var params = new URLSearchParams(window.location.search);
-        params.set('leaderboard_sort', this.value);
-        window.location = '<?= e(url('/')) ?>?' + params.toString();
-      });
-    })();
-    </script>
   </section>
   <?php endif; ?>
 
@@ -345,26 +217,6 @@
   </div>
 
   <aside class="discovery-sidebar" aria-label="Discover more">
-    <?php if ($leaderboardPreview && count($leaderboardPreview->items()) > 0): ?>
-    <section class="sidebar-panel">
-      <div class="sidebar-panel-head">
-        <h2>Top startups</h2>
-        <a href="<?= e(url('/leaderboard')) ?>">See all</a>
-      </div>
-      <ol class="sidebar-ranking">
-        <?php foreach (array_slice($leaderboardPreview->items(), 0, 5) as $index => $startup): ?>
-        <li>
-          <span class="sidebar-rank"><?= $index + 1 ?></span>
-          <a href="<?= e(url('/startup/' . $startup->slug)) ?>">
-            <strong><?= e($startup->name) ?></strong>
-            <small><?= (int)$startup->upvotes ?> upvotes</small>
-          </a>
-        </li>
-        <?php endforeach; ?>
-      </ol>
-    </section>
-    <?php endif; ?>
-
     <?php if (count($browseCategories) > 0): ?>
     <section class="sidebar-panel">
       <div class="sidebar-panel-head">

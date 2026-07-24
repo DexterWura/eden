@@ -77,6 +77,30 @@ class CronjobController extends Controller
                 'type' => 'normal',
             ],
             [
+                'name' => 'Product of the Day',
+                'description' => 'Selects yesterday’s top startup by eligible upvotes and notifies its founders',
+                'schedule' => 'Daily at 00:05',
+                'log_file' => 'eden-product-of-day.log',
+                'command' => 'eden:select-product-of-day',
+                'type' => 'important',
+            ],
+            [
+                'name' => 'Product of the Month',
+                'description' => 'Selects the previous month’s top startup by eligible upvotes and notifies its founders',
+                'schedule' => 'Monthly on day 1 at 00:10',
+                'log_file' => 'eden-product-of-month.log',
+                'command' => 'eden:select-product-of-month',
+                'type' => 'important',
+            ],
+            [
+                'name' => 'Product of the Year',
+                'description' => 'Selects the previous year’s top startup by eligible upvotes and notifies its founders',
+                'schedule' => 'Yearly on January 1 at 00:15',
+                'log_file' => 'eden-product-of-year.log',
+                'command' => 'eden:select-product-of-year',
+                'type' => 'important',
+            ],
+            [
                 'name' => 'Monthly Revenue Report',
                 'description' => 'Compiles monthly marketplace revenue, costs, transactions and emails report to super admins',
                 'schedule' => 'Last day of every month at 23:55',
@@ -159,6 +183,10 @@ class CronjobController extends Controller
             $threshold = 1560; // 26 hours
         } elseif (strpos($job['schedule'], 'Weekly') !== false) {
             $threshold = 11520; // 8 days in minutes
+        } elseif (strpos($job['schedule'], 'Monthly') !== false) {
+            $threshold = 64800; // 45 days in minutes
+        } elseif (strpos($job['schedule'], 'Yearly') !== false) {
+            $threshold = 532800; // 370 days in minutes
         }
         
         // Calculate minutes since last update (always positive)

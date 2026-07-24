@@ -5,17 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ProductOfDayWinner extends Model
+class ProductOfMonthWinner extends Model
 {
     protected $fillable = [
-        'award_date',
+        'award_month',
         'startup_id',
         'upvote_count',
         'notified_at',
     ];
 
     protected $casts = [
-        'award_date' => 'date',
+        'award_month' => 'date',
         'notified_at' => 'datetime',
     ];
 

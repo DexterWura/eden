@@ -80,6 +80,20 @@ Schedule::command('eden:select-product-of-day')
     ->onOneServer()
     ->appendOutputTo(storage_path('logs/eden-product-of-day.log'));
 
+// Product of the month - lock in the previous calendar month's winner
+Schedule::command('eden:select-product-of-month')
+    ->monthlyOn(1, '00:10')
+    ->withoutOverlapping(10)
+    ->onOneServer()
+    ->appendOutputTo(storage_path('logs/eden-product-of-month.log'));
+
+// Product of the year - lock in the previous calendar year's winner
+Schedule::command('eden:select-product-of-year')
+    ->yearlyOn(1, 1, '00:15')
+    ->withoutOverlapping(10)
+    ->onOneServer()
+    ->appendOutputTo(storage_path('logs/eden-product-of-year.log'));
+
 // Monthly revenue report - run at end of every month (last day at 23:55)
 Schedule::command('monthly:revenue-report')
     ->lastDayOfMonth('23:55')
@@ -114,3 +128,10 @@ Schedule::command('eden:search-alert-digests')
     ->withoutOverlapping(10)
     ->onOneServer()
     ->appendOutputTo(storage_path('logs/eden-search-alert-digests.log'));
+
+// Retry incomplete founder investment opportunity emails
+Schedule::command('eden:retry-fundraising-opportunity-emails')
+    ->everyTenMinutes()
+    ->withoutOverlapping(10)
+    ->onOneServer()
+    ->appendOutputTo(storage_path('logs/eden-fundraising-opportunities.log'));

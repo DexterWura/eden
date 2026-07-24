@@ -172,7 +172,6 @@
             <a href="<?= e(url('/pricing')) ?>"><i class="fa-solid fa-crown" aria-hidden="true"></i> Pro</a>
           </div>
         </div>
-        <a href="<?= e(url('/submit')) ?>" class="btn btn-primary nav-submit"><i class="fa-solid fa-plus" aria-hidden="true"></i> Submit</a>
         <?php if (auth()->check()): ?>
         <a href="<?= e(url('/founder')) ?>" class="btn btn-ghost"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i> Dashboard</a>
         <form action="<?= e(route('logout')) ?>" method="POST" class="nav-logout-form">

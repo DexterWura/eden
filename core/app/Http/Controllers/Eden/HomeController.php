@@ -28,7 +28,6 @@ class HomeController extends EdenController
             $launchingToday = collect();
             $featuredProducts = collect();
             $justListed = collect();
-            $leaderboardPreview = null;
         } else {
             $searchResults = null;
             $launchingToday = $this->startupService->getLaunchingToday($categoryFilter, $featuredOnly, 0, $locationFilter);
@@ -43,23 +42,13 @@ class HomeController extends EdenController
                 $allStartups = $this->startupService->getAllStartupsPaginated($categoryFilter, $locationFilter, 50);
             }
 
-            $leaderboardSort = $request->query('leaderboard_sort', 'upvotes');
-            if (! in_array($leaderboardSort, ['upvotes', 'views', 'clicks', 'mrr', 'revenue', 'newest'], true)) {
-                $leaderboardSort = 'upvotes';
-            }
-            $leaderboardPreview = $this->startupService->getLeaderboard($leaderboardSort, 10, $categoryFilter, $featuredOnly, $locationFilter);
         }
 
         $categories = $this->startupService->getCategoriesWithCounts();
         $browseCategories = $this->startupService->getCategoriesWithCounts()
             ->take(12)
             ->map(fn ($c) => (object) ['name' => $c->category]);
-        $leaderboardSort = $request->query('leaderboard_sort', 'upvotes');
-        if (! in_array($leaderboardSort, ['upvotes', 'views', 'clicks', 'mrr', 'revenue', 'newest'], true)) {
-            $leaderboardSort = 'upvotes';
-        }
         if ($searchResults === null) {
-            $leaderboardPreview = $leaderboardPreview ?? $this->startupService->getLeaderboard($leaderboardSort, 10, $categoryFilter, $featuredOnly, $locationFilter);
             $hotThisWeekIds = $this->startupService
                 ->getTopPerforming($categoryFilter, $featuredOnly, 6, $locationFilter)
                 ->pluck('id')
@@ -108,8 +97,6 @@ class HomeController extends EdenController
             'categories' => $categories,
             'browseCategories' => $browseCategories,
             'categoryFilter' => $categoryFilter,
-            'leaderboardPreview' => $leaderboardPreview,
-            'leaderboardSort' => $leaderboardSort,
             'featuredOnly' => $featuredOnly,
             'sortNewest' => $sortNewest,
             'searchQuery' => $searchQuery,

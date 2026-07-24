@@ -2,12 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Constants\Status;
 use App\Models\Category;
 use App\Models\Startup;
 use App\Models\User;
 use App\Services\SitemapService;
 use App\Services\StartupApprovalNotificationService;
 use App\Services\StartupActivationService;
+use App\Services\StartupAwardService;
 use App\Services\StartupFundingRoundService;
 use App\Support\StartupContentPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -31,6 +33,12 @@ class EdenRedesignTest extends TestCase
         $response->assertSee('discovery-layout', false);
         $response->assertSee('startup-card--feed', false);
         $response->assertSee($startup->name);
+        $response->assertDontSee('id="leaderboard-heading"', false);
+        $response->assertDontSee('Top startups');
+
+        $this->get('/leaderboard')
+            ->assertOk()
+            ->assertSee('Leaderboard');
     }
 
     public function test_editorial_category_hub_is_indexable_and_lists_startups(): void
@@ -52,6 +60,19 @@ class EdenRedesignTest extends TestCase
         $response->assertSee($startup->name);
         $response->assertDontSee('noindex,follow', false);
         $response->assertSee('FAQPage', false);
+    }
+
+    public function test_startup_detail_uses_product_discovery_layout(): void
+    {
+        $startup = $this->createRichStartup();
+
+        $response = $this->get('/startup/' . $startup->slug);
+
+        $response->assertOk();
+        $response->assertSee('product-header', false);
+        $response->assertSee('product-upvote-button', false);
+        $response->assertSee('product-page-tabs', false);
+        $response->assertSee('About ' . $startup->name);
     }
 
     public function test_thin_profiles_are_removed_from_indexing_after_grace_period(): void
@@ -169,6 +190,104 @@ class EdenRedesignTest extends TestCase
         $this->assertSame('USD', $richStartup->fresh()->activeFundingRound->currency);
         $fundingService->sync($richStartup->fresh(), ['seeking_investors' => '0']);
         $this->assertNull($richStartup->fresh()->activeFundingRound);
+    }
+
+    public function test_algorithm_selects_period_awards_and_emails_the_founder(): void
+    {
+        Mail::fake();
+        $owner = User::query()->create([
+            'name' => 'Award Founder',
+            'email' => 'award-founder@example.com',
+            'password' => bcrypt('password'),
+        ]);
+        $startup = $this->createRichStartup();
+        $startup->update(['user_id' => $owner->id, 'upvotes' => 1]);
+        DB::table('startup_upvotes')->insert([
+            'user_id' => $owner->id,
+            'startup_id' => $startup->id,
+            'created_at' => '2025-06-15 12:00:00',
+            'updated_at' => '2025-06-15 12:00:00',
+        ]);
+
+        $awardService = app(StartupAwardService::class);
+        $day = $awardService->selectProductOfDay(Carbon::parse('2025-06-15'));
+        $month = $awardService->selectProductOfMonth(Carbon::parse('2025-06-01'));
+        $year = $awardService->selectProductOfYear(Carbon::parse('2025-01-01'));
+
+        $this->assertSame($startup->id, $day['startup_id']);
+        $this->assertSame($startup->id, $month['startup_id']);
+        $this->assertSame($startup->id, $year['startup_id']);
+        $this->assertDatabaseHas('product_of_day_winners', ['award_date' => '2025-06-15', 'startup_id' => $startup->id]);
+        $this->assertDatabaseHas('product_of_month_winners', ['award_month' => '2025-06-01', 'startup_id' => $startup->id]);
+        $this->assertDatabaseHas('product_of_year_winners', ['award_year' => 2025, 'startup_id' => $startup->id]);
+        Mail::assertSentCount(3);
+        $this->assertSame(3, DB::table('notifications')->where('notifiable_id', $owner->id)->count());
+        $this->assertSame(3, DB::table('startup_award_notification_deliveries')->count());
+        $this->assertSame(0, DB::table('startup_award_notification_deliveries')->whereNull('email_sent_at')->count());
+        $this->assertSame(0, DB::table('startup_award_notification_deliveries')->whereNull('dashboard_created_at')->count());
+        $this->assertNotNull(DB::table('product_of_day_winners')->value('notified_at'));
+        $this->assertNotNull(DB::table('product_of_month_winners')->value('notified_at'));
+        $this->assertNotNull(DB::table('product_of_year_winners')->value('notified_at'));
+
+        $this->assertNull($awardService->selectProductOfDay(Carbon::parse('2025-06-15')));
+        $this->assertNull($awardService->selectProductOfMonth(Carbon::parse('2025-06-01')));
+        $this->assertNull($awardService->selectProductOfYear(Carbon::parse('2025-01-01')));
+        Mail::assertSentCount(3);
+        $this->assertSame(3, DB::table('startup_award_notification_deliveries')->count());
+    }
+
+    public function test_opening_a_funding_round_emails_other_registered_founders_once(): void
+    {
+        Mail::fake();
+        $raisingFounder = User::query()->create([
+            'name' => 'Raising Founder',
+            'email' => 'raising-founder@example.com',
+            'password' => bcrypt('password'),
+            'status' => Status::USER_ACTIVE,
+            'ev' => Status::VERIFIED,
+            'sv' => Status::VERIFIED,
+        ]);
+        $investorFounder = User::query()->create([
+            'name' => 'Investor Founder',
+            'email' => 'investor-founder@example.com',
+            'password' => bcrypt('password'),
+            'status' => Status::USER_ACTIVE,
+            'ev' => Status::VERIFIED,
+            'sv' => Status::VERIFIED,
+        ]);
+        $raisingStartup = $this->createRichStartup();
+        $raisingStartup->update(['user_id' => $raisingFounder->id]);
+        Startup::query()->create([
+            'user_id' => $investorFounder->id,
+            'name' => 'Investor Company',
+            'slug' => 'investor-company',
+            'status' => Startup::STATUS_ACTIVE,
+        ]);
+        $input = [
+            'seeking_investors' => '1',
+            'funding_round_type' => 'seed',
+            'funding_amount_seeking' => 75000,
+            'funding_currency' => 'USD',
+            'funding_description' => 'Expanding the product and sales team across the region.',
+        ];
+
+        $fundingService = app(StartupFundingRoundService::class);
+        $fundingService->sync($raisingStartup, $input);
+        $fundingRound = $raisingStartup->fresh()->activeFundingRound;
+
+        Mail::assertSentCount(1);
+        $this->assertDatabaseHas('fundraising_opportunity_deliveries', [
+            'startup_funding_round_id' => $fundingRound->id,
+            'user_id' => $investorFounder->id,
+        ]);
+        $this->assertDatabaseMissing('fundraising_opportunity_deliveries', [
+            'startup_funding_round_id' => $fundingRound->id,
+            'user_id' => $raisingFounder->id,
+        ]);
+        $this->assertNotNull($fundingRound->fresh()->opportunity_announced_at);
+
+        $fundingService->sync($raisingStartup->fresh(), $input);
+        Mail::assertSentCount(1);
     }
 
     private function createRichStartup(): Startup

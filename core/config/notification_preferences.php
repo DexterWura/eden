@@ -92,6 +92,7 @@ return [
 
         // Discovery
         'NEW_LISTING_ALERT' => ['label' => 'New listing alerts (emails when new businesses are listed)', 'category' => 'Discovery'],
+        'FUNDRAISING_OPPORTUNITIES' => ['label' => 'Investment opportunities from other founders', 'category' => 'Discovery'],
 
         // Support & Other
         'ADMIN_SUPPORT_REPLY' => ['label' => 'Support ticket reply from admin', 'category' => 'Support & Other'],

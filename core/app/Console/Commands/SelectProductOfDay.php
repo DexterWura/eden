@@ -15,10 +15,28 @@ class SelectProductOfDay extends Command
 
     public function handle(StartupService $startupService): int
     {
-        $dateInput = $this->option('date');
-        $awardDate = $dateInput !== null && $dateInput !== ''
+        $dateInput = trim((string) $this->option('date'));
+        if ($dateInput !== '' && ! preg_match('/^\d{4}-(0[1-9]|1[0-2])-([0-2]\d|3[01])$/', $dateInput)) {
+            $this->error('The date option must use Y-m-d format.');
+
+            return self::FAILURE;
+        }
+        if ($dateInput !== '') {
+            [$year, $month, $day] = array_map('intval', explode('-', $dateInput));
+            if (! checkdate($month, $day, $year)) {
+                $this->error('The date option must be a valid calendar date.');
+
+                return self::FAILURE;
+            }
+        }
+        $awardDate = $dateInput !== ''
             ? Carbon::parse($dateInput)->startOfDay()
             : now()->subDay()->startOfDay();
+        if ($awardDate->greaterThanOrEqualTo(now()->startOfDay())) {
+            $this->error('Product of the day can only be selected for a completed calendar day.');
+
+            return self::FAILURE;
+        }
 
         $result = $startupService->selectProductOfDayForDate($awardDate);
 
