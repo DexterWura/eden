@@ -41,6 +41,7 @@ class HomeController extends EdenController
         $browseCategories = $this->startupService->getCategoriesWithCounts()
             ->take(12)
             ->map(fn ($c) => (object) ['name' => $c->category]);
+        $featuredStartups = $this->startupService->getFeatured();
         $heroStartups = Startup::where('featured_on_hero', true)->orderBy('name')->limit(20)->get();
         $featuredFounders = collect();
         foreach ($heroStartups as $hs) {
@@ -71,6 +72,7 @@ class HomeController extends EdenController
             'allStartups' => $allStartups,
             'categories' => $categories,
             'browseCategories' => $browseCategories,
+            'featuredStartups' => $featuredStartups,
             'categoryFilter' => $categoryFilter,
             'featuredOnly' => $featuredOnly,
             'sortNewest' => $sortNewest,

@@ -1,6 +1,6 @@
 /**
  * Eden backoffice – migration page logic.
- * Expects window.EDEN_MIGRATION = { runUrl, runSpecificUrlTemplate, rollbackUrl, refreshUrl, csrfToken }.
+ * Expects window.EDEN_MIGRATION = { runUrl, runSpecificUrlTemplate, rollbackUrl, checkUrl, csrfToken }.
  */
 (function () {
   'use strict';
@@ -9,7 +9,7 @@
   var runUrl = config.runUrl || '';
   var runSpecificUrlTemplate = config.runSpecificUrlTemplate || '';
   var rollbackUrl = config.rollbackUrl || '';
-  var refreshUrl = config.refreshUrl || '';
+  var checkUrl = config.checkUrl || '';
   var csrfToken = config.csrfToken || '';
 
   var currentAction = null;
@@ -21,6 +21,10 @@
 
   function showConfirmModal() {
     var el = getConfirmModalEl();
+    if (window.EdenDashboardDialog && el) {
+      window.EdenDashboardDialog.open(el, document.activeElement);
+      return;
+    }
     if (typeof bootstrap !== 'undefined' && el) {
       try {
         bootstrap.Modal.getOrCreateInstance(el).show();
@@ -38,6 +42,11 @@
 
   function hideConfirmModal() {
     var el = getConfirmModalEl();
+    if (window.EdenDashboardDialog && el) {
+      window.EdenDashboardDialog.close(el);
+      resetModalState();
+      return;
+    }
     if (typeof bootstrap !== 'undefined' && el) {
       try {
         var inst = bootstrap.Modal.getInstance(el);
@@ -79,9 +88,9 @@
     showConfirmModal();
   };
 
-  window.refreshStatus = function () {
+  window.checkStatus = function () {
     $.ajax({
-      url: refreshUrl,
+      url: checkUrl,
       method: 'POST',
       data: { _token: csrfToken },
       success: function (response) {
@@ -93,21 +102,19 @@
         }
       },
       error: function (xhr) {
-        notify('error', xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Failed to refresh status');
+        notify('error', xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Failed to check status');
       }
     });
   };
 
   window.installMigrationsTable = function () {
     if (!confirm('This will create the migrations table. Continue?')) return;
-    var forceCheck = document.getElementById('forceCheck');
     $.ajax({
       url: runUrl,
       method: 'POST',
       data: {
         _token: csrfToken,
-        confirm: 1,
-        force: forceCheck ? forceCheck.checked : false
+        confirm: 1
       },
       success: function (response) {
         if (response.status === 'success') {
@@ -142,11 +149,9 @@
     var url = buildUrl();
     if (!url) return;
 
-    var forceCheck = document.getElementById('forceCheck');
     var data = {
       _token: csrfToken,
-      confirm: 1,
-      force: forceCheck ? forceCheck.checked : false
+      confirm: 1
     };
     if (currentAction === 'rollback') data.steps = 1;
 
@@ -177,10 +182,8 @@
 
   function resetModalState() {
     var check = document.getElementById('confirmCheck');
-    var forceCheck = document.getElementById('forceCheck');
     var btn = document.getElementById('confirmBtn');
     if (check) check.checked = false;
-    if (forceCheck) forceCheck.checked = false;
     if (btn) { btn.disabled = false; btn.innerHTML = 'Confirm'; }
     currentAction = null;
     currentMigration = null;
@@ -193,7 +196,7 @@
       modalEl.addEventListener('hidden.bs.modal', resetModalState);
       if (typeof bootstrap === 'undefined' && !$('#confirmModal').data('bs.modal')) {
         modalEl.addEventListener('click', function (e) {
-          if (e.target === modalEl) hideConfirmModal();
+          if (e.target.classList.contains('dash-dialog-backdrop')) hideConfirmModal();
         });
       }
     }

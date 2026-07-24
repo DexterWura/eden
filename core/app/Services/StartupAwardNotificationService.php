@@ -48,6 +48,13 @@ class StartupAwardNotificationService
                 $this->deliverDashboardNotification($startup, $recipient, $awardName, $periodLabel, $delivery->id);
             }
             if ($delivery->email_sent_at === null) {
+                $user = $recipient['user_id'] ? User::query()->find($recipient['user_id']) : null;
+                if ($user && ! $user->wantsNotification('STARTUP_AWARD')) {
+                    DB::table('startup_award_notification_deliveries')
+                        ->where('id', $delivery->id)
+                        ->update(['email_sent_at' => now(), 'updated_at' => now()]);
+                    continue;
+                }
                 $this->deliverAwardEmail(
                     $startup,
                     $recipient,

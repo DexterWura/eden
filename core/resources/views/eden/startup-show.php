@@ -3,6 +3,7 @@ $s = $startup ?? null;
 if (!$s) return;
 $logoPath = $s->logo_path ?? null;
 $fundingRound = $s->activeFundingRound;
+$sharePreview = $sharePreview ?? [];
 $logoLetters = $s->logo_letters ?? strtoupper(mb_substr($s->name, 0, 2));
 $foundersDisplay = $s->founders_display ?? [];
 $productImages = $s->product_images ?? [];
@@ -78,16 +79,16 @@ $showClaimButton = empty($s->user_id) && empty($s->founder_email);
           <div class="share-ui share-ui--inline">
             <button type="button" class="product-icon-button share-btn-trigger" id="shareTrigger" aria-label="Share" aria-expanded="false" aria-haspopup="true"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i></button>
             <div class="share-dropdown" id="shareDropdown" role="menu" aria-label="Share options" hidden>
-              <button type="button" class="share-dropdown-item" data-action="copy" data-url="<?= e(url('/startup/' . $s->slug)) ?>"><i class="fa-solid fa-link" aria-hidden="true"></i> Copy link</button>
-              <a href="https://twitter.com/intent/tweet?url=<?= e(rawurlencode(url('/startup/' . $s->slug))) ?>&text=<?= e(rawurlencode(($s->tagline ?: $s->name) . ' — ' . $s->name)) ?>" target="_blank" rel="noopener noreferrer" class="share-dropdown-item"><i class="fa-brands fa-x-twitter" aria-hidden="true"></i> Share on X</a>
-              <a href="https://www.linkedin.com/sharing/share-offsite/?url=<?= e(rawurlencode(url('/startup/' . $s->slug))) ?>" target="_blank" rel="noopener noreferrer" class="share-dropdown-item"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i> Share on LinkedIn</a>
+              <button type="button" class="share-dropdown-item" data-action="copy" data-url="<?= e($sharePreview['shareUrl'] ?? url('/startup/' . $s->slug)) ?>"><i class="fa-solid fa-link" aria-hidden="true"></i> Copy link</button>
+              <a href="<?= e($sharePreview['xShareUrl'] ?? '#') ?>" target="_blank" rel="noopener noreferrer" class="share-dropdown-item"><i class="fa-brands fa-x-twitter" aria-hidden="true"></i> Share on X</a>
+              <a href="<?= e($sharePreview['linkedInShareUrl'] ?? '#') ?>" target="_blank" rel="noopener noreferrer" class="share-dropdown-item"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i> Share on LinkedIn</a>
             </div>
           </div>
         </div>
 
         <div class="product-header-primary-actions">
           <?php if (!empty($s->website)): ?>
-          <a href="<?= e(url('/startup/' . $s->slug . '/out')) ?>" target="_blank" rel="noopener noreferrer" class="product-visit-button"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Visit</a>
+          <a href="<?= e(url('/startup/' . $s->slug . '/out')) ?>" target="_blank" rel="<?= $s->hasDofollowBacklink() ? 'noopener noreferrer' : 'nofollow noopener noreferrer' ?>" class="product-visit-button"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Visit</a>
           <?php endif; ?>
           <?php if ($hasUpvoted): ?>
           <div class="product-upvote-button is-upvoted" aria-label="Upvoted">
@@ -234,14 +235,15 @@ $showClaimButton = empty($s->user_id) && empty($s->founder_email);
       <?php if ($fundingRound->description): ?>
       <p class="startup-funding-desc"><?= nl2br(e($fundingRound->description)) ?></p>
       <?php endif; ?>
-      <?php if ($fundingRound->contact_email): ?>
-      <?php $fundingContactUrl = $buildPublicContactUrl([
-        'subject' => 'listing',
-        'startup' => $s->name,
-        'message' => "Hi,\n\nI'm interested in the funding round for " . $s->name . ".\n\n",
-      ]); ?>
-      <a href="<?= e($fundingContactUrl) ?>" class="btn btn-primary"><i class="fa-solid fa-envelope" aria-hidden="true"></i> Email</a>
-      <?php endif; ?>
+      <form method="post" action="<?= e(route('startup.investor-interest', $s->slug)) ?>" class="startup-comment-form">
+        <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
+        <input type="text" name="website" value="" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
+        <label>Name <input type="text" name="name" maxlength="120" required></label>
+        <label>Email <input type="email" name="email" maxlength="255" required></label>
+        <label>Organization <input type="text" name="organization" maxlength="160"></label>
+        <label>Message <textarea name="message" rows="3" maxlength="2000"></textarea></label>
+        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Send private interest</button>
+      </form>
     </div>
   </section>
   <?php endif; ?>
@@ -249,7 +251,7 @@ $showClaimButton = empty($s->user_id) && empty($s->founder_email);
   <section class="startup-section">
     <h2>Links</h2>
     <div class="card-links">
-      <?php if ($s->website): ?><a href="<?= e($s->website) ?>" target="_blank" rel="noopener"><i class="fa-solid fa-globe"></i> Website</a><?php endif; ?>
+      <?php if ($s->website): ?><a href="<?= e($s->website) ?>" target="_blank" rel="<?= $s->hasDofollowBacklink() ? 'noopener noreferrer' : 'nofollow noopener noreferrer' ?>"><i class="fa-solid fa-globe"></i> Website</a><?php endif; ?>
       <?php if (!empty($s->twitter_url)): ?><a href="<?= e($s->twitter_url) ?>" target="_blank" rel="noopener" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a><?php endif; ?>
       <?php if (!empty($s->linkedin_url)): ?><a href="<?= e($s->linkedin_url) ?>" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a><?php endif; ?>
       <?php if (!$s->website && empty($s->twitter_url) && empty($s->linkedin_url)): ?><span class="text-muted">No links yet.</span><?php endif; ?>
@@ -335,6 +337,15 @@ $showClaimButton = empty($s->user_id) && empty($s->founder_email);
           <time class="startup-comment-date" datetime="<?= e($c->created_at->toIso8601String()) ?>"><?= e($c->created_at->diffForHumans()) ?></time>
         </div>
         <p class="startup-comment-body"><?= nl2br(e($c->body)) ?></p>
+        <?php if ($c->founder_reply): ?>
+        <div class="startup-comment" style="margin:12px 0 0 20px;border-left:3px solid var(--primary,#6366f1);">
+          <div class="startup-comment-header">
+            <span class="startup-comment-author"><?= e($c->founderResponder->name ?? $s->name) ?> · Founder</span>
+            <?php if ($c->founder_replied_at): ?><time class="startup-comment-date" datetime="<?= e($c->founder_replied_at->toIso8601String()) ?>"><?= e($c->founder_replied_at->diffForHumans()) ?></time><?php endif; ?>
+          </div>
+          <p class="startup-comment-body"><?= nl2br(e($c->founder_reply)) ?></p>
+        </div>
+        <?php endif; ?>
       </li>
       <?php endforeach; ?>
     </ul>

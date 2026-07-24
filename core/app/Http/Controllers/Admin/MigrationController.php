@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\MigrationTracking;
+use App\Services\MigrationDriftService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
@@ -17,16 +16,23 @@ use Symfony\Component\Process\Process;
 
 class MigrationController extends Controller
 {
+    public function __construct(
+        private MigrationDriftService $migrationDriftService
+    ) {
+        parent::__construct();
+    }
+
     /**
      * Display migration status page (Eden dashboard layout)
      */
     public function index(Request $request)
     {
-        $migrationFilesAll = $this->getMigrationFiles();
-        $migrationStatus = $this->getMigrationStatus();
-        $pendingMigrations = $this->getPendingMigrations();
-        $modifiedMigrations = $this->getModifiedMigrations();
-        $ranMigrations = $this->getRanMigrations();
+        $states = $this->migrationDriftService->states();
+        $migrationFilesAll = $states->whereNotNull('file')->pluck('file')->values()->all();
+        $migrationStatus = $states->whereNotNull('batch')->pluck('batch', 'name')->all();
+        $pendingMigrations = $states->where('state', 'pending')->pluck('file')->values()->all();
+        $modifiedMigrations = $states->whereIn('state', ['modified', 'missing_file', 'untracked'])->values()->all();
+        $ranMigrations = $states->where('state', 'applied')->values()->all();
         $migrationsTableExists = Schema::hasTable('migrations');
 
         $page = max(1, (int) $request->get('page', 1));
@@ -47,16 +53,18 @@ class MigrationController extends Controller
             'pendingMigrations',
             'modifiedMigrations',
             'ranMigrations',
-            'migrationsTableExists'
+            'migrationsTableExists',
+            'states'
         ))->render();
 
         $runSpecificUrlTemplate = route('admin.migration.run.specific', ['migration' => 'REPLACE_MIGRATION']);
         $scripts = '<script>window.EDEN_MIGRATION=' . json_encode([
             'runUrl' => route('admin.migration.run'),
             'runSpecificUrlTemplate' => $runSpecificUrlTemplate,
+            'checkUrl' => route('admin.migration.check'),
             'rollbackUrl' => route('admin.migration.rollback'),
-            'refreshUrl' => route('admin.migration.refresh'),
             'csrfToken' => csrf_token(),
+            'production' => app()->environment('production'),
         ]) . ';</script>' . "\n" . '<script src="' . asset('js/migration.js') . '"></script>';
 
         return response()->view('eden.layout-dashboard', [
@@ -81,15 +89,15 @@ class MigrationController extends Controller
     public function status()
     {
         try {
-            $migrations = $this->getAllMigrationsWithStatus();
+            $migrations = $this->migrationDriftService->states()->values();
             
             return response()->json([
                 'status' => 'success',
                 'data' => [
                     'migrations' => $migrations,
-                    'pending_count' => count($this->getPendingMigrations()),
-                    'modified_count' => count($this->getModifiedMigrations()),
-                    'ran_count' => count($this->getRanMigrations()),
+                    'pending_count' => $migrations->where('state', 'pending')->count(),
+                    'modified_count' => $migrations->whereIn('state', ['modified', 'missing_file', 'untracked'])->count(),
+                    'ran_count' => $migrations->where('state', 'applied')->count(),
                 ]
             ]);
         } catch (\Exception $e) {
@@ -211,22 +219,23 @@ class MigrationController extends Controller
     public function run(Request $request)
     {
         try {
-            // Security check - only allow in non-production or with force flag
-            if (app()->environment('production') && !$request->boolean('force')) {
+            $validator = Validator::make($request->all(), [
+                'confirm' => ['required', 'accepted'],
+            ]);
+            if ($validator->fails()) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'In production you must check "Force (Production Mode)" to run migrations.'
-                ], 403);
+                    'message' => 'Please confirm the forward migration run.',
+                    'errors' => $validator->errors(),
+                ], 422);
             }
 
-            // Get pending migrations
-            $pending = $this->getPendingMigrations();
-            $modified = $this->getModifiedMigrations();
-            
-            if (empty($pending) && empty($modified)) {
+            $beforeStates = $this->migrationDriftService->states();
+            $pending = $beforeStates->where('state', 'pending');
+            if ($pending->isEmpty()) {
                 return response()->json([
                     'status' => 'info',
-                    'message' => 'No pending migrations to run'
+                    'message' => 'No pending migrations to run. Drifted applied files require a new repair migration.'
                 ]);
             }
 
@@ -237,22 +246,19 @@ class MigrationController extends Controller
                 Artisan::call('migrate:install', [], $installBuffer);
             }
 
-            // Run migrations
-            $output = [];
             $exitCode = Artisan::call('migrate', [
                 '--force' => true,
             ], $outputBuffer = new \Symfony\Component\Console\Output\BufferedOutput());
-            
             $output = $outputBuffer->fetch();
-
-            // Update tracking for ran migrations
-            $this->updateMigrationTracking();
+            if ($exitCode !== 0) {
+                throw new \RuntimeException('Migration command failed with exit code ' . $exitCode . '.');
+            }
+            $this->migrationDriftService->recordApplied($beforeStates);
 
             // Log the migration run
             Log::info('Migrations run via UI', [
-                'admin_id' => auth()->id(),
+                'admin_id' => auth('admin')->id(),
                 'pending_count' => count($pending),
-                'modified_count' => count($modified),
                 'output' => $output
             ]);
 
@@ -262,7 +268,6 @@ class MigrationController extends Controller
                 'data' => [
                     'output' => $output,
                     'pending_count' => count($pending),
-                    'modified_count' => count($modified),
                 ]
             ]);
 
@@ -286,7 +291,6 @@ class MigrationController extends Controller
         try {
             // Validate request
             $validator = Validator::make($request->all(), [
-                'force' => 'nullable|boolean',
                 'confirm' => 'required|accepted',
             ]);
 
@@ -298,30 +302,30 @@ class MigrationController extends Controller
                 ], 422);
             }
 
-            if (app()->environment('production') && !$request->boolean('force')) {
+            $state = $this->migrationDriftService->state($migrationName);
+            if (! $state) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Cannot run specific migration in production without force flag'
-                ], 403);
-            }
-
-            $migrationFile = $this->findMigrationFile($migrationName);
-            
-            if (!$migrationFile) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Migration file not found'
+                    'message' => 'Migration file not found.',
                 ], 404);
             }
+            if ($state['state'] !== 'pending') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Applied migrations cannot be rerun. Create a new forward repair migration instead.',
+                    'repair' => $this->repairGuidance($migrationName),
+                ], 409);
+            }
 
-            // Extract path from full path
+            $migrationFile = $state['file']['path'];
             $migrationPath = database_path('migrations');
             $relativePath = str_replace($migrationPath . DIRECTORY_SEPARATOR, '', $migrationFile);
+            $artisanPath = 'database/migrations/' . str_replace(DIRECTORY_SEPARATOR, '/', $relativePath);
 
             // Run specific migration
             $outputBuffer = new \Symfony\Component\Console\Output\BufferedOutput();
             $exitCode = Artisan::call('migrate', [
-                '--path' => $relativePath,
+                '--path' => $artisanPath,
                 '--force' => true,
             ], $outputBuffer);
             
@@ -331,11 +335,10 @@ class MigrationController extends Controller
                 throw new \Exception('Migration command failed with exit code: ' . $exitCode);
             }
 
-            // Update tracking for this migration
-            $this->updateSingleMigrationTracking($migrationName);
+            $this->migrationDriftService->recordApplied(collect([$state]));
 
             Log::info('Specific migration run via UI', [
-                'admin_id' => auth()->id(),
+                'admin_id' => auth('admin')->id(),
                 'migration' => $migrationName,
                 'output' => $output
             ]);
@@ -362,6 +365,12 @@ class MigrationController extends Controller
     public function rollback(Request $request)
     {
         try {
+            if (app()->environment('production')) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Production migrations are forward-only. Create a new repair migration.',
+                ], 403);
+            }
             // Validate request
             $validator = Validator::make($request->all(), [
                 'force' => 'nullable|boolean',
@@ -375,13 +384,6 @@ class MigrationController extends Controller
                     'message' => 'Please confirm you want to rollback migrations',
                     'errors' => $validator->errors()
                 ], 422);
-            }
-
-            if (app()->environment('production') && !$request->boolean('force')) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Cannot rollback in production without force flag. This is a safety measure.'
-                ], 403);
             }
 
             $steps = $request->get('steps', 1);
@@ -398,11 +400,8 @@ class MigrationController extends Controller
                 throw new \Exception('Rollback command failed with exit code: ' . $exitCode);
             }
 
-            // Update tracking after rollback
-            $this->updateMigrationTracking();
-
             Log::info('Migrations rolled back via UI', [
-                'admin_id' => auth()->id(),
+                'admin_id' => auth('admin')->id(),
                 'steps' => $steps,
                 'output' => $output
             ]);
@@ -426,319 +425,29 @@ class MigrationController extends Controller
     /**
      * Refresh migration tracking (detect modified migrations)
      */
-    public function refresh()
+    public function check()
     {
-        try {
-            $this->updateMigrationTracking();
-            
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Migration tracking refreshed',
-                'data' => [
-                    'pending' => count($this->getPendingMigrations()),
-                    'modified' => count($this->getModifiedMigrations()),
-                ]
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Migration refresh error: ' . $e->getMessage());
-            
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to refresh migration tracking: ' . $e->getMessage()
-            ], 500);
-        }
+        $states = $this->migrationDriftService->states();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Migration state checked without changing checksum history.',
+            'data' => [
+                'pending' => $states->where('state', 'pending')->count(),
+                'drifted' => $states->whereIn('state', ['modified', 'missing_file', 'untracked'])->count(),
+            ],
+        ]);
     }
 
-    /**
-     * Get all migration files
-     */
-    private function getMigrationFiles()
+    private function repairGuidance(string $migrationName): array
     {
-        $migrationPath = database_path('migrations');
-        $files = File::glob($migrationPath . '/*.php');
-        
-        $migrations = [];
-        foreach ($files as $file) {
-            $fileName = basename($file);
-            $migrations[] = [
-                'name' => $fileName,
-                'path' => $file,
-                'size' => filesize($file),
-                'modified' => filemtime($file),
-                'hash' => hash_file('sha256', $file),
-            ];
-        }
-        
-        // Sort by filename (which includes timestamp)
-        usort($migrations, function ($a, $b) {
-            return strcmp($a['name'], $b['name']);
-        });
-        
-        return $migrations;
-    }
+        $repairName = 'repair_' . preg_replace('/^\d{4}_\d{2}_\d{2}_\d{6}_/', '', $migrationName);
 
-    /**
-     * Get migration status from database
-     */
-    private function getMigrationStatus()
-    {
-        if (!Schema::hasTable('migrations')) {
-            return [];
-        }
-
-        return DB::table('migrations')
-            ->orderBy('batch')
-            ->orderBy('migration')
-            ->get()
-            ->pluck('batch', 'migration')
-            ->toArray();
-    }
-
-    /**
-     * Get all migrations with their status
-     */
-    private function getAllMigrationsWithStatus()
-    {
-        $files = $this->getMigrationFiles();
-        $dbStatus = $this->getMigrationStatus();
-        $tracking = MigrationTracking::all()->keyBy('migration_name');
-        
-        $migrations = [];
-        foreach ($files as $file) {
-            $migrationName = $this->getMigrationNameFromFile($file['name']);
-            $isInDb = isset($dbStatus[$migrationName]);
-            $trackingRecord = $tracking->get($migrationName);
-            
-            // Check if file was modified
-            $isModified = false;
-            if ($trackingRecord && $isInDb) {
-                $currentHash = $file['hash'];
-                if ($trackingRecord->file_hash !== $currentHash) {
-                    $isModified = true;
-                }
-            }
-            
-            $migrations[] = [
-                'name' => $file['name'],
-                'migration_name' => $migrationName,
-                'status' => $isInDb ? 'ran' : 'pending',
-                'is_modified' => $isModified,
-                'batch' => $isInDb ? $dbStatus[$migrationName] : null,
-                'file_hash' => $file['hash'],
-                'file_size' => $file['size'],
-                'modified_at' => date('Y-m-d H:i:s', $file['modified']),
-            ];
-        }
-        
-        return $migrations;
-    }
-
-    /**
-     * Get pending migrations
-     */
-    private function getPendingMigrations()
-    {
-        $files = $this->getMigrationFiles();
-        $dbStatus = $this->getMigrationStatus();
-        
-        $pending = [];
-        foreach ($files as $file) {
-            $migrationName = $this->getMigrationNameFromFile($file['name']);
-            if (!isset($dbStatus[$migrationName])) {
-                $pending[] = $file;
-            }
-        }
-        
-        return $pending;
-    }
-
-    /**
-     * Get modified migrations
-     */
-    private function getModifiedMigrations()
-    {
-        $files = $this->getMigrationFiles();
-        $dbStatus = $this->getMigrationStatus();
-        
-        // Check if tracking table exists
-        if (!Schema::hasTable('migration_tracking')) {
-            return [];
-        }
-        
-        try {
-            $tracking = MigrationTracking::all()->keyBy('migration_name');
-        } catch (\Exception $e) {
-            // Table might not exist yet, return empty array
-            return [];
-        }
-        
-        $modified = [];
-        foreach ($files as $file) {
-            $migrationName = $this->getMigrationNameFromFile($file['name']);
-            
-            // Only check migrations that have been run
-            if (isset($dbStatus[$migrationName])) {
-                $trackingRecord = $tracking->get($migrationName);
-                
-                if ($trackingRecord) {
-                    $currentHash = $file['hash'];
-                    if ($trackingRecord->file_hash !== $currentHash) {
-                        $modified[] = [
-                            'file' => $file,
-                            'migration_name' => $migrationName,
-                            'old_hash' => $trackingRecord->file_hash,
-                            'new_hash' => $currentHash,
-                        ];
-                    }
-                }
-            }
-        }
-        
-        return $modified;
-    }
-
-    /**
-     * Get ran migrations
-     */
-    private function getRanMigrations()
-    {
-        $files = $this->getMigrationFiles();
-        $dbStatus = $this->getMigrationStatus();
-        
-        $ran = [];
-        foreach ($files as $file) {
-            $migrationName = $this->getMigrationNameFromFile($file['name']);
-            if (isset($dbStatus[$migrationName])) {
-                $ran[] = [
-                    'file' => $file,
-                    'migration_name' => $migrationName,
-                    'batch' => $dbStatus[$migrationName],
-                ];
-            }
-        }
-        
-        return $ran;
-    }
-
-    /**
-     * Update migration tracking
-     */
-    private function updateMigrationTracking()
-    {
-        // Check if tracking table exists
-        if (!Schema::hasTable('migration_tracking')) {
-            return;
-        }
-        
-        $files = $this->getMigrationFiles();
-        $dbStatus = $this->getMigrationStatus();
-        
-        foreach ($files as $file) {
-            $migrationName = $this->getMigrationNameFromFile($file['name']);
-            $isInDb = isset($dbStatus[$migrationName]);
-            
-            $tracking = MigrationTracking::firstOrNew(['migration_name' => $migrationName]);
-            
-            $oldHash = $tracking->file_hash;
-            $newHash = $file['hash'];
-            
-            // Check if file was modified
-            if ($isInDb && $oldHash && $oldHash !== $newHash) {
-                $tracking->status = 'modified';
-            } elseif ($isInDb) {
-                $tracking->status = 'ran';
-            } else {
-                $tracking->status = 'pending';
-            }
-            
-            $tracking->file_hash = $newHash;
-            $tracking->file_size = $file['size'];
-            $tracking->file_modified_at = date('Y-m-d H:i:s', $file['modified']);
-            
-            if ($isInDb && !$tracking->last_run_at) {
-                $tracking->last_run_at = now();
-            }
-            
-            if ($isInDb) {
-                $tracking->run_count = ($tracking->run_count ?? 0) + 1;
-            }
-            
-            $tracking->save();
-        }
-    }
-
-    /**
-     * Update tracking for a single migration
-     */
-    private function updateSingleMigrationTracking($migrationName)
-    {
-        // Check if tracking table exists
-        if (!Schema::hasTable('migration_tracking')) {
-            return;
-        }
-        
-        $file = $this->findMigrationFile($migrationName);
-        
-        if (!$file) {
-            return;
-        }
-        
-        $fileInfo = [
-            'name' => basename($file),
-            'path' => $file,
-            'size' => filesize($file),
-            'modified' => filemtime($file),
-            'hash' => hash_file('sha256', $file),
+        return [
+            'name' => $repairName,
+            'command' => 'php artisan make:migration ' . $repairName,
+            'instructions' => 'Put only the additive schema or data correction in the new migration, review its down method, deploy it, then run pending migrations.',
         ];
-        
-        $dbStatus = $this->getMigrationStatus();
-        $isInDb = isset($dbStatus[$migrationName]);
-        
-        $tracking = MigrationTracking::firstOrNew(['migration_name' => $migrationName]);
-        $tracking->file_hash = $fileInfo['hash'];
-        $tracking->file_size = $fileInfo['size'];
-        $tracking->file_modified_at = date('Y-m-d H:i:s', $fileInfo['modified']);
-        $tracking->status = $isInDb ? 'ran' : 'pending';
-        $tracking->last_run_at = now();
-        $tracking->run_count = ($tracking->run_count ?? 0) + 1;
-        $tracking->save();
-    }
-
-    /**
-     * Get migration name from filename
-     */
-    private function getMigrationNameFromFile($fileName)
-    {
-        // Remove .php extension
-        return str_replace('.php', '', $fileName);
-    }
-
-    /**
-     * Find migration file by name
-     */
-    private function findMigrationFile($migrationName)
-    {
-        $migrationPath = database_path('migrations');
-        $files = File::glob($migrationPath . '/*.php');
-        
-        foreach ($files as $file) {
-            $fileName = basename($file);
-            $name = $this->getMigrationNameFromFile($fileName);
-            
-            if ($name === $migrationName || str_contains($fileName, $migrationName)) {
-                return $file;
-            }
-        }
-        
-        return null;
-    }
-
-    /**
-     * Get output handler for Artisan commands
-     */
-    private function getOutput()
-    {
-        return new \Symfony\Component\Console\Output\BufferedOutput();
     }
 }
 

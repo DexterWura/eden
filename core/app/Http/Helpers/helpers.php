@@ -1104,7 +1104,7 @@ function resolveAdminModuleFromRoute(?string $routeName = null): ?string
         return null;
     }
 
-    $routePatterns = Cache::remember('admin_module_route_patterns', 3600, function () {
+    $routePatterns = Cache::remember('admin_module_route_patterns_v2', 3600, function () {
         $patterns = config('admin_modules.route_patterns', []);
         // Sort by pattern length descending so more specific patterns match first
         uksort($patterns, function ($a, $b) {

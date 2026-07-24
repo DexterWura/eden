@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Eden;
 use App\Models\Startup;
 use App\Models\StartupComment;
 use App\Rules\SensibleCommentBody;
+use App\Services\StartupCommentNotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -28,11 +29,12 @@ class StartupCommentController extends EdenController
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        StartupComment::create([
+        $comment = StartupComment::create([
             'startup_id' => $startup->id,
             'user_id' => $user->id,
             'body' => trim($request->input('body')),
         ]);
+        app(StartupCommentNotificationService::class)->send($comment);
 
         return redirect()->back()->with('success', 'Comment posted.');
     }

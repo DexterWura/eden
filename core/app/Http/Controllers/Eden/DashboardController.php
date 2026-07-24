@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Eden;
 
 use App\Models\ContactSubmission;
+use App\Models\AdSpot;
+use App\Models\ScheduledTask;
 use App\Models\Startup;
+use App\Models\StartupReport;
 use App\Models\Subscriber;
 use App\Models\StartupRevenueEvent;
-use App\Models\StartupComment;
 use App\Models\User;
+use App\Services\FounderDashboardService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 
@@ -18,24 +21,12 @@ class DashboardController extends EdenController
         return function_exists('gs') && gs('site_name') ? (string) gs('site_name') : 'Eden';
     }
 
-    public function founderDashboard(): Response
+    public function founderDashboard(FounderDashboardService $dashboardService): Response
     {
         $user = auth()->user();
-        $myStartups = Startup::visibleToUser($user)->orderByDesc('updated_at')->get();
-        $totalUpvotes = $myStartups->sum('upvotes');
-        $totalViews = $myStartups->sum('views');
-        $totalClicks = $myStartups->sum('clicks');
-        $totalRevenue = (float) $myStartups->sum('revenue');
-        $totalMrr = (float) $myStartups->sum('mrr');
-
-        $startupIds = $myStartups->pluck('id');
-        $totalComments = $startupIds->isEmpty()
-            ? 0
-            : StartupComment::whereIn('startup_id', $startupIds)->count();
-
-        $primaryStartup = $myStartups->first();
+        $dashboard = $dashboardService->forFounder($user);
+        $primaryStartup = $dashboard['myStartups']->first();
         $siteName = $this->siteName();
-        $unreadNotifications = $user->unreadNotifications;
 
         return response()->view('eden.layout-dashboard', [
             'title' => 'Startup dashboard',
@@ -46,17 +37,9 @@ class DashboardController extends EdenController
             'searchPlaceholder' => "Try searching 'upvotes this week'",
             'avatarTitle' => $user->name ?? 'Account',
             'avatarLetter' => strtoupper(mb_substr($user->name ?? '?', 0, 1)),
+            'founderNavStatus' => $dashboard['founderNavStatus'],
             'notifyPartial' => view('partials.notify')->render(),
-            'content' => view('eden.founder-dashboard', [
-                'myStartups' => $myStartups,
-                'totalUpvotes' => $totalUpvotes,
-                'totalViews' => $totalViews,
-                'totalClicks' => $totalClicks,
-                'totalComments' => $totalComments,
-                'totalRevenue' => $totalRevenue,
-                'totalMrr' => $totalMrr,
-                'unreadNotifications' => $unreadNotifications,
-            ])->render(),
+            'content' => view('eden.founder-dashboard', $dashboard)->render(),
         ]);
     }
 
@@ -150,49 +133,104 @@ class DashboardController extends EdenController
 
     public function adminDashboard(): Response
     {
-        $totalStartups = Startup::count();
-        $activeStartups = Startup::active()->count();
-        $launchingToday = Startup::active()->launchingToday()->count();
-        $recentStartups = Startup::query()->orderByDesc('created_at')->limit(5)->get();
-        $recentContactMessages = ContactSubmission::query()->orderByDesc('created_at')->limit(10)->get();
-        $heroRequests = Startup::where('hero_request_status', 'pending')->where('featured_on_hero', false)->orderBy('updated_at')->get();
+        $admin = auth()->guard('admin')->user();
+        $canManageStartups = $admin?->hasModule('startups') ?? false;
+        $canManageUsers = $admin?->hasModule('users') ?? false;
+        $canManageSubscribers = $admin?->hasModule('subscribers') ?? false;
+        $canManagePayments = $admin?->hasModule('payments') ?? false;
+        $canManageMessages = $admin?->hasModule('messages') ?? false;
+        $canManageReports = $admin?->hasModule('reports') ?? false;
+        $canManageWebsites = $admin?->hasModule('website_health') ?? false;
+        $canManageTasks = $admin?->hasModule('scheduled_tasks') ?? false;
+        $canManageAds = $admin?->hasModule('advertising') ?? false;
+        $totalStartups = $canManageStartups ? Startup::count() : null;
+        $activeStartups = $canManageStartups ? Startup::active()->count() : null;
+        $launchingToday = $canManageStartups ? Startup::active()->launchingToday()->count() : null;
+
+        $pendingStartups = $canManageStartups
+            ? Startup::where('status', Startup::STATUS_PENDING)->oldest()->limit(8)->get()
+            : collect();
+        $heroRequests = $canManageStartups
+            ? Startup::where('hero_request_status', 'pending')->where('featured_on_hero', false)->oldest('updated_at')->limit(8)->get()
+            : collect();
+        $pendingReports = $canManageReports
+            ? StartupReport::with('startup')->where('status', StartupReport::STATUS_PENDING)->oldest()->limit(8)->get()
+            : collect();
+        $unreadMessages = $canManageMessages
+            ? ContactSubmission::query()
+                ->when($admin?->last_saw_contact_messages_at, fn ($query, $seenAt) => $query->where('created_at', '>', $seenAt))
+                ->latest()
+                ->limit(8)
+                ->get()
+            : collect();
+        $failedWebsiteChecks = $canManageWebsites
+            ? Startup::where('website_is_reachable', false)->where('website_consecutive_failures', '>', 0)
+                ->orderByDesc('website_consecutive_failures')->limit(8)->get()
+            : collect();
+        $failedTasks = $canManageTasks
+            ? ScheduledTask::where('last_status', ScheduledTask::STATUS_FAILED)->orderByDesc('last_run_at')->limit(8)->get()
+            : collect();
+        $pendingAds = $canManageAds
+            ? AdSpot::where('status', AdSpot::STATUS_PENDING)->oldest()->limit(8)->get()
+            : collect();
         $siteName = $this->siteName();
 
         $days = 60;
         $startDate = now()->subDays($days);
 
-        $revenueByDay = StartupRevenueEvent::where('created_at', '>=', $startDate)
-            ->selectRaw('DATE(created_at) as date, SUM(amount) as total')
-            ->groupBy('date')
-            ->orderBy('date')
-            ->pluck('total', 'date')
-            ->toArray();
+        $revenueByDay = $canManagePayments
+            ? StartupRevenueEvent::where('created_at', '>=', $startDate)
+                ->selectRaw('DATE(created_at) as date, SUM(amount) as total')
+                ->groupBy('date')
+                ->orderBy('date')
+                ->pluck('total', 'date')
+                ->toArray()
+            : [];
 
-        $usersByDay = User::where('created_at', '>=', $startDate)
-            ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
-            ->groupBy('date')
-            ->orderBy('date')
-            ->pluck('count', 'date')
-            ->toArray();
+        $usersByDay = $canManageUsers
+            ? User::where('created_at', '>=', $startDate)
+                ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
+                ->groupBy('date')
+                ->orderBy('date')
+                ->pluck('count', 'date')
+                ->toArray()
+            : [];
 
         return response()->view('eden.layout-dashboard', [
             'title' => 'Admin dashboard',
             'sidebar' => 'admin',
+            'activeNav' => 'home',
             'dashboardLogo' => $siteName . ' Admin',
-            'dashboardTopbar' => '<button type="button" class="dash-account" title="Property">All startups</button>',
+            'dashboardTopbar' => $canManageStartups
+                ? '<a class="dash-account" href="' . e(route('admin.startups.index')) . '">All startups</a>'
+                : '<span class="dash-account">Command center</span>',
             'searchPlaceholder' => "Try searching 'startups by category'",
-            'avatarTitle' => 'Admin',
-            'avatarLetter' => 'A',
+            'avatarTitle' => $admin?->name ?? 'Admin',
+            'avatarLetter' => strtoupper(mb_substr($admin?->name ?? 'A', 0, 1)),
             'scriptDeps' => '<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>',
+            'notifyPartial' => view('partials.notify')->render(),
             'content' => view('eden.admin-dashboard', [
                 'totalStartups' => $totalStartups,
                 'activeStartups' => $activeStartups,
                 'launchingToday' => $launchingToday,
-                'totalUsers' => User::count(),
-                'totalSubscribers' => Subscriber::count(),
-                'recentStartups' => $recentStartups,
-                'recentContactMessages' => $recentContactMessages,
+                'totalUsers' => $canManageUsers ? User::count() : null,
+                'totalSubscribers' => $canManageSubscribers ? Subscriber::count() : null,
+                'pendingStartups' => $pendingStartups,
                 'heroRequests' => $heroRequests,
+                'pendingReports' => $pendingReports,
+                'unreadMessages' => $unreadMessages,
+                'failedWebsiteChecks' => $failedWebsiteChecks,
+                'failedTasks' => $failedTasks,
+                'pendingAds' => $pendingAds,
+                'canManageStartups' => $canManageStartups,
+                'canManageUsers' => $canManageUsers,
+                'canManageSubscribers' => $canManageSubscribers,
+                'canManagePayments' => $canManagePayments,
+                'canManageMessages' => $canManageMessages,
+                'canManageReports' => $canManageReports,
+                'canManageWebsites' => $canManageWebsites,
+                'canManageTasks' => $canManageTasks,
+                'canManageAds' => $canManageAds,
                 'days' => $days,
                 'revenueByDay' => $revenueByDay,
                 'usersByDay' => $usersByDay,

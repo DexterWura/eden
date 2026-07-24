@@ -84,6 +84,8 @@ class AdController extends EdenController
             'contact_email' => $request->input('contact_email'),
             'payment_reference' => $paymentReference,
             'gateway' => $gateway->alias,
+            'amount' => $meta['price'],
+            'currency' => $meta['currency'],
         ]);
 
         return match ($gateway->alias) {

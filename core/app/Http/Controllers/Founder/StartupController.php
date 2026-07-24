@@ -5,13 +5,12 @@ namespace App\Http\Controllers\Founder;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Startup;
-use App\Models\StartupFundingRound;
 use App\Rules\SensibleDisplayName;
 use App\Rules\SensiblePersonName;
 use App\Rules\SensibleShortText;
 use App\Services\GoogleSearchConsoleService;
+use App\Services\FounderDashboardService;
 use App\Services\StartupFormService;
-use App\Services\StartupFundingRoundService;
 use App\Support\StartupContentPolicy;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,7 +20,7 @@ class StartupController extends Controller
 {
     public function __construct(
         private StartupFormService $startupFormService,
-        private StartupFundingRoundService $fundingRoundService
+        private FounderDashboardService $dashboardService
     ) {
         parent::__construct();
     }
@@ -29,10 +28,12 @@ class StartupController extends Controller
     public function index()
     {
         $user = auth()->user();
-        $startups = Startup::visibleToUser($user)->orderByDesc('updated_at')->get();
+        $dashboard = $this->dashboardService->forFounder($user);
+        $startups = $dashboard['myStartups'];
 
         $content = view('eden.founder.startups-index', [
             'startups' => $startups,
+            'startupProfiles' => $dashboard['startupProfiles']->keyBy(fn (array $profile) => $profile['startup']->id),
             'canAddStartup' => $this->canAddStartup($user),
         ])->render();
 
@@ -51,6 +52,7 @@ class StartupController extends Controller
             'startup' => $startup,
             'categories' => $categories,
             'requiresEditorialContent' => $startup->requiresEditorialContent(),
+            'hasDofollowBacklink' => auth()->user()->isPro(),
         ])->render();
         return $this->layoutResponse('Add startup', 'startups', $content, true);
     }
@@ -86,13 +88,13 @@ class StartupController extends Controller
     public function edit(Startup $startup)
     {
         $this->authorize('manage', $startup);
+        $startup->loadMissing('user:id,is_pro');
         $categories = Category::orderBy('sort_order')->get();
-        $fundingRoundTypes = StartupFundingRound::ROUND_TYPES;
         $content = view('eden.founder.startups-form', [
             'startup' => $startup,
             'categories' => $categories,
-            'fundingRoundTypes' => $fundingRoundTypes,
             'requiresEditorialContent' => $startup->requiresEditorialContent(),
+            'hasDofollowBacklink' => $startup->hasDofollowBacklink(),
         ])->render();
         return $this->layoutResponse('Edit startup', 'startups', $content, true);
     }
@@ -116,9 +118,6 @@ class StartupController extends Controller
         $this->applyFlipitForSaleFromRequest($request, $data);
         $startup->update($data);
         $this->startupFormService->processUploadedFiles($request, $startup);
-        if (auth()->user()->isPro()) {
-            $this->fundingRoundService->sync($startup, $request->all());
-        }
         $startup->refresh();
         $startup->promoteContentQualityIfReady();
         return redirect()->route('founder.startups.index')->with('notify', [['success', 'Startup updated.']]);
@@ -258,12 +257,6 @@ class StartupController extends Controller
                     $fail('The FLIPit listing must be a valid listing number (12 characters) or a full FLIPit listing URL.');
                 },
             ],
-            'seeking_investors' => ['nullable', 'in:0,1'],
-            'funding_round_type' => ['nullable', 'string', 'in:' . implode(',', array_keys(StartupFundingRound::ROUND_TYPES))],
-            'funding_amount_seeking' => ['nullable', 'numeric', 'min:0'],
-            'funding_currency' => ['nullable', 'string', 'max:3'],
-            'funding_contact_email' => ['nullable', 'email', 'max:255'],
-            'funding_description' => ['nullable', 'string', 'max:2000'],
         ];
     }
 

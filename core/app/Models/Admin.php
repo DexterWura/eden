@@ -3,11 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 class Admin extends Authenticatable
 {
+    use Notifiable;
+
     const STATUS_ENABLED = 1;
     const STATUS_DISABLED = 0;
+
+    protected $attributes = [
+        'is_super_admin' => false,
+        'status' => self::STATUS_ENABLED,
+    ];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -15,7 +23,7 @@ class Admin extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes',
     ];
 
     /**
@@ -33,6 +41,9 @@ class Admin extends Authenticatable
         'allowed_modules',
         'status',
         'last_saw_contact_messages_at',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
+        'two_factor_confirmed_at',
     ];
 
     /**
@@ -46,6 +57,9 @@ class Admin extends Authenticatable
         'allowed_modules' => 'array',
         'status' => 'integer',
         'last_saw_contact_messages_at' => 'datetime',
+        'two_factor_secret' => 'encrypted',
+        'two_factor_recovery_codes' => 'encrypted:array',
+        'two_factor_confirmed_at' => 'datetime',
     ];
 
     /**
@@ -53,7 +67,7 @@ class Admin extends Authenticatable
      */
     public function isSuperAdmin(): bool
     {
-        return (bool) ($this->is_super_admin ?? true);
+        return (bool) $this->is_super_admin;
     }
 
     /**
@@ -74,7 +88,7 @@ class Admin extends Authenticatable
     public function getAllowedModules(): array
     {
         if ($this->isSuperAdmin()) {
-            return array_keys(config('admin_modules.modules', []));
+            return config('admin_modules.modules', []);
         }
         $modules = $this->allowed_modules ?? [];
         return is_array($modules) ? $modules : [];
@@ -85,7 +99,12 @@ class Admin extends Authenticatable
      */
     public function isEnabled(): bool
     {
-        return (int) ($this->status ?? 1) === self::STATUS_ENABLED;
+        return (int) $this->status === self::STATUS_ENABLED;
+    }
+
+    public function hasTwoFactorEnabled(): bool
+    {
+        return $this->two_factor_secret !== null && $this->two_factor_confirmed_at !== null;
     }
 
     /**

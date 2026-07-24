@@ -9,6 +9,20 @@
   </div>
 </div>
 
+<form method="get" action="{{ route('founder.analytics') }}" class="dash-card" style="margin-bottom:16px;">
+  <div class="dash-card-body" style="display:flex;align-items:end;gap:10px;flex-wrap:wrap;">
+    <div>
+      <label for="analytics-days" class="dash-label">Chart date range</label>
+      <select id="analytics-days" name="days" class="dash-input">
+        @foreach([7 => 'Last 7 days', 30 => 'Last 30 days', 60 => 'Last 60 days', 90 => 'Last 90 days'] as $value => $label)
+        <option value="{{ $value }}" @selected((int)($days ?? 60) === $value)>{{ $label }}</option>
+        @endforeach
+      </select>
+    </div>
+    <button type="submit" class="dash-btn dash-btn-secondary">Apply range</button>
+  </div>
+</form>
+
 @php
   $totalViews = $totalViews ?? 0;
   $totalClicks = $totalClicks ?? 0;
@@ -84,7 +98,7 @@
       <span class="dash-card-subtitle">Last {{ $days }} days · cumulative</span>
     </div>
     <div class="dash-card-body">
-      <div id="revenueChart" class="analytics-chart"></div>
+      <div id="revenueChart" class="analytics-chart" role="img" aria-label="Cumulative revenue chart for the selected date range"></div>
     </div>
   </div>
 
@@ -94,7 +108,7 @@
         <span class="dash-card-title"><i class="fa-solid fa-arrow-up"></i> Upvotes by day</span>
       </div>
       <div class="dash-card-body">
-        <div id="upvotesChart" class="analytics-chart"></div>
+        <div id="upvotesChart" class="analytics-chart" role="img" aria-label="Daily upvotes chart for the selected date range"></div>
       </div>
     </div>
     <div class="dash-card analytics-chart-card analytics-chart-card--half">
@@ -102,7 +116,7 @@
         <span class="dash-card-title"><i class="fa-solid fa-comment"></i> Comments by day</span>
       </div>
       <div class="dash-card-body">
-        <div id="commentsChart" class="analytics-chart"></div>
+        <div id="commentsChart" class="analytics-chart" role="img" aria-label="Daily comments chart for the selected date range"></div>
       </div>
     </div>
   </div>
@@ -112,7 +126,7 @@
       <span class="dash-card-title"><i class="fa-solid fa-bars-progress"></i> Per-startup comparison</span>
     </div>
     <div class="dash-card-body">
-      <div id="startupComparisonChart" class="analytics-chart"></div>
+      <div id="startupComparisonChart" class="analytics-chart" role="img" aria-label="Per-startup engagement comparison chart"></div>
     </div>
   </div>
 

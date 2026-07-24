@@ -7,7 +7,7 @@
     <title>{{ optional(gs())->siteName($pageTitle ?? '') ?: ($pageTitle ?? 'Eden') }}</title>
     @php try { $faviconUrl = siteFavicon(); } catch (\Throwable $e) { $faviconUrl = asset('favicon.ico'); } @endphp
     <link rel="shortcut icon" type="image/png" href="{{ $faviconUrl }}">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/line-awesome/1.3.0/line-awesome/css/line-awesome.min.css" rel="stylesheet" crossorigin="anonymous">

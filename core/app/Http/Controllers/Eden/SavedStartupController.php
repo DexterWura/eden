@@ -20,7 +20,10 @@ class SavedStartupController extends EdenController
     {
         $startups = $request->user()
             ->savedStartupsList()
-            ->with('activeFundingRound')
+            ->with([
+                'activeFundingRound',
+                'user:id,is_pro',
+            ])
             ->orderByPivot('created_at', 'desc')
             ->get();
 

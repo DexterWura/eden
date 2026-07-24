@@ -64,7 +64,7 @@
             <td>{{ $post->updated_at->format('M j, Y H:i') }}</td>
             <td>
               <a href="{{ route('admin.blog.edit', $post) }}" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;"><i class="fa-solid fa-pen"></i> Edit</a>
-              <form action="{{ route('admin.blog.destroy', $post) }}" method="post" style="display: inline;" onsubmit="return confirm('Delete this post?');">
+              <form action="{{ route('admin.blog.destroy', $post) }}" method="post" style="display: inline;" data-confirm="Delete this blog post permanently?" data-confirm-label="Delete post">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="dash-btn" style="padding: 4px 10px; font-size: 0.8rem; background: #dc2626; color: #fff; border: none;">Delete</button>

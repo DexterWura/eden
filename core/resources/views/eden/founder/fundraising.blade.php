@@ -20,6 +20,9 @@
   @foreach($startups as $startup)
   @php
     $round = $startup->activeFundingRound;
+    $investorLeads = $startup->fundingRounds
+      ->flatMap(fn ($fundingRound) => $fundingRound->investorLeads)
+      ->sortByDesc('created_at');
     $enabled = old('startup_id') == $startup->id
       ? old('seeking_investors', $round ? '1' : '0') === '1'
       : (bool) $round;
@@ -108,6 +111,38 @@
           </div>
         </div>
       </form>
+      @if($investorLeads->isNotEmpty())
+      <section style="margin-top:24px;border-top:1px solid var(--d-border);padding-top:20px">
+        <h3 class="dash-card-title">Investor inbox</h3>
+        @foreach($investorLeads as $lead)
+        <article style="padding:14px 0;border-bottom:1px solid var(--d-border)">
+          <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
+            <div>
+              <strong>{{ $lead->name }}</strong>
+              <a href="mailto:{{ $lead->email }}">{{ $lead->email }}</a>
+              @if($lead->organization) · {{ $lead->organization }} @endif
+              @if($lead->message)<p style="margin:8px 0">{{ $lead->message }}</p>@endif
+            </div>
+            <span class="dash-badge">{{ ucfirst($lead->status) }}</span>
+          </div>
+          <form method="POST" action="{{ route('founder.fundraising.leads.update', $lead) }}" style="display:grid;grid-template-columns:minmax(220px,1fr) 150px auto;gap:8px;align-items:end">
+            @csrf @method('PATCH')
+            <label class="dash-label">Private notes
+              <textarea class="dash-input" name="notes" rows="2" maxlength="3000">{{ $lead->notes }}</textarea>
+            </label>
+            <label class="dash-label">Status
+              <select class="dash-input" name="status">
+                @foreach(\App\Models\InvestorLead::STATUSES as $status)
+                <option value="{{ $status }}" {{ $lead->status === $status ? 'selected' : '' }}>{{ ucfirst($status) }}</option>
+                @endforeach
+              </select>
+            </label>
+            <button class="dash-btn dash-btn-secondary" type="submit">Update lead</button>
+          </form>
+        </article>
+        @endforeach
+      </section>
+      @endif
     </div>
   </div>
   @endforeach

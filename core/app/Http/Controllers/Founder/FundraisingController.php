@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Founder;
 
 use App\Http\Controllers\Controller;
+use App\Models\InvestorLead;
 use App\Models\Startup;
 use App\Models\StartupFundingRound;
 use App\Services\StartupFundingRoundService;
@@ -28,7 +29,10 @@ class FundraisingController extends Controller
         }
 
         $startups = Startup::visibleToUser($user)
-            ->with('activeFundingRound')
+            ->with([
+                'activeFundingRound',
+                'fundingRounds.investorLeads' => fn ($query) => $query->latest(),
+            ])
             ->orderBy('name')
             ->get();
 
@@ -64,6 +68,27 @@ class FundraisingController extends Controller
 
         return redirect()->route('founder.fundraising.index')
             ->with('notify', [['success', 'Fundraising settings updated for ' . $startup->name . '.']]);
+    }
+
+    public function updateLead(Request $request, InvestorLead $lead): RedirectResponse
+    {
+        $lead->loadMissing('fundingRound.startup');
+        $startup = $lead->fundingRound?->startup;
+        abort_unless($startup && $startup->userCanManage(auth()->user()), 404);
+        if (! $request->user()->isPro()) {
+            return redirect()->route('pricing')
+                ->with('info', 'Pro membership required to manage investor leads.');
+        }
+
+        $validated = $request->validate([
+            'status' => ['required', 'string', 'in:' . implode(',', InvestorLead::STATUSES)],
+            'notes' => ['nullable', 'string', 'max:3000'],
+        ]);
+        $lead->notes = trim((string) ($validated['notes'] ?? '')) ?: null;
+        $lead->save();
+        $lead->transitionTo($validated['status']);
+
+        return back()->with('notify', [['success', 'Investor lead updated.']]);
     }
 
     private function layoutResponse(string $title, string $activeNav, string $content): Response

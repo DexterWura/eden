@@ -9,6 +9,21 @@
   {{ $isEdit ? 'Update your startup details and links.' : 'Add a new startup to your account.' }}
 </div>
 
+<section class="startup-backlink-offer {{ ($hasDofollowBacklink ?? false) ? 'startup-backlink-offer--active' : '' }}" aria-labelledby="backlink-offer-title">
+  <div class="startup-backlink-offer__icon"><i class="fa-solid fa-link" aria-hidden="true"></i></div>
+  <div class="startup-backlink-offer__copy">
+    <h2 id="backlink-offer-title">{{ ($hasDofollowBacklink ?? false) ? 'Your Pro dofollow backlink is active' : 'Get a dofollow backlink with Pro' }}</h2>
+    @if($hasDofollowBacklink ?? false)
+      <p>Your startup website link can be followed by visitors and search engines while the listing owner remains a Pro member.</p>
+    @else
+      <p>Submitting is still free. Free listings use nofollow website links; Pro listings receive a dofollow website backlink.</p>
+    @endif
+  </div>
+  @unless($hasDofollowBacklink ?? false)
+    <a href="{{ route('pricing') }}" target="_blank" rel="noopener noreferrer" class="dash-btn dash-btn-primary"><i class="fa-solid fa-crown" aria-hidden="true"></i> View Pro</a>
+  @endunless
+</section>
+
 <form action="{{ $formAction }}" method="post" class="dash-form startup-form" enctype="multipart/form-data">
   @csrf
   @if($isEdit) @method('PUT') @endif
@@ -214,58 +229,15 @@
   </div>
 
   @if($isEdit && auth()->user()->isPro())
-  @php
-    $fundingRound = $startup->activeFundingRound;
-  @endphp
-  <div class="dash-card" style="margin-bottom: 20px; border-left: 4px solid #6366f1;">
+  @php $fundingRound = $startup->activeFundingRound; @endphp
+  <div class="dash-card" style="margin-bottom:20px;border-left:4px solid #6366f1;">
     <div class="dash-card-header">
-      <span class="dash-card-title"><i class="fa-solid fa-hand-holding-dollar"></i> Funding / Investors</span>
-      <span class="dash-card-subtitle">Pro feature</span>
+      <span class="dash-card-title"><i class="fa-solid fa-hand-holding-dollar"></i> Fundraising</span>
+      <span class="dash-card-subtitle">{{ $fundingRound ? $fundingRound->round_type_label . ' · live' : 'No active round' }}</span>
     </div>
-    <div class="dash-card-body" style="display: flex; flex-direction: column; gap: 16px;">
-      <p style="font-size: 0.875rem; color: var(--d-text-secondary);">Open a funding round or mark that you're looking for investors. This will be shown on your startup page. You can also manage it from the <a href="{{ route('founder.fundraising.index') }}" class="dash-table-link">Fund raising</a> page.</p>
-      <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-        <input type="hidden" name="seeking_investors" value="0">
-        <input type="checkbox" name="seeking_investors" value="1" id="seeking_investors" {{ (old('seeking_investors', $fundingRound ? '1' : '0')) === '1' ? 'checked' : '' }}>
-        <span class="dash-label">We are raising funding / looking for investors</span>
-      </label>
-      @php
-        $fundingRoundType = $fundingRound ? $fundingRound->round_type : 'seed';
-        $fundingAmount = $fundingRound ? $fundingRound->amount_seeking : '';
-        $fundingCurrency = $fundingRound ? $fundingRound->currency : 'USD';
-        $fundingContact = $fundingRound ? $fundingRound->contact_email : ($startup->founder_email ?? '');
-        $fundingDesc = $fundingRound ? $fundingRound->description : '';
-      @endphp
-      <div id="funding-round-fields" style="{{ (old('seeking_investors', $fundingRound ? '1' : '0')) === '1' ? '' : 'display:none;' }}">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-          <div>
-            <label for="funding_round_type" class="dash-label">Round type</label>
-            <select id="funding_round_type" name="funding_round_type" class="dash-input">
-              @foreach($fundingRoundTypes ?? [] as $val => $label)
-              <option value="{{ $val }}" {{ old('funding_round_type', $fundingRoundType) === $val ? 'selected' : '' }}>{{ $label }}</option>
-              @endforeach
-            </select>
-          </div>
-          <div>
-            <label for="funding_amount_seeking" class="dash-label">Amount seeking (optional)</label>
-            <input type="number" id="funding_amount_seeking" name="funding_amount_seeking" value="{{ old('funding_amount_seeking', $fundingAmount) }}" class="dash-input" placeholder="e.g. 500000" min="0" step="0.01">
-          </div>
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-          <div>
-            <label for="funding_currency" class="dash-label">Currency</label>
-            <input type="text" id="funding_currency" name="funding_currency" value="{{ old('funding_currency', $fundingCurrency) }}" class="dash-input" placeholder="USD" maxlength="3">
-          </div>
-          <div>
-            <label for="funding_contact_email" class="dash-label">Contact email for investors</label>
-            <input type="email" id="funding_contact_email" name="funding_contact_email" value="{{ old('funding_contact_email', $fundingContact) }}" class="dash-input" placeholder="investors@example.com">
-          </div>
-        </div>
-        <div>
-          <label for="funding_description" class="dash-label">Description (optional)</label>
-          <textarea id="funding_description" name="funding_description" rows="3" class="dash-input" placeholder="Brief pitch, use of funds, etc.">{{ old('funding_description', $fundingDesc) }}</textarea>
-        </div>
-      </div>
+    <div class="dash-card-body">
+      <p style="font-size:.875rem;color:var(--d-text-secondary);">Fundraising details are managed in one place so your startup profile and investor listing stay consistent.</p>
+      <a href="{{ route('founder.fundraising.index') }}" class="dash-btn dash-btn-secondary" style="text-decoration:none;">Manage fundraising</a>
     </div>
   </div>
   @elseif($isEdit)

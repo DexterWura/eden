@@ -34,7 +34,7 @@
             messageSize: '1rem',
             titleColor: '#474747',
             messageColor: '#a2a2a2',
-            transitionIn: 'obunceInLeft'
+            transitionIn: 'bounceInLeft'
         });
     }
 

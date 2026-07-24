@@ -7,6 +7,19 @@
 
 <div class="wrap content-block submit-page">
   <div class="submit-form-wrap">
+    <?php $submitterHasPro = auth()->check() && auth()->user()->isPro(); ?>
+    <section class="submit-backlink-offer<?= $submitterHasPro ? ' submit-backlink-offer--active' : '' ?>" aria-labelledby="submit-backlink-offer-title">
+      <div class="submit-backlink-offer__icon"><i class="fa-solid fa-link" aria-hidden="true"></i></div>
+      <div class="submit-backlink-offer__copy">
+        <h2 id="submit-backlink-offer-title"><?= $submitterHasPro ? 'Your Pro dofollow backlink is active' : 'Add a dofollow backlink with Pro' ?></h2>
+        <p><?= $submitterHasPro
+          ? 'Your startup website link will be dofollow while your account remains Pro.'
+          : 'A basic listing is free and uses a nofollow website link. Pro is optional and unlocks a dofollow backlink.' ?></p>
+      </div>
+      <?php if (!$submitterHasPro): ?>
+      <a href="<?= e(route('pricing')) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary"><i class="fa-solid fa-crown" aria-hidden="true"></i> View Pro</a>
+      <?php endif; ?>
+    </section>
     <form class="submit-form-card" action="<?= e(url('/submit')) ?>" method="POST" enctype="multipart/form-data">
       <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
 

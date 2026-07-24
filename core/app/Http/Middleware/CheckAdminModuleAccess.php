@@ -17,7 +17,7 @@ class CheckAdminModuleAccess
     public function handle(Request $request, Closure $next): Response
     {
         $admin = auth('admin')->user();
-        if (!$admin) {
+        if (! $admin) {
             return redirect()->route('admin.login');
         }
 
@@ -27,16 +27,16 @@ class CheckAdminModuleAccess
 
         $routeName = $request->route()?->getName();
 
-        // Dashboard is the landing page for all admins: they see only sections they have access to
-        if ($routeName === 'admin.dashboard') {
+        // These endpoints filter their content by the admin's assigned modules.
+        if (in_array($routeName, ['admin.dashboard', 'admin.search'], true)) {
             return $next($request);
         }
 
         $module = resolveAdminModuleFromRoute($routeName);
 
-        // No module resolved: allow (safer for new routes until assigned to a module)
+        // Staff access is fail-closed so new admin routes cannot bypass RBAC.
         if ($module === null) {
-            return $next($request);
+            abort(403, 'This section has not been assigned to an admin module.');
         }
 
         if ($admin->hasModule($module)) {

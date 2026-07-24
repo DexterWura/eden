@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Admin\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Laramin\Utility\Onumoti;
@@ -56,6 +57,15 @@ class LoginController extends Controller
     public function username()
     {
         return 'username';
+    }
+
+    protected function credentials(Request $request): array
+    {
+        return [
+            $this->username() => $request->input($this->username()),
+            'password' => $request->input('password'),
+            'status' => Admin::STATUS_ENABLED,
+        ];
     }
 
     public function login(Request $request)
@@ -128,8 +138,10 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
-        $this->guard('admin')->logout();
+        $this->guard()->logout();
         $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
         return $this->loggedOut($request) ?: redirect()->route('admin.login');
     }
 }

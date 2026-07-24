@@ -17,12 +17,20 @@ class StartupApprovalNotificationService
 
     public function send(Startup $startup): int
     {
+        $startup->loadMissing('user:id,is_pro');
         $recipients = $this->recipientService->founderRecipients($startup);
         $this->createDashboardNotifications($startup, $recipients);
         $siteName = function_exists('gs') && gs('site_name') ? (string) gs('site_name') : 'Eden';
+        $hasDofollowBacklink = $startup->hasDofollowBacklink();
 
         $sent = 0;
         foreach ($recipients as $recipient) {
+            if ($recipient['user_id']) {
+                $user = User::query()->find($recipient['user_id']);
+                if ($user && ! $user->wantsNotification('STARTUP_APPROVED')) {
+                    continue;
+                }
+            }
             try {
                 $html = view('emails.startup-approved', [
                     'recipientName' => $recipient['name'],
@@ -31,6 +39,8 @@ class StartupApprovalNotificationService
                     'startupUrl' => url('/startup/' . $startup->slug),
                     'badgesUrl' => url('/founder/badges'),
                     'dashboardUrl' => url('/founder/startups'),
+                    'pricingUrl' => url('/pricing'),
+                    'hasDofollowBacklink' => $hasDofollowBacklink,
                 ])->render();
                 $subject = $startup->name . ' is now live on ' . $siteName;
 

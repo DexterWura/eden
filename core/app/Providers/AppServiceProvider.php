@@ -14,8 +14,12 @@ use App\Models\Frontend;
 use App\Observers\BlogPostObserver;
 use App\Observers\CategoryObserver;
 use App\Observers\StartupObserver;
+use App\Services\FounderDashboardService;
+use App\Services\MigrationDriftService;
+use Illuminate\Database\Events\MigrationsEnded;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Pagination\Paginator;
@@ -38,6 +42,14 @@ class AppServiceProvider extends ServiceProvider
         Startup::observe(StartupObserver::class);
         BlogPost::observe(BlogPostObserver::class);
         Category::observe(CategoryObserver::class);
+        Event::listen(MigrationsEnded::class, function (MigrationsEnded $event): void {
+            $tracking = app(MigrationDriftService::class);
+            if ($event->method === 'up') {
+                $tracking->recordCurrentAppliedMigrations();
+            } elseif ($event->method === 'down') {
+                $tracking->removeTrackingForRolledBackMigrations();
+            }
+        });
 
         if (config('app.force_https', true)) {
             \URL::forceScheme('https');
@@ -226,6 +238,17 @@ class AppServiceProvider extends ServiceProvider
 
             $this->app->make('view')->composer('eden.layout-dashboard', function ($view) {
                 $data = $view->getData();
+                if (($data['sidebar'] ?? '') === 'founder' && auth()->check()) {
+                    if (array_key_exists('founderNavStatus', $data)) {
+                        return;
+                    }
+                    try {
+                        $view->with('founderNavStatus', app(FounderDashboardService::class)->navigationStatus(auth()->user()));
+                    } catch (\Throwable $exception) {
+                        $view->with('founderNavStatus', []);
+                    }
+                    return;
+                }
                 if (($data['sidebar'] ?? '') !== 'admin') {
                     return;
                 }

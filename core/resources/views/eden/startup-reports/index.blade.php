@@ -20,7 +20,7 @@
     <div class="dash-table-wrap">
       <table class="dash-table">
         <thead>
-          <tr>
+          <tr id="report-{{ $r->id }}">
             <th>Date</th>
             <th>Startup</th>
             <th>Reason</th>
@@ -60,11 +60,11 @@
             </td>
             <td style="white-space: nowrap;">
               @if($r->status === \App\Models\StartupReport::STATUS_PENDING)
-                <form action="{{ route('admin.startup-reports.resolve', $r) }}" method="post" style="display:inline;" onsubmit="return confirm('Mark as reviewed?');">
+                <form action="{{ route('admin.startup-reports.resolve', $r) }}" method="post" style="display:inline;" data-confirm="Mark this report as reviewed?" data-confirm-label="Mark reviewed">
                   @csrf
                   <button type="submit" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;">Reviewed</button>
                 </form>
-                <form action="{{ route('admin.startup-reports.dismiss', $r) }}" method="post" style="display:inline;" onsubmit="return confirm('Dismiss this report?');">
+                <form action="{{ route('admin.startup-reports.dismiss', $r) }}" method="post" style="display:inline;" data-confirm="Dismiss this report without further action?" data-confirm-label="Dismiss report">
                   @csrf
                   <button type="submit" class="dash-btn" style="padding: 4px 10px; font-size: 0.8rem; background: #64748b; color: #fff; border: none;">Dismiss</button>
                 </form>

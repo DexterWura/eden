@@ -65,7 +65,10 @@ class StartupService
     private function baseActiveQuery(): Builder
     {
         return Startup::query()
-            ->with('activeFundingRound')
+            ->with([
+                'activeFundingRound',
+                'user:id,is_pro',
+            ])
             ->withCount('comments')
             ->active();
     }
@@ -95,8 +98,9 @@ class StartupService
     public function getAllStartupsPaginated(?string $category = null, ?string $location = null, int $perPage = 50)
     {
         $query = $this->baseActiveQuery()
+            ->orderByDesc('upvotes')
             ->orderByDesc('created_at')
-            ->orderByDesc('upvotes');
+            ->orderByDesc('id');
         $this->applyDiscoveryFilters($query, $category, $location);
         return $query->paginate($perPage)->withQueryString();
     }
@@ -354,7 +358,7 @@ class StartupService
 
     public function getBySlug(string $slug): Startup
     {
-        $startup = Startup::where('slug', $slug)->firstOrFail();
+        $startup = Startup::with('user:id,is_pro')->where('slug', $slug)->firstOrFail();
 
         if ($startup->isActive()) {
             return $startup;

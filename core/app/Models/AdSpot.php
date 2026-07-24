@@ -21,11 +21,14 @@ class AdSpot extends Model
         'contact_email',
         'payment_reference',
         'gateway',
+        'amount',
+        'currency',
     ];
 
     protected $casts = [
         'starts_at' => 'datetime',
         'ends_at' => 'datetime',
+        'amount' => 'decimal:2',
     ];
 
     public function scopeActiveForPlacement(Builder $query, string $placement): Builder

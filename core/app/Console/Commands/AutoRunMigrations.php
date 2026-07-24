@@ -2,15 +2,19 @@
 
 namespace App\Console\Commands;
 
+use App\Services\MigrationDriftService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Schema;
 
 class AutoRunMigrations extends Command
 {
+    public function __construct(
+        private MigrationDriftService $migrationDriftService
+    ) {
+        parent::__construct();
+    }
+
     /**
      * The name and signature of the console command.
      *
@@ -25,7 +29,7 @@ class AutoRunMigrations extends Command
      *
      * @var string
      */
-    protected $description = 'Automatically detect and run pending or modified migrations';
+    protected $description = 'Detect migration drift and run pending forward migrations';
 
     /**
      * Execute the console command.
@@ -33,25 +37,19 @@ class AutoRunMigrations extends Command
     public function handle()
     {
         try {
-            // Check if migrations table exists
-            if (!Schema::hasTable('migrations')) {
-                $this->info('Creating migrations table...');
-                Artisan::call('migrate:install', [], $this->getOutput());
-            }
+            $beforeStates = $this->migrationDriftService->states();
+            $pending = $beforeStates->where('state', 'pending');
+            $drifted = $beforeStates->whereIn('state', ['modified', 'missing_file', 'untracked']);
 
-            // Get pending migrations
-            $pending = $this->getPendingMigrations();
-            $modified = $this->getModifiedMigrations();
-
-            if (empty($pending) && empty($modified)) {
-                $this->info('No pending or modified migrations found.');
+            if ($pending->isEmpty() && $drifted->isEmpty()) {
+                $this->info('No pending migrations or checksum drift found.');
                 return 0;
             }
 
             if ($this->option('check-only')) {
-                $this->info('Pending migrations: ' . count($pending));
-                $this->info('Modified migrations: ' . count($modified));
-                return 0;
+                $this->info('Pending migrations: ' . $pending->count());
+                $this->info('Drifted migrations: ' . $drifted->count());
+                return $drifted->isEmpty() ? 0 : 2;
             }
 
             // Check production environment
@@ -60,22 +58,26 @@ class AutoRunMigrations extends Command
                 return 1;
             }
 
-            $this->info('Running migrations...');
+            if ($pending->isEmpty()) {
+                $this->error('Applied migration drift detected. Restore the original file or create a new repair migration.');
+                return 2;
+            }
+
+            $this->info('Running pending forward migrations...');
             
             // Run migrations
             $exitCode = Artisan::call('migrate', [
                 '--force' => true,
-            ], $this->getOutput());
+            ], new \Symfony\Component\Console\Output\BufferedOutput());
 
             if ($exitCode === 0) {
                 $this->info('Migrations completed successfully.');
                 
-                // Update tracking
-                $this->updateMigrationTracking();
+                $this->migrationDriftService->recordApplied($beforeStates);
                 
                 Log::info('Auto migrations completed', [
-                    'pending_count' => count($pending),
-                    'modified_count' => count($modified),
+                    'pending_count' => $pending->count(),
+                    'drifted_count' => $drifted->count(),
                 ]);
                 
                 return 0;
@@ -89,119 +91,6 @@ class AutoRunMigrations extends Command
             Log::error('Auto migration error: ' . $e->getMessage());
             return 1;
         }
-    }
-
-    /**
-     * Get pending migrations
-     */
-    private function getPendingMigrations()
-    {
-        $migrationPath = database_path('migrations');
-        $files = File::glob($migrationPath . '/*.php');
-        
-        if (!Schema::hasTable('migrations')) {
-            return array_map('basename', $files);
-        }
-
-        $ranMigrations = DB::table('migrations')->pluck('migration')->toArray();
-        
-        $pending = [];
-        foreach ($files as $file) {
-            $migrationName = str_replace('.php', '', basename($file));
-            if (!in_array($migrationName, $ranMigrations)) {
-                $pending[] = $migrationName;
-            }
-        }
-        
-        return $pending;
-    }
-
-    /**
-     * Get modified migrations
-     */
-    private function getModifiedMigrations()
-    {
-        if (!Schema::hasTable('migration_tracking')) {
-            return [];
-        }
-
-        $migrationPath = database_path('migrations');
-        $files = File::glob($migrationPath . '/*.php');
-        
-        $ranMigrations = DB::table('migrations')->pluck('migration')->toArray();
-        $tracking = \App\Models\MigrationTracking::whereIn('migration_name', $ranMigrations)->get()->keyBy('migration_name');
-        
-        $modified = [];
-        foreach ($files as $file) {
-            $migrationName = str_replace('.php', '', basename($file));
-            
-            if (in_array($migrationName, $ranMigrations)) {
-                $trackingRecord = $tracking->get($migrationName);
-                
-                if ($trackingRecord) {
-                    $currentHash = hash_file('sha256', $file);
-                    if ($trackingRecord->file_hash !== $currentHash) {
-                        $modified[] = $migrationName;
-                    }
-                }
-            }
-        }
-        
-        return $modified;
-    }
-
-    /**
-     * Update migration tracking
-     */
-    private function updateMigrationTracking()
-    {
-        if (!Schema::hasTable('migration_tracking')) {
-            return;
-        }
-
-        $migrationPath = database_path('migrations');
-        $files = File::glob($migrationPath . '/*.php');
-        $dbStatus = DB::table('migrations')->pluck('batch', 'migration')->toArray();
-        
-        foreach ($files as $file) {
-            $migrationName = str_replace('.php', '', basename($file));
-            $isInDb = isset($dbStatus[$migrationName]);
-            
-            $tracking = \App\Models\MigrationTracking::firstOrNew(['migration_name' => $migrationName]);
-            
-            $oldHash = $tracking->file_hash;
-            $newHash = hash_file('sha256', $file);
-            
-            if ($isInDb && $oldHash && $oldHash !== $newHash) {
-                $tracking->status = 'modified';
-            } elseif ($isInDb) {
-                $tracking->status = 'ran';
-            } else {
-                $tracking->status = 'pending';
-            }
-            
-            $tracking->file_hash = $newHash;
-            $tracking->file_size = filesize($file);
-            $tracking->file_modified_at = date('Y-m-d H:i:s', filemtime($file));
-            
-            if ($isInDb && !$tracking->last_run_at) {
-                $tracking->last_run_at = now();
-            }
-            
-            if ($isInDb) {
-                $tracking->run_count = ($tracking->run_count ?? 0) + 1;
-            }
-            
-            $tracking->save();
-        }
-    }
-
-    /**
-     * Get output handler
-     */
-    public function getOutput()
-    {
-        return new \Symfony\Component\Console\Output\BufferedOutput();
     }
 }
 

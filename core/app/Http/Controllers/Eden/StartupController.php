@@ -6,6 +6,7 @@ use App\Models\AdSpot;
 use App\Models\Startup;
 use App\Models\StartupReport;
 use App\Models\StartupUpvote;
+use App\Services\StartupSharePreviewService;
 use App\Services\StartupService;
 use App\Support\Seo\EdenSeo;
 use Illuminate\Http\JsonResponse;
@@ -15,7 +16,8 @@ use Illuminate\Http\Request;
 class StartupController extends EdenController
 {
     public function __construct(
-        private StartupService $startupService
+        private StartupService $startupService,
+        private StartupSharePreviewService $sharePreviewService
     ) {}
 
     public function launchingToday()
@@ -41,23 +43,11 @@ class StartupController extends EdenController
             ->where('startup_id', $startup->id)->exists();
         $hasSaved = auth()->check() && auth()->user()->savedStartupsList()->where('startups.id', $startup->id)->exists();
 
-        $siteName = function_exists('gs') && gs('site_name') ? (string) gs('site_name') : 'Eden';
-        $pageTitle = $startup->name;
-        if ($startup->tagline) {
-            $pageTitle .= ' | ' . \Illuminate\Support\Str::limit($startup->tagline, 50);
-        } elseif ($startup->category) {
-            $pageTitle .= ' | ' . $startup->category;
-        }
-        $pageTitle .= ' | ' . $siteName;
-
-        $metaDesc = $this->startupMetaDescription($startup);
-        $metaImage = $this->startupMetaImageUrl($startup);
-        $canonicalUrl = route('startup.show', $startup->slug);
-        $keywords = array_filter([$startup->name, $startup->category, $startup->location, $siteName . ' startup directory']);
-        $structuredData = $this->startupStructuredData($startup, $canonicalUrl, $metaImage);
+        $layoutData = $this->sharePreviewService->build($startup);
+        $structuredData = $layoutData['structuredData'];
         $structuredData[] = $this->breadcrumbSchema([
             ['name' => 'Home', 'url' => url('/')],
-            ['name' => $startup->name, 'url' => $canonicalUrl],
+            ['name' => $startup->name, 'url' => $layoutData['canonicalUrl']],
         ]);
 
         $similarStartups = $this->startupService->getSimilar($startup, 6);
@@ -66,19 +56,9 @@ class StartupController extends EdenController
             $structuredData[] = $similarSchema;
         }
 
-        $layoutData = [
-            'pageTitle' => $pageTitle,
-            'metaDescription' => $metaDesc,
-            'metaImage' => $metaImage,
-            'canonicalUrl' => $canonicalUrl,
-            'metaKeywords' => implode(', ', $keywords),
-            'structuredData' => $structuredData,
-            'ogImageAlt' => $startup->name,
-            'includeDefaultSiteGraph' => false,
-            'metaRobots' => $startup->shouldBeIndexed() ? null : 'noindex,follow',
-        ];
+        $layoutData['structuredData'] = $structuredData;
 
-        $comments = $startup->comments()->with('user:id,name')->get();
+        $comments = $startup->comments()->with(['user:id,name', 'founderResponder:id,name'])->get();
 
         $trafficByDay = [];
         $trafficTotal = 0;
@@ -100,7 +80,7 @@ class StartupController extends EdenController
         $isProductOfDayToday = $isProductOfDay;
         $startupSidebarAd = AdSpot::activeForPlacement('startup_sidebar_1')->first();
 
-        return $this->page('startup-show', $pageTitle, null, [
+        return $this->page('startup-show', $layoutData['pageTitle'], null, [
             'startup' => $startup,
             'hasUpvoted' => $hasUpvoted,
             'hasSaved' => $hasSaved,
@@ -114,88 +94,8 @@ class StartupController extends EdenController
             'savedStartupIds' => $savedStartupIds,
             'startupSidebarAd' => $startupSidebarAd,
             'reportReasons' => StartupReport::reasonLabels(),
+            'sharePreview' => $layoutData,
         ], $layoutData);
-    }
-
-    private function startupMetaDescription(Startup $startup, int $maxLength = 160): string
-    {
-        $raw = $startup->description ?: $startup->tagline ?: $startup->name . ' – startup listed on ' . (function_exists('gs') && gs('site_name') ? gs('site_name') : 'Eden');
-        $text = strip_tags(preg_replace('/\s+/', ' ', (string) $raw));
-        if (mb_strlen($text) <= $maxLength) {
-            return $text;
-        }
-        return mb_substr($text, 0, $maxLength - 3) . '...';
-    }
-
-    private function startupMetaImageUrl(Startup $startup): ?string
-    {
-        if ($startup->logo_path) {
-            return url()->asset($startup->logo_path);
-        }
-        $productImages = $startup->product_images ?? [];
-        if (! empty($productImages) && is_string($productImages[0] ?? null)) {
-            return url()->asset($productImages[0]);
-        }
-        return null;
-    }
-
-    private function startupStructuredData(Startup $startup, string $url, ?string $imageUrl): array
-    {
-        $siteName = function_exists('gs') && gs('site_name') ? (string) gs('site_name') : 'Eden';
-        $organization = [
-            '@context' => 'https://schema.org',
-            '@type' => 'Organization',
-            'name' => $startup->name,
-            'url' => $startup->website ?: $url,
-            'description' => $this->startupMetaDescription($startup, 500),
-        ];
-        if ($imageUrl) {
-            $organization['image'] = $imageUrl;
-        }
-        if ($startup->location) {
-            $organization['address'] = ['@type' => 'PostalAddress', 'addressLocality' => $startup->location];
-        }
-        $sameAs = array_filter([$startup->website, $startup->twitter_url ?? null, $startup->linkedin_url ?? null]);
-        if (! empty($sameAs)) {
-            $organization['sameAs'] = array_values($sameAs);
-        }
-        $founders = $startup->founders_display ?? [];
-        if (! empty($founders)) {
-            $organization['member'] = array_values(array_map(function ($f) {
-                $member = ['@type' => 'Person', 'name' => $f['name'] ?? ''];
-                if (! empty($f['linkedin_url'])) {
-                    $member['url'] = $f['linkedin_url'];
-                }
-                return $member;
-            }, $founders));
-        }
-        $organization['publisher'] = [
-            '@type' => 'Organization',
-            'name' => $siteName,
-            'url' => url('/'),
-        ];
-
-        $schemas = [$organization];
-        $softwareCategories = ['SaaS', 'Developer Tools', 'Artificial Intelligence', 'Mobile Apps', 'Productivity'];
-        if (in_array($startup->category, $softwareCategories, true)) {
-            $application = [
-                '@context' => 'https://schema.org',
-                '@type' => 'SoftwareApplication',
-                'name' => $startup->name,
-                'description' => $this->startupMetaDescription($startup, 500),
-                'url' => $url,
-                'applicationCategory' => $startup->category,
-            ];
-            if ($imageUrl) {
-                $application['image'] = $imageUrl;
-            }
-            if ($startup->website) {
-                $application['offers'] = ['@type' => 'Offer', 'url' => $startup->website];
-            }
-            $schemas[] = $application;
-        }
-
-        return $schemas;
     }
 
     private function breadcrumbSchema(array $items): array

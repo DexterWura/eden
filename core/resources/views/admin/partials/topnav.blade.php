@@ -125,10 +125,13 @@
                     </a>
                     @endif
                     @if(\Illuminate\Support\Facades\Route::has('admin.logout'))
-                    <a href="{{ route('admin.logout') }}" class="dropdown-menu__item d-flex align-items-center px-3 py-2">
-                        <i class="dropdown-menu__icon las la-sign-out-alt"></i>
-                        <span class="dropdown-menu__caption">@lang('Logout')</span>
-                    </a>
+                    <form action="{{ route('admin.logout') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="dropdown-menu__item d-flex align-items-center px-3 py-2 border-0 bg-transparent w-100">
+                            <i class="dropdown-menu__icon las la-sign-out-alt"></i>
+                            <span class="dropdown-menu__caption">@lang('Logout')</span>
+                        </button>
+                    </form>
                     @endif
                 </div>
                 <button type="button" class="breadcrumb-nav-open ms-2 d-none">

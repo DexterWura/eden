@@ -30,7 +30,6 @@ class SettingsController extends Controller
             'avatarTitle' => $user->name ?? 'Account',
             'avatarLetter' => strtoupper(mb_substr($user->name ?? '?', 0, 1)),
             'content' => $content,
-            'scriptDeps' => '<script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>',
             'notifyPartial' => view('partials.notify')->render(),
         ]);
     }
@@ -41,7 +40,11 @@ class SettingsController extends Controller
         $rules = [
             'name' => ['required', 'string', 'max:80', new SensiblePersonName()],
             'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'notification_preferences' => ['nullable', 'array'],
         ];
+        foreach (array_keys(config('notification_preferences.types', [])) as $preference) {
+            $rules["notification_preferences.{$preference}"] = ['required', 'boolean'];
+        }
         if ($request->filled('password')) {
             $rules['password'] = ['string', 'min:8', 'confirmed'];
         }
@@ -54,6 +57,16 @@ class SettingsController extends Controller
         // Apply only the allowed fields explicitly to avoid mass-assignment issues
         $user->name = $data['name'];
         $user->email = $data['email'];
+        $configuredPreferences = collect(config('notification_preferences.types', []))
+            ->keys()
+            ->mapWithKeys(fn (string $preference): array => [
+                $preference => (bool) data_get($data, "notification_preferences.{$preference}", false),
+            ])
+            ->all();
+        $legacyOptOuts = collect($user->notification_preferences ?? [])
+            ->reject(fn ($enabled, string $preference): bool => array_key_exists($preference, $configuredPreferences) || (bool) $enabled)
+            ->all();
+        $user->notification_preferences = array_merge($legacyOptOuts, $configuredPreferences);
 
         if (!empty($data['password'] ?? null)) {
             $user->password = Hash::make($data['password']);

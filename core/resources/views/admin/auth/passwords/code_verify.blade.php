@@ -1,82 +1,29 @@
 @extends('admin.layouts.master')
 @section('content')
-    <div class="login-main" style="background-image: url('{{ asset('assets/admin/images/login.jpg') }}')">
-        <div class="container custom-container d-flex justify-content-center">
-            <div class="login-area">
-                <div class="text-center mb-3">
-                    <h2 class="text-white mb-2">@lang('Verify Code')</h2>
-                    <p class="text-white mb-2">@lang('Please check your email and enter the verification code you got in your email.')</p>
-                </div>
-                <form action="{{ route('admin.password.verify.code') }}" method="POST" class="login-form w-100">
+<main class="admin-login">
+    <div class="admin-login__bg"></div>
+    <div class="admin-login__container">
+        <div class="admin-login__card">
+            <div class="admin-login__header">
+                <div class="admin-login__logo"><span class="admin-login__logo-dots"><span></span><span></span><span></span><span></span></span>{{ __(gs('site_name') ?? 'Eden') }}</div>
+                <h1 class="admin-login__title">Verify reset code</h1>
+                <p class="admin-login__subtitle">If an eligible account matched, the six-digit code was sent by email and expires in 15 minutes.</p>
+            </div>
+            <div class="admin-login__body">
+                <form action="{{ route('admin.password.verify.code') }}" method="POST" class="admin-login__form">
                     @csrf
-
-                    <div class="code-box-wrapper d-flex w-100">
-                        <div class="form-group mb-3 flex-fill">
-                            <span class="text-white">@lang('Verification Code')</span>
-                            <div class="verification-code">
-                                <input type="text" name="code" class="overflow-hidden" autocomplete="off">
-                                <div class="boxes">
-                                    <span>-</span>
-                                    <span>-</span>
-                                    <span>-</span>
-                                    <span>-</span>
-                                    <span>-</span>
-                                    <span>-</span>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="admin-login__field">
+                        <label for="reset-code" class="admin-login__label">Verification code</label>
+                        <input type="text" id="reset-code" class="admin-login__input" name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required autofocus>
                     </div>
-                    <button type="submit" class="btn cmn-btn w-100">@lang('Submit')</button>
-                    <div class="d-flex flex-wrap justify-content-between mt-3">
-                        <a href="{{ route('admin.password.reset') }}" class="forget-text">@lang('Try to send again')</a>
-                        <a href="{{ route('admin.login') }}" class="text-white"><i class="las la-sign-in-alt"></i>@lang('Back to Login')</a>
+                    <button type="submit" class="admin-login__btn">Verify code</button>
+                    <div class="admin-login__label-row">
+                        <a href="{{ route('admin.password.reset') }}" class="admin-login__forgot">Send another code</a>
+                        <a href="{{ route('admin.login') }}" class="admin-login__forgot">Back to login</a>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+</main>
 @endsection
-
-@push('style')
-    <link rel="stylesheet" href="{{ asset('assets/admin/css/verification_code.css') }}">
-@endpush
-
-@push('script')
-    <script>
-        (function($) {
-            'use strict';
-            $('[name=code]').on('input', function() {
-
-                $(this).val(function(i, val) {
-                    if (val.length == 6) {
-                        $('form').find('button[type=submit]').html('<i class="las la-spinner fa-spin"></i>');
-                        $('form').find('button[type=submit]').removeClass('disabled');
-                        $('form')[0].submit();
-                    } else {
-                        $('form').find('button[type=submit]').addClass('disabled');
-                    }
-                    if (val.length > 6) {
-                        return val.substring(0, val.length - 1);
-                    }
-                    return val;
-                });
-
-                for (let index = $(this).val().length; index >= 0; index--) {
-                    $($('.boxes span')[index]).html('');
-                }
-            });
-
-        })(jQuery)
-    </script>
-@endpush
-@push('style')
-    <style>
-        .cmn-btn.disabled,
-        .cmn-btn:disabled {
-            color: #fff;
-            background-color: #3d2bfb;
-            border-color: #3d2bfb;
-            opacity: 0.7;
-        }
-    </style>
-@endpush

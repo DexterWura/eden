@@ -3,6 +3,15 @@
   Update your profile and password.
 </div>
 
+<div class="dash-card" style="margin-bottom:20px;">
+  <div class="dash-card-header"><span class="dash-card-title">Account</span></div>
+  <div class="dash-card-body" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;">
+    <div><span class="dash-label">Membership</span><strong>{{ $user->isPro() ? 'Pro' : 'Free' }}</strong></div>
+    <div><span class="dash-label">Sign-in method</span><strong>{{ $user->auth_provider ? ucfirst($user->auth_provider) : 'Email and password' }}</strong></div>
+    <div><span class="dash-label">Member since</span><strong>{{ $user->created_at?->format('M Y') ?? 'Unknown' }}</strong></div>
+  </div>
+</div>
+
 <form action="{{ route('founder.settings.update') }}" method="post" class="dash-form">
   @csrf
   @method('PUT')
@@ -36,6 +45,20 @@
         <label for="password_confirmation" class="dash-label">Confirm new password</label>
         <input type="password" id="password_confirmation" name="password_confirmation" class="dash-input" autocomplete="new-password">
       </div>
+    </div>
+  </div>
+
+  <div class="dash-card" style="margin-bottom:20px;">
+    <div class="dash-card-header"><span class="dash-card-title">Email notifications</span></div>
+    <div class="dash-card-body" style="display:flex;flex-direction:column;gap:12px;">
+      <p style="margin:0;color:var(--d-text-secondary);font-size:.875rem;">In-app notifications remain available in your notification centre.</p>
+      @foreach(config('notification_preferences.types', []) as $key => $preference)
+      <label style="display:flex;align-items:center;gap:10px;">
+        <input type="hidden" name="notification_preferences[{{ $key }}]" value="0">
+        <input type="checkbox" name="notification_preferences[{{ $key }}]" value="1" @checked((bool) old("notification_preferences.$key", $user->wantsNotification($key)))>
+        <span>{{ $preference['label'] }}</span>
+      </label>
+      @endforeach
     </div>
   </div>
 

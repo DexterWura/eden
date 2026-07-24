@@ -31,7 +31,7 @@
             <td>{{ $subscriber->email }}</td>
             <td>{{ $subscriber->created_at?->format('M j, Y H:i') ?? '—' }}</td>
             <td>
-              <form action="{{ route('admin.subscribers.destroy', $subscriber) }}" method="post" style="display: inline;" onsubmit="return confirm('Remove this subscriber?');">
+              <form action="{{ route('admin.subscribers.destroy', $subscriber) }}" method="post" style="display: inline;" data-confirm="Remove this subscriber from the mailing list?" data-confirm-label="Remove subscriber">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="dash-btn" style="padding: 4px 10px; font-size: 0.8rem; background: #dc2626; color: #fff; border: none;">Remove</button>

@@ -48,6 +48,7 @@ class BlogController extends EdenController
             ->filter(fn (Category $category) => str_contains($articleText, mb_strtolower($category->name)))
             ->pluck('name');
         $relatedStartups = Startup::query()
+            ->with('user:id,is_pro')
             ->active()
             ->when($matchedCategories->isNotEmpty(), fn ($query) => $query->whereIn('category', $matchedCategories))
             ->orderByDesc('upvotes')

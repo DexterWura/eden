@@ -25,11 +25,13 @@
             <th>Category</th>
             <th>Upvotes</th>
             <th>Status</th>
+            <th>Growth status</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           @forelse($startups as $s)
+          @php($profile = ($startupProfiles ?? collect())->get($s->id))
           <tr>
             <td>
               <a href="{{ url('/startup/' . $s->slug) }}" target="_blank" class="dash-table-link">{{ $s->name }}</a>
@@ -44,6 +46,19 @@
                 <span style="display:inline-block;padding:2px 8px;font-size:0.75rem;border-radius:4px;background:#fef3c7;color:#92400e;font-weight:600">Pending review</span>
               @else
                 {{ $s->status ?? 'active' }}
+              @endif
+            </td>
+            <td>
+              @if($profile)
+                <div>{{ ucfirst($profile['claimStatus']) }} ownership · {{ $profile['awards']->count() }} awards</div>
+                <div style="font-size:.8rem;color:var(--d-text-secondary)">{{ $profile['cofounderStatus'] }} co-founder invites · {{ $profile['investorStatus'] }} new investor leads</div>
+                <div style="font-size:.8rem;color:var(--d-text-secondary)">
+                  @if($profile['daysUntilLaunch'] !== null) Launch in {{ $profile['daysUntilLaunch'] }} days
+                  @elseif($profile['launchDate']) Launched {{ $profile['launchDate']->format('M j, Y') }}
+                  @else Launch date not set
+                  @endif
+                  · {{ $profile['launchReadiness'] === 'ready' ? 'Ready' : 'Needs attention' }}
+                </div>
               @endif
             </td>
             <td style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
@@ -62,11 +77,24 @@
               @else
               <a href="{{ url('/pricing') }}" class="dash-btn dash-btn-secondary" style="padding:4px 10px;font-size:0.8rem;text-decoration:none;opacity:0.6" title="Pro feature"><i class="fa-solid fa-crown"></i> Pro</a>
               @endif
+              @if($profile)
+              <a href="{{ $profile['sharePreview']['xShareUrl'] }}" target="_blank" rel="noopener" class="dash-btn dash-btn-secondary" style="padding:4px 10px;font-size:.8rem;text-decoration:none"><i class="fa-brands fa-x-twitter"></i> Share</a>
+              @endif
+            </td>
+          </tr>
+          <tr>
+            <td colspan="6">
+              <form action="{{ route('founder.cofounder-invitations.store', $s) }}" method="POST" style="display:flex;gap:8px;align-items:center;max-width:620px">
+                @csrf
+                <label for="cofounder-email-{{ $s->id }}" class="dash-label" style="margin:0;white-space:nowrap">Invite co-founder</label>
+                <input id="cofounder-email-{{ $s->id }}" type="email" name="email" class="dash-input" maxlength="255" required placeholder="cofounder@example.com">
+                <button class="dash-btn dash-btn-secondary" type="submit">Send invite</button>
+              </form>
             </td>
           </tr>
           @empty
           <tr>
-            <td colspan="5" class="dash-placeholder">No startups yet. @if($canAddStartup ?? true)<a href="{{ route('founder.startups.create') }}">Add your first startup</a>@else<a href="{{ url('/pricing') }}">Upgrade to Pro</a> to add startups.@endif</td>
+            <td colspan="6" class="dash-placeholder">No startups yet. @if($canAddStartup ?? true)<a href="{{ route('founder.startups.create') }}">Add your first startup</a>@else<a href="{{ url('/pricing') }}">Upgrade to Pro</a> to add startups.@endif</td>
           </tr>
           @endforelse
         </tbody>

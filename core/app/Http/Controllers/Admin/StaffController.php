@@ -13,18 +13,6 @@ use App\Traits\MasksSensitiveData;
 class StaffController extends Controller
 {
     use MasksSensitiveData;
-    public function __construct()
-    {
-        $this->ensureSuperAdmin();
-    }
-
-    protected function ensureSuperAdmin(): void
-    {
-        if (!auth('admin')->user()?->isSuperAdmin()) {
-            abort(403, 'Only super administrators can manage staff.');
-        }
-    }
-
     /**
      * List all admins (staff and super admins).
      */
@@ -42,7 +30,7 @@ class StaffController extends Controller
         }
         
         $modules = $this->getAssignableModules();
-        return view('admin.staff.index', compact('pageTitle', 'admins', 'modules'));
+        return $this->dashboardPage('Staff & RBAC', 'staff.index', compact('admins', 'modules'));
     }
 
     /**
@@ -58,21 +46,17 @@ class StaffController extends Controller
     {
         $pageTitle = 'Add Staff';
         $modules = $this->getAssignableModules();
-        $sidenav = json_decode(file_get_contents(resource_path('views/admin/partials/sidenav.json')), true) ?: [];
-        $moduleTitles = [];
-        foreach ($sidenav as $key => $data) {
-            if (in_array($key, $modules, true)) {
-                $moduleTitles[$key] = $data['title'] ?? $key;
-            }
-        }
-        return view('admin.staff.create', compact('pageTitle', 'modules', 'moduleTitles'));
+        return $this->dashboardPage('Add staff', 'staff.form', [
+            'staff' => new Admin(),
+            'modules' => $modules,
+        ]);
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:admins,email',
             'username' => 'required|string|max:255|unique:admins,username',
             'password' => 'required|min:8|confirmed',
             'image' => ['nullable', 'image', new FileTypeValidate(['jpg', 'jpeg', 'png'])],
@@ -124,14 +108,10 @@ class StaffController extends Controller
         }
         
         $modules = $this->getAssignableModules();
-        $sidenav = json_decode(file_get_contents(resource_path('views/admin/partials/sidenav.json')), true) ?: [];
-        $moduleTitles = [];
-        foreach ($sidenav as $key => $data) {
-            if (in_array($key, $modules, true)) {
-                $moduleTitles[$key] = $data['title'] ?? $key;
-            }
-        }
-        return view('admin.staff.edit', compact('pageTitle', 'admin', 'modules', 'moduleTitles'));
+        return $this->dashboardPage('Edit staff', 'staff.form', [
+            'staff' => $admin,
+            'modules' => $modules,
+        ]);
     }
 
     public function update(Request $request, $id)
@@ -141,7 +121,7 @@ class StaffController extends Controller
 
         $rules = [
             'name' => 'required|string|max:255',
-            'email' => 'required|email',
+            'email' => ['required', 'email', Rule::unique('admins', 'email')->ignore($admin->id)],
             'username' => ['required', 'string', 'max:255', Rule::unique('admins', 'username')->ignore($admin->id)],
             'image' => ['nullable', 'image', new FileTypeValidate(['jpg', 'jpeg', 'png'])],
             'status' => 'required|in:0,1',
@@ -161,12 +141,6 @@ class StaffController extends Controller
             $notify[] = ['error', 'You cannot disable your own account.'];
             return back()->withNotify($notify);
         }
-        $superAdminCount = Admin::where('is_super_admin', true)->count();
-        if ($admin->is_super_admin && $superAdminCount <= 1 && !$request->boolean('is_super_admin')) {
-            $notify[] = ['error', 'Cannot remove the only super administrator.'];
-            return back()->withNotify($notify);
-        }
-
         $oldValues = [
             'name' => $admin->name,
             'email' => $admin->email,
@@ -252,5 +226,24 @@ class StaffController extends Controller
 
         $notify[] = ['success', 'Staff deleted successfully.'];
         return to_route('admin.staff.index')->withNotify($notify);
+    }
+
+    private function dashboardPage(string $title, string $view, array $data)
+    {
+        $admin = auth('admin')->user();
+        $content = view("eden.admin-operations.{$view}", $data)->render();
+
+        return response()->view('eden.layout-dashboard', [
+            'title' => $title,
+            'sidebar' => 'admin',
+            'activeNav' => 'staff',
+            'dashboardLogo' => (function_exists('gs') ? (string) gs('site_name') : 'Eden') . ' Admin',
+            'dashboardTopbar' => '',
+            'searchPlaceholder' => 'Search…',
+            'avatarTitle' => $admin->name,
+            'avatarLetter' => strtoupper(substr($admin->name, 0, 1)),
+            'content' => $content,
+            'notifyPartial' => view('partials.notify')->render(),
+        ]);
     }
 }

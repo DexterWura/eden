@@ -1,38 +1,31 @@
 @extends('admin.layouts.master')
 @section('content')
-    <div class="login-main" style="background-image: url('{{ asset('assets/admin/images/login.jpg') }}')">
-        <div class="container custom-container">
-            <div class="row justify-content-center">
-                <div class="col-xxl-5 col-xl-5 col-lg-6 col-md-8 col-sm-11">
-                    <div class="login-area">
-                        <div class="login-wrapper">
-                            <div class="login-wrapper__top">
-                                <h3 class="title text-white">@lang('Recover Account')</h3>
-                            </div>
-                            <div class="login-wrapper__body">
-                                <form action="{{ route('admin.password.change') }}" method="POST" class="login-form">
-                                    @csrf
-                                    <input type="hidden" name="email" value="{{ $email }}">
-                                    <input type="hidden" name="token" value="{{ $token }}">
-                                    <div class="form-group">
-                                        <label>@lang('New Password')</label>
-                                        <input type="password" name="password" class="form-control" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>@lang('Re-type New Password')</label>
-                                        <input type="password" name="password_confirmation" class="form-control" id="password_confirmation" required>
-                                    </div>
-                                    <button type="submit" class="btn cmn-btn w-100">@lang('Submit')</button>
-                                    <div class="text-center mt-3">
-                                        <a href="{{ route('admin.login') }}" class="text-white"><i class="las la-sign-in-alt" aria-hidden="true"></i>@lang('Back to Login')</a>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
+<main class="admin-login">
+    <div class="admin-login__bg"></div>
+    <div class="admin-login__container">
+        <div class="admin-login__card">
+            <div class="admin-login__header">
+                <div class="admin-login__logo"><span class="admin-login__logo-dots"><span></span><span></span><span></span><span></span></span>{{ __(gs('site_name') ?? 'Eden') }}</div>
+                <h1 class="admin-login__title">Choose a new password</h1>
+                <p class="admin-login__subtitle">Use at least 12 characters and avoid reusing another account’s password.</p>
+            </div>
+            <div class="admin-login__body">
+                <form action="{{ route('admin.password.change') }}" method="POST" class="admin-login__form">
+                    @csrf
+                    <input type="hidden" name="token" value="{{ $token }}">
+                    <div class="admin-login__field">
+                        <label for="new-password" class="admin-login__label">New password</label>
+                        <input type="password" id="new-password" class="admin-login__input" name="password" minlength="12" autocomplete="new-password" required autofocus>
                     </div>
-                </div>
+                    <div class="admin-login__field">
+                        <label for="password-confirmation" class="admin-login__label">Confirm new password</label>
+                        <input type="password" id="password-confirmation" class="admin-login__input" name="password_confirmation" minlength="12" autocomplete="new-password" required>
+                    </div>
+                    <button type="submit" class="admin-login__btn">Reset password</button>
+                    <a href="{{ route('admin.login') }}" class="admin-login__forgot">Back to admin login</a>
+                </form>
             </div>
         </div>
     </div>
+</main>
 @endsection
-

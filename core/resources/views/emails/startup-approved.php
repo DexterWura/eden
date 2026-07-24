@@ -17,8 +17,13 @@
         <p style="margin:0 0 18px;line-height:1.65;">Your startup has been approved and visitors can now discover it on <?= e($siteName) ?>.</p>
 
         <div style="margin:22px 0;padding:18px;border-radius:10px;background:#eef8f5;">
+          <?php if ($hasDofollowBacklink ?? false): ?>
           <strong style="display:block;margin-bottom:7px;color:#087f6d;">Your live listing includes a dofollow website link</strong>
           <span style="line-height:1.55;">Visitors and search engines can follow the website link from your startup profile.</span>
+          <?php else: ?>
+          <strong style="display:block;margin-bottom:7px;color:#087f6d;">Your free listing uses a nofollow website link</strong>
+          <span style="line-height:1.55;">Your listing remains fully accessible to visitors. <a href="<?= e($pricingUrl) ?>" style="color:#087f6d;">Upgrade to Pro</a> to unlock a dofollow website backlink.</span>
+          <?php endif; ?>
         </div>
 
         <p style="margin:0 0 18px;line-height:1.65;">You can support the Eden community by adding your “Listed on <?= e($siteName) ?>” badge to your website. The badge is available in your founder dashboard and links back to your live profile with a normal dofollow link.</p>

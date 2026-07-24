@@ -40,6 +40,11 @@ class StartupFundingRound extends Model
         return $this->belongsTo(Startup::class);
     }
 
+    public function investorLeads()
+    {
+        return $this->hasMany(InvestorLead::class);
+    }
+
     public function scopeOpen($query)
     {
         return $query->where('status', self::STATUS_OPEN);

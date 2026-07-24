@@ -24,7 +24,10 @@ class DiscoveryController extends EdenController
             $category = new Category(['name' => $legacyName, 'slug' => $slug]);
         }
         $startups = Startup::query()
-            ->with('activeFundingRound')
+            ->with([
+                'activeFundingRound',
+                'user:id,is_pro',
+            ])
             ->withCount('comments')
             ->active()
             ->where('category', $category->name)
@@ -105,7 +108,10 @@ class DiscoveryController extends EdenController
         abort_if($location === null, 404);
 
         $startups = Startup::query()
-            ->with('activeFundingRound')
+            ->with([
+                'activeFundingRound',
+                'user:id,is_pro',
+            ])
             ->withCount('comments')
             ->active()
             ->where('location', $location)

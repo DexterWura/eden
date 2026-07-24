@@ -96,7 +96,7 @@
     <header class="section-header">
       <div>
         <h2 id="startups-heading" class="section-heading"><?= ($searchQuery ?? '') !== '' ? 'Search results for “' . e($searchQuery) . '”' : (($sortNewest ?? false) ? 'Newest startups' : (($featuredOnly ?? false) ? 'Featured startups' : 'All startups')) ?></h2>
-        <?php if (($searchQuery ?? '') === '' && !($featuredOnly ?? false)): ?><p class="section-sub">Newest additions first, with upvotes breaking ties.</p><?php endif; ?>
+        <?php if (($searchQuery ?? '') === '' && !($featuredOnly ?? false)): ?><p class="section-sub">Most upvoted startups first, with recent listings breaking ties.</p><?php endif; ?>
       </div>
       <?php if (($searchQuery ?? '') !== ''): ?>
       <a href="<?= e(url('/')) ?>" class="section-link-all">Clear search <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
@@ -160,6 +160,31 @@
       </div>
     </section>
     <?php endif; ?>
+
+    <?php if ($featuredStartups->isNotEmpty()): ?>
+    <section class="sidebar-panel">
+      <div class="sidebar-panel-head">
+        <h2>Featured startups</h2>
+      </div>
+      <div class="sidebar-featured-startups">
+        <?php foreach ($featuredStartups as $startup): ?>
+        <a href="<?= e(url('/startups/' . $startup->slug)) ?>"><?= e($startup->name) ?></a>
+        <?php endforeach; ?>
+      </div>
+    </section>
+    <?php endif; ?>
+
+    <section class="sidebar-panel sidebar-newsletter">
+      <span class="sidebar-eyebrow">Weekly digest</span>
+      <h2>What Zimbabwe is building</h2>
+      <p>New launches and founder stories, once a week.</p>
+      <form action="<?= e(url('/subscribe')) ?>" method="POST">
+        <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
+        <label class="visually-hidden" for="sidebarEmail">Email address</label>
+        <input id="sidebarEmail" type="email" name="email" placeholder="you@example.com" required>
+        <button type="submit" class="btn btn-primary">Subscribe</button>
+      </form>
+    </section>
 
     <section class="sidebar-panel sidebar-sponsored" aria-label="Sponsored">
       <span class="sponsored-label">Sponsored</span>

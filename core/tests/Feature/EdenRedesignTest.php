@@ -45,6 +45,46 @@ class EdenRedesignTest extends TestCase
             ->assertSee('Leaderboard');
     }
 
+    public function test_homepage_feed_prioritizes_upvotes_then_recency(): void
+    {
+        $olderPopular = $this->createRichStartup();
+        $olderPopular->update(['upvotes' => 100]);
+        $olderPopular->timestamps = false;
+        $olderPopular->created_at = now()->subMonth();
+        $olderPopular->updated_at = now()->subMonth();
+        $olderPopular->save();
+        $olderPopular->timestamps = true;
+
+        $recentPopular = $olderPopular->replicate();
+        $recentPopular->fill([
+            'name' => 'Recent Popular',
+            'slug' => 'recent-popular',
+            'website' => 'https://recent-popular.test',
+        ]);
+        $recentPopular->timestamps = true;
+        $recentPopular->save();
+
+        $recentLowerVotes = $olderPopular->replicate();
+        $recentLowerVotes->fill([
+            'name' => 'Recent Lower Votes',
+            'slug' => 'recent-lower-votes',
+            'website' => 'https://recent-lower-votes.test',
+            'upvotes' => 10,
+        ]);
+        $recentLowerVotes->timestamps = true;
+        $recentLowerVotes->save();
+
+        $orderedIds = collect(app(StartupService::class)->getAllStartupsPaginated(perPage: 10)->items())
+            ->pluck('id')
+            ->values();
+
+        $this->assertSame([
+            $recentPopular->id,
+            $olderPopular->id,
+            $recentLowerVotes->id,
+        ], $orderedIds->all());
+    }
+
     public function test_editorial_category_hub_is_indexable_and_lists_startups(): void
     {
         $startup = $this->createRichStartup();
@@ -330,6 +370,50 @@ class EdenRedesignTest extends TestCase
         $this->assertTrue($allTimeIds->contains($recentStartup->id));
         $this->assertFalse($weeklyIds->contains($olderStartup->id));
         $this->assertTrue($weeklyIds->contains($recentStartup->id));
+    }
+
+    public function test_free_founder_sees_optional_pro_backlink_offer_when_adding_startup(): void
+    {
+        $founder = User::query()->create([
+            'name' => 'Listing Founder',
+            'email' => 'listing-founder@example.test',
+            'password' => bcrypt('password'),
+            'status' => Status::USER_ACTIVE,
+            'ev' => Status::VERIFIED,
+            'sv' => Status::VERIFIED,
+            'is_pro' => false,
+        ]);
+
+        $this->actingAs($founder)
+            ->get(route('founder.startups.create'))
+            ->assertOk()
+            ->assertSee('Get a dofollow backlink with Pro')
+            ->assertSee('Submitting is still free');
+    }
+
+    public function test_only_pro_owned_startups_receive_dofollow_website_links(): void
+    {
+        $founder = User::query()->create([
+            'name' => 'Backlink Founder',
+            'email' => 'backlink-founder@example.test',
+            'password' => bcrypt('password'),
+            'is_pro' => false,
+        ]);
+        $startup = $this->createRichStartup();
+        $startup->update(['user_id' => $founder->id]);
+
+        $this->get(route('startup.show', $startup->slug))
+            ->assertOk()
+            ->assertSee('href="' . url('/startup/' . $startup->slug . '/out') . '" target="_blank" rel="nofollow noopener noreferrer"', false)
+            ->assertSee('href="https://proofpay.test" target="_blank" rel="nofollow noopener noreferrer"', false);
+
+        $founder->update(['is_pro' => true]);
+
+        $this->get(route('startup.show', $startup->slug))
+            ->assertOk()
+            ->assertSee('href="' . url('/startup/' . $startup->slug . '/out') . '" target="_blank" rel="noopener noreferrer"', false)
+            ->assertSee('href="https://proofpay.test" target="_blank" rel="noopener noreferrer"', false)
+            ->assertDontSee('href="https://proofpay.test" target="_blank" rel="nofollow', false);
     }
 
     private function createRichStartup(): Startup

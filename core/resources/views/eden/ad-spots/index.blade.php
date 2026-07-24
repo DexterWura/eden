@@ -21,7 +21,7 @@
     <div class="dash-table-wrap">
       <table class="dash-table">
         <thead>
-          <tr>
+          <tr id="ad-{{ $ad->id }}">
             <th>ID</th>
             <th>Placement</th>
             <th>Status</th>
@@ -64,12 +64,12 @@
             <td>{{ $ad->created_at->format('M j, Y H:i') }}</td>
             <td>
               @if($ad->status === \App\Models\AdSpot::STATUS_ACTIVE)
-                <form action="{{ route('admin.ad-spots.expire', $ad) }}" method="post" style="display:inline;" onsubmit="return confirm('Expire this ad?');">
+                <form action="{{ route('admin.ad-spots.expire', $ad) }}" method="post" style="display:inline;" data-confirm="Expire this ad immediately?" data-confirm-label="Expire ad">
                   @csrf
                   <button type="submit" class="dash-btn" style="padding: 4px 10px; font-size: 0.8rem; background: #dc2626; color: #fff; border: none;">Expire</button>
                 </form>
               @elseif($ad->status !== \App\Models\AdSpot::STATUS_ACTIVE)
-                <form action="{{ route('admin.ad-spots.activate', $ad) }}" method="post" style="display:inline;" onsubmit="return confirm('Activate this ad for one month?');">
+                <form action="{{ route('admin.ad-spots.activate', $ad) }}" method="post" style="display:inline;" data-confirm="Activate this ad for one month after confirming its payment?" data-confirm-label="Activate ad">
                   @csrf
                   <button type="submit" class="dash-btn dash-btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;">Activate</button>
                 </form>

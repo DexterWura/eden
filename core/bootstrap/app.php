@@ -1,8 +1,13 @@
 <?php
 
+use App\Http\Middleware\CheckAdminModuleAccess;
 use App\Http\Middleware\ForceHttps;
 use App\Http\Middleware\RedirectIfAdmin;
 use App\Http\Middleware\RedirectIfNotAdmin;
+use App\Http\Middleware\RequireSuperAdmin;
+use App\Http\Middleware\EnsureAdminTwoFactorChallenge;
+use App\Http\Middleware\RequireAdminReconfirmation;
+use App\Http\Middleware\AuditAdminMutation;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -19,6 +24,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => RedirectIfNotAdmin::class,
             'admin.guest' => RedirectIfAdmin::class,
+            'admin.module' => CheckAdminModuleAccess::class,
+            'admin.super' => RequireSuperAdmin::class,
+            'admin.2fa' => EnsureAdminTwoFactorChallenge::class,
+            'admin.reconfirm' => RequireAdminReconfirmation::class,
+            'admin.audit' => AuditAdminMutation::class,
             'eden.revenue.api' => \App\Http\Middleware\AuthenticateRevenueApi::class,
         ]);
     })

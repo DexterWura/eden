@@ -96,7 +96,7 @@ $isFeed = $cardVariant === 'feed';
     <?php endif; ?>
   </a>
   <div class="card-links">
-    <?php if ($s->website): ?><a href="<?= e($s->website) ?>" target="_blank" rel="noopener"><i class="fa-solid fa-globe" aria-hidden="true"></i> Website</a><?php endif; ?>
+    <?php if ($s->website): ?><a href="<?= e($s->website) ?>" target="_blank" rel="<?= $s->hasDofollowBacklink() ? 'noopener noreferrer' : 'nofollow noopener noreferrer' ?>"><i class="fa-solid fa-globe" aria-hidden="true"></i> Website</a><?php endif; ?>
     <?php if (!empty($s->twitter_url)): ?><a href="<?= e($s->twitter_url) ?>" target="_blank" rel="noopener" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a><?php endif; ?>
     <?php if (!empty($s->linkedin_url)): ?><a href="<?= e($s->linkedin_url) ?>" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a><?php endif; ?>
   </div>

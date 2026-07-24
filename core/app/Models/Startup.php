@@ -207,21 +207,8 @@ class Startup extends Model
 
     public function getContentCompletenessScoreAttribute(): int
     {
-        $checks = [
-            mb_strlen(trim((string) $this->description)) >= StartupContentPolicy::DESCRIPTION_MIN,
-            mb_strlen(trim((string) $this->problem_solved)) >= StartupContentPolicy::PROBLEM_SOLVED_MIN,
-            mb_strlen(trim((string) $this->target_customer)) >= StartupContentPolicy::TARGET_CUSTOMER_MIN,
-            count(array_filter($this->key_features ?? [])) >= StartupContentPolicy::KEY_FEATURES_MIN,
-            trim((string) $this->pricing_model) !== '',
-            trim((string) $this->markets_served) !== '',
-            mb_strlen(trim((string) $this->traction)) >= StartupContentPolicy::TRACTION_MIN,
-            mb_strlen(trim((string) $this->founder_story)) >= StartupContentPolicy::FOUNDER_STORY_MIN,
-            trim((string) $this->category) !== '',
-            trim((string) $this->website) !== '',
-            trim((string) $this->logo_path) !== '' || count($this->product_images ?? []) > 0,
-        ];
-
-        $completed = count(array_filter($checks));
+        $checks = StartupContentPolicy::profileChecks($this);
+        $completed = collect($checks)->where('complete', true)->count();
 
         return (int) round(($completed / count($checks)) * 100);
     }
@@ -377,6 +364,15 @@ class Startup extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function hasDofollowBacklink(): bool
+    {
+        if ($this->user === null) {
+            return false;
+        }
+
+        return $this->user->isPro();
+    }
+
     /**
      * Whether the given user can manage this startup (owner or listed founder by user_id / email).
      */
@@ -420,13 +416,18 @@ class Startup extends Model
 
         return $query->where(function ($q) use ($userId, $email) {
             $q->where('user_id', $userId);
-            if ($email !== '') {
+            $driver = $q->getConnection()->getDriverName();
+            if ($email !== '' && $driver === 'mysql') {
                 $q->orWhereRaw(
                     "founders IS NOT NULL AND JSON_SEARCH(founders, 'one', ?, NULL, '$[*].email') IS NOT NULL",
                     [$email]
                 );
+            } elseif ($email !== '' && $driver === 'sqlite') {
+                $q->orWhereRaw(
+                    "founders IS NOT NULL AND EXISTS (SELECT 1 FROM json_each(founders) WHERE lower(json_extract(value, '$.email')) = lower(?))",
+                    [$email]
+                );
             }
-            $driver = $q->getConnection()->getDriverName();
             if ($driver === 'mysql') {
                 $q->orWhereRaw(
                     "founders IS NOT NULL AND JSON_CONTAINS(founders, ?, '$')",
@@ -569,6 +570,11 @@ class Startup extends Model
     public function activeFundingRound()
     {
         return $this->hasOne(StartupFundingRound::class)->where('status', StartupFundingRound::STATUS_OPEN)->latest();
+    }
+
+    public function cofounderInvitations()
+    {
+        return $this->hasMany(CofounderInvitation::class);
     }
 
     public function trafficDaily()

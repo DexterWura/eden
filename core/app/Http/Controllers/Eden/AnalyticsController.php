@@ -6,6 +6,7 @@ use App\Models\Startup;
 use App\Models\StartupComment;
 use App\Models\StartupRevenueEvent;
 use App\Models\StartupUpvote;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Carbon;
@@ -13,13 +14,15 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AnalyticsController extends EdenController
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $user = auth()->user();
         if (! $user->isPro()) {
             abort(403, 'Pro membership required to access analytics.');
         }
 
+        $validated = $request->validate(['days' => ['nullable', 'integer', 'in:7,30,60,90']]);
+        $days = (int) ($validated['days'] ?? 60);
         $startupIds = Startup::visibleToUser($user)->pluck('id');
 
         if ($startupIds->isEmpty()) {
@@ -35,6 +38,8 @@ class AnalyticsController extends EdenController
                 'upvotesByDay' => [],
                 'commentsByDay' => [],
                 'startupMetrics' => [],
+                'days' => $days,
+                'dateLabels' => $this->dateLabels($days),
             ]);
         }
 
@@ -47,7 +52,6 @@ class AnalyticsController extends EdenController
         $totalMrr = (float) $startups->sum('mrr');
         $totalComments = StartupComment::whereIn('startup_id', $startupIds)->count();
 
-        $days = 60;
         $startDate = now()->subDays($days);
         $dateLabels = $this->dateLabels($days);
 

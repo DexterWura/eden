@@ -32,7 +32,7 @@ class AdSpotController extends Controller
             'placement' => $placement,
         ])->render();
 
-        return response()->view('eden.layout-dashboard', $this->dashboardVars('Ad spots', 'ads', $content));
+        return response()->view('eden.layout-dashboard', $this->dashboardVars('Ad spots', 'ad-spots', $content));
     }
 
     public function expire(AdSpot $ad): RedirectResponse
